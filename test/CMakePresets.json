@@ -1,0 +1,118 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "defaults",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "clang",
+      "inherits": "defaults",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "coverage",
+      "inherits": "defaults",
+      "cacheVariables": {
+        "ENABLE_COVERAGE_TEST": "On"
+      }
+    },
+    {
+      "name": "gcc",
+      "inherits": "defaults"
+    },
+    {
+      "name": "gcc-arm-none-eabi",
+      "inherits": "defaults",
+      "toolchainFile": "${sourceDir}/gcc-arm-none-eabi/toolchain.cmake"
+    },
+    {
+      "name": "mutation",
+      "inherits": "defaults",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "ENABLE_MUTATION_TESTING_TEST": "On"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "clang-tidy",
+      "configurePreset": "clang",
+      "targets": ["test-clang-tidy"]
+    },
+    {
+      "name": "clang-iwyu",
+      "configurePreset": "clang",
+      "targets": ["test-clang-iwyu"]
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "targets": ["test-coverage"]
+    },
+    {
+      "name": "fuzzing",
+      "configurePreset": "clang",
+      "targets": ["test-fuzzing"]
+    },
+    {
+      "name": "gcc",
+      "configurePreset": "gcc",
+      "targets": ["test-gcc"]
+    },
+    {
+      "name": "gcc-fail",
+      "configurePreset": "gcc",
+      "targets": ["test-gcc-fail"]
+    },
+    {
+      "name": "gcc-arm-none-eabi",
+      "configurePreset": "gcc-arm-none-eabi",
+      "targets": ["test-gcc-arm-none-eabi"]
+    },
+    {
+      "name": "mutation",
+      "configurePreset": "mutation",
+      "targets": ["test-mutation"]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "defaults",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "configuration": "Debug",
+      "inherits": "defaults"
+    },
+    {
+      "name": "mutation",
+      "configurePreset": "mutation",
+      "configuration": "Debug",
+      "inherits": "defaults",
+      "output": {
+        "verbosity": "verbose"
+      }
+    }
+  ]
+}

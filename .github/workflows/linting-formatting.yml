@@ -1,0 +1,46 @@
+---
+name: Linting & Formatting
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  linter:
+    name: Linter
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+        with:
+          fetch-depth: 0
+      - uses: oxsecurity/megalinter@8fd433c675d27ceca5a61ace53177c1bbfbf7f49 # v6.18.0
+        env:
+          APPLY_FIXES: all
+          VALIDATE_ALL_CODEBASE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: github/codeql-action/upload-sarif@436dbd9100756e97f42f45da571adeebf8270723 # v2.2.0
+        if: ${{ success() }} || ${{ failure() }}
+        with:
+          sarif_file: megalinter-reports/megalinter-report.sarif
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        if: ${{ success() }} || ${{ failure() }}
+        with:
+          name: Linter Report
+          path: |
+            megalinter-reports
+      - uses: reviewdog/action-suggester@8f83d27e749053b2029600995c115026a010408e
+        with:
+          tool_name: MegaLinter
+          filter_mode: diff_context

@@ -1,0 +1,79 @@
+name: Build & Push
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build:
+    strategy:
+      matrix:
+        gcc-version: [10]
+    runs-on: ubuntu-latest
+    # skip the docker-build job for dependabot PRs since dependabot does not have access to secrets.
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    outputs:
+      container-digest: ${{ steps.build.outputs.container-digest }}
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+      - name: Derive image tags
+        run: |
+          # shellcheck disable=SC1083
+          tag_ref='refs/tags/v'
+          ref_name=${{ github.ref_name }}
+
+          if [[ ${{ github.ref }} == *${tag_ref}* ]]; then
+            IFS='.' read -ra v <<< "${ref_name}"
+            { echo "major=${v[0]}"; echo "minor=${v[0]}.${v[1]}"; echo "patch=${v[0]}.${v[1]}.${v[2]}"; } >> "$GITHUB_ENV"
+          else
+            { echo "major="; echo "minor="; echo "patch="; } >> "$GITHUB_ENV"
+          fi
+
+          if [[ ${{ github.ref }} == *${tag_ref}* ]] || [[ ${ref_name} == 'main' ]]; then
+            echo "tag=latest" >> "$GITHUB_ENV"
+          else
+            echo "tag=dev" >> "$GITHUB_ENV"
+          fi
+      - name: Show image tags
+        run: echo "$tag $major $minor $patch"
+      - name: Build Docker Image
+        id: build
+        uses: philips-software/docker-ci-scripts@d0045b844f08b0dcb4c62bd4acf6c36877404dae
+        with:
+          dockerfile: ".devcontainer/Dockerfile"
+          image-name: "amp-devcontainer-gcc-${{ matrix.gcc-version }}"
+          tags: "${{ env.tag }} ${{ env.major }} ${{ env.minor }} ${{ env.patch }}"
+          push-branches: ${{ github.ref_name }}
+          push-on-git-tag: true
+          sign: true
+          sbom: true
+          slsa-provenance: true
+        env:
+          REGISTRY_USERNAME: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_URL: ghcr.io/philips-software
+          GITHUB_ORGANIZATION: philips-software
+          KEYLESS: true
+          DOCKER_BUILD_ARGS: "--build-arg GCC_VERSION=${{ matrix.gcc-version }}"
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          name: Container Attestation for gcc-${{ matrix.gcc-version }}
+          path: |
+            ${{ steps.build.outputs.slsa-provenance-file }}
+            ${{ steps.build.outputs.sbom-file }}
+      - name: Test Image
+        run: |
+          set -o pipefail
+          docker run --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws "ghcr.io/amp-devcontainer-gcc-${{ matrix.gcc-version }}@${{ steps.build.outputs.container-digest }}" bats --formatter tap13 testsuite.bats | tee test-report.tap
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          name: Test Results for gcc-${{ matrix.gcc-version }}
+          path: |
+            test-report.tap
