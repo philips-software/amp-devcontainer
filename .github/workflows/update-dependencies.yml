@@ -12,8 +12,9 @@ jobs:
   update:
     runs-on: ubuntu-latest
     # Using our own container is required since we need all package sources
-    # set-up correctly.
-    container: ghcr.io/philips-software/amp-devcontainer-gcc-10
+    # set-up correctly. The release-please action makes sure that we
+    # use the latest released version of the image.
+    container: ghcr.io/philips-software/amp-devcontainer-gcc-10:2.0.0 # x-release-please-version
     permissions:
       contents: write
       pull-requests: write
@@ -24,8 +25,7 @@ jobs:
         run: ./update-dependencies.sh base gcc-10
       - uses: peter-evans/create-pull-request@2b011faafdcbc9ceb11414d64d0573f37c774b04
         with:
-          commit-message: "build(deps): update apt-requirements.json"
+          commit-message: "build(deps): update apt dependencies"
           branch: feature/update-apt-dependencies
-          title: "build(deps): update apt-requirements.json"
+          title: "build(deps): update update apt dependencies"
           labels: dependencies
-          delete-branch: true
