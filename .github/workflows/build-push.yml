@@ -67,6 +67,8 @@ jobs:
           file: .devcontainer/Dockerfile
           load: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TEST_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Run Tests
         run: |
           set -Eeuo pipefail
