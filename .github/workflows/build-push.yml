@@ -2,6 +2,10 @@ name: Build & Push
 
 on:
   push:
+    branches: [main]
+    tags: ['v*.*.*']
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -11,6 +15,11 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  TEST_TAG: test
+
 jobs:
   docker-build:
     strategy:
@@ -19,64 +28,65 @@ jobs:
     runs-on: ubuntu-latest
     # skip the docker-build job for dependabot PRs since dependabot does not have access to secrets.
     if: ${{ github.actor != 'dependabot[bot]' }}
-    outputs:
-      container-digest: ${{ steps.build.outputs.container-digest }}
     permissions:
       contents: read
       packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
     steps:
+      # While the docker/build-push-action works from the Git context, we still need
+      # the checkout step for running our tests.
       - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
-      - name: Derive image tags
-        run: |
-          # shellcheck disable=SC1083
-          tag_ref='refs/tags/v'
-          ref_name=${{ github.ref_name }}
-
-          if [[ ${{ github.ref }} == *${tag_ref}* ]]; then
-            IFS='.' read -ra v <<< "${ref_name}"
-            { echo "major=${v[0]}"; echo "minor=${v[0]}.${v[1]}"; echo "patch=${v[0]}.${v[1]}.${v[2]}"; } >> "$GITHUB_ENV"
-          else
-            { echo "major="; echo "minor="; echo "patch="; } >> "$GITHUB_ENV"
-          fi
-
-          if [[ ${{ github.ref }} == *${tag_ref}* ]] || [[ ${ref_name} == 'main' ]]; then
-            echo "tag=latest" >> "$GITHUB_ENV"
-          else
-            echo "tag=dev" >> "$GITHUB_ENV"
-          fi
-      - name: Show image tags
-        run: echo "$tag $major $minor $patch"
-      - name: Build Docker Image
-        id: build
-        uses: philips-software/docker-ci-scripts@d0045b844f08b0dcb4c62bd4acf6c36877404dae
+      - uses: sigstore/cosign-installer@9becc617647dfa20ae7b1151972e9b3a2c338a2b # v2.8.1
+        if: github.event_name != 'pull_request'
         with:
-          dockerfile: ".devcontainer/Dockerfile"
-          image-name: "amp-devcontainer-gcc-${{ matrix.gcc-version }}"
-          tags: "${{ env.tag }} ${{ env.major }} ${{ env.minor }} ${{ env.patch }}"
-          push-branches: ${{ github.ref_name }}
-          push-on-git-tag: true
-          sign: true
-          sbom: true
-          slsa-provenance: true
+          cosign-release: 'v1.13.1'
+      - uses: docker/metadata-action@v4
+        id: meta
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+      - uses: docker/setup-qemu-action@v2
+      - uses: docker/setup-buildx-action@v2
+      - uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v3
+        with:
+          file: .devcontainer/Dockerfile
+          load: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TEST_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Run Tests
+        run: |
+          set -Eeuo pipefail
+          docker run --rm --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TEST_TAG }} bats --formatter tap13 testsuite.bats | tee test-report.tap
+      - uses: docker/build-push-action@v3
+        id: build-and-push
+        with:
+          file: .devcontainer/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Sign the published Docker image
+        if: ${{ github.event_name != 'pull_request' }}
         env:
-          REGISTRY_USERNAME: ${{ github.actor }}
-          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REGISTRY_URL: ghcr.io/philips-software
-          GITHUB_ORGANIZATION: philips-software
-          KEYLESS: true
-          DOCKER_BUILD_ARGS: "--build-arg GCC_VERSION=${{ matrix.gcc-version }}"
-      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-        with:
-          name: Container Attestation for gcc-${{ matrix.gcc-version }}
-          path: |
-            ${{ steps.build.outputs.slsa-provenance-file }}
-            ${{ steps.build.outputs.sbom-file }}
-      - name: Test Image
-        run: |
-          set -o pipefail
-          docker run --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws "ghcr.io/amp-devcontainer-gcc-${{ matrix.gcc-version }}@${{ steps.build.outputs.container-digest }}" bats --formatter tap13 testsuite.bats | tee test-report.tap
-      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-        with:
-          name: Test Results for gcc-${{ matrix.gcc-version }}
-          path: |
-            test-report.tap
+          COSIGN_EXPERIMENTAL: "true"
+        # This step uses the identity token to provision an ephemeral certificate
+        # against the sigstore community Fulcio instance.
+        run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
