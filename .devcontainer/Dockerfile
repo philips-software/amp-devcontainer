@@ -41,7 +41,7 @@ RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /us
  && rm /tmp/apt-requirements* \
  && rm -rf /var/lib/apt/lists/*
 
-# Compile additional clang tools (include-what-you-use) now that we have a clang toolchain
+# Compile and install additional clang tools now that we have a clang toolchain
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
  && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
