@@ -38,10 +38,10 @@ jobs:
       # While the docker/build-push-action works from the Git context, we still need
       # the checkout step for running our tests.
       - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
-      - uses: sigstore/cosign-installer@f3c664df7af409cb4873aa5068053ba9d61a57b6 #v2.6.0
+      - uses: sigstore/cosign-installer@9becc617647dfa20ae7b1151972e9b3a2c338a2b # v2.8.1
         if: github.event_name != 'pull_request'
         with:
-          cosign-release: 'v1.11.0'
+          cosign-release: 'v1.13.1'
       - uses: docker/metadata-action@v4
         id: meta
         with:
