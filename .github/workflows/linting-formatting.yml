@@ -44,3 +44,4 @@ jobs:
         with:
           tool_name: MegaLinter
           filter_mode: diff_context
+          cleanup: false
