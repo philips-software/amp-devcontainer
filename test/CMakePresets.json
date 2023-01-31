@@ -77,6 +77,11 @@
       "targets": ["test-gcc-fail"]
     },
     {
+      "name": "gcc-lld",
+      "configurePreset": "gcc",
+      "targets": ["test-gcc-lld"]
+    },
+    {
       "name": "gcc-arm-none-eabi",
       "configurePreset": "gcc-arm-none-eabi",
       "targets": ["test-gcc-arm-none-eabi"]

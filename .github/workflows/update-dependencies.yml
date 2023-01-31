@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
       - name: Run update dependencies
         working-directory: .devcontainer
-        run: ./update-dependencies.sh base gcc-10
+        run: ./update-dependencies.sh base clang-15 gcc-10
       - uses: peter-evans/create-pull-request@2b011faafdcbc9ceb11414d64d0573f37c774b04
         with:
           commit-message: "build(deps): update apt dependencies"
