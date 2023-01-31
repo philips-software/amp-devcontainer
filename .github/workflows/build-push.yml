@@ -62,7 +62,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v3
+      - uses: docker/build-push-action@v4
         with:
           file: .devcontainer/Dockerfile
           load: true
@@ -73,7 +73,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           docker run --rm --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TEST_TAG }} bats --formatter tap13 testsuite.bats | tee test-report.tap
-      - uses: docker/build-push-action@v3
+      - uses: docker/build-push-action@v4
         id: build-and-push
         with:
           file: .devcontainer/Dockerfile
