@@ -29,3 +29,4 @@ jobs:
           branch: feature/update-apt-dependencies
           title: "build(deps): update update apt dependencies"
           labels: dependencies
+          token: ${{ secrets.AMP_RELEASER_TOKEN }}
