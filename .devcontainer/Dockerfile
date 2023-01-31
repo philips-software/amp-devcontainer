@@ -40,6 +40,7 @@ RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /us
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends \
  && rm /tmp/apt-requirements* \
  && rm -rf /var/lib/apt/lists/*
+ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 
 # Compile and install additional clang tools now that we have a clang toolchain
 # hadolint ignore=DL3008
@@ -83,12 +84,6 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} 20 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-${GCC_VERSION} 20 \
  && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-${GCC_VERSION} 10 \
- && update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${CLANG_VERSION} 10 \
- && update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang-cpp-${CLANG_VERSION} 10 \
- && update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-${CLANG_VERSION} 10 \
- && update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-${CLANG_VERSION} 10 \
- && update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-${CLANG_VERSION} 10 \
- && update-alternatives --install /usr/bin/ld.lld ld.lld /usr/lib/llvm-15/bin/ld.lld-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
  && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
