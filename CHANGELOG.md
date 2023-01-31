@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.1.0](https://github.com/philips-software/amp-devcontainer/compare/amp-devcontainer-v2.0.0...amp-devcontainer-v2.1.0) (2023-01-31)
+
+
+### Features
+
+* Build multi-platform image ([#4](https://github.com/philips-software/amp-devcontainer/issues/4)) ([839fb0d](https://github.com/philips-software/amp-devcontainer/commit/839fb0dc61051b25926ac847bfe12646284a31a7))
+* Include lld as an alternative to the gold and bfd linkers ([d8adb0b](https://github.com/philips-software/amp-devcontainer/commit/d8adb0bc3ec9eb01d84c5563ce37bfc30e45c70f))
+
+
+### Bug Fixes
+
+* Update GITHUB_TOKEN permissions ([a4a2e1a](https://github.com/philips-software/amp-devcontainer/commit/a4a2e1a4921292beed9810fa9c099e56069cbdcb))
+
 ## [2.1.0](https://github.com/philips-software/amp-devcontainer/compare/amp-devcontainer-v2.0.0...amp-devcontainer-v2.1.0) (2023-01-30)
 
 
