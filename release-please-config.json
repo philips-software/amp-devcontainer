@@ -4,7 +4,7 @@
     ".": {
       "release-type": "simple",
       "package-name": "amp-devcontainer",
-      "extra-files": ["workflows/update-dependencies.yml"]
+      "extra-files": [".github/workflows/update-dependencies.yml"]
     }
   },
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
