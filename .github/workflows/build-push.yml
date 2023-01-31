@@ -73,6 +73,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           docker run --rm --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TEST_TAG }} bats --formatter tap13 testsuite.bats | tee test-report.tap
+      - uses: pcolby/tap-summary@v1
       - uses: docker/build-push-action@v3
         id: build-and-push
         with:
