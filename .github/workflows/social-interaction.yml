@@ -1,0 +1,22 @@
+---
+name: Social Interaction
+
+on: [pull_request, issues]
+
+permissions:
+  contents: read
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    steps:
+      - uses: actions/first-interaction@1d8459ca65b335265f1285568221e229d45a995e # v1.1.1
+        continue-on-error: true
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: "Thank you for adding your first issue. We will be looking into it as soon as possible."
+          pr-message: "Thanks for your first PR. We really appreciate it!"
