@@ -17,7 +17,3 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 * Set executable bit on shell scripts ([33406a3](https://github.com/philips-software/amp-devcontainer/commit/33406a3d936cb0da465e9df0f27415f4a861d59d))
 * Update GITHUB_TOKEN permissions ([a4a2e1a](https://github.com/philips-software/amp-devcontainer/commit/a4a2e1a4921292beed9810fa9c099e56069cbdcb))
 * Update GITHUB_TOKEN permissions ([90ca544](https://github.com/philips-software/amp-devcontainer/commit/90ca54409b0c8b20c334e9a2a284647103f76af1))
-
-## [Unreleased]
-
-- Initial import on https://github.com/philips-software/amp-devcontainer
