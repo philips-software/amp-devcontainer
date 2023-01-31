@@ -14,7 +14,7 @@ jobs:
     # Using our own container is required since we need all package sources
     # set-up correctly. The release-please action makes sure that we
     # use the latest released version of the image.
-    container: ghcr.io/philips-software/amp-devcontainer:2.0.0 # x-release-please-version
+    container: ghcr.io/philips-software/amp-devcontainer:latest
     permissions:
       contents: write
       pull-requests: write
@@ -23,7 +23,7 @@ jobs:
       - name: Run update dependencies
         working-directory: .devcontainer
         run: ./update-dependencies.sh base clang-15 gcc-10
-      - uses: peter-evans/create-pull-request@2b011faafdcbc9ceb11414d64d0573f37c774b04
+      - uses: peter-evans/create-pull-request@2b011faafdcbc9ceb11414d64d0573f37c774b04 # v4.2.3
         with:
           commit-message: "build(deps): update apt dependencies"
           branch: feature/update-apt-dependencies
