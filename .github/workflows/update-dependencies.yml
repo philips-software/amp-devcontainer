@@ -14,7 +14,7 @@ jobs:
     # Using our own container is required since we need all package sources
     # set-up correctly. The release-please action makes sure that we
     # use the latest released version of the image.
-    container: ghcr.io/philips-software/amp-devcontainer:main
+    container: ghcr.io/philips-software/amp-devcontainer:latest
     permissions:
       contents: write
       pull-requests: write
