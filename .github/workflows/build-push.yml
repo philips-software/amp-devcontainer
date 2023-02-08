@@ -34,6 +34,7 @@ jobs:
       # This is used to complete the identity challenge
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
+      security-events: write
     steps:
       # While the docker/build-push-action works from the Git context, we still need
       # the checkout step for running our tests.
@@ -75,6 +76,16 @@ jobs:
         run: |
           set -Eeuo pipefail
           docker run --rm --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TEST_TAG }} bats --formatter tap13 testsuite.bats | tee test-report.tap
+      - name: Scan for vulnerabilities
+        id: scan
+        uses: crazy-max/ghaction-container-scan@cdc6facb764848d60ab7ea4b7cbaac409140e37d # v2.1.0
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TEST_TAG }}
+          dockerfile: .devcontainer/Dockerfile
+      - uses: github/codeql-action/upload-sarif@39d8d7e78f59cf6b40ac3b9fbebef0c753d7c9e5 # v2.2.2
+        if: ${{ steps.scan.outputs.sarif != '' }}
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
       - uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
         id: build-and-push
         with:
