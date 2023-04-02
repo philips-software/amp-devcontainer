@@ -17,7 +17,7 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
-      - uses: google-github-actions/release-please-action@e0b9d1885d92e9a93d5ce8656de60e3b806e542c # v3.7.5
+      - uses: google-github-actions/release-please-action@ee9822ec2c397e8a364d634464339ac43a06e042 # v3.7.6
         with:
           command: manifest
           token: ${{ secrets.AMP_RELEASER_TOKEN }}
