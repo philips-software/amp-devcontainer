@@ -3,7 +3,7 @@ name: Build & Push
 on:
   push:
     branches: [main]
-    tags: ['v*.*.*']
+    tags: ["v*.*.*"]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -42,7 +42,7 @@ jobs:
       - uses: sigstore/cosign-installer@c3667d99424e7e6047999fb6246c0da843953c65 # v3.0.1
         if: github.event_name != 'pull_request'
         with:
-          cosign-release: 'v1.13.1'
+          cosign-release: "v1.13.1"
       - uses: docker/metadata-action@507c2f2dc502c992ad446e3d7a5dfbe311567a96 # v4.3.0
         id: meta
         with:
