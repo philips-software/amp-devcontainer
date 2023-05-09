@@ -82,7 +82,7 @@ jobs:
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TEST_TAG }}
           dockerfile: .devcontainer/Dockerfile
-      - uses: github/codeql-action/upload-sarif@8c8d71dde4abced210732d8486586914b97752e8 # v2.2.10
+      - uses: github/codeql-action/upload-sarif@29b1f65c5e92e24fe6b6647da1eaabe529cec70f # v2.3.3
         if: ${{ steps.scan.outputs.sarif != '' }}
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
