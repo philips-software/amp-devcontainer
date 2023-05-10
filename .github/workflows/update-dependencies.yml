@@ -12,21 +12,20 @@ jobs:
   update:
     runs-on: ubuntu-latest
     # Using our own container is required since we need all package sources
-    # set-up correctly. The release-please action makes sure that we
-    # use the latest released version of the image.
+    # set-up correctly.
     container: ghcr.io/philips-software/amp-devcontainer:latest
     permissions:
       contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
-      - name: Run update dependencies
+      - name: Update dependencies
         working-directory: .devcontainer
         run: ./update-dependencies.sh base clang-15 gcc-10
-      - uses: peter-evans/create-pull-request@da25e80ea225492af71b5f69633d4516fec4a2ba # v5-rc1
+      - uses: peter-evans/create-pull-request@284f54f989303d2699d373481a0cfa13ad5a6666 # v5.0.1
         with:
-          commit-message: "build(deps): update apt dependencies"
+          commit-message: "chore(deps): update apt dependencies"
           branch: feature/update-apt-dependencies
-          title: "build(deps): update update apt dependencies"
+          title: "chore(deps): update apt dependencies"
           labels: dependencies
           token: ${{ secrets.AMP_RELEASER_TOKEN }}
