@@ -33,3 +33,5 @@ jobs:
           set -Eeuo pipefail
           docker run --rm --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws ${{ github.repository }}:test bats --formatter tap testsuite.bats | tee test-report.tap
       - uses: pcolby/tap-summary@7c888ca2631920c34b230b256d8edec29dade05e # v1.0.1
+        with:
+          path: test-report.tap
