@@ -13,7 +13,7 @@ concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
 
 jobs:
-  release_please:
+  release-please:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
