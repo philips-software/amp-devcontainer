@@ -1,6 +1,6 @@
 FROM ubuntu@sha256:dfd64a3b4296d8c9b62aa3309984f8620b98d87e47492599ee20739e8eb54fbf
 
-ARG BATS_VERSION=1.8.0
+ARG BATS_VERSION=1.9.0
 ARG CLANG_VERSION=15
 ARG GCC_VERSION=10
 ARG MULL_VERSION=0.20.0
@@ -27,7 +27,7 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
 # Install some tools via pip to get more recent versions
 RUN python3 -m pip --no-cache-dir install \
   cmake==3.26.3 \
-  gcovr==5.2
+  gcovr==6.0
 
 # Set default generator for CMake to Ninja
 ENV CMAKE_GENERATOR="Ninja"
@@ -78,7 +78,7 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
  && bash "${batstmp}/bats-core-${BATS_VERSION}/install.sh" /usr/local \
  && rm -rf "${batstmp}" \
  && git -C /usr/local clone -b v0.3.0 https://github.com/bats-core/bats-support.git \
- && git -C /usr/local clone -b v2.0.0 https://github.com/bats-core/bats-assert.git
+ && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
 
 # Update all tools alternatives to the correct version
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} 20 \
