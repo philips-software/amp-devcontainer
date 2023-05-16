@@ -2,9 +2,9 @@
 name: Linting & Formatting
 
 on:
+  merge_group:
   pull_request:
     types: [opened, synchronize, reopened]
-  merge_group:
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
