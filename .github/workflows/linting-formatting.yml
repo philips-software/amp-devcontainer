@@ -10,17 +10,14 @@ concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
 
-permissions: write-all
+permissions:
+  contents: read
 
 jobs:
   linter:
     name: Linter
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      actions: read
-      pull-requests: write
-      security-events: write
+    permissions: write-all
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
         with:
