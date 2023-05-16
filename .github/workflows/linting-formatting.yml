@@ -41,7 +41,6 @@ jobs:
           name: Linter Report
           path: |
             megalinter-reports
-      # - uses: reviewdog/action-suggester@8f83d27e749053b2029600995c115026a010408e
-      #   with:
-      #     tool_name: MegaLinter
-      #     filter_mode: diff_context
+      - uses: reviewdog/action-suggester@8f83d27e749053b2029600995c115026a010408e # v1.6.0
+        with:
+          tool_name: MegaLinter
