@@ -13,8 +13,7 @@ concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
 
 jobs:
-  release-please:
-    name: Create Release
+  create-release:
     runs-on: ubuntu-latest
     steps:
       - uses: google-github-actions/release-please-action@c078ea33917ab8cfa5300e48f4b7e6b16606aede # v3.7.8

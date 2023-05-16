@@ -1,9 +1,9 @@
+---
 name: Build & Push
 
 on:
   push:
     tags: ["v*.*.*"]
-  pull_request:
   merge_group:
   workflow_dispatch:
 
@@ -16,14 +16,9 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  TEST_TAG: test
 
 jobs:
-  docker-build:
-    strategy:
-      matrix:
-        gcc-version: [10]
+  build-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,17 +26,13 @@ jobs:
       # This is used to complete the identity challenge
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
-      security-events: write
     steps:
-      # While the docker/build-push-action works from the Git context, we still need
-      # the checkout step for running our tests.
-      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
       - uses: sigstore/cosign-installer@204a51a57a74d190b284a0ce69b44bc37201f343 # v3.0.3
         if: github.event_name != 'pull_request'
       - uses: docker/metadata-action@c4ee3adeed93b1fa6a762f209fb01608c1a22f1e # v4.4.0
         id: meta
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
           # Generate Docker tags based on the following events/attributes
           tags: |
             type=schedule
@@ -60,27 +51,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
-        with:
-          file: .devcontainer/Dockerfile
-          load: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TEST_TAG }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      - name: Run Tests
-        run: |
-          set -Eeuo pipefail
-          docker run --rm --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TEST_TAG }} bats --formatter tap13 testsuite.bats | tee test-report.tap
-      - name: Scan for vulnerabilities
-        id: scan
-        uses: crazy-max/ghaction-container-scan@cdc6facb764848d60ab7ea4b7cbaac409140e37d # v2.1.0
-        with:
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TEST_TAG }}
-          dockerfile: .devcontainer/Dockerfile
-      - uses: github/codeql-action/upload-sarif@29b1f65c5e92e24fe6b6647da1eaabe529cec70f # v2.3.3
-        if: ${{ steps.scan.outputs.sarif != '' }}
-        with:
-          sarif_file: ${{ steps.scan.outputs.sarif }}
       - uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
         id: build-and-push
         with:
