@@ -17,7 +17,11 @@ jobs:
   linter:
     name: Linter
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+      security-events: write
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
         with:
@@ -39,5 +43,4 @@ jobs:
             megalinter-reports
       - uses: reviewdog/action-suggester@8f83d27e749053b2029600995c115026a010408e # v1.6.0
         with:
-          cleanup: false
           tool_name: MegaLinter
