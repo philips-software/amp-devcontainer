@@ -2,6 +2,7 @@ FROM ubuntu@sha256:dfd64a3b4296d8c9b62aa3309984f8620b98d87e47492599ee20739e8eb54
 
 ARG BATS_VERSION=1.9.0
 ARG CLANG_VERSION=15
+ARG DOCKER_VERSION=24.0.0
 ARG GCC_VERSION=10
 ARG MULL_VERSION=0.20.0
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.19
@@ -66,11 +67,9 @@ RUN /tmp/install-arm-none-eabi.sh && rm /tmp/install-arm-none-eabi.sh
 ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Install docker-cli for Docker-from-Docker tools
-RUN wget -qO - https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
- && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
- && apt-get update && apt-get install -y --no-install-recommends docker-ce-cli=5:20.10.21~3-0~ubuntu-jammy \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+RUN wget -qO - https://download.docker.com/linux/static/stable/$(uname -m)/docker-${DOCKER_VERSION}.tgz | tar xz -C /tmp \
+ mv /tmp/docker/docker /usr/local/bin/ && \
+ rm -rf /tmp/docker
 
 # Install bats
 RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
