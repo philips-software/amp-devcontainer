@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.3.0](https://github.com/philips-software/amp-devcontainer/compare/v2.2.0...v2.3.0) (2023-05-17)
+
+
+### Features
+
+* Add provenance and sbom to image ([af422b9](https://github.com/philips-software/amp-devcontainer/commit/af422b97b5cd386e96b4b82c4fc6e333e5b7b6e2))
+* Install static docker-cli from download.docker.com ([#68](https://github.com/philips-software/amp-devcontainer/issues/68)) ([8cebc19](https://github.com/philips-software/amp-devcontainer/commit/8cebc19373ad4ae2e77c2c913c7928e21a1e9380))
+* Update bats-core to 1.9.0 and bats-assert to 2.1.0 ([#67](https://github.com/philips-software/amp-devcontainer/issues/67)) ([135c58b](https://github.com/philips-software/amp-devcontainer/commit/135c58b0a16d2fb9d525a6d0a2e4137e41646a49))
+* Update cmake to 3.26.3 ([#66](https://github.com/philips-software/amp-devcontainer/issues/66)) ([766f766](https://github.com/philips-software/amp-devcontainer/commit/766f76662ab8a9f682b9237fbf295bb32ce1df1b))
+* Update gcovr to 6.0 ([#65](https://github.com/philips-software/amp-devcontainer/issues/65)) ([96e3436](https://github.com/philips-software/amp-devcontainer/commit/96e3436564499d5f1dc254fad595227ee7f15674))
+
 ## [2.2.0](https://github.com/philips-software/amp-devcontainer/compare/v2.1.0...v2.2.0) (2023-02-01)
 
 
