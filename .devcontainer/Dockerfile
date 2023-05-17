@@ -67,7 +67,7 @@ RUN /tmp/install-arm-none-eabi.sh && rm /tmp/install-arm-none-eabi.sh
 ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Install docker-cli for Docker-from-Docker tools
-RUN wget -qO - https://download.docker.com/linux/static/stable/$(uname -m)/docker-${DOCKER_VERSION}.tgz | tar xz -C /tmp \
+RUN wget -qO - "https://download.docker.com/linux/static/stable/$(uname -m)/docker-${DOCKER_VERSION}.tgz" | tar xz -C /tmp \
  mv /tmp/docker/docker /usr/local/bin/ && \
  rm -rf /tmp/docker
 
