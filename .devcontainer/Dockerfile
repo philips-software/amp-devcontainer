@@ -68,8 +68,8 @@ ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Install docker-cli for Docker-from-Docker tools
 RUN wget -qO - "https://download.docker.com/linux/static/stable/$(uname -m)/docker-${DOCKER_VERSION}.tgz" | tar xz -C /tmp \
- mv /tmp/docker/docker /usr/local/bin/ && \
- rm -rf /tmp/docker
+ && mv /tmp/docker/docker /usr/local/bin/ \
+ && rm -rf /tmp/docker
 
 # Install bats
 RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
