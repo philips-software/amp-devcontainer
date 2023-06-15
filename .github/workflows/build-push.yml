@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: sigstore/cosign-installer@dd6b2e2b610a11fd73dd187a43d57cc1394e35f9 # v3.0.5
         if: github.event_name != 'pull_request'
-      - uses: docker/metadata-action@c4ee3adeed93b1fa6a762f209fb01608c1a22f1e # v4.4.0
+      - uses: docker/metadata-action@818d4b7b91585d195f67373fd9cb0332e31a7175 # v4.6.0
         id: meta
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}
