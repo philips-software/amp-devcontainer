@@ -6,6 +6,7 @@ ARG DOCKER_VERSION=24.0.0
 ARG GCC_VERSION=10
 ARG MULL_VERSION=0.20.0
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.19
+ARG XWIN_VERSION=0.2.14
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -78,6 +79,9 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
  && rm -rf "${batstmp}" \
  && git -C /usr/local clone -b v0.3.0 https://github.com/bats-core/bats-support.git \
  && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
+
+# Install xwin
+RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
 
 # Update all tools alternatives to the correct version
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} 20 \
