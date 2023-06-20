@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.4.0](https://github.com/philips-software/amp-devcontainer/compare/v2.3.0...v2.4.0) (2023-06-20)
+
+
+### Features
+
+* Add xwin to the container ([#94](https://github.com/philips-software/amp-devcontainer/issues/94)) ([0b79759](https://github.com/philips-software/amp-devcontainer/commit/0b797599632127d6802e8192bf018f62b61d51f5))
+
 ## [2.3.0](https://github.com/philips-software/amp-devcontainer/compare/v2.2.0...v2.3.0) (2023-05-17)
 
 
