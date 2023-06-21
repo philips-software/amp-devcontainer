@@ -23,7 +23,7 @@ jobs:
       - name: Update dependencies
         working-directory: .devcontainer
         run: ./update-dependencies.sh base clang-15 gcc-10
-      - uses: peter-evans/create-pull-request@284f54f989303d2699d373481a0cfa13ad5a6666 # v5.0.1
+      - uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5.0.2
         with:
           commit-message: "chore(deps): update apt dependencies"
           branch: feature/update-apt-dependencies
