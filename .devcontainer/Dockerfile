@@ -1,6 +1,7 @@
 FROM ubuntu@sha256:0bced47fffa3361afa981854fcabcd4577cd43cebbb808cea2b1f33a3dd7f508
 
 ARG BATS_VERSION=1.9.0
+ARG CCACHE_VERSION=4.8.2
 ARG CLANG_VERSION=15
 ARG DOCKER_VERSION=24.0.0
 ARG GCC_VERSION=10
@@ -83,7 +84,7 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 # Install xwin
 RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
 
-# Update all tools alternatives to the correct version
+# Update all tool alternatives to the correct version
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} 20 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-${GCC_VERSION} 20 \
  && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-${GCC_VERSION} 10 \
@@ -91,3 +92,9 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} 2
  && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+
+# Install ccache from source for a recent version
+RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
+ && cmake -DCMAKE_BUILD_TYPE=Release -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
+ && cmake --build /tmp/ccache-${CCACHE_VERSION}/build --target install \
+ && rm -rf /tmp/ccache-${CCACHE_VERSION}
