@@ -96,5 +96,5 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} 2
 # Install ccache from source for a recent version
 RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
  && cmake -DCMAKE_BUILD_TYPE=Release -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
- && cmake --build /tmp/ccache-${CCACHE_VERSION} --target install \
+ && cmake --build /tmp/ccache-${CCACHE_VERSION}/build --target install \
  && rm -rf /tmp/ccache-${CCACHE_VERSION}
