@@ -1,7 +1,6 @@
 {
   "bzip2": "1.0.8-5build1",
   "ca-certificates": "20230311ubuntu0.22.04.1",
-  "ccache": "4.5.1-1",
   "gdb": "12.1-0ubuntu1~22.04",
   "git": "1:2.34.1-1ubuntu1.9",
   "gnupg2": "2.2.27-3ubuntu2.1",

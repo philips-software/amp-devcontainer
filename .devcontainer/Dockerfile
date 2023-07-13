@@ -1,6 +1,7 @@
 FROM ubuntu@sha256:0bced47fffa3361afa981854fcabcd4577cd43cebbb808cea2b1f33a3dd7f508
 
 ARG BATS_VERSION=1.9.0
+ARG CCACHE_VERSION=4.8.2
 ARG CLANG_VERSION=15
 ARG DOCKER_VERSION=24.0.0
 ARG GCC_VERSION=10
@@ -33,6 +34,12 @@ RUN python3 -m pip --no-cache-dir install \
 
 # Set default generator for CMake to Ninja
 ENV CMAKE_GENERATOR="Ninja"
+
+# Install ccache from source for a recent version
+RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
+ && cmake -DCMAKE_BUILD_TYPE=Release -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
+ && cmake --build /tmp/ccache-${CCACHE_VERSION} --target install \
+ && rm -rf /tmp/ccache-${CCACHE_VERSION}
 
 # Install clang toolchain
 COPY .devcontainer/clang-${CLANG_VERSION}/apt-requirements.json /tmp/apt-requirements-clang.json
