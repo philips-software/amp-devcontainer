@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.5.0](https://github.com/philips-software/amp-devcontainer/compare/v2.4.0...v2.5.0) (2023-07-13)
+
+
+### Features
+
+* Install ccache-4.8.2 from source ([#110](https://github.com/philips-software/amp-devcontainer/issues/110)) ([ff56bbc](https://github.com/philips-software/amp-devcontainer/commit/ff56bbcf00b256362200ec0b89e75f7f381f6213))
+* Update CMake to 3.26.4 ([#112](https://github.com/philips-software/amp-devcontainer/issues/112)) ([8fa0666](https://github.com/philips-software/amp-devcontainer/commit/8fa0666d36be529b39482fa1391bda772440a90d))
+* Update Docker to 24.0.4 ([#111](https://github.com/philips-software/amp-devcontainer/issues/111)) ([f7b4540](https://github.com/philips-software/amp-devcontainer/commit/f7b4540915fa8258a0667fbe0a3ac8b513f81561))
+
 ## [2.4.0](https://github.com/philips-software/amp-devcontainer/compare/v2.3.0...v2.4.0) (2023-06-20)
 
 
