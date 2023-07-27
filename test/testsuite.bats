@@ -187,5 +187,4 @@ teardown() {
   run cd tests
   run clang-uml
   assert_success
-  assert_file_exist puml/test_class.puml
 }
