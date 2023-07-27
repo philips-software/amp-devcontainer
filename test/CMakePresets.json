@@ -57,6 +57,13 @@
       "targets": ["test-clang-iwyu"]
     },
     {
+      "name": "clang-uml",
+      "configurePreset": "clang",
+      "targets": [
+        "test-clang-uml"
+      ]
+    },
+    {
       "name": "coverage",
       "configurePreset": "coverage",
       "targets": ["test-coverage"]

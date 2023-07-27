@@ -175,3 +175,17 @@ teardown() {
   assert_success
   assert_output "Hello World!"
 }
+
+# bats test_tags=tc:16
+@test "using clang-uml to generate uml class diagram" {
+  run cmake --preset clang
+  assert_success
+
+  run cmake --build --preset clang-uml
+  assert_success
+
+  run cd tests
+  run clang-uml
+  assert_success
+  assert_file_exist puml/test_class.puml
+}

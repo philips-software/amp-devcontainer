@@ -1,4 +1,5 @@
 {
+  "software-properties-common" : "0.99.22.7",
   "bzip2": "1.0.8-5build1",
   "ca-certificates": "20230311ubuntu0.22.04.1",
   "gdb": "12.1-0ubuntu1~22.04",
