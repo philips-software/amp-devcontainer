@@ -5,6 +5,5 @@
   "clang-tidy-15": "1:15.0.7-0ubuntu0.22.04.3",
   "clang-tools-15": "1:15.0.7-0ubuntu0.22.04.3",
   "lld-15": "1:15.0.7-0ubuntu0.22.04.3",
-  "llvm-15": "1:15.0.7-0ubuntu0.22.04.3",
-  "clang-uml": "0.3.8-0ubuntu1ppa1~jammy"
+  "llvm-15": "1:15.0.7-0ubuntu0.22.04.3"
 }
