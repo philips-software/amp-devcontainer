@@ -17,6 +17,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 COPY .devcontainer/base/apt-requirements.json /tmp/apt-requirements-base.json
 COPY .devcontainer/base/apt-repositories.json /tmp/apt-repositories.json
 COPY .devcontainer/gcc-${GCC_VERSION}/apt-requirements.json /tmp/apt-requirements-gcc.json
+
+# Skip caching for the next RUN command
+ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache 
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -s '.[0] * .[1]' /tmp/apt-requirements-base.json /tmp/apt-requirements-gcc.json > /tmp/apt-requirements.json \
@@ -37,6 +40,8 @@ RUN python3 -m pip --no-cache-dir install \
 # Set default generator for CMake to Ninja
 ENV CMAKE_GENERATOR="Ninja"
 
+# Skip caching for the next RUN command
+ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache 
 # Install clang toolchain
 COPY .devcontainer/clang-${CLANG_VERSION}/apt-requirements.json /tmp/apt-requirements-clang.json
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
