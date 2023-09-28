@@ -1,12 +1,12 @@
 FROM ubuntu@sha256:aabed3296a3d45cede1dc866a24476c4d7e093aa806263c27ddaadbdce3c1054
 
 ARG BATS_VERSION=1.9.0
-ARG CCACHE_VERSION=4.8.2
-ARG CLANG_VERSION=15
+ARG CCACHE_VERSION=4.8.3
+ARG CLANG_VERSION=17
 ARG DOCKER_VERSION=24.0.4
 ARG GCC_VERSION=10
 ARG MULL_VERSION=0.20.0
-ARG INCLUDE_WHAT_YOU_USE_VERSION=0.19
+ARG INCLUDE_WHAT_YOU_USE_VERSION=0.20
 ARG XWIN_VERSION=0.2.14
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -36,7 +36,7 @@ RUN python3 -m pip --no-cache-dir install \
 ENV CMAKE_GENERATOR="Ninja"
 
 # Install clang toolchain
-COPY .devcontainer/clang-${CLANG_VERSION}/apt-requirements.json /tmp/apt-requirements-clang.json
+COPY .devcontainer/clang/apt-requirements.json /tmp/apt-requirements-clang.json
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
  && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
  && apt-get update \
@@ -89,8 +89,8 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} 2
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-${GCC_VERSION} 20 \
  && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-${GCC_VERSION} 10 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
- && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
- && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
+ && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-15 10 \
+ && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-15 10 \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
 # Install ccache from source for a recent version
