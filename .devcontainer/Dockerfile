@@ -68,8 +68,8 @@ RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERS
 RUN mkdir /opt/gcc-arm-none-eabi \
  && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar xJ --strip-components=1 -C /opt/gcc-arm-none-eabi \
  # Patch ncurses dependencies
- && ln -s /lib/$(uname -m)-linux-gnu/libncursesw.so.6 /lib/$(uname -m)-linux-gnu/libncursesw.so.5 \
- && ln -s /lib/$(uname -m)-linux-gnu/libtinfo.so.6 /lib/$(uname -m)-linux-gnu/libtinfo.so.5
+ && ln -s "/lib/$(uname -m)-linux-gnu/libncursesw.so.6" "/lib/$(uname -m)-linux-gnu/libncursesw.so.5" \
+ && ln -s "/lib/$(uname -m)-linux-gnu/libtinfo.so.6" "/lib/$(uname -m)-linux-gnu/libtinfo.so.5"
 ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Install docker-cli for Docker-from-Docker tools
