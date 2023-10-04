@@ -148,8 +148,8 @@ teardown() {
 }
 
 # bats test_tags=tc:13
-@test "arm-none-eabi-gdb should be able to start" {
-  run arm-none-eabi-gdb --version
+@test "gdb-multiarch should be able to start" {
+  run gdb-multiarch --version
   assert_success
 }
 
