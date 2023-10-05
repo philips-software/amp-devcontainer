@@ -35,7 +35,8 @@ ENV CMAKE_GENERATOR="Ninja"
 # Install clang toolchain
 COPY .devcontainer/apt-requirements-clang.json /tmp/apt-requirements-clang.json
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
- && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/$(. /etc/os-release; echo ${UBUNTU_CODENAME/*, /})/ llvm-toolchain-$(. /etc/os-release; echo ${UBUNTU_CODENAME/*, /})-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
+ && UBUNTU_CODENAME="$(. /etc/os-release; echo ${UBUNTU_CODENAME/*, /})" \
+ && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
  && apt-get update \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends \
  && rm /tmp/apt-requirements* \
