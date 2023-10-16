@@ -6,7 +6,7 @@ setup() {
 }
 
 teardown() {
-  rm -rf build crash-*
+  rm -rf build crash-* .xwin-cache
 }
 
 # bats test_tags=tc:1
@@ -154,7 +154,7 @@ teardown() {
 }
 
 # bats test_tags=tc14
-@test "clangd should be able check source files" {
+@test "clangd should be able to analyze source files" {
   run clangd --check=gcc/main.cpp
   assert_success
   assert_output --partial "All checks completed, 0 errors"
@@ -174,4 +174,16 @@ teardown() {
   run build/gcc/gcc/test-gcc-lld
   assert_success
   assert_output "Hello World!"
+}
+
+# bats test_tags=tc:16
+@test "using xwin to install Windows SDK/CRT should result in working environment" {
+  run xwin --accept-license splat --preserve-ms-arch-notation && mv .xwin-cache/splat/ /winsdk
+  assert_success
+
+  run cmake --preset clang-cl
+  assert_success
+
+  run cmake --build --preset clang-cl
+  assert_success
 }
