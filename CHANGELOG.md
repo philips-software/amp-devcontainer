@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.6.0](https://github.com/philips-software/amp-devcontainer/compare/v2.5.0...v2.6.0) (2023-10-16)
+
+
+### Features
+
+* Update bats from 1.9.0 to 1.10.0 ([#163](https://github.com/philips-software/amp-devcontainer/issues/163)) ([958d60d](https://github.com/philips-software/amp-devcontainer/commit/958d60d202df5f185b255eddab158f72f171cc41))
+* Update ccache from 4.8.2 to 4.8.3 ([#164](https://github.com/philips-software/amp-devcontainer/issues/164)) ([fdb817b](https://github.com/philips-software/amp-devcontainer/commit/fdb817bbb18444cc6c5b0948f2c77569f3cca6f1))
+* Update ccache from 4.8.2. 4.8.3 ([fdb817b](https://github.com/philips-software/amp-devcontainer/commit/fdb817bbb18444cc6c5b0948f2c77569f3cca6f1))
+* Update docker-cli from 24.0.4 to 24.0.6 ([#170](https://github.com/philips-software/amp-devcontainer/issues/170)) ([9c275ae](https://github.com/philips-software/amp-devcontainer/commit/9c275ae5e25c176bb4d6ae8f8a60d2f804bdaea8))
+* Update xwin from 0.2.14 to 0.3.1 ([#169](https://github.com/philips-software/amp-devcontainer/issues/169)) ([edc9b3f](https://github.com/philips-software/amp-devcontainer/commit/edc9b3f77dc14b1f38c144fc370f6da8efe47fd9))
+
 ## [2.5.0](https://github.com/philips-software/amp-devcontainer/compare/v2.4.0...v2.5.0) (2023-07-13)
 
 
