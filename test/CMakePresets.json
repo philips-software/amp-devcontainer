@@ -20,6 +20,14 @@
       }
     },
     {
+      "name": "clang-cl",
+      "inherits": "defaults",
+      "toolchainFile": "${sourceDir}/clang-cl/toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
       "name": "coverage",
       "inherits": "defaults",
       "cacheVariables": {
@@ -46,6 +54,11 @@
     }
   ],
   "buildPresets": [
+    {
+      "name": "clang-cl",
+      "configurePreset": "clang-cl",
+      "targets": ["test-clang-cl"]
+    },
     {
       "name": "clang-tidy",
       "configurePreset": "clang",

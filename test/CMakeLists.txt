@@ -4,6 +4,7 @@ project(devcontainer-test LANGUAGES ASM C CXX)
 include(CTest)
 include(GoogleTest)
 
+add_subdirectory(clang-cl)
 add_subdirectory(clang-tools)
 add_subdirectory(coverage)
 add_subdirectory(fuzzing)
