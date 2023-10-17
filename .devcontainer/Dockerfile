@@ -4,7 +4,6 @@ ARG BATS_VERSION=1.10.0
 ARG CCACHE_VERSION=4.8.3
 ARG CLANG_VERSION=15
 ARG DOCKER_VERSION=24.0.6
-ARG GCC_VERSION=10
 ARG MULL_VERSION=0.20.0
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.19
 ARG XWIN_VERSION=0.3.1
@@ -14,13 +13,11 @@ ARG DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install the base system with all tool dependencies
-COPY .devcontainer/base/apt-requirements.json /tmp/apt-requirements-base.json
-COPY .devcontainer/gcc-${GCC_VERSION}/apt-requirements.json /tmp/apt-requirements-gcc.json
+COPY .devcontainer/apt-requirements-base.json /tmp/apt-requirements-base.json
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends jq \
- && jq -s '.[0] * .[1]' /tmp/apt-requirements-base.json /tmp/apt-requirements-gcc.json > /tmp/apt-requirements.json \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | xargs apt-get install -y --no-install-recommends \
- && rm /tmp/apt-requirements* \
+ && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
+ && rm /tmp/apt-requirements-base.json \
  && rm -rf /var/lib/apt/lists/*
 
 # Include the Cisco Umbrella PKI Root
@@ -36,9 +33,11 @@ RUN python3 -m pip --no-cache-dir install \
 ENV CMAKE_GENERATOR="Ninja"
 
 # Install clang toolchain
-COPY .devcontainer/clang-${CLANG_VERSION}/apt-requirements.json /tmp/apt-requirements-clang.json
+COPY .devcontainer/apt-requirements-clang.json /tmp/apt-requirements-clang.json
+# hadolint ignore=SC1091
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
- && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
+ && UBUNTU_CODENAME=$(. /etc/os-release; echo "${UBUNTU_CODENAME/*, /}") \
+ && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
  && apt-get update \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends \
  && rm /tmp/apt-requirements* \
@@ -50,12 +49,10 @@ ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
  && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
  && CC=clang-${CLANG_VERSION} CXX=clang++-${CLANG_VERSION} cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
- && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
  && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
  && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
  && CC=clang-${CLANG_VERSION} CXX=clang++-${CLANG_VERSION} cmake -S /tmp/mull -B /tmp/mull/build \
- && cmake --build /tmp/mull/build \
  && cmake --build /tmp/mull/build --target install \
  && rm -rf /tmp/mull \
  && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
@@ -63,9 +60,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLAN
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
+# Install ccache from source for a recent version
+RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
+ && CC=clang-${CLANG_VERSION} CXX=clang++-${CLANG_VERSION} cmake -DCMAKE_BUILD_TYPE=Release -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
+ && cmake --build /tmp/ccache-${CCACHE_VERSION}/build --target install \
+ && rm -rf /tmp/ccache-${CCACHE_VERSION}
+
 # Install arm-gcc toolchain
-COPY .devcontainer/gcc-${GCC_VERSION}/install-arm-none-eabi.sh /tmp/install-arm-none-eabi.sh
-RUN /tmp/install-arm-none-eabi.sh && rm /tmp/install-arm-none-eabi.sh
+RUN mkdir /opt/gcc-arm-none-eabi \
+ && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
 ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Install docker-cli for Docker-from-Docker tools
@@ -85,16 +88,10 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
 
 # Update all tool alternatives to the correct version
-RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} 20 \
- && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-${GCC_VERSION} 20 \
- && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-${GCC_VERSION} 10 \
+RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-12 20 \
+ && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-12 20 \
+ && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-12 10 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
  && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10
-
-# Install ccache from source for a recent version
-RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
- && cmake -DCMAKE_BUILD_TYPE=Release -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
- && cmake --build /tmp/ccache-${CCACHE_VERSION}/build --target install \
- && rm -rf /tmp/ccache-${CCACHE_VERSION}

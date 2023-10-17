@@ -1,0 +1,47 @@
+name: Cleanup Pull-Request Image
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  generate-tag-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.matrix.outputs.tags }}
+    steps:
+      - uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+        id: meta
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
+          # Generate Docker tags based on the following events/attributes
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+      - run: |
+          TAGS="$(echo "${{ steps.meta.outputs.tags }}" | jq -c --raw-input 'split(",")')"
+          echo "tags=${TAGS}" >> "${GITHUB_OUTPUT}"
+        id: matrix
+  delete-images:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    needs: generate-tag-matrix
+    strategy:
+      matrix:
+        tag: ${{ fromJSON(needs.generate-tag-matrix.outputs.tags) }}
+    steps:
+      - uses: bots-house/ghcr-delete-image-action@3827559c68cb4dcdf54d813ea9853be6d468d3a4 # v1.1.0
+        with:
+          owner: ${{ github.repository_owner }}
+          name: ${{ github.event.repository.name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ matrix.tag }}
