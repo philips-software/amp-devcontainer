@@ -1,0 +1,16 @@
+name: Cleanup Pull-Request Image
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bots-house/ghcr-delete-image-action@3827559c68cb4dcdf54d813ea9853be6d468d3a4 # v1.1.0
+        with:
+          owner: philips-software
+          name: amp-devcontainer
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: pr-${{ github.event.pull_request.number }}
