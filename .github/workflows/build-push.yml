@@ -33,8 +33,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}
           # Generate Docker tags based on the following events/attributes
+          # When modifying please update the tags in the clean up workflow as well
           tags: |
-            type=schedule
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
             type=ref,event=pr
