@@ -28,12 +28,12 @@ jobs:
             type=sha
       - run: |
           TAGS="$(echo "${{ steps.meta.outputs.tags }}" | jq -c --raw-input 'split(",")')"
-          echo "tags=${TAGS}" >> ${GITHUB_OUTPUT}
+          echo "tags=${TAGS}" >> "${GITHUB_OUTPUT}"
         id: matrix
   delete-images:
     runs-on: ubuntu-latest
     permissions:
-      packages: delete
+      packages: write
     needs: generate-tag-matrix
     strategy:
       matrix:
