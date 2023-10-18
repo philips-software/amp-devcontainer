@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.0.0](https://github.com/philips-software/amp-devcontainer/compare/v2.6.0...v3.0.0) (2023-10-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* update gcc-10 to gcc-12 ([#160](https://github.com/philips-software/amp-devcontainer/issues/160))
+
+### Features
+
+* Update gcc-10 to gcc-12 ([#160](https://github.com/philips-software/amp-devcontainer/issues/160)) ([3876ec9](https://github.com/philips-software/amp-devcontainer/commit/3876ec97e68bdb5a19a9f8bcdc69c570abcb6bec))
+
 ## [2.6.0](https://github.com/philips-software/amp-devcontainer/compare/v2.5.0...v2.6.0) (2023-10-16)
 
 
