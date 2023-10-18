@@ -22,7 +22,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - run: cosign clean -f "${{ env.REGISTRY }}/${{ github.repository }}:pr-${{ github.event.pull_request.number }}"
+      - run: cosign clean -f --type=signature "${{ env.REGISTRY }}/${{ github.repository }}:pr-${{ github.event.pull_request.number }}"
       - uses: bots-house/ghcr-delete-image-action@3827559c68cb4dcdf54d813ea9853be6d468d3a4 # v1.1.0
         with:
           owner: ${{ github.repository_owner }}
