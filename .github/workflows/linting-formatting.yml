@@ -22,7 +22,7 @@ jobs:
       pull-requests: write
       security-events: write
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           fetch-depth: 0
       - uses: oxsecurity/megalinter@a87b2872713c6bdde46d2473c5d7ed23e5752dc2 # v7.4.0
