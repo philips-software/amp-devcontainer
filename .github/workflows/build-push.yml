@@ -2,7 +2,7 @@
 name: Build & Push
 
 on:
-  merge_queue:
+  merge_group:
   pull_request:
   push:
     tags: ["v*.*.*"]
