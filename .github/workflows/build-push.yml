@@ -62,9 +62,10 @@ jobs:
       - uses: crazy-max/ghaction-container-scan@3e9c23f89cd6b0bda949ffe14f28a3ce282323b7 # v3.0.0
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}@${{ steps.build-and-push.outputs.digest }}
-      - name: Sign the published Docker image
-        env:
-          COSIGN_EXPERIMENTAL: "true"
-        # This step uses the identity token to provision an ephemeral certificate
+      - name: Sign the image with GitHub OIDC token
+        # This step uses the GitHub OIDC identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
-        run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign --yes {}@${{ steps.build-and-push.outputs.digest }}
+        env:
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: cosign sign --yes "${TAGS}@${DIGEST}"

@@ -23,6 +23,16 @@ The container can be built and tested locally by importing this repository in VS
 
 A test task is available to run the included `bats` tests. Choose `Tasks: Run Task` from the command pallette and choose `Run Tests`.
 
+## Verify image signature
+
+The container image is signed with [SigStore](https://www.sigstore.dev/) [Cosign](https://docs.sigstore.dev/signing/quickstart/) using a keyless signing method.
+
+The signature can be verified with the following command (using Docker), verifying that the image is actually signed by the GitHub CI system:
+
+```sh
+docker run --rm gcr.io/projectsigstore/cosign verify ghcr.io/philips-software/amp-devcontainer --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/philips-software/amp-devcontainer
+```
+
 ## Usage
 
 The resulting container can be used in a `.devcontainer` folder. While the example uses the `latest` tag, it is recommended to pin to a specific version. Or better yet, a specific SHA.
