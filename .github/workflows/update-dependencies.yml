@@ -19,10 +19,10 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Update dependencies
         working-directory: .devcontainer
-        run: ./update-dependencies.sh base clang-15 gcc-10
+        run: ./update-dependencies.sh apt-requirements-base.json apt-requirements-clang.json
       - uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5.0.2
         with:
           commit-message: "chore(deps): update apt dependencies"
