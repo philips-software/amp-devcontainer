@@ -16,6 +16,9 @@ permissions:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
     steps:
       # While the docker/build-push-action works from the Git context, we still need
       # the checkout step for running our tests.
