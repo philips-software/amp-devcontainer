@@ -63,6 +63,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - uses: crazy-max/ghaction-container-scan@3e9c23f89cd6b0bda949ffe14f28a3ce282323b7 # v3.0.0
+        if: ${{ steps.build-and-push.outputs.digest != '' }}
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}@${{ steps.build-and-push.outputs.digest }}
       - name: Sign the image with GitHub OIDC token
