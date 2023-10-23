@@ -65,6 +65,11 @@ jobs:
         if: ${{ steps.build-and-push.outputs.digest != '' }}
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}@${{ steps.build-and-push.outputs.digest }}
+      - uses: anchore/sbom-action@78fc58e266e87a38d4194b2137a3d4e9bcaf7ca1 # v0.14.3
+        if: ${{ steps.build-and-push.outputs.digest != '' }}
+        with:
+          image: ${{ env.REGISTRY }}/${{ github.repository }}@${{ steps.build-and-push.outputs.digest }}
+          dependency-snapshot: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
       - name: Sign the image with GitHub OIDC token
         if: ${{ github.event_name != 'merge_group' }}
         # This step uses the GitHub OIDC identity token to provision an ephemeral certificate
