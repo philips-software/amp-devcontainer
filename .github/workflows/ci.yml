@@ -34,7 +34,7 @@ jobs:
       - name: Run Tests
         run: |
           set -Eeuo pipefail
-      - uses: test-summary/action@62bc5c68de2a6a0d02039763b8c754569df99e3f # v2.1
+          docker run --rm --mount type=bind,src="$(pwd)/specification/requirements/tests/assets",dst=/ws -w /ws ${{ github.repository }}:test bats --formatter junit testsuite.bats | tee test-report.xml
       - uses: EnricoMi/publish-unit-test-result-action@ca89ad036b5fcd524c1017287fb01b5139908408 # v2.11.0
         if: always()
         with:
