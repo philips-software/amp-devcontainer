@@ -1,0 +1,17 @@
+---
+name: Verify Specification
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-specification:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+        python --version
+        pip install doorstop==3.0b4
+        doorstop >> "$GITHUB_OUTPUT"

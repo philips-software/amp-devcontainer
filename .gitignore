@@ -1,3 +1,4 @@
+.entangled/
 .xwin-cache/
 build/
 megalinter-reports/

@@ -1,0 +1,5 @@
+settings:
+  digits: 4
+  itemformat: markdown
+  prefix: REQ
+  sep: '-'

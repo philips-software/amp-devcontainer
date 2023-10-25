@@ -1,0 +1,6 @@
+settings:
+  digits: 4
+  itemformat: markdown
+  parent: REQ
+  prefix: TEST
+  sep: '-'
