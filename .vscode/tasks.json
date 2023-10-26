@@ -10,7 +10,7 @@
       "command": "bats",
       "args": ["testsuite.bats"],
       "options": {
-        "cwd": "${workspaceFolder}/tests"
+        "cwd": "${workspaceFolder}/test"
       },
       "problemMatcher": {
         "owner": "bats",
