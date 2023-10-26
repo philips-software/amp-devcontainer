@@ -3,4 +3,4 @@ settings:
   itemformat: markdown
   parent: REQ
   prefix: TEST
-  sep: '-'
+  sep: "-"
