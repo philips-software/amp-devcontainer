@@ -1,10 +1,10 @@
 #!/usr/bin/env bats
-# ~/~ begin <<specification/test/HEAD-1.0.md#tests/testsuite.bats>>[init]
+# ~/~ begin <<specification/tests/HEAD-1.0.md#tests/testsuite.bats>>[init]
 
 setup() {
   #!/usr/bin/env bats
   #!/usr/bin/env bats
-  # ~/~ begin <<specification/test/HEAD-1.0.md#setup>>[init]
+  # ~/~ begin <<specification/tests/HEAD-1.0.md#setup>>[init]
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
   # ~/~ end
@@ -13,12 +13,12 @@ setup() {
 teardown() {
   #!/usr/bin/env bats
   #!/usr/bin/env bats
-  # ~/~ begin <<specification/test/HEAD-1.0.md#teardown>>[init]
+  # ~/~ begin <<specification/tests/HEAD-1.0.md#teardown>>[init]
   rm -rf build
   # ~/~ end
 }
 
-# ~/~ begin <<specification/test/TEST-0001.md#testcase>>[init]
+# ~/~ begin <<specification/tests/TEST-0001.md#testcase>>[init]
 # bats test_tags=TC:TEST-0001
 @test "valid code input should result in working executable using host compiler" {
   run cmake --preset gcc

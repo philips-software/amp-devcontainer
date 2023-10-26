@@ -5,14 +5,14 @@ level: 1.0
 links: []
 normative: false
 ref: ''
-reviewed: BQb72tLqNOlSKhoixy2-c7fRw2CcinT4qeWWv7gOSms=
+reviewed: pG6-WeSI_s_aCl7c1DX3fgEwU1FYKWNyMKjGxKgepkE=
 ---
 
 # Purpose
 
 This document describes the test cases to be executed as part of the verification of amp-devcontainer.
 
-``` {.sh file=tests/testsuite.bats}
+``` {.sh file=test/testsuite.bats}
 #!/usr/bin/env bats
 
 setup() {
