@@ -5,7 +5,7 @@ level: 1.0
 links: []
 normative: false
 ref: ''
-reviewed: cOI6NlkJN-yg59JzLqsodC6aAP09XKowI1O47MHyNYE=
+reviewed: TT6b91v2oDMWPyZp4I7fhT53MRBsfgnIPtdx45hFFkc=
 ---
 
 # Purpose
@@ -17,16 +17,23 @@ This document describes the test cases to be executed as part of the verificatio
 
 setup() {
   #!/usr/bin/env bats
+  #!/usr/bin/env bats
+  #!/usr/bin/env bats
+  #!/usr/bin/env bats
+  #!/usr/bin/env bats
   <<setup>>
 }
 
 teardown() {
   #!/usr/bin/env bats
   <<teardown>>
+  #!/usr/bin/env bats
+  #!/usr/bin/env bats
+  #!/usr/bin/env bats
+  #!/usr/bin/env bats
 }
 
 <<testcase>>
-
 ```
 
 ``` {.sh #setup}

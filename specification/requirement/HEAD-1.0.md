@@ -5,7 +5,7 @@ level: 1.0
 links: []
 normative: false
 ref: ''
-reviewed: isk6BD4kvgd66NTx0mXAURPC0M7umh2zHbuYUMunux4=
+reviewed: -ZCO7wKBAAy_U2XHGbxhiSZZwAA3TQdnDdF-YJorjd4=
 ---
 
 # Introduction
@@ -17,3 +17,10 @@ This document describes the software system requirements for amp-devcontainer.
 ## Abstract
 
 amp-devcontainer is a [devcontainer](https://containers.dev/) tailored towards modern C++ development.
+It it intended to be used both for local development and continuous integration (ci).
+
+## Terminology and Abbreviations
+
+| Terminology and Abbreviations | Description/Definition |
+|-------------------------------|------------------------|
+| Continuous Integration (ci)   | The practice of continously merging developers work to a shared code-base; ideally including automation for build, test and deployment |
