@@ -17,6 +17,8 @@ The amp-devcontainer includes support for host- and cross-compilation using gcc,
 Next to the compilers there is support for code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis (clang-format, clang-tidy, clangd, include-what-you-use).
 The default build system is set up to use CMake, Ninja and CCache.
 
+For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/philips-software/amp-devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/philips-software/amp-devcontainer/releases), or the SBOM attached to the image.
+
 ## Build & Test
 
 The container can be built and tested locally by importing this repository in VS Code with the `Dev Containers` (ms-vscode-remote.remote-containers) plug-in installed. As a prerequisite Docker needs to be installed on the host system. As an alternative a GitHub Codespace can be started.
