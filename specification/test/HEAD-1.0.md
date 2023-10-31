@@ -16,21 +16,11 @@ This document describes the test cases to be executed as part of the verificatio
 #!/usr/bin/env bats
 
 setup() {
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
   <<setup>>
 }
 
 teardown() {
-  #!/usr/bin/env bats
   <<teardown>>
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
 }
 
 <<testcase>>
