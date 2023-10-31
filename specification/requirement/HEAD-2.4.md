@@ -1,11 +1,11 @@
 ---
 active: true
 derived: false
-level: 5.1.0
+level: 2.4.0
 links: []
 normative: false
 ref: ''
-reviewed: cFVPUJQOvEmcfLbFAOfUzEBJMl37qRbgoqrxToeFPM0=
+reviewed: j5Te2A2tpQvHL7tFPhbtxYnTW6RRT3Qj9A5hFk5_DPc=
 ---
 
 # Supply chain security
