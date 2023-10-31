@@ -10,3 +10,7 @@ updates:
     directory: .devcontainer
     schedule:
       interval: daily
+  - package-ecosystem: pip
+    directory: .devcontainer
+    schedule:
+      interval: daily
