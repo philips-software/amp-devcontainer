@@ -1,0 +1,25 @@
+name: PR Report
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  add-pr-report:
+    permissions:
+      contents: read
+      checks: read
+      pull-requests: write
+      repository-projects: read
+      actions: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          persist-credentials: false
+      - uses: philips-software/pull-request-report-action@b204ba141165b4f86eacb50a5469eb6b36123cf8 # v0.1.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
