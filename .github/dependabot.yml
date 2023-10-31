@@ -10,7 +10,13 @@ updates:
     directory: .devcontainer
     schedule:
       interval: daily
+    commit-message:
+      prefix: "feat"
+      include: "scope"
   - package-ecosystem: pip
     directory: .devcontainer
     schedule:
       interval: daily
+    commit-message:
+      prefix: "feat"
+      include: "scope"
