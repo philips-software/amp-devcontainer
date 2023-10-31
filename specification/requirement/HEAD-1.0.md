@@ -21,6 +21,6 @@ It it intended to be used both for local development and continuous integration 
 
 ## Terminology and Abbreviations
 
-| Terminology and Abbreviations | Description/Definition |
-|-------------------------------|------------------------|
+| Terminology and Abbreviations | Description/Definition                                                                                                                 |
+|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
 | Continuous Integration (ci)   | The practice of continously merging developers work to a shared code-base; ideally including automation for build, test and deployment |
