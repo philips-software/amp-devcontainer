@@ -25,9 +25,9 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
  && update-ca-certificates
 
 # Install some tools via pip to get more recent versions
-RUN python3 -m pip --no-cache-dir install \
-  cmake==3.26.4 \
-  gcovr==6.0
+COPY .devcontainer/requirements.txt /tmp/requirements.txt
+RUN python3 -m pip install --no-cache-dir -r /tmp/requirements.txt \
+ && rm -rf /tmp/requirements.txt
 
 # Set default generator for CMake to Ninja
 ENV CMAKE_GENERATOR="Ninja"
