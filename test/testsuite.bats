@@ -2,12 +2,6 @@
 # ~/~ begin <<specification/test/HEAD-1.0.md#test/testsuite.bats>>[init]
 
 setup() {
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
   # ~/~ begin <<specification/test/HEAD-1.0.md#setup>>[init]
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
@@ -15,21 +9,15 @@ setup() {
 }
 
 teardown() {
-  #!/usr/bin/env bats
   # ~/~ begin <<specification/test/TEST-0015.md#teardown>>[init]
   rm -rf .xwin-cache /winsdk
   # ~/~ end
-  #!/usr/bin/env bats
   # ~/~ begin <<specification/test/HEAD-1.0.md#teardown>>[0]
   rm -rf build
   # ~/~ end
   # ~/~ begin <<specification/test/TEST-0009.md#teardown>>[0]
   rm -rf crash-*
   # ~/~ end
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
-  #!/usr/bin/env bats
 }
 
 # ~/~ begin <<specification/test/TEST-0002.md#testcase>>[init]
@@ -52,14 +40,6 @@ teardown() {
   run clang-format clang-tools/unformatted.cpp
   assert_success
   assert_output "int main() {}"
-}
-# ~/~ end
-# ~/~ begin <<specification/test/TEST-0016.md#testcase>>[0]
-# bats test_tags=tc:TEST-0016
-@test "using cosign to verify the container signature should attest that the container was signed by GitHub ci" {
-  run docker run --rm gcr.io/projectsigstore/cosign verify ghcr.io/philips-software/amp-devcontainer:latest --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/philips-software/amp-devcontainer
-  assert_success
-  assert_output "cosign container image signature"
 }
 # ~/~ end
 # ~/~ begin <<specification/test/TEST-0012.md#testcase>>[0]
