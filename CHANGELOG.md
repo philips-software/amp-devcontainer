@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.1.0](https://github.com/philips-software/amp-devcontainer/compare/v3.0.0...v3.1.0) (2023-10-31)
+
+
+### Features
+
+* **deps:** Bump cmake from 3.26.4 to 3.27.7 in /.devcontainer ([#188](https://github.com/philips-software/amp-devcontainer/issues/188)) ([5cda3b8](https://github.com/philips-software/amp-devcontainer/commit/5cda3b8332fbb01110a9788f5eaf3b33e0fc388b))
+* Publish and review SBOM ([#186](https://github.com/philips-software/amp-devcontainer/issues/186)) ([317c6d6](https://github.com/philips-software/amp-devcontainer/commit/317c6d6d15e084dabcd6798a95978e90ed647c66))
+* Update cosign signing ([#175](https://github.com/philips-software/amp-devcontainer/issues/175)) ([1b1946a](https://github.com/philips-software/amp-devcontainer/commit/1b1946a322495f9d7413577e35c9a9061fa1b6b2))
+
+
+### Bug Fixes
+
+* Pr image cleanup ([#173](https://github.com/philips-software/amp-devcontainer/issues/173)) ([dc50228](https://github.com/philips-software/amp-devcontainer/commit/dc5022803c31054582f44fcb52d73c61b56e21c4))
+
 ## [3.0.0](https://github.com/philips-software/amp-devcontainer/compare/v2.6.0...v3.0.0) (2023-10-17)
 
 
