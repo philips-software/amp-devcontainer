@@ -79,4 +79,4 @@ jobs:
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
           TAGS: ${{ steps.meta.outputs.tags }}
-        run: cosign sign --yes "${TAGS}@${DIGEST}"
+        run: echo "${TAGS}" | xargs -I {} cosign sign --yes "{}@${DIGEST}"
