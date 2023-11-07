@@ -71,6 +71,7 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         with:
           comment-summary-in-pr: always
+          fail-on-severity: critical
       - name: Sign the image with GitHub OIDC token
         if: ${{ github.event_name != 'merge_group' }}
         # This step uses the GitHub OIDC identity token to provision an ephemeral certificate
