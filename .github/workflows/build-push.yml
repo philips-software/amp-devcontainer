@@ -70,9 +70,8 @@ jobs:
       - uses: actions/dependency-review-action@9f45b2463b475767b61721ccfef113fef513e6aa # v3.1.1
         if: ${{ github.event_name == 'pull_request' }}
         with:
-          comment-summary-in-pr: always
+          comment-summary-in-pr: on-failure
           fail-on-severity: critical
-          license-check: false
       - name: Sign the image with GitHub OIDC token
         if: ${{ github.event_name != 'merge_group' }}
         # This step uses the GitHub OIDC identity token to provision an ephemeral certificate
