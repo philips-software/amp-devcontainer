@@ -2,7 +2,7 @@ FROM ubuntu@sha256:2b7412e6465c3c7fc5bb21d3e6f1917c167358449fecac8176c6e496e5c1f
 
 ARG BATS_VERSION=1.10.0
 ARG CCACHE_VERSION=4.8.3
-ARG CLANG_VERSION=17
+ARG CLANG_VERSION=16
 ARG DOCKER_VERSION=24.0.6
 ARG MULL_VERSION=main
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.20
@@ -92,6 +92,6 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-12 20 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-12 20 \
  && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-12 10 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
- && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-15 10 \
- && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-15 10 \
+ && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
+ && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10
