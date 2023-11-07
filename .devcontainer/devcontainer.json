@@ -1,7 +1,6 @@
 {
   // This devcontainer has been set-up to run docker-from-docker scenarios as per
   // https://github.com/microsoft/vscode-dev-containers/tree/main/containers/docker-from-docker
-  "name": "amp-devcontainer",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
