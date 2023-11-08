@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.1.1](https://github.com/philips-software/amp-devcontainer/compare/v3.1.0...v3.1.1) (2023-11-07)
+
+
+### Bug Fixes
+
+* **cosign:** Correctly sign multiple tags ([#192](https://github.com/philips-software/amp-devcontainer/issues/192)) ([bcd2f38](https://github.com/philips-software/amp-devcontainer/commit/bcd2f3895b6780410acf64b1f9b68472cbc9f579))
+
 ## [3.1.0](https://github.com/philips-software/amp-devcontainer/compare/v3.0.0...v3.1.0) (2023-10-31)
 
 
