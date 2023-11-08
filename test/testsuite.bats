@@ -1,12 +1,35 @@
 #!/usr/bin/env bats
 
+setup_file() {
+  # Installing the Windows SDK/CRT takes a long time.
+  # When still valid, use the installation from cache.
+
+  xwin --accept-license --cache-dir .xwin-hash list
+  HASH_LIST_MANIFEST=$(sha256sum .xwin-hash/dl/manifest*.json | awk '{ print $1 }')
+  HASH_CACHED_MANIFEST=
+
+  if [[ -d .xwin-cache/dl ]]; then
+    HASH_CACHED_MANIFEST=$(sha256sum .xwin-cache/dl/manifest*.json | awk '{ print $1 }')
+  fi
+
+  if [[ $HASH_LIST_MANIFEST != $HASH_CACHED_MANIFEST ]]; then
+    xwin --accept-license splat --preserve-ms-arch-notation
+  fi
+
+  cp -r .xwin-cache/splat/ /winsdk
+}
+
+teardown_file() {
+  rm -rf .xwin-hash/ /winsdk
+}
+
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
 }
 
 teardown() {
-  rm -rf build crash-* .xwin-cache
+  rm -rf build crash-*
 }
 
 # bats test_tags=tc:1
@@ -35,6 +58,15 @@ teardown() {
   assert_output --partial "Machine:                           ARM"
 }
 
+# bats test_tags=tc:3
+@test "valid code input should result in working Windows executable using clang-cl compiler" {
+  run cmake --preset clang-cl
+  assert_success
+
+  run cmake --build --preset clang-cl
+  assert_success
+}
+
 # bats test_tags=tc:4
 @test "invalid code input should result in failing build" {
   run cmake --preset gcc
@@ -45,7 +77,7 @@ teardown() {
 }
 
 # bats test_tags=tc:5
-@test "using ccache as a compiler launcher should result in cached build" {
+@test "using ccache as a compiler launcher should result in cached build using gcc compiler" {
   run ccache --clear --zero-stats
 
   run cmake --preset gcc -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -65,6 +97,34 @@ teardown() {
   assert_success
 
   run cmake --build --preset gcc
+  assert_success
+
+  run ccache -s
+  assert_output --partial "Hits:               1"
+  assert_output --partial "Misses:             0"
+}
+
+# bats test_tags=tc:17
+@test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
+  run ccache --clear --zero-stats
+
+  run cmake --preset clang-cl -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+  assert_success
+
+  run cmake --build --preset clang-cl
+  assert_success
+
+  run ccache -s
+  assert_output --partial "Hits:               0"
+  assert_output --partial "Misses:             1"
+
+  run rm -rf build
+  run ccache --zero-stats
+
+  run cmake --preset clang-cl -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+  assert_success
+
+  run cmake --build --preset clang-cl
   assert_success
 
   run ccache -s
@@ -174,16 +234,4 @@ teardown() {
   run build/gcc/gcc/test-gcc-lld
   assert_success
   assert_output "Hello World!"
-}
-
-# bats test_tags=tc:16
-@test "using xwin to install Windows SDK/CRT should result in working environment" {
-  run xwin --accept-license splat --preserve-ms-arch-notation && mv .xwin-cache/splat/ /winsdk
-  assert_success
-
-  run cmake --preset clang-cl
-  assert_success
-
-  run cmake --build --preset clang-cl
-  assert_success
 }
