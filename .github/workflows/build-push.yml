@@ -67,10 +67,11 @@ jobs:
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}@${{ steps.build-and-push.outputs.digest }}
           dependency-snapshot: true
-      - uses: actions/dependency-review-action@6c5ccdad469c9f8a2996bfecaec55a631a347034 # v3.1.0
+      - uses: actions/dependency-review-action@9f45b2463b475767b61721ccfef113fef513e6aa # v3.1.1
         if: ${{ github.event_name == 'pull_request' }}
         with:
-          comment-summary-in-pr: always
+          comment-summary-in-pr: on-failure
+          fail-on-severity: critical
       - name: Sign the image with GitHub OIDC token
         if: ${{ github.event_name != 'merge_group' }}
         # This step uses the GitHub OIDC identity token to provision an ephemeral certificate
@@ -78,4 +79,4 @@ jobs:
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
           TAGS: ${{ steps.meta.outputs.tags }}
-        run: cosign sign --yes "${TAGS}@${DIGEST}"
+        run: echo "${TAGS}" | xargs -I {} cosign sign --yes "{}@${DIGEST}"
