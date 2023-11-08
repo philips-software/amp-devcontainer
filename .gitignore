@@ -1,3 +1,4 @@
 .xwin-cache/
+.xwin-hash/
 build/
 megalinter-reports/
