@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.0.0](https://github.com/philips-software/amp-devcontainer/compare/v3.1.1...v4.0.0) (2023-11-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* update clang/LLVM to version 16.0.6 ([#191](https://github.com/philips-software/amp-devcontainer/issues/191))
+
+### Features
+
+* Update clang/LLVM to version 16.0.6 ([#191](https://github.com/philips-software/amp-devcontainer/issues/191)) ([b68d926](https://github.com/philips-software/amp-devcontainer/commit/b68d926f3b059068d52accc0dcc1233ec8bbb490))
+
 ## [3.1.1](https://github.com/philips-software/amp-devcontainer/compare/v3.1.0...v3.1.1) (2023-11-07)
 
 
