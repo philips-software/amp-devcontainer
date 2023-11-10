@@ -63,7 +63,7 @@ jobs:
           push: ${{ github.event_name != 'merge_group' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,name=target,${{ steps.annotations.outputs.annotations }}
+          outputs: type=image,${{ steps.annotations.outputs.annotations }}
           sbom: true
           provenance: true
           cache-from: type=gha
