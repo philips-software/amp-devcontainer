@@ -25,8 +25,8 @@ jobs:
         run: ./update-dependencies.sh apt-requirements-base.json apt-requirements-clang.json
       - uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5.0.2
         with:
-          commit-message: "chore(deps): update apt dependencies"
+          commit-message: "deps(apt): update dependencies"
           branch: feature/update-apt-dependencies
-          title: "chore(deps): update apt dependencies"
+          title: "deps(apt): update dependencies"
           labels: dependencies
           token: ${{ secrets.AMP_RELEASER_TOKEN }}

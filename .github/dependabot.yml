@@ -11,12 +11,12 @@ updates:
     schedule:
       interval: daily
     commit-message:
-      prefix: "feat"
+      prefix: "deps(docker)"
       include: "scope"
   - package-ecosystem: pip
     directory: .devcontainer
     schedule:
       interval: daily
     commit-message:
-      prefix: "feat"
+      prefix: "deps"
       include: "scope"
