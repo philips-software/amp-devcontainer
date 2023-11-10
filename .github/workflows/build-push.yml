@@ -43,7 +43,8 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
       - run: |
-          ANNOTATIONS=echo $DOCKER_METADATA_OUTPUT_LABELS | sed 's/org.opencontainers.image./annotation-index.org.opencontainers.image./' | tr '\n' ','
+          set -Eeuo pipefail
+          ANNOTATIONS=echo '$DOCKER_METADATA_OUTPUT_LABELS' | sed 's/org.opencontainers.image./annotation-index.org.opencontainers.image./' | tr '\n' ','
           echo annotations=$ANNOTATIONS >> "$GITHUB_OUTPUT"
         id: annotations
       - uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
