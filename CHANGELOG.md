@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.0.2](https://github.com/philips-software/amp-devcontainer/compare/v4.0.1...v4.0.2) (2023-11-13)
+
+
+### Bug Fixes
+
+* Add 'vX.Y.Z' tag format to Docker image ([#208](https://github.com/philips-software/amp-devcontainer/issues/208)) ([552facf](https://github.com/philips-software/amp-devcontainer/commit/552facf29c2aaee3c6b241801ee9e1256ab42487))
+
 ## [4.0.1](https://github.com/philips-software/amp-devcontainer/compare/v4.0.0...v4.0.1) (2023-11-13)
 
 
