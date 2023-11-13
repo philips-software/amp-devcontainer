@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.0.1](https://github.com/philips-software/amp-devcontainer/compare/v4.0.0...v4.0.1) (2023-11-13)
+
+
+### Bug Fixes
+
+* Make sure all dependency updates are releasable units ([#205](https://github.com/philips-software/amp-devcontainer/issues/205)) ([837f9f9](https://github.com/philips-software/amp-devcontainer/commit/837f9f9eb1229d73340fb7bb728f9920d920b61f))
+
 ## [4.0.0](https://github.com/philips-software/amp-devcontainer/compare/v3.1.1...v4.0.0) (2023-11-09)
 
 
