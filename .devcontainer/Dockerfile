@@ -1,8 +1,8 @@
-#trivy:ignore:DS002
+#trivy:ignore:AVD-DS-0002
 # See: https://avd.aquasec.com/misconfig/dockerfile/general/avd-ds-0002/
 # We allow root access in our container that we use for development purposes
 
-#trivy:ignore:DS026
+#trivy:ignore:AVD-DS-0026
 # See: https://avd.aquasec.com/misconfig/dockerfile/general/avd-ds-0026/
 # We don't require a HEALTHCHECK for our devcontainer
 
