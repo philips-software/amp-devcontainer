@@ -1,5 +1,9 @@
 FROM ubuntu@sha256:2b7412e6465c3c7fc5bb21d3e6f1917c167358449fecac8176c6e496e5c1f05f
 
+ARG USERNAME=amp
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
 ARG BATS_VERSION=1.10.0
 ARG CCACHE_VERSION=4.8.3
 ARG CLANG_VERSION=16
@@ -11,6 +15,10 @@ ARG XWIN_VERSION=0.3.1
 ARG DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Add a non-root user
+RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
+ && useradd --uid "${USER_UID}" --gid "${USER_GID}" --shell /bin/bash -m "${USERNAME}"
 
 # Install the base system with all tool dependencies
 COPY .devcontainer/apt-requirements-base.json /tmp/apt-requirements-base.json
@@ -85,7 +93,9 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
  && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
 
 # Install xwin
-RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
+RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin" \
+ && mkdir /winsdk
+ && chown "${USER_UID}:${USER_GID}" /winsdk
 
 # Update all tool alternatives to the correct version
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-12 20 \
@@ -95,3 +105,5 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-12 20 \
  && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+
+USER "${USERNAME}"
