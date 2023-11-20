@@ -16,7 +16,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-HEALTHCHECK none
+HEALTHCHECK NONE
 
 # Add a non-root user
 RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
