@@ -94,7 +94,7 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 
 # Install xwin
 RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin" \
- && mkdir /winsdk
+ && mkdir /winsdk \
  && chown "${USER_UID}:${USER_GID}" /winsdk
 
 # Update all tool alternatives to the correct version
