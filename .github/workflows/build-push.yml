@@ -69,7 +69,7 @@ jobs:
           provenance: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - uses: anchore/sbom-action@78fc58e266e87a38d4194b2137a3d4e9bcaf7ca1 # v0.14.3
+      - uses: anchore/sbom-action@fd74a6fb98a204a1ad35bbfae0122c1a302ff88b # v0.15.0
         if: ${{ steps.build-and-push.outputs.digest != '' && github.event_name != 'merge_group' }}
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}@${{ steps.build-and-push.outputs.digest }}
