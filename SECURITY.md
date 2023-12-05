@@ -4,8 +4,6 @@
 
 The [latest](https://github.com/philips-software/amp-devcontainer/releases/latest) version of
 amp-devcontainer is supported with security updates.
-The amp-devcontainer image is scanned for security vulnerabilities and the results are published on the
-[code scanning](https://github.com/philips-software/amp-devcontainer/security/code-scanning) page.
 
 ## Reporting a Vulnerability
 
@@ -13,5 +11,5 @@ If you find a significant vulnerability, or evidence of one, please report it pr
 
 Vulnerabilities should be reported using [GitHub's mechanism for privately reporting a vulnerability](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing/privately-reporting-a-security-vulnerability#privately-reporting-a-security-vulnerability). Under the
 [main repository's security tab](https://github.com/philips-software/amp-devcontainer/security), click "Report a vulnerability" to open the advisory form.
-A member of the amp-devcontainer team will triage the reported vulnerability within a maximum of two business days.
-If the vulnerability is accepted a security advisory will be published and all further communication will be done via that security advisory.
+
+A member of the amp-devcontainer team will triage the reported vulnerability and if the vulnerability is accepted a security advisory will be published and all further communication will be done via that security advisory.
