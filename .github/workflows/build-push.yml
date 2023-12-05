@@ -84,5 +84,4 @@ jobs:
         # against the sigstore community Fulcio instance.
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
-          TAGS: ${{ steps.meta.outputs.tags }}
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes "{}@${DIGEST}"
+        run: cosign sign --yes --recursive "${{ env.REGISTRY }}/${{ github.repository }}@${DIGEST}"
