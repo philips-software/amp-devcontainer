@@ -12,7 +12,7 @@ updates:
       interval: daily
     commit-message:
       prefix: "feat(deps)"
-  - package-ecosystem: pip-compile
+  - package-ecosystem: pip
     directory: .devcontainer
     schedule:
       interval: daily
