@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: sigstore/cosign-installer@1fc5bd396d372bee37d608f955b336615edf79c8 # v3.2.0
         if: ${{ github.event_name != 'merge_group' }}
-      - uses: docker/metadata-action@e6428a5c4e294a61438ed7f43155db912025b6b3 # v5.2.0
+      - uses: docker/metadata-action@31cebacef4805868f9ce9a0cb03ee36c32df2ac4 # v5.3.0
         id: meta
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
@@ -68,7 +68,7 @@ jobs:
           provenance: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - uses: anchore/sbom-action@fd74a6fb98a204a1ad35bbfae0122c1a302ff88b # v0.15.0
+      - uses: anchore/sbom-action@5ecf649a417b8ae17dc8383dc32d46c03f2312df # v0.15.1
         if: ${{ steps.build-and-push.outputs.digest != '' && github.event_name != 'merge_group' }}
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}@${{ steps.build-and-push.outputs.digest }}
@@ -84,5 +84,4 @@ jobs:
         # against the sigstore community Fulcio instance.
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
-          TAGS: ${{ steps.meta.outputs.tags }}
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes "{}@${DIGEST}"
+        run: cosign sign --yes --recursive "${{ env.REGISTRY }}/${{ github.repository }}@${DIGEST}"

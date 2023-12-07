@@ -1,6 +1,8 @@
 # amp-devcontainer
 
-[![Linting & Formatting](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/philips-software/amp-devcontainer/actions/workflows/build-push.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/build-push.yml)
+<!-- markdownlint-disable -->
+[![Linting & Formatting](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/philips-software/amp-devcontainer/actions/workflows/build-push.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/build-push.yml) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/philips-software/amp-devcontainer/badge)](https://securityscorecards.dev/viewer/?uri=github.com/philips-software/amp-devcontainer)
+<!-- markdownlint enable -->
 
 ## Overview
 
@@ -8,7 +10,7 @@ This repository contains a [devcontainer](https://docs.github.com/en/codespaces/
 
 ## State
 
-This repository is under active development; see [pulse](https://github.com/philips-software/amp-devcontainer/pulse) for more details;
+This repository is under active development; see [pulse](https://github.com/philips-software/amp-devcontainer/pulse) for more details.
 
 ## Description
 
@@ -59,6 +61,11 @@ See [CHANGELOG](./CHANGELOG.md) for more info on what's been changed.
 ## Contributing
 
 See [CONTRIBUTING](./CONTRIBUTING.md)
+
+## Reporting vulnerabilities
+
+If you find a vulnerability, please report it to us!
+See [SECURITY.md](./SECURITY.md) for more information.
 
 ## Licenses
 
