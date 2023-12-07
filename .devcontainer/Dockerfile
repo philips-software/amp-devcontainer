@@ -10,6 +10,8 @@ ARG XWIN_VERSION=0.5.0
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+HEALTHCHECK NONE
+
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install the base system with all tool dependencies
