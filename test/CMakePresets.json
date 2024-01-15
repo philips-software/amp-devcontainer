@@ -24,8 +24,7 @@
       "inherits": "defaults",
       "toolchainFile": "${sourceDir}/clang-cl/toolchain.cmake",
       "environment": {
-        "CCACHE_DEPEND": "true",
-        "CCACHE_COMPILERTYPE": "clang-cl"
+        "CCACHE_DEPEND": "true"
       },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
