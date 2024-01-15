@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.2.0](https://github.com/philips-software/amp-devcontainer/compare/v4.1.0...v4.2.0) (2024-01-15)
+
+
+### Features
+
+* **deps:** Bump jinja2 from 3.1.2 to 3.1.3 in /.devcontainer ([#262](https://github.com/philips-software/amp-devcontainer/issues/262)) ([ab056fc](https://github.com/philips-software/amp-devcontainer/commit/ab056fca8188a84f63e6bcedaa2018830bf8a279))
+* Update ccache from 4.8.3 to 4.9 ([#265](https://github.com/philips-software/amp-devcontainer/issues/265)) ([98226b8](https://github.com/philips-software/amp-devcontainer/commit/98226b8ed3651622912f5fd6d08218279a6bdfbf))
+
 ## [4.1.0](https://github.com/philips-software/amp-devcontainer/compare/v4.0.2...v4.1.0) (2023-12-18)
 
 
