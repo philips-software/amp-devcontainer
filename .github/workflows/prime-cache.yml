@@ -31,7 +31,7 @@ jobs:
           set -Eeuo pipefail
           mkdir test
           docker run --rm --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws ghcr.io/${{ github.repository }}:latest xwin --accept-license splat --preserve-ms-arch-notation
-      - uses: actions/cache/save@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3.3.3
+      - uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: test/.xwin-cache
           key: xwin-cache
