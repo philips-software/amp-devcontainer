@@ -1,2 +1,2 @@
 cmake==3.28.1
-gcovr==6.0
+gcovr==7.0
