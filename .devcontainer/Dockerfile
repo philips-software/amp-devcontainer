@@ -70,7 +70,7 @@ RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERS
 
 # Install arm-gcc toolchain
 RUN mkdir /opt/gcc-arm-none-eabi \
- && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
+ && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
 ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Install docker-cli for Docker-from-Docker tools
@@ -90,9 +90,9 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
 
 # Update all tool alternatives to the correct version
-RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-12 20 \
- && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-12 20 \
- && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-12 10 \
+RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
+ && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20 \
+ && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 10 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
  && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
