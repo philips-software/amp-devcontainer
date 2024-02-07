@@ -39,7 +39,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           docker run --rm --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws ${{ github.repository }}:test bats --formatter junit testsuite.bats | tee test-report.xml
-      - uses: EnricoMi/publish-unit-test-result-action@4e121453199042300b654ee3b4b52720bc645dc6 # v2.13.0
+      - uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
         if: always()
         with:
           files: test-report.xml
