@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.3.0](https://github.com/philips-software/amp-devcontainer/compare/v4.2.0...v4.3.0) (2024-02-12)
+
+
+### Features
+
+* **deps:** Bump cmake from 3.28.1 to 3.28.3 in /.devcontainer ([#297](https://github.com/philips-software/amp-devcontainer/issues/297)) ([41d0955](https://github.com/philips-software/amp-devcontainer/commit/41d095588ae50b8bb6094abc5b94bc61fcf273c3))
+* **deps:** Bump gcovr from 6.0 to 7.0 in /.devcontainer ([#279](https://github.com/philips-software/amp-devcontainer/issues/279)) ([cdcf39b](https://github.com/philips-software/amp-devcontainer/commit/cdcf39bd584153ce06024b1c72aa53308bc38eda))
+* **deps:** Bump ubuntu from `6042500` to `a2bbdf7` in /.devcontainer ([#268](https://github.com/philips-software/amp-devcontainer/issues/268)) ([48f20ac](https://github.com/philips-software/amp-devcontainer/commit/48f20ac5cce536541a31e893615730643513a8cf))
+* **deps:** Bump ubuntu from `a2bbdf7` to `e6173d4` in /.devcontainer ([#270](https://github.com/philips-software/amp-devcontainer/issues/270)) ([4453737](https://github.com/philips-software/amp-devcontainer/commit/445373734e545826f2c9e6e525d6fec4f8a68fb4))
+* **deps:** Bump ubuntu from `e6173d4` to `e9569c2` in /.devcontainer ([#287](https://github.com/philips-software/amp-devcontainer/issues/287)) ([41bf430](https://github.com/philips-software/amp-devcontainer/commit/41bf430ab50777c2cbb855aae994356f9159e56a))
+
 ## [4.2.0](https://github.com/philips-software/amp-devcontainer/compare/v4.1.0...v4.2.0) (2024-01-15)
 
 
