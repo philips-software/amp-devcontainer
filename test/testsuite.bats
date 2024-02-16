@@ -160,7 +160,7 @@ teardown() {
 }
 
 # bats test_tags=tc:9
-@test "coverage information should be generated when running tests" {
+@test "coverage information should be generated when running a testsuite" {
   run cmake --preset coverage
   assert_success
 
@@ -177,7 +177,7 @@ teardown() {
 }
 
 # bats test_tags=tc:10
-@test "fuzzing an executable should be supported" {
+@test "crashes should be detected when fuzzing an executable" {
   run cmake --preset clang
   assert_success
 
@@ -190,7 +190,7 @@ teardown() {
 }
 
 # bats test_tags=tc:11
-@test "mutation testing an executable should be supported" {
+@test "a mutation score should be calculated when mutation testing a testsuite" {
   run cmake --preset mutation
   assert_success
 
@@ -213,7 +213,7 @@ teardown() {
   assert_success
 }
 
-# bats test_tags=tc14
+# bats test_tags=tc:14
 @test "clangd should be able to analyze source files" {
   run clangd --check=gcc/main.cpp
   assert_success
@@ -234,4 +234,11 @@ teardown() {
   run build/gcc/gcc/test-gcc-lld
   assert_success
   assert_output "Hello World!"
+}
+
+# bats test_tags=tc:18
+@test "when the docker socket is mounted, using the docker cli should give access to the host docker daemon" {
+  run docker info
+  assert_success
+  assert_output --partial "Server Version:"
 }
