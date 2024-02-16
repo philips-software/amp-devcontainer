@@ -16,11 +16,11 @@ setup_file() {
     xwin --accept-license splat --preserve-ms-arch-notation
   fi
 
-  cp -r .xwin-cache/splat/* /winsdk/
+  cp -r .xwin-cache/splat/ /winsdk
 }
 
 teardown_file() {
-  rm -rf .xwin-hash/ /winsdk/*
+  rm -rf .xwin-hash/ /winsdk
 }
 
 setup() {
