@@ -1,6 +1,4 @@
 {
-  // This devcontainer has been set-up to run docker-from-docker scenarios as per
-  // https://github.com/microsoft/vscode-dev-containers/tree/main/containers/docker-from-docker
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
@@ -13,11 +11,14 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "jetmartin.bats",
-        "matepek.vscode-catch2-test-adapter",
-        "ms-vscode.cmake-tools",
-        "ms-vscode.cpptools",
-        "SonarSource.sonarlint-vscode"
+        "GitHub.vscode-github-actions@0.26.2",
+        "GitHub.vscode-pull-request-github@0.76.1",
+        "jetmartin.bats@0.1.10",
+        "matepek.vscode-catch2-test-adapter@4.6.3",
+        "mhutchie.git-graph@1.30.0",
+        "ms-vscode.cmake-tools@1.16.32",
+        "ms-vscode.cpptools@1.18.5",
+        "SonarSource.sonarlint-vscode@4.1.0"
       ]
     }
   }

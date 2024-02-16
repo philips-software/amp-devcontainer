@@ -1,7 +1,7 @@
-FROM ubuntu:22.04@sha256:8eab65df33a6de2844c9aefd19efe8ddb87b7df5e9185a4ab73af936225685bb
+FROM ubuntu:22.04@sha256:f9d633ff6640178c2d0525017174a688e2c1aef28f0a0130b26bd5554491f0da
 
 ARG BATS_VERSION=1.10.0
-ARG CCACHE_VERSION=4.8.3
+ARG CCACHE_VERSION=4.9
 ARG CLANG_VERSION=16
 ARG DOCKER_VERSION=24.0.6
 ARG MULL_VERSION=main
@@ -28,7 +28,7 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
 
 # Install some tools via pip to get more recent versions
 COPY .devcontainer/requirements.txt /tmp/requirements.txt
-RUN python3 -m pip install --no-cache-dir -r /tmp/requirements.txt \
+RUN python3 -m pip install --require-hashes --no-cache-dir -r /tmp/requirements.txt \
  && rm -rf /tmp/requirements.txt
 
 # Set default generator for CMake to Ninja
