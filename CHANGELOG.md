@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.4.0](https://github.com/philips-software/amp-devcontainer/compare/v4.3.0...v4.4.0) (2024-02-16)
+
+
+### Features
+
+* **deps:** Bump ubuntu from `e9569c2` to `f9d633f` in /.devcontainer ([#309](https://github.com/philips-software/amp-devcontainer/issues/309)) ([dcdd2df](https://github.com/philips-software/amp-devcontainer/commit/dcdd2dfa42cd801a755b28faac9f329cb4839d8e))
+* **deps:** Update dependencies ([079aa82](https://github.com/philips-software/amp-devcontainer/commit/079aa82b5aa8ce2081360453b17c27b02475b695))
+* **deps:** Update unzip to 6.0-26ubuntu3.2 ([#307](https://github.com/philips-software/amp-devcontainer/issues/307)) ([079aa82](https://github.com/philips-software/amp-devcontainer/commit/079aa82b5aa8ce2081360453b17c27b02475b695))
+* Remove unused package bzip2 ([#300](https://github.com/philips-software/amp-devcontainer/issues/300)) ([584aa6c](https://github.com/philips-software/amp-devcontainer/commit/584aa6c8d4dc215b902ef74850604a5eb50fc50a))
+
 ## [4.3.0](https://github.com/philips-software/amp-devcontainer/compare/v4.2.0...v4.3.0) (2024-02-12)
 
 
