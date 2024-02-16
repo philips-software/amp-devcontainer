@@ -25,7 +25,7 @@ For the full list of all included tools and tool versions see the [Dependency Gr
 
 The container can be built and tested locally by importing this repository in VS Code with the `Dev Containers` (ms-vscode-remote.remote-containers) plug-in installed. As a prerequisite Docker needs to be installed on the host system. As an alternative a GitHub Codespace can be started.
 
-A test task is available to run the included `bats` tests. Choose `Tasks: Run Task` from the command pallette and choose `Run Tests`.
+A test task is available to run the included `bats` tests. Choose `Tasks: Run Test Task` from the command pallette.
 
 ## Verify image signature
 
