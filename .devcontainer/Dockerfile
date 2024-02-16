@@ -31,8 +31,9 @@ COPY .devcontainer/requirements.txt /tmp/requirements.txt
 RUN python3 -m pip install --require-hashes --no-cache-dir -r /tmp/requirements.txt \
  && rm -rf /tmp/requirements.txt
 
-# Set default generator for CMake to Ninja
+# Set default environment options for CMake
 ENV CMAKE_GENERATOR="Ninja"
+ENV CMAKE_EXPORT_COMPILE_COMMANDS="On"
 
 # Install clang toolchain
 COPY .devcontainer/apt-requirements-clang.json /tmp/apt-requirements-clang.json
@@ -84,7 +85,8 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
  && bash "${batstmp}/bats-core-${BATS_VERSION}/install.sh" /usr/local \
  && rm -rf "${batstmp}" \
  && git -C /usr/local clone -b v0.3.0 https://github.com/bats-core/bats-support.git \
- && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
+ && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git \
+ && git -C /usr/local clone -b v0.4.0 https://github.com/bats-core/bats-file
 
 # Install xwin
 RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"

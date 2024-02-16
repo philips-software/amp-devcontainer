@@ -26,6 +26,7 @@ teardown_file() {
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
+  load '/usr/local/bats-file/load'
 }
 
 teardown() {
@@ -65,6 +66,15 @@ teardown() {
 
   run cmake --build --preset clang-cl
   assert_success
+}
+
+# bats test_tags=tc:20
+@test "compilation database should be generated on CMake configure" {
+  run cmake --preset gcc
+  assert_file_exists build/gcc/compile_commands.json
+
+  run cmake --preset gcc-arm-none-eabi
+  assert_file_exists build/gcc-arm-none-eabi/compile_commands.json
 }
 
 # bats test_tags=tc:4
