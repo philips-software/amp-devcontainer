@@ -9,9 +9,7 @@
         "isDefault": true
       },
       "command": "bats",
-      "args": [
-        "testsuite.bats"
-      ],
+      "args": ["testsuite.bats"],
       "options": {
         "cwd": "${workspaceFolder}/test"
       },
