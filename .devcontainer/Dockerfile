@@ -31,8 +31,9 @@ COPY .devcontainer/requirements.txt /tmp/requirements.txt
 RUN python3 -m pip install --require-hashes --no-cache-dir -r /tmp/requirements.txt \
  && rm -rf /tmp/requirements.txt
 
-# Set default generator for CMake to Ninja
+# Set default environment options for CMake
 ENV CMAKE_GENERATOR="Ninja"
+ENV CMAKE_EXPORT_COMPILE_COMMANDS="On"
 
 # Install clang toolchain
 COPY .devcontainer/apt-requirements-clang.json /tmp/apt-requirements-clang.json
