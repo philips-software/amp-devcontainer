@@ -1,33 +1,5 @@
 [
   {
-    "customizations": {
-      "vscode": {
-        "extensions": [
-          "llvm-vs-code-extensions.vscode-clangd@0.1.25",
-          "marus25.cortex-debug@1.12.1",
-          "matepek.vscode-catch2-test-adapter@4.7.0",
-          "mhutchie.git-graph@1.30.0",
-          "ms-vscode.cmake-tools@1.16.32",
-          "ms-vscode.cpptools@1.18.5",
-          "ms-vsliveshare.vsliveshare@1.0.5900",
-          "SonarSource.sonarlint-vscode@4.1.0",
-          "xaver.clang-format@1.9.0"
-        ],
-        "settings": {
-          "C_Cpp.intelliSenseEngine": "disabled",
-          "C_Cpp.formatting": "clangFormat",
-          "clangd.arguments": [
-            "--query-driver=/**/arm-none-eabi-*",
-            "--compile-commands-dir=${workspaceFolder}/.amp"
-          ],
-          "cmake.copyCompileCommands": "${workspaceFolder}/.amp/compile_commands.json",
-          "cortex-debug.gdbPath": "gdb-multiarch",
-          "cortex-debug.objdumpPath": "arm-none-eabi-objdump",
-          "sonarlint.pathToCompileCommands": "${workspaceFolder}/.amp/compile_commands.json"
-        }
-      }
-    },
-    "remoteEnv": { "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}" },
-    "runArgs": ["--add-host=host.docker.internal:host-gateway"]
+    "remoteEnv": { "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}" }
   }
 ]
