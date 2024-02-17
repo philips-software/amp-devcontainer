@@ -65,7 +65,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLAN
 
 # Install ccache from source for a recent version
 RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
- && CC=clang CXX=clang++ cmake -DCMAKE_BUILD_TYPE=Release -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
+ && CC=clang CXX=clang++ cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=Off -DENABLE_DOCUMENTATION=Off -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
  && cmake --build /tmp/ccache-${CCACHE_VERSION}/build --target install \
  && rm -rf /tmp/ccache-${CCACHE_VERSION}
 
