@@ -115,4 +115,4 @@ jobs:
           DIGEST_VSCODE: ${{ steps.build-and-push-vscode.outputs.digest }}
         run: |
           cosign sign --yes --recursive "${{ env.REGISTRY }}/${{ github.repository }}@${DIGEST_BASE}"
-          cosign sign --yes --recursive "${{ env.REGISTRY }}/${{ github.repository }}@${DIGEST_VSCODE}"
+          cosign sign --yes --recursive "${{ env.REGISTRY }}/${{ github.repository }}-vscode@${DIGEST_VSCODE}"
