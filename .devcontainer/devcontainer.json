@@ -3,8 +3,6 @@
     "dockerfile": "Dockerfile",
     "context": ".."
   },
-  "runArgs": ["--add-host=host.docker.internal:host-gateway"],
-  "remoteEnv": { "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}" },
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
