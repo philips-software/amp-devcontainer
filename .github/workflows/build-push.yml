@@ -96,7 +96,7 @@ jobs:
           tags: ${{ steps.metadata-vscode.outputs.tags }}
           labels: |
             ${{ steps.metadata-vscode.outputs.labels }}
-            devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
+            devcontainer.metadata=${{ fromJson(steps.devcontainer-metadata.outputs.metadata) }}
           annotations: ${{ steps.metadata-vscode.outputs.annotations }}
           sbom: true
           provenance: true
