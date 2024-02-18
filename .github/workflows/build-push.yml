@@ -85,7 +85,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-      - run: echo "metadata=$(jq -cj '.' .devcontainer/devcontainer-metadata-vscode.json)" >> "$GITHUB_OUTPUT"
+      - run: echo "metadata=$(jq tostring .devcontainer/devcontainer-metadata-vscode.json)" >> "$GITHUB_OUTPUT"
         id: devcontainer-metadata
       - uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         id: build-and-push-vscode
@@ -96,7 +96,7 @@ jobs:
           tags: ${{ steps.metadata-vscode.outputs.tags }}
           labels: |
             ${{ steps.metadata-vscode.outputs.labels }}
-            devcontainer.metadata=${{ fromJson(steps.devcontainer-metadata.outputs.metadata) }}
+            devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
           annotations: ${{ steps.metadata-vscode.outputs.annotations }}
           sbom: true
           provenance: true
