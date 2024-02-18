@@ -1,5 +1,12 @@
 [
   {
-    "remoteEnv": { "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}" }
+    "remoteEnv": { "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}" },
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "mhutchie.git-graph@1.30.0"
+        ]
+      }
+    }
   }
 ]
