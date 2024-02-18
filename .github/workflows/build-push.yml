@@ -85,7 +85,9 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-      - run: echo "metadata=$(jq -cj '.' .devcontainer/devcontainer-metadata-vscode.json)" >> "$GITHUB_OUTPUT"
+      # Generate image LABEL for devcontainer.metadata
+      # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
+      - run: echo "metadata=$(jq -cj '.' .devcontainer/devcontainer-metadata-vscode.json | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
         id: devcontainer-metadata
       - uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         id: build-and-push-vscode
@@ -96,7 +98,7 @@ jobs:
           tags: ${{ steps.metadata-vscode.outputs.tags }}
           labels: |
             ${{ steps.metadata-vscode.outputs.labels }}
-            devcontainer.metadata=[{"remoteEnv":{"LOCAL_WORKSPACE_FOLDER":"${localWorkspaceFolder}"},"customizations":{"vscode":{"extensions":["llvm-vs-code-extensions.vscode-clangd@0.1.25", "marus25.cortex-debug@1.12.1", "matepek.vscode-catch2-test-adapter@4.7.0", "mhutchie.git-graph@1.30.0", "ms-vscode.cmake-tools@1.16.32", "ms-vscode.cpptools@1.18.5", "ms-vsliveshare.vsliveshare@1.0.5900", "SonarSource.sonarlint-vscode@4.1.0", "xaver.clang-format@1.9.0"]}}}]
+            devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
           annotations: ${{ steps.metadata-vscode.outputs.annotations }}
           sbom: true
           provenance: true
