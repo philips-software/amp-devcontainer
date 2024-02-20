@@ -32,7 +32,7 @@ For the full list of all included tools and tool versions see the [Dependency Gr
 
 ### amp-devcontainer-vscode
 
-The amp-devcontainer-vscode is a, slightly more, opinionated variant that can be used in Visual Studio Code or GitHub Codespaces without any additional configuration. All included tools are set-up and necessary plug-ins will be installed at container start. This behavior is implemented by appending devcontainer metadata to an image label according to the [specifications](https://containers.dev/implementors/reference/#labels).
+The amp-devcontainer-vscode is a, slightly more, opinionated variant that can be used in Visual Studio Code or GitHub Codespaces without any additional configuration. All included tools are set-up and necessary plug-ins will be installed at container start. This behavior is implemented by appending devcontainer metadata to an image label according to the [specifications](https://containers.dev/implementors/reference/#labels). It is possible to override, amend or change the options following this [merge logic](https://containers.dev/implementors/spec/#merge-logic).
 
 ## Usage
 
