@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.5.0](https://github.com/philips-software/amp-devcontainer/compare/v4.4.0...v4.5.0) (2024-02-20)
+
+
+### Features
+
+* Add image variant with vscode specific settings ([#314](https://github.com/philips-software/amp-devcontainer/issues/314)) ([8b9c707](https://github.com/philips-software/amp-devcontainer/commit/8b9c707640140e51517144785f6c5e1348211b8a))
+* **deps:** Update ccache from v4.9.0 to v4.9.1 ([#311](https://github.com/philips-software/amp-devcontainer/issues/311)) ([b34b954](https://github.com/philips-software/amp-devcontainer/commit/b34b9549efee65533b9a94f1d5c97964608946e5))
+* Set CMAKE_EXPORT_COMPILE_COMMANDS to On ([#312](https://github.com/philips-software/amp-devcontainer/issues/312)) ([7f2ca09](https://github.com/philips-software/amp-devcontainer/commit/7f2ca0910f74d768c4f2ead96a1288466176930a))
+
+
+### Bug Fixes
+
+* Disable testing and documentation for ccache ([#315](https://github.com/philips-software/amp-devcontainer/issues/315)) ([4b27bd7](https://github.com/philips-software/amp-devcontainer/commit/4b27bd7605dd108c621a9cfd7c07076f0c528f41))
+
 ## [4.4.0](https://github.com/philips-software/amp-devcontainer/compare/v4.3.0...v4.4.0) (2024-02-16)
 
 
