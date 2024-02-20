@@ -29,10 +29,23 @@ jobs:
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
     steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          persist-credentials: false
       - uses: sigstore/cosign-installer@e1523de7571e31dbe865fd2e80c5c7c23ae71eb4 # v3.4.0
         if: ${{ github.event_name != 'merge_group' }}
+      - uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
+      - uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+        with:
+          version: v0.12.1
+      - uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        if: ${{ github.event_name != 'merge_group' }}
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
-        id: meta
+        id: metadata-base
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
@@ -45,43 +58,68 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-      - uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
-      - uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
-        with:
-          version: v0.12.0
-      - uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
-        if: ${{ github.event_name != 'merge_group' }}
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
-        id: build-and-push
+        id: build-and-push-base
         with:
           file: .devcontainer/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'merge_group' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          annotations: ${{ steps.meta.outputs.annotations }}
+          tags: ${{ steps.metadata-base.outputs.tags }}
+          labels: ${{ steps.metadata-base.outputs.labels }}
+          annotations: ${{ steps.metadata-base.outputs.annotations }}
           sbom: true
           provenance: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - uses: anchore/sbom-action@b6a39da80722a2cb0ef5d197531764a89b5d48c3 # v0.15.8
-        if: ${{ steps.build-and-push.outputs.digest != '' && github.event_name != 'merge_group' }}
+      - uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        id: metadata-vscode
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
-          image: ${{ env.REGISTRY }}/${{ github.repository }}@${{ steps.build-and-push.outputs.digest }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}-vscode
+          # Generate Docker tags based on the following events/attributes
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=pr
+            type=semver,pattern={{raw}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+      # Generate image LABEL for devcontainer.metadata
+      # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
+      - run: echo "metadata=$(jq -cj '.' .devcontainer/devcontainer-metadata-vscode.json | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
+        id: devcontainer-metadata
+      - uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
+        id: build-and-push-vscode
+        with:
+          file: .devcontainer/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'merge_group' }}
+          tags: ${{ steps.metadata-vscode.outputs.tags }}
+          labels: |
+            ${{ steps.metadata-vscode.outputs.labels }}
+            devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
+          annotations: ${{ steps.metadata-vscode.outputs.annotations }}
+          sbom: true
+          provenance: true
+          cache-from: type=gha
+      - uses: anchore/sbom-action@b6a39da80722a2cb0ef5d197531764a89b5d48c3 # v0.15.8
+        if: ${{ steps.build-and-push-base.outputs.digest != '' && github.event_name != 'merge_group' }}
+        with:
+          image: ${{ env.REGISTRY }}/${{ github.repository }}@${{ steps.build-and-push-base.outputs.digest }}
           dependency-snapshot: true
       - uses: actions/dependency-review-action@be8bc500ee15e96754d2a6f2d34be14e945a46f3 # v4.1.2
         if: ${{ github.event_name == 'pull_request' }}
         with:
           comment-summary-in-pr: on-failure
           fail-on-severity: critical
-      - name: Sign the image with GitHub OIDC token
+      - name: Sign the images with GitHub OIDC token
         if: ${{ github.event_name != 'merge_group' }}
         # This step uses the GitHub OIDC identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         env:
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
-        run: cosign sign --yes --recursive "${{ env.REGISTRY }}/${{ github.repository }}@${DIGEST}"
+          DIGEST_BASE: ${{ steps.build-and-push-base.outputs.digest }}
+          DIGEST_VSCODE: ${{ steps.build-and-push-vscode.outputs.digest }}
+        run: |
+          cosign sign --yes --recursive "${{ env.REGISTRY }}/${{ github.repository }}@${DIGEST_BASE}"
+          cosign sign --yes --recursive "${{ env.REGISTRY }}/${{ github.repository }}-vscode@${DIGEST_VSCODE}"
