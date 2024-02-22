@@ -107,9 +107,6 @@ An exclamation mark `!` is added to the type if the change is not backwards comp
 > [!NOTE]
 > We do not enforce conventional commits for individual commit messages, only for the title of your pull request.
 
-> [!TIP]
-> If your work consists of a single commit, creating a pull request will default to the name of that commit. If you use conventional commit style for that single commit, your pull request already has the correct name.
-
 Examples:
 
 - `feat: add required-tool to devcontainer`
@@ -119,6 +116,9 @@ Examples:
 - `fix!: escape fe ff in binary ports`
 
    This pull request fixes binary ports, and indicates that this is a backwards-incompatible change.
+
+> [!TIP]
+> If your work consists of a single commit, creating a pull request will default to the name of that commit. If you use conventional commit style for that single commit, your pull request already has the correct name.
 
 ### Submitting a Pull Request (PR)
 
