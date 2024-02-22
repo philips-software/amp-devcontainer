@@ -7,7 +7,7 @@ updates:
     schedule:
       interval: daily
     groups:
-      minor-and-patch-action-updates:
+      github-actions:
         update-types:
           - minor
           - patch

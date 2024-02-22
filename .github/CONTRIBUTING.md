@@ -20,6 +20,7 @@ Use your best judgment, and feel free to propose changes to this document in a p
     - [Want to improve the documentation?](#want-to-improve-the-documentation)
   - [Submission Guidelines](#submission-guidelines)
     - [Submitting an Issue](#submitting-an-issue)
+    - [Pull Request Title: Conventional Commits](#pull-request-title-conventional-commits)
     - [Submitting a Pull Request (PR)](#submitting-a-pull-request-pr)
     - [Reviewing a Pull Request](#reviewing-a-pull-request)
   - [Your First Contribution](#your-first-contribution)
@@ -32,7 +33,7 @@ Following these guidelines helps to communicate that you respect the time of the
 
 ### Learn about our code of conduct
 
-See the [code of conduct](CODE_OF_CONDUCT.md).
+See the [code of conduct](./CODE_OF_CONDUCT.md).
 
 ### Got a Question or Problem?
 
@@ -49,7 +50,7 @@ If you find a bug in the source code or a mistake in the documentation, you can 
 
 ### Found a security vulnerability?
 
-If you discover a vulnerability in our software, please contact a [maintainer](.github/CODEOWNERS) directly and report it appropriately.
+If you discover a vulnerability in our software, please refer to the [security policy](./SECURITY.md) and report it appropriately.
 Do not submit an issue, unless asked to.
 
 ### Missing a Feature?
@@ -83,9 +84,45 @@ Unfortunately, we are not able to investigate/fix bugs without minimal reproduct
 
 You can file new issues by selecting from our new issue templates and filling out the issue template.
 
+### Pull Request Title: Conventional Commits
+
+The title of your Pull Request (PR) should follow the style of [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Not only does this present a standardized categorization of the kind of work done on a pull request, but it also instructs the release workflow to increment the correct level of the version according to the rules of [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+The format of the title of the pull request is this:
+
+ `<type>[(optional scope)][!]: <description>`
+
+The `<type>` of the pull request is one of these:
+
+- `feat:` adding new functionality
+- `fix:` fixing a bug
+- `test:` adding, improving, fixing tests
+- `ci:` modifications on how GitHub interacts with the archive: workflows and configuration files
+- `docs:` anything documentation related
+- `refactor:` refactoring code, including applying formatters
+- `chore:` a catch-all type for any other commits
+
+An exclamation mark `!` is added to the type if the change is not backwards compatible. This should only be added to `feat` or `fix`.
+
+> [!NOTE]
+> We do not enforce conventional commits for individual commit messages, only for the title of your pull request.
+
+Examples:
+
+- `feat: add required-tool to devcontainer`
+
+   This pull request adds the "required-tool" to the devcontainer because everybody want to use it.
+
+- `fix!: escape fe ff in binary ports`
+
+   This pull request fixes binary ports, and indicates that this is a backwards-incompatible change.
+
+> [!TIP]
+> If your work consists of a single commit, creating a pull request will default to the name of that commit. If you use conventional commit style for that single commit, your pull request already has the correct name.
+
 ### Submitting a Pull Request (PR)
 
-Before you submit your Pull Request (PR) consider the following guidelines:
+Before you submit your pull request consider the following guidelines:
 
 1. Search the GitHub Repository for an open or closed PR that relates to your submission.
    You don't want to duplicate existing efforts.
@@ -98,7 +135,7 @@ Before you submit your Pull Request (PR) consider the following guidelines:
 1. Make your changes in a new git branch:
 
    ```shell
-   git checkout -b my-fix-branch main
+   git checkout -b feature/my-fix-branch main
    ```
 
 1. Create your patch, include tests if necessary.
@@ -116,7 +153,7 @@ Before you submit your Pull Request (PR) consider the following guidelines:
 1. Push your branch to your GitHub fork:
 
    ```shell
-   git push origin my-fix-branch
+   git push origin feature/my-fix-branch
    ```
 
 1. In GitHub, send a pull request to merge from the branch on your fork to the main branch in the upstream.
