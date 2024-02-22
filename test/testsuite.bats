@@ -262,6 +262,10 @@ teardown() {
   assert_failure
   assert_output --partial "AddressSanitizer: stack-buffer-overflow"
 
+  run build/gcc/sanitizers/test-threadsan
+  assert_failure
+  assert_output --partial "ThreadSanitizer: data race"
+
   run build/gcc/sanitizers/test-ubsan
   assert_failure
   assert_output --partial "runtime error: load of null pointer"
@@ -280,6 +284,10 @@ teardown() {
   run build/clang/sanitizers/test-memsan
   assert_failure
   assert_output --partial "MemorySanitizer: use-of-uninitialized-value"
+
+  run build/clang/sanitizers/test-threadsan
+  assert_failure
+  assert_output --partial "ThreadSanitizer: data race"
 
   run build/clang/sanitizers/test-ubsan
   assert_failure

@@ -69,7 +69,7 @@
     {
       "name": "clang-sanitizers",
       "configurePreset": "clang",
-      "targets": ["test-asan", "test-memsan", "test-ubsan"]
+      "targets": ["test-asan", "test-memsan", "test-threadsan", "test-ubsan"]
     },
     {
       "name": "clang-tidy",
@@ -104,7 +104,7 @@
     {
       "name": "gcc-sanitizers",
       "configurePreset": "gcc",
-      "targets": ["test-asan", "test-ubsan"]
+      "targets": ["test-asan", "test-threadsan", "test-ubsan"]
     },
     {
       "name": "gcc-arm-none-eabi",
