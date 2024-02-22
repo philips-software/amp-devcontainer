@@ -1,5 +1,5 @@
 ---
-name: Evaluate tool 
+name: Evaluate tool versions
 
 on:
   schedule:
