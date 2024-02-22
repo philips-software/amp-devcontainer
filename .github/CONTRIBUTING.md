@@ -86,7 +86,7 @@ You can file new issues by selecting from our new issue templates and filling ou
 
 ### Pull Request Title: Conventional Commits
 
-The title of your Pull Request (PR) should follow the style of [Conventional Commits](<https://www.conventionalcommits.org/en/v1.0.0/>). Not only does this present a standardized categorization of the kind of work done on a pull request, but it also instructs the release workflow to increment the correct level of the version according to the rules of [Semantic Versioning](<https://semver.org/>).
+The title of your Pull Request (PR) should follow the style of [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Not only does this present a standardized categorization of the kind of work done on a pull request, but it also instructs the release workflow to increment the correct level of the version according to the rules of [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 The format of the title of the pull request is this:
 
@@ -98,7 +98,7 @@ The `<type>` of the pull request is one of these:
 - `fix:` fixing a bug
 - `test:` adding, improving, fixing tests
 - `ci:` modifications on how GitHub interacts with the archive: workflows and configuration files
-- `doc:` anything documentation related
+- `docs:` anything documentation related
 - `refactor:` refactoring code, including applying formatters
 - `chore:` a catch-all type for any other commits
 
