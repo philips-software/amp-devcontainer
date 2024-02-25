@@ -49,18 +49,18 @@ jobs:
             version should be logged as issue comment. The general philosophy is to always include the latest tool versions
             and the latest [LTS](https://ubuntu.com/about/release-cycle) version of Ubuntu.
 
-            Please note that, where possible, tool versions are kept up-to-date by Dependabot. Below list includes tools that
+            Please note that, where possible, tool versions are kept up to date by Dependabot. Below list includes tools that
             are not under Dependabot control.
 
             ## Checklist
 
             - [ ] The image is based on the latest LTS version of Ubuntu
-            - [ ] The GCC and GNU ARM GCC toolchains are up-to-date and match in version
-            - [ ] The Clang toolchain is up-to-date
-            - [ ] The Docker cli is up-to-date
-            - [ ] bats-core, bats-support and bats-assert are up-to-date
-            - [ ] Mull is up-to-date and compatible with the currently installed Clang version
-            - [ ] include-what-you-use is up-to-date and compatible with the currently installed Clang version
-            - [ ] xwin is up-to-date
+            - [ ] The GCC and [ARM GNU](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) toolchains are up to date and match in version
+            - [ ] The Clang toolchain is up to date
+            - [ ] The [Docker cli](https://download.docker.com/linux/static/stable/) is up to date
+            - [ ] [bats-core](https://github.com/bats-core/bats-core), [bats-support](https://github.com/bats-core/bats-support) and [bats-assert](https://github.com/bats-core/bats-assert) are up to date
+            - [ ] [Mull](https://github.com/mull-project/mull) is up to date and compatible with the currently installed Clang version
+            - [ ] [include-what-you-use](https://github.com/include-what-you-use/include-what-you-use) is up to date and compatible with the currently installed Clang version
+            - [ ] [xwin](https://github.com/Jake-Shadle/xwin) is up to date
           PINNED: true
           CLOSE_PREVIOUS: true
