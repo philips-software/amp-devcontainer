@@ -35,9 +35,10 @@ jobs:
 
             We require pull request titles to follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) and it looks like your proposed title needs to be adjusted.
 
-            | :warning: Details                           |
-            |:--------------------------------------------|
-            | ${{ steps.pr-title.outputs.error_message }} |
+            :warning: Details
+
+            ${{ steps.pr-title.outputs.error_message }}
+
       - if: steps.pr-title.outputs.error_message == null
         uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
         with:
