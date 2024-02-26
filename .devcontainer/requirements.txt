@@ -23,9 +23,13 @@ cmake==3.28.3 \
     --hash=sha256:f5573c453f7a6c213c82741c173d174b5c6b576eea5cc00e2a8a5a30c40244b3 \
     --hash=sha256:f6fc9755979d17970ca6d9688fb5cdd3702c9eaa7ac1ee97074e3d39d3400970
     # via -r requirements.in
-gcovr==7.0 \
-    --hash=sha256:9bb365aadaf0c8d95fb457bba9f6fb6e306804faedc883786d90a72f93ed2d57 \
-    --hash=sha256:d4124f89e9299cce4a0b2fda9b9cd6c07c4b7d0e94705eb071fd332671ee1125
+colorlog==6.8.2 \
+    --hash=sha256:3e3e079a41feb5a1b64f978b5ea4f46040a94f11f0e8bbb8261e3dbbeca64d44 \
+    --hash=sha256:4dcbb62368e2800cb3c5abd348da7e53f6c362dda502ec27c560b2e58a66bd33
+    # via gcovr
+gcovr==7.2 \
+    --hash=sha256:e3e95cb56ca88dbbe741cb5d69aa2be494eb2fc2a09ee4f651644a670ee5aeb3 \
+    --hash=sha256:fd5cc432c9df863983c530dbd5077937c730b6589117916c188577681469b395
     # via -r requirements.in
 jinja2==3.1.3 \
     --hash=sha256:7d6d50dd97d52cbc355597bd845fabfbac3f551e1f99619e39a35ce8c370b5fa \
@@ -190,4 +194,8 @@ markupsafe==2.1.3 \
 pygments==2.17.2 \
     --hash=sha256:b27c2826c47d0f3219f29554824c30c5e8945175d888647acd804ddd04af846c \
     --hash=sha256:da46cec9fd2de5be3a8a784f434e4c4ab670b4ff54d605c4c2717e9d49c4c367
+    # via gcovr
+tomli==2.0.1 \
+    --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
+    --hash=sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f
     # via gcovr
