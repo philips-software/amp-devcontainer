@@ -251,3 +251,45 @@ teardown() {
   assert_success
   assert_output --partial "Server Version:"
 }
+
+# bats test_tags=tc:21
+@test "sanitizers should detect undefined or suspicious behavior in code compiled with gcc" {
+  run cmake --preset gcc
+  run cmake --build --preset gcc-sanitizers
+  assert_success
+
+  run build/gcc/sanitizers/test-asan
+  assert_failure
+  assert_output --partial "AddressSanitizer: stack-buffer-overflow"
+
+  run build/gcc/sanitizers/test-threadsan
+  assert_failure
+  assert_output --partial "ThreadSanitizer: data race"
+
+  run build/gcc/sanitizers/test-ubsan
+  assert_failure
+  assert_output --partial "runtime error: load of null pointer"
+}
+
+# bats test_tags=tc:22
+@test "sanitizers should detect undefined or suspicious behavior in code compiled with clang" {
+  run cmake --preset clang
+  run cmake --build --preset clang-sanitizers
+  assert_success
+
+  run build/clang/sanitizers/test-asan
+  assert_failure
+  assert_output --partial "AddressSanitizer: stack-buffer-overflow"
+
+  run build/clang/sanitizers/test-memsan
+  assert_failure
+  assert_output --partial "MemorySanitizer: use-of-uninitialized-value"
+
+  run build/clang/sanitizers/test-threadsan
+  assert_failure
+  assert_output --partial "ThreadSanitizer: data race"
+
+  run build/clang/sanitizers/test-ubsan
+  assert_failure
+  assert_output --partial "runtime error: load of null pointer"
+}

@@ -7,7 +7,6 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_BUILD_TYPE": "Debug"
       }
     },
@@ -63,14 +62,19 @@
       "targets": ["test-clang-cl"]
     },
     {
-      "name": "clang-tidy",
-      "configurePreset": "clang",
-      "targets": ["test-clang-tidy"]
-    },
-    {
       "name": "clang-iwyu",
       "configurePreset": "clang",
       "targets": ["test-clang-iwyu"]
+    },
+    {
+      "name": "clang-sanitizers",
+      "configurePreset": "clang",
+      "targets": ["test-asan", "test-memsan", "test-threadsan", "test-ubsan"]
+    },
+    {
+      "name": "clang-tidy",
+      "configurePreset": "clang",
+      "targets": ["test-clang-tidy"]
     },
     {
       "name": "coverage",
@@ -96,6 +100,11 @@
       "name": "gcc-lld",
       "configurePreset": "gcc",
       "targets": ["test-gcc-lld"]
+    },
+    {
+      "name": "gcc-sanitizers",
+      "configurePreset": "gcc",
+      "targets": ["test-asan", "test-threadsan", "test-ubsan"]
     },
     {
       "name": "gcc-arm-none-eabi",
