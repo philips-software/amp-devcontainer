@@ -20,8 +20,8 @@ Use your best judgment, and feel free to propose changes to this document in a p
     - [Want to improve the documentation?](#want-to-improve-the-documentation)
   - [Submission Guidelines](#submission-guidelines)
     - [Submitting an Issue](#submitting-an-issue)
-    - [Pull Request Title: Conventional Commits](#pull-request-title-conventional-commits)
-    - [Submitting a Pull Request (PR)](#submitting-a-pull-request-pr)
+    - [Naming a Pull Request (PR)](#naming-a-pull-request-pr)
+    - [Submitting a Pull Request](#submitting-a-pull-request)
     - [Reviewing a Pull Request](#reviewing-a-pull-request)
   - [Your First Contribution](#your-first-contribution)
 
@@ -84,7 +84,7 @@ Unfortunately, we are not able to investigate/fix bugs without minimal reproduct
 
 You can file new issues by selecting from our new issue templates and filling out the issue template.
 
-### Pull Request Title: Conventional Commits
+### Naming a Pull Request (PR)
 
 The title of your Pull Request (PR) should follow the style of [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Not only does this present a standardized categorization of the kind of work done on a pull request, but it also instructs the release workflow to increment the correct level of the version according to the rules of [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -92,15 +92,19 @@ The format of the title of the pull request is this:
 
  `<type>[(optional scope)][!]: <description>`
 
-The `<type>` of the pull request is one of these:
+The `<type>` of the pull request is one of these, taken from [conventional commit types](https://github.com/commitizen/conventional-commit-types):
 
-- `feat:` adding new functionality
-- `fix:` fixing a bug
-- `test:` adding, improving, fixing tests
-- `ci:` modifications on how GitHub interacts with the archive: workflows and configuration files
-- `docs:` anything documentation related
-- `refactor:` refactoring code, including applying formatters
-- `chore:` a catch-all type for any other commits
+- `feat:` a new feature
+- `fix:` a bug fix
+- `docs:` documentation only changes
+- `style:` changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+- `refactor:` a code change that neither fixes a bug nor adds a feature
+- `perf:` a code change that improves performance
+- `test:` adding missing tests or correcting existing tests
+- `build:` changes that affect the build system or external dependencies
+- `ci:` changes to our CI configuration files and scripts
+- `chore:` other changes that don't modify source or test files
+- `revert:` reverts a previous commit
 
 An exclamation mark `!` is added to the type if the change is not backwards compatible. This should only be added to `feat` or `fix`.
 
@@ -120,7 +124,7 @@ Examples:
 > [!TIP]
 > If your work consists of a single commit, creating a pull request will default to the name of that commit. If you use conventional commit style for that single commit, your pull request already has the correct name.
 
-### Submitting a Pull Request (PR)
+### Submitting a Pull Request
 
 Before you submit your pull request consider the following guidelines:
 
