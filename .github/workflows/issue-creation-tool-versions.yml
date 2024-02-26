@@ -1,15 +1,14 @@
 ---
-name: Evaluate tool versions
+name: Evaluate Tool Versions
 
 on:
   schedule:
     - cron: 0 0 1 */3 *
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
-  create_issue:
+  create-issue:
     name: Create tool version evaluation issue
     runs-on: ubuntu-latest
     permissions:

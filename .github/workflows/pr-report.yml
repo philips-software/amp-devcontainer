@@ -1,4 +1,5 @@
-name: PR Report
+---
+name: Pull Request Report
 
 on:
   pull_request:

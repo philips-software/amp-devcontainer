@@ -12,8 +12,7 @@ on:
 permissions: read-all
 
 jobs:
-  analysis:
-    name: OSSF Scorecard
+  ossf-scorecard:
     runs-on: ubuntu-latest
     permissions:
       security-events: write

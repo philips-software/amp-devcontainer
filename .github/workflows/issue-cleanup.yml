@@ -1,5 +1,5 @@
 ---
-name: Close stale issues and PRs
+name: Close Stale Issues & Pull Requests
 
 on:
   schedule:
@@ -20,5 +20,5 @@ jobs:
           stale-issue-label: "stale"
           stale-pr-label: "stale"
           stale-issue-message: "This issue is marked stale because it has been open for an extended period with no activity. Remove the 'stale' label or comment otherwise this issue will be closed in 7 days."
-          stale-pr-message: "This PR is marked stale because it has been open for an extended period with no activity. Remove the 'stale' label or comment otherwise this PR will be closed in 7 days."
+          stale-pr-message: "This pull request is marked stale because it has been open for an extended period with no activity. Remove the 'stale' label or comment otherwise this pull request will be closed in 7 days."
           exempt-all-milestones: true
