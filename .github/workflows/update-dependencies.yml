@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  update:
+  update-apt-dependencies:
     runs-on: ubuntu-latest
     # Using our own container is required since we need all package sources
     # set-up correctly.

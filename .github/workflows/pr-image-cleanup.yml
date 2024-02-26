@@ -1,4 +1,5 @@
-name: Cleanup Pull-Request Image
+---
+name: Cleanup Pull Request Images
 
 on:
   pull_request:
