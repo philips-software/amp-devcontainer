@@ -8,12 +8,13 @@ on:
       - edited
       - synchronize
 
-permissions:
-  pull-requests: read
+permissions: {}
 
 jobs:
   validate-pr-title:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: amannn/action-semantic-pull-request@e9fabac35e210fea40ca5b14c0da95a099eff26f # v5.4.0
         id: pr-title
@@ -25,19 +26,24 @@ jobs:
             doesn't start with an uppercase character.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - if: always() && steps.pr-title.outputs.error_message != null
-        run: gh pr comment "$PR_NUMBER" --body "$BODY"
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_REPO: ${{ github.repository }}
-      PR_NUMBER: ${{ github.event.pull_request.number }}
-      BODY: |
-        Hey there and thank you for opening this pull request! 👋🏼
+      - uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
+        if: always() && steps.pr-title.outputs.error_message != null
+        with:
+          header: pr-title-lint-error
+          message: |
+            Hey there and thank you for opening this pull request! 👋🏼
 
-        We require pull request titles to follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) and it looks like your proposed title needs to be adjusted.
+            We require pull request titles to follow the [Conventional Commits specification]
+            (https://www.conventionalcommits.org/en/v1.0.0/) and it looks like your proposed
+            title needs to be adjusted.
 
-        Details:
+            Details:
 
-        ```
-        ${{ steps.pr-title.outputs.error_message }}
-        ```
+            ```
+            ${{ steps.pr-title.outputs.error_message }}
+            ```
+      - if: steps.pr-title.outputs.error_message == null
+        uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
+        with:   
+          header: pr-title-lint-error
+          delete: true
