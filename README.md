@@ -82,7 +82,7 @@ The resulting containers can be used in a `.devcontainer.json` file or in a `.de
 ## Community
 
 This project uses a [code of conduct](.github/CODE_OF_CONDUCT.md) to define expected conduct in our community. Instances of
-abusive, harassing, or otherwise unacceptable behavior may be reported to the repository administrators by using the [`Report content`](https://docs.github.com/en/communities/maintaining-your-safety-on-github/reporting-abuse-or-spam) functionality of GitHub.
+abusive, harassing, or otherwise unacceptable behavior may be reported to the repository administrators by using the [Report content](https://docs.github.com/en/communities/maintaining-your-safety-on-github/reporting-abuse-or-spam) functionality of GitHub.
 
 ## Changelog
 
@@ -94,7 +94,7 @@ This project uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.htm
 
 ### Build & Test
 
-The container can be built and tested locally by importing this repository in VS Code with the [`Remote Containers`](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) plug-in installed. As a prerequisite Docker needs to be installed on the host system. Alternatively a GitHub Codespace can be started.
+The container can be built and tested locally by importing this repository in VS Code with the [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) plug-in installed. As a prerequisite Docker needs to be installed on the host system. Alternatively a GitHub Codespace can be started.
 
 A test task is available to run the included `bats` tests. Choose `Tasks: Run Test Task` from the command pallette (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>).
 
