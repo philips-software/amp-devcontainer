@@ -1,5 +1,5 @@
 ---
-name: Supply-chain security
+name: Supply-chain Security
 
 on:
   workflow_dispatch:
