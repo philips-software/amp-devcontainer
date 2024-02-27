@@ -23,14 +23,16 @@ get_sizes_from_manifest() {
 get_sizes_from_manifest ${FROM_CONTAINER} FROM_CONTAINER_SIZES
 get_sizes_from_manifest ${TO_CONTAINER} TO_CONTAINER_SIZES
 
-echo "## Compressed layer size comparison\n\n"
-echo "Comparing ${FROM_CONTAINER} to ${TO_CONTAINER}\n\n"
-echo "| OS/Platform | Previous Size | Current Size | Delta |\n"
-echo "|-------------|---------------|--------------|-------|\n"
+echo "## Compressed layer size comparison"
+echo
+echo "Comparing ${FROM_CONTAINER} to ${TO_CONTAINER}"
+echo
+echo "| OS/Platform | Previous Size | Current Size | Delta |"
+echo "|-------------|---------------|--------------|-------|"
 for PLATFORM in "${!FROM_CONTAINER_SIZES[@]}";
 do
     BASE_SIZE=${FROM_CONTAINER_SIZES[${PLATFORM}]}
     HEAD_SIZE=${TO_CONTAINER_SIZES[${PLATFORM}]}
 
-    echo "| ${PLATFORM} | $(numfmt --to iec --format '%.2f' ${BASE_SIZE}) | $(numfmt --to iec --format '%.2f' ${HEAD_SIZE}) | $(numfmt --to iec --format '%.2f' -- $((${HEAD_SIZE} - ${BASE_SIZE}))) $(python -c "print('({:+0.2f}%)'.format(((${HEAD_SIZE} - ${BASE_SIZE}) / ${BASE_SIZE}) * 100))") |\n"
+    echo "| ${PLATFORM} | $(numfmt --to iec --format '%.2f' ${BASE_SIZE}) | $(numfmt --to iec --format '%.2f' ${HEAD_SIZE}) | $(numfmt --to iec --format '%.2f' -- $((${HEAD_SIZE} - ${BASE_SIZE}))) $(python -c "print('({:+0.2f}%)'.format(((${HEAD_SIZE} - ${BASE_SIZE}) / ${BASE_SIZE}) * 100))") |";
 done
