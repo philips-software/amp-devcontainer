@@ -23,11 +23,12 @@ runs:
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
     - run: |
-        {
-          echo "markdown<<EOF"
-          echo $(container-size-diff.sh ${INPUT_FROM_CONTAINER} ${INPUT_TO_CONTAINER})
-          echo EOF
-        } >> "$GITHUB_OUTPUT"
+        MARKDOWN=$(container-size-diff.sh ${INPUT_FROM_CONTAINER} ${INPUT_TO_CONTAINER})
+        MARKDOWN="${MARKDOWN//'%'/'%25'}"
+        MARKDOWN="${MARKDOWN//$'\n'/'%0A'}"
+        MARKDOWN="${MARKDOWN//$'\r'/'%0D'}"
+
+        echo "markdown=${MARKDOWN}" >> "$GITHUB_OUTPUT"
       id: size-diff
       shell: bash
       env:
