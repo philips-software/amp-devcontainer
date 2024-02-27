@@ -23,7 +23,7 @@ runs:
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
     - run: |
-        MARKDOWN=$(container-size-diff.sh ${INPUT_FROM_CONTAINER} ${INPUT_TO_CONTAINER})
+        MARKDOWN="$(container-size-diff.sh ${INPUT_FROM_CONTAINER} ${INPUT_TO_CONTAINER})"
         MARKDOWN="${MARKDOWN//'%'/'%25'}"
         MARKDOWN="${MARKDOWN//$'\n'/'%0A'}"
         MARKDOWN="${MARKDOWN//$'\r'/'%0D'}"
