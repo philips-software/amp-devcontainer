@@ -1,5 +1,5 @@
 ---
-name: Pull request Conventional Title
+name: Pull Request Conventional Title
 
 on:
   pull_request:

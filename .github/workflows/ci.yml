@@ -33,6 +33,15 @@ jobs:
           tags: ${{ github.repository }}:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - uses: ./.github/container-size-diff
+        id: container-size-diff
+        with:
+          from-container: ghcr.io/${{ github.repository }}:latest
+          to-container: ghcr.io/${{ github.repository }}:test
+      - uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
+        with:
+          header: container-size-diff
+          message: ${{ steps.container-size-diff.outputs.markdown }}
       - uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: test/.xwin-cache
