@@ -18,7 +18,9 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: echo "markdown=$(container-size-diff.sh ${INPUT_FROM_CONTAINER} ${INPUT_TO_CONTAINER})" >> "$GITHUB_OUTPUT"
+    - run: |
+        set -Eeuo pipefail
+        echo "markdown=$(./container-size-diff.sh ${INPUT_FROM_CONTAINER} ${INPUT_TO_CONTAINER})" >> "$GITHUB_OUTPUT"
       id: size-diff
       shell: bash
       env:
