@@ -111,7 +111,8 @@ jobs:
       - uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
         with:
           header: container-size-diff
-          message: "${{ steps.container-size-diff.outputs.size-diff-markdown }}"
+          message: |
+            ${{ steps.container-size-diff.outputs.size-diff-markdown }}
       - uses: anchore/sbom-action@b6a39da80722a2cb0ef5d197531764a89b5d48c3 # v0.15.8
         if: steps.build-and-push-base.outputs.digest != '' && github.event_name != 'merge_group'
         with:
