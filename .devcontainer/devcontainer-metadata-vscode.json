@@ -15,20 +15,20 @@
           "ms-vsliveshare.vsliveshare@1.0.5905",
           "SonarSource.sonarlint-vscode@4.3.0",
           "xaver.clang-format@1.9.0"
-        ]
-      },
-      "settings": {
-        "C_Cpp.intelliSenseEngine": "disabled",
-        "C_Cpp.formatting": "clangFormat",
-        "clangd.arguments": [
-          "--query-driver=/opt/**/arm-none-eabi-*",
-          "--compile-commands-dir=${userHome}/.amp"
         ],
-        "cmake.copyCompileCommands": "${userHome}/.amp/compile_commands.json",
-        "cmake.options.statusBarVisibility": "compact",
-        "cortex-debug.gdbPath": "gdb-multiarch",
-        "cortex-debug.objdumpPath": "arm-none-eabi-objdump",
-        "sonarlint.pathToCompileCommands": "${userHome}/.amp/compile_commands.json"
+        "settings": {
+          "C_Cpp.intelliSenseEngine": "disabled",
+          "C_Cpp.formatting": "clangFormat",
+          "clangd.arguments": [
+            "--query-driver=/opt/**/arm-none-eabi-*",
+            "--compile-commands-dir=${userHome}/.amp"
+          ],
+          "cmake.copyCompileCommands": "${userHome}/.amp/compile_commands.json",
+          "cmake.options.statusBarVisibility": "compact",
+          "cortex-debug.gdbPath": "gdb-multiarch",
+          "cortex-debug.objdumpPath": "arm-none-eabi-objdump",
+          "sonarlint.pathToCompileCommands": "/root/.amp/compile_commands.json"
+        }
       }
     }
   }
