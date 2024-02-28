@@ -6,7 +6,7 @@ FILE=${1:?}
 
 sudo apt-get update
 sudo apt-get install --no-install-recommends -y jq
-sudo npm install -g vsce
+sudo npm install -g @vscode/vsce
 
 JSON=$(cat $FILE)
 EXTENSIONS=
