@@ -4,9 +4,9 @@ set -Eeuo pipefail
 
 FILE=${1:?}
 
-apt-get update
-apt-get install --no-install-recommends -y jq
-npm install -g vsce
+sudo apt-get update
+sudo apt-get install --no-install-recommends -y jq
+sudo npm install -g vsce
 
 JSON=$(cat $FILE)
 EXTENSIONS=
