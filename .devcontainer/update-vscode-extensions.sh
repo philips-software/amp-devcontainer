@@ -13,8 +13,7 @@ EXTENSIONS=
 
 for EXTENSION in $(echo $JSON | jq -r '.[].customizations.vscode.extensions | flatten[]'); do
     NAME="${EXTENSION%%@*}"
-    echo vsce show --json $NAME
-    VERSION=$(vsce show --json $NAME | jq -s '.versions[0].version')
+    VERSION=$(vsce show --json $NAME | jq -r '.versions[0].version')
 
     EXTENSIONS="\"$NAME@$VERSION\",$EXTENSIONS"
 done
