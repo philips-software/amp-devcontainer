@@ -20,13 +20,28 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - name: Update dependencies
+      - run: ./update-apt-dependencies.sh apt-requirements-base.json apt-requirements-clang.json
         working-directory: .devcontainer
-        run: ./update-dependencies.sh apt-requirements-base.json apt-requirements-clang.json
       - uses: peter-evans/create-pull-request@b1ddad2c994a25fbc81a28b3ec0e368bb2021c50 # v6.0.0
         with:
-          commit-message: "feat(deps): update dependencies"
+          commit-message: "feat(deps): update apt dependencies"
           branch: feature/update-apt-dependencies
-          title: "feat(deps): update dependencies"
-          labels: dependencies
+          title: "feat(deps): update group apt dependencies"
+          labels: dependencies,apt
+          token: ${{ secrets.AMP_RELEASER_TOKEN }}
+  update-vscode-extensions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - run: ./update-vscode-extensions.sh devcontainer-metadata-vscode.json
+        working-directory: .devcontainer
+      - uses: peter-evans/create-pull-request@b1ddad2c994a25fbc81a28b3ec0e368bb2021c50 # v6.0.0
+        with:
+          commit-message: "feat(deps): update vscode extensions"
+          branch: feature/update-vscode-extensions
+          title: "feat(deps): update group vscode extensions"
+          labels: dependencies,vscode-extensions
           token: ${{ secrets.AMP_RELEASER_TOKEN }}
