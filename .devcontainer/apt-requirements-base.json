@@ -1,13 +1,13 @@
 {
-  "ca-certificates": "20230311ubuntu0.22.04.1",
-  "g++-12": "12.3.0-1ubuntu1~22.04",
-  "gdb-multiarch": "12.1-0ubuntu1~22.04",
-  "git": "1:2.34.1-1ubuntu1.10",
-  "gnupg2": "2.2.27-3ubuntu2.1",
-  "ninja-build": "1.10.1-1",
-  "python3-pip": "22.0.2+dfsg-1ubuntu0.4",
-  "unzip": "6.0-26ubuntu3.2",
-  "wget": "1.21.2-2ubuntu1",
-  "xsltproc": "1.1.34-4ubuntu0.22.04.1",
-  "xz-utils": "5.2.5-2ubuntu1"
+  "ca-certificates": "20240203",
+  "g++-13": "13.2.0-13ubuntu1",
+  "gdb-multiarch": "15.0.50.20240219-0ubuntu1",
+  "git": "1:2.43.0-1ubuntu1",
+  "gnupg2": "2.4.4-2ubuntu7",
+  "ninja-build": "1.11.1-2",
+  "python3-pip": "23.3+dfsg-1",
+  "unzip": "6.0-28ubuntu3",
+  "wget": "1.21.4-1ubuntu1",
+  "xsltproc": "1.1.35-1",
+  "xz-utils": "5.4.5-0.3"
 }
