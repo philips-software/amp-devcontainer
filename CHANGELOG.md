@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.6.0](https://github.com/philips-software/amp-devcontainer/compare/v4.5.0...v4.6.0) (2024-02-29)
+
+
+### Features
+
+* Add tests for sanitizers ([#320](https://github.com/philips-software/amp-devcontainer/issues/320)) ([0ea39ba](https://github.com/philips-software/amp-devcontainer/commit/0ea39ba5aad7f93d639b3a080b26aadffce003a6))
+* Automatically update vscode extensions ([#332](https://github.com/philips-software/amp-devcontainer/issues/332)) ([12381a6](https://github.com/philips-software/amp-devcontainer/commit/12381a6805d977b77c575d0be2bcedbb22a54435))
+* **deps:** Bump gcovr from 7.0 to 7.2 in /.devcontainer ([#323](https://github.com/philips-software/amp-devcontainer/issues/323)) ([1e52f39](https://github.com/philips-software/amp-devcontainer/commit/1e52f39d31da8958da5157874b12fafef733e9d0))
+
+
+### Bug Fixes
+
+* Move customizations.vscode.settings to the correct level ([#329](https://github.com/philips-software/amp-devcontainer/issues/329)) ([87af97f](https://github.com/philips-software/amp-devcontainer/commit/87af97fccca4ab67fbb69a6f6b3be44ec86e145a))
+
 ## [4.5.0](https://github.com/philips-software/amp-devcontainer/compare/v4.4.0...v4.5.0) (2024-02-20)
 
 
