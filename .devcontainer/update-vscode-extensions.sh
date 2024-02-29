@@ -18,6 +18,6 @@ for EXTENSION in $(echo $JSON | jq -r '.[].customizations.vscode.extensions | fl
     EXTENSIONS="\"$NAME@$VERSION\",$EXTENSIONS"
 done
 
-EXTENSIONS=${EXTENSIONS::-1}
+EXTENSIONS=$(echo "[${EXTENSIONS::-1}]" | jq 'sort_by(. | ascii_downcase)')
 
-echo $JSON | jq '.[].customizations.vscode.extensions = $extensions | sort' --argjson extensions "[$EXTENSIONS]" > $FILE
+echo $JSON | jq '.[].customizations.vscode.extensions = $extensions' --argjson extensions "$EXTENSIONS" > $FILE
