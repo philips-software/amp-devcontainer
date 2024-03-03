@@ -24,7 +24,6 @@
             "--compile-commands-dir=${userHome}/.amp"
           ],
           "cmake.copyCompileCommands": "${userHome}/.amp/compile_commands.json",
-          "cmake.options.statusBarVisibility": "compact",
           "cortex-debug.gdbPath": "gdb-multiarch",
           "cortex-debug.objdumpPath": "arm-none-eabi-objdump",
           "sonarlint.pathToCompileCommands": "/root/.amp/compile_commands.json"
