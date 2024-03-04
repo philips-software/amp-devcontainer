@@ -4,6 +4,7 @@ name: Evaluate Tool Versions
 on:
   schedule:
     - cron: 0 0 1 */3 *
+  workflow_dispatch:
 
 permissions: {}
 
@@ -42,20 +43,18 @@ jobs:
           BODY: |
             ## Description
 
-            This issue is automatically created as a gentle reminder to evaluate the tool versions, and base container, for
-            the container image built from this repository. The checklist below describes the steps that should be taken,
-            and checked-off before this issue can be closed. Any decisions about purposefully not updating a tool to a newer
-            version should be logged as issue comment. The general philosophy is to always include the latest tool versions
-            and the latest [LTS](https://ubuntu.com/about/release-cycle) version of Ubuntu.
+            This issue is automatically created as a gentle reminder to evaluate and update the tool versions for the container image built from this repository.
+            The checklist below describes the steps that should be taken, and checked-off before this issue can be closed.
+            Any decisions about purposefully not updating a tool to a newer version should be logged as issue comment.
+            The general philosophy is to always include the latest tool versions and the latest [LTS](https://ubuntu.com/about/release-cycle) version of Ubuntu.
 
-            Please note that, where possible, tool versions are kept up to date by Dependabot. Below list includes tools that
-            are not under Dependabot control.
+            Please note that, where possible, tool versions are kept up to date by Dependabot.
+            Below list includes tools that are not under Dependabot control.
 
             ## Checklist
 
-            - [ ] The image is based on the latest LTS version of Ubuntu
-            - [ ] The GCC and [ARM GNU](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) toolchains are up to date and match in version
-            - [ ] The Clang toolchain is up to date
+            - [ ] The [ARM GNU](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) toolchain is up to date and matches with the GCC version
+            - [ ] The [Clang toolchain](https://apt.llvm.org/) is up to date
             - [ ] The [Docker cli](https://download.docker.com/linux/static/stable/) is up to date
             - [ ] [bats-core](https://github.com/bats-core/bats-core), [bats-support](https://github.com/bats-core/bats-support) and [bats-assert](https://github.com/bats-core/bats-assert) are up to date
             - [ ] [Mull](https://github.com/mull-project/mull) is up to date and compatible with the currently installed Clang version
