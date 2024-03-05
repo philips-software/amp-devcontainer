@@ -21,7 +21,7 @@ for EXTENSION in $(echo $JSON | jq -r '.[].customizations.vscode.extensions | fl
         UPDATE_DETAILS=$(printf "Updates \`%s\` from %s to %s\n\n%s" $NAME $CURRENT_VERSION $LATEST_NON_PRERELEASE_VERSION "$UPDATE_DETAILS")
     fi
 
-    EXTENSIONS="\"$NAME@$LATEST_VERSION\",$EXTENSIONS"
+    EXTENSIONS="\"$NAME@$LATEST_NON_PRERELEASE_VERSION\",$EXTENSIONS"
 done
 
 EXTENSIONS=$(echo "[${EXTENSIONS::-1}]" | jq 'sort_by(. | ascii_downcase)')
