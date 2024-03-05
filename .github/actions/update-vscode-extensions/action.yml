@@ -23,6 +23,7 @@ runs:
         sudo apt-get update
         sudo apt-get install --no-install-recommends -y jq
         sudo npm install -g @vscode/vsce
+      shell: bash
     - run: |
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         echo "json-result << ${EOF}" >> "${GITHUB_OUTPUT}"
