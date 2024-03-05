@@ -5,7 +5,7 @@ set -Eeuo pipefail
 FILE=${1:?}
 JSON=$(cat $FILE)
 EXTENSIONS=
-declare -A UPDATE_DETAILS
+UPDATE_DETAILS=
 declare -i NUMBER_OF_UPDATES=0
 
 for EXTENSION in $(echo $JSON | jq -r '.[].customizations.vscode.extensions | flatten[]'); do
