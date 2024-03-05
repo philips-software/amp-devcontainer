@@ -18,13 +18,13 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
+    - run: echo "$GITHUB_ACTION_PATH" >> "$GITHUB_PATH"
       shell: bash
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
     - run: |
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-        echo "markdown<<${EOF}" >> "${GITHUB_OUTPUT}"
+        echo "markdown << ${EOF}" >> "${GITHUB_OUTPUT}"
         echo "$(container-size-diff.sh ${INPUT_FROM_CONTAINER} ${INPUT_TO_CONTAINER})" >> "${GITHUB_OUTPUT}"
         echo "${EOF}" >> "${GITHUB_OUTPUT}"
       id: size-diff
