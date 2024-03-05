@@ -33,3 +33,4 @@ runs:
       shell: bash
       env:
         INPUT_FILE: ${{ inputs.input-file }}
+        GH_TOKEN: ${{ github.token }}
