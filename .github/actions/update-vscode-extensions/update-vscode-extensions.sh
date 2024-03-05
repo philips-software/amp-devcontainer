@@ -27,4 +27,4 @@ done
 EXTENSIONS=$(echo "[${EXTENSIONS::-1}]" | jq 'sort_by(. | ascii_downcase)')
 echo $JSON | jq '.[].customizations.vscode.extensions = $extensions' --argjson extensions "$EXTENSIONS" > $FILE
 
-echo "{ \"numberOfUpdates\": \"$NUMBER_OF_UPDATES\", \"updateDetails\": \"$UPDATE_DETAILS\" }" | jq .
+echo $UPDATE_DETAILS

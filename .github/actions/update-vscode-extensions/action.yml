@@ -8,9 +8,9 @@ inputs:
     required: true
 
 outputs:
-  json-summary:
-    description: "JSON summary of update result"
-    value: ${{ steps.update-extensions.outputs.json-result }}
+  markdown-summary:
+    description: "Markdown summary of update result"
+    value: ${{ steps.update-extensions.outputs.markdown }}
 
 runs:
   using: "composite"
@@ -26,7 +26,7 @@ runs:
       shell: bash
     - run: |
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-        echo "json-result<<${EOF}" >> "${GITHUB_OUTPUT}"
+        echo "markdown<<${EOF}" >> "${GITHUB_OUTPUT}"
         echo "$(update-vscode-extensions.sh ${INPUT_FILE})" >> "${GITHUB_OUTPUT}"
         echo "${EOF}" >> "${GITHUB_OUTPUT}"
       id: update-extensions
