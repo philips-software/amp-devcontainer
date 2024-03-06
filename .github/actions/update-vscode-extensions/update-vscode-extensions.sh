@@ -18,8 +18,8 @@ for EXTENSION in $(echo $JSON | jq -r '.[].customizations.vscode.extensions | fl
     then
         GITHUB_URL=$(echo $LATEST_NON_PRERELEASE_VERSION_JSON | jq -r '.properties | map(select(.key == "Microsoft.VisualStudio.Services.Links.GitHub"))[] | .value')
 
-        RELEASE_DETAILS=$(gh release view --json body -R $GITHUB_URL | jq -r '.body')
-        UPDATE_DETAILS=$(printf "Updates \`%s\` from %s to %s\n<details>\n<summary>Release notes</summary>\n\n%s\n</details>\n\n\n\n%s" $NAME $CURRENT_VERSION $LATEST_NON_PRERELEASE_VERSION "$RELEASE_DETAILS" "$UPDATE_DETAILS")
+        RELEASE_DETAILS=$(gh release view --json body -R $GITHUB_URL | jq '.body')
+        UPDATE_DETAILS=$(printf "Updates \`%s\` from %s to %s<br><details><summary>Release notes</summary><br><br>%s<br></details><br><br>%s" $NAME $CURRENT_VERSION $LATEST_NON_PRERELEASE_VERSION "$RELEASE_DETAILS" "$UPDATE_DETAILS")
     fi
 
     EXTENSIONS="\"$NAME@$LATEST_NON_PRERELEASE_VERSION\",$EXTENSIONS"
