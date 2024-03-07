@@ -1,6 +1,6 @@
 ---
 name: "Container Size Diff"
-description: "Creates a Markdown summary of the size differences between two containers"
+description: "Creates a Markdown summary of the size difference between two container versions"
 
 inputs:
   from-container:
