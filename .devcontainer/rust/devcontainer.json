@@ -1,0 +1,26 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "../.."
+  },
+  "privileged": true,
+  "remoteEnv": {
+    "CONTAINER_FLAVOR": "rust"
+  },
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "tamasfe.even-better-toml@0.19.2",
+        "GitHub.vscode-github-actions@0.26.2",
+        "GitHub.vscode-pull-request-github@0.76.1",
+        "jetmartin.bats@0.1.10",
+        "mhutchie.git-graph@1.30.0",
+        "rust-lang.rust-analyzer@0.3.1868",
+        "usernamehw.errorlens@3.16.0"
+      ]
+    }
+  }
+}

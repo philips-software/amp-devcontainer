@@ -15,7 +15,7 @@ HEALTHCHECK NONE
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install the base system with all tool dependencies
-COPY .devcontainer/apt-requirements-base.json /tmp/apt-requirements-base.json
+COPY .devcontainer/cpp/apt-requirements-base.json /tmp/apt-requirements-base.json
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
@@ -27,7 +27,7 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
  && update-ca-certificates
 
 # Install some tools via pip to get more recent versions
-COPY .devcontainer/requirements.txt /tmp/requirements.txt
+COPY .devcontainer/cpp/requirements.txt /tmp/requirements.txt
 RUN python3 -m pip install --require-hashes --no-cache-dir -r /tmp/requirements.txt \
  && rm -rf /tmp/requirements.txt
 
@@ -36,7 +36,7 @@ ENV CMAKE_GENERATOR="Ninja"
 ENV CMAKE_EXPORT_COMPILE_COMMANDS="On"
 
 # Install clang toolchain
-COPY .devcontainer/apt-requirements-clang.json /tmp/apt-requirements-clang.json
+COPY .devcontainer/cpp/apt-requirements-clang.json /tmp/apt-requirements-clang.json
 # hadolint ignore=SC1091
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
  && UBUNTU_CODENAME=$(. /etc/os-release; echo "${UBUNTU_CODENAME/*, /}") \
