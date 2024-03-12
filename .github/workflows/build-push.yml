@@ -103,7 +103,7 @@ jobs:
           sbom: true
           provenance: true
           cache-from: type=gha
-      - uses: ./.github/container-size-diff
+      - uses: ./.github/actions/container-size-diff
         id: container-size-diff
         with:
           from-container: ${{ env.REGISTRY }}/${{ github.repository }}:latest

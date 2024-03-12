@@ -24,9 +24,9 @@ jobs:
         working-directory: .devcontainer
       - uses: peter-evans/create-pull-request@a4f52f8033a6168103c2538976c07b467e8163bc # v6.0.1
         with:
-          commit-message: "feat(deps): update apt dependencies"
+          commit-message: "chore(deps): update dependencies"
           branch: feature/update-apt-dependencies
-          title: "feat(deps): update group apt dependencies"
+          title: "chore(deps): update dependencies"
           labels: dependencies,apt
           token: ${{ secrets.AMP_RELEASER_TOKEN }}
   update-vscode-extensions:
@@ -36,12 +36,19 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - run: ./update-vscode-extensions.sh devcontainer-metadata-vscode.json
-        working-directory: .devcontainer
+      - uses: ./.github/actions/update-vscode-extensions
+        id: update-extensions
+        with:
+          input-file: .devcontainer/devcontainer-metadata-vscode.json
       - uses: peter-evans/create-pull-request@a4f52f8033a6168103c2538976c07b467e8163bc # v6.0.1
         with:
-          commit-message: "feat(deps): update vscode extensions"
+          commit-message: "chore(deps): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
           branch: feature/update-vscode-extensions
-          title: "feat(deps): update group vscode extensions"
+          body: |
+            ${{ steps.update-extensions.outputs.markdown-summary }}
+
+            > [!NOTE]
+            > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are no automated tests for the VS Code Extension updates.
+          title: "chore(deps): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
           labels: dependencies,vscode-extensions
           token: ${{ secrets.AMP_RELEASER_TOKEN }}
