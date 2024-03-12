@@ -8,9 +8,12 @@ inputs:
     required: true
 
 outputs:
+  updated-dependencies:
+    description: "JSON array with the names of the updated dependencies"
+    value: ${{ steps.update-extensions.outputs.updated-dependencies }}
   markdown-summary:
     description: "Markdown summary of update result"
-    value: ${{ steps.update-extensions.outputs.markdown }}
+    value: ${{ steps.update-extensions.outputs.markdown-summary }}
 
 runs:
   using: "composite"
@@ -26,9 +29,12 @@ runs:
       shell: bash
     - run: |
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-        echo "markdown<<${EOF}" >> "${GITHUB_OUTPUT}"
+        echo "markdown-summary<<${EOF}" >> "${GITHUB_OUTPUT}"
         echo "$(update-vscode-extensions.sh ${INPUT_FILE})" >> "${GITHUB_OUTPUT}"
         echo "${EOF}" >> "${GITHUB_OUTPUT}"
+
+        echo "updated-dependencies=$(cat updated-extensions.json)" >> "${GITHUB_OUTPUT}"
+        rm updated-extensions.json
       id: update-extensions
       shell: bash
       env:

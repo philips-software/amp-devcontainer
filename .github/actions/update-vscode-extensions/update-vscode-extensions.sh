@@ -5,7 +5,8 @@ set -Eeuo pipefail
 FILE=${1:?}
 JSON=$(cat $FILE)
 EXTENSIONS=
-UPDATE_DETAILS=
+UPDATE_DETAILS_MARKDOWN=
+UPDATED_EXTENSIONS_JSON="[]"
 
 get_github_releasenotes() {
     local GITHUB_URL=${1:?}
@@ -37,7 +38,8 @@ for EXTENSION in $(echo $JSON | jq -r '.[].customizations.vscode.extensions | fl
         GITHUB_URL=$(echo $LATEST_NON_PRERELEASE_VERSION_JSON | jq -r '.properties | map(select(.key == "Microsoft.VisualStudio.Services.Links.GitHub"))[] | .value')
 
         RELEASE_DETAILS=$(get_github_releasenotes $GITHUB_URL $CURRENT_VERSION)
-        UPDATE_DETAILS=$(printf "Updates \`%s\` from %s to %s\n<details>\n<summary>Release notes</summary>\n<blockquote>\n\n%s\n</blockquote>\n</details>\n\n%s" $NAME $CURRENT_VERSION $LATEST_NON_PRERELEASE_VERSION "$RELEASE_DETAILS" "$UPDATE_DETAILS")
+        UPDATE_DETAILS_MARKDOWN=$(printf "Updates \`%s\` from %s to %s\n<details>\n<summary>Release notes</summary>\n<blockquote>\n\n%s\n</blockquote>\n</details>\n\n%s" $NAME $CURRENT_VERSION $LATEST_NON_PRERELEASE_VERSION "$RELEASE_DETAILS" "$UPDATE_DETAILS_MARKDOWN")
+        UPDATED_EXTENSIONS_JSON=$(echo $UPDATED_EXTENSIONS_JSON | jq -c '. += ["'$NAME'"]')
     fi
 
     EXTENSIONS="\"$NAME@$LATEST_NON_PRERELEASE_VERSION\",$EXTENSIONS"
@@ -46,4 +48,5 @@ done
 EXTENSIONS=$(echo "[${EXTENSIONS::-1}]" | jq 'sort_by(. | ascii_downcase)')
 echo $JSON | jq '.[].customizations.vscode.extensions = $extensions' --argjson extensions "$EXTENSIONS" > $FILE
 
-echo "$UPDATE_DETAILS"
+echo "$UPDATE_DETAILS_MARKDOWN"
+echo "$UPDATED_EXTENSIONS_JSON" > updated-extensions.json
