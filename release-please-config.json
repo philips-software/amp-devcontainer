@@ -12,8 +12,8 @@
       "hidden": false
     },
     {
-      "type": "deps",
-      "section": "Dependencies",
+      "type": "chore",
+      "section": "Chores",
       "hidden": false
     }
   ],
