@@ -25,7 +25,7 @@ get_sizes_from_manifest ${TO_CONTAINER} TO_CONTAINER_SIZES
 
 echo "## Compressed layer size comparison"
 echo
-echo "Comparing ${FROM_CONTAINER} to ${TO_CONTAINER}"
+echo "Comparing \`${FROM_CONTAINER}\` to \`${TO_CONTAINER}\`"
 echo
 echo "| OS/Platform | Previous Size | Current Size | Delta |"
 echo "|-------------|---------------|--------------|-------|"

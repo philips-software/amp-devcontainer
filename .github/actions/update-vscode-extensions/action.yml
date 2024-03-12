@@ -1,0 +1,42 @@
+---
+name: "Update VS Code Extensions"
+description: "Updates version-pinned VS Code Extensions in JSON files"
+
+inputs:
+  input-file:
+    description: "Input file in JSON format containing a list of version pinned VS Code Extensions under `customizations.vscode.extensions`"
+    required: true
+
+outputs:
+  updated-dependencies:
+    description: "JSON array with the names of the updated dependencies"
+    value: ${{ steps.update-extensions.outputs.updated-dependencies }}
+  markdown-summary:
+    description: "Markdown summary of update result"
+    value: ${{ steps.update-extensions.outputs.markdown-summary }}
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo "$GITHUB_ACTION_PATH" >> "$GITHUB_PATH"
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+    - run: |
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends -y jq
+        sudo npm install -g @vscode/vsce
+      shell: bash
+    - run: |
+        EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+        echo "markdown-summary<<${EOF}" >> "${GITHUB_OUTPUT}"
+        echo "$(update-vscode-extensions.sh ${INPUT_FILE})" >> "${GITHUB_OUTPUT}"
+        echo "${EOF}" >> "${GITHUB_OUTPUT}"
+
+        echo "updated-dependencies=$(cat updated-extensions.json)" >> "${GITHUB_OUTPUT}"
+        rm updated-extensions.json
+      id: update-extensions
+      shell: bash
+      env:
+        INPUT_FILE: ${{ inputs.input-file }}
+        GH_TOKEN: ${{ github.token }}
