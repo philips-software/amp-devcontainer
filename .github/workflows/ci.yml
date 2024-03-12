@@ -19,6 +19,9 @@ jobs:
     permissions:
       checks: write
       pull-requests: write
+    strategy:
+      matrix:
+        flavour: ["cpp", "rust"]
     steps:
       # While the docker/build-push-action works from the Git context, we still need
       # the checkout step for running our tests.
@@ -28,19 +31,20 @@ jobs:
       - uses: docker/setup-buildx-action@0d103c3126aa41d772a8362f6aa67afac040f80c # v3.1.0
       - uses: docker/build-push-action@af5a7ed5ba88268d5278f7203fb52cd833f66d6e # v5.2.0
         with:
-          file: .devcontainer/Dockerfile
+          file: .devcontainer/${{ matrix.flavour }}/Dockerfile
           load: true
-          tags: ${{ github.repository }}:test
+          tags: ${{ github.repository }}-${{ matrix.flavour }}:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - uses: actions/cache/restore@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
+        if: matrix.flavour == 'cpp'
         with:
           path: test/.xwin-cache
           key: xwin-cache
       - name: Run Tests
         run: |
           set -Eeuo pipefail
-          docker run --rm --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws ${{ github.repository }}:test bats --formatter junit testsuite.bats | tee test-report.xml
+          docker run --rm --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=bind,src="${{ github.workspace }}/.devcontainer/${{ matrix.flavour }}/test",dst=/ws -w /ws ${{ github.repository }}-${{ matrix.flavour }}:test bats --formatter junit testsuite.bats | tee test-report.xml
       - uses: EnricoMi/publish-unit-test-result-action@f355d34d53ad4e7f506f699478db2dd71da9de5f # v2.15.1
         if: always()
         with:
