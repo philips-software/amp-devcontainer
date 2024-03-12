@@ -22,7 +22,7 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
  && update-ca-certificates
 
 # Install rust
-RUN wget -qO /tmp/rustup-init https://static.rust-lang.org/rustup/dist/$(uname -m)-unknown-linux-gnu/rustup-init \
+RUN wget -qO /tmp/rustup-init "https://static.rust-lang.org/rustup/dist/$(uname -m)-unknown-linux-gnu/rustup-init" \
  && chmod +x /tmp/rustup-init \
  && /tmp/rustup-init -qy --default-toolchain=${RUST_VERSION} --component llvm-tools-preview --target thumbv7em-none-eabi \
  && rm -rf /tmp/rustup-init
@@ -31,7 +31,7 @@ ENV PATH="$HOME/.cargo/bin:$PATH"
 
 # Install bats
 RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
- && wget -qO - https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz | tar xz -C "${batstmp}" \
+ && wget -qO - "https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz" | tar xz -C "${batstmp}" \
  && bash "${batstmp}/bats-core-${BATS_VERSION}/install.sh" /usr/local \
  && rm -rf "${batstmp}" \
  && git -C /usr/local clone -b v0.3.0 https://github.com/bats-core/bats-support.git \
@@ -41,7 +41,8 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-12 20 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-12 20
 
-RUN source $HOME/.cargo/env \
+# hadolint ignore=DL3008
+RUN source "$HOME/.cargo/env" \
  && apt-get update \
  && apt-get install -y --no-install-recommends pkg-config libudev-dev \
  && cargo install cargo-binutils \
