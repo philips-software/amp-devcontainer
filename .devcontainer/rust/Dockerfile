@@ -41,8 +41,8 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-12 20 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-12 20
 
-# hadolint ignore=DL3008
-RUN source "$HOME/.cargo/env" \
+# hadolint ignore=DL3008,SC1091
+RUN source $HOME/.cargo/env \
  && apt-get update \
  && apt-get install -y --no-install-recommends pkg-config libudev-dev \
  && cargo install cargo-binutils \
