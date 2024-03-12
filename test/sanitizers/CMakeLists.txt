@@ -13,3 +13,6 @@ target_link_options(test-ubsan PRIVATE -fsanitize=undefined)
 add_executable(test-memsan EXCLUDE_FROM_ALL memsan.cpp)
 target_compile_options(test-memsan PRIVATE -fsanitize=memory -fno-omit-frame-pointer)
 target_link_options(test-memsan PRIVATE -fsanitize=memory)
+
+set_target_properties(test-asan test-threadsan test-ubsan test-memsan
+    PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
