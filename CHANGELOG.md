@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.7.0](https://github.com/philips-software/amp-devcontainer/compare/v4.6.0...v4.7.0) (2024-03-12)
+
+
+### Features
+
+* **deps:** Bump ubuntu from `f9d633f` to `77906da` in /.devcontainer ([#344](https://github.com/philips-software/amp-devcontainer/issues/344)) ([844c98b](https://github.com/philips-software/amp-devcontainer/commit/844c98bcf2ffb56468d5537b58b7cbbb9be4188d))
+
+
+### Chores
+
+* Add details to VS Code Extension updates ([#339](https://github.com/philips-software/amp-devcontainer/issues/339)) ([b24a2b5](https://github.com/philips-software/amp-devcontainer/commit/b24a2b5922869a6f725e75643b1ae5094b54c8c3))
+* **deps:** Bump the github-actions group with 1 update ([#343](https://github.com/philips-software/amp-devcontainer/issues/343)) ([7f44ba8](https://github.com/philips-software/amp-devcontainer/commit/7f44ba8aef3e614d11ac178857aacf2e9278f29b))
+* **deps:** Bump the github-actions group with 1 update ([#350](https://github.com/philips-software/amp-devcontainer/issues/350)) ([aa27891](https://github.com/philips-software/amp-devcontainer/commit/aa27891dd32088d5ffae4d268432a1e01349edf0))
+* **deps:** Bump the github-actions group with 2 updates ([#336](https://github.com/philips-software/amp-devcontainer/issues/336)) ([07b21cf](https://github.com/philips-software/amp-devcontainer/commit/07b21cfe89b24229bbedf7240d48cd2f2385bc2b))
+* **deps:** Bump the github-actions group with 2 updates ([#355](https://github.com/philips-software/amp-devcontainer/issues/355)) ([cb909f8](https://github.com/philips-software/amp-devcontainer/commit/cb909f89e56843710acc447f83e6c35fe1c5ce1b))
+* Fix sorting order of vscode.extensions ([#335](https://github.com/philips-software/amp-devcontainer/issues/335)) ([9d70915](https://github.com/philips-software/amp-devcontainer/commit/9d70915bd28b5b7a54587b6c16e3e3186af48850))
+
 ## [4.6.0](https://github.com/philips-software/amp-devcontainer/compare/v4.5.0...v4.6.0) (2024-02-29)
 
 
