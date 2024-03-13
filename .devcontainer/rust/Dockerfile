@@ -27,7 +27,8 @@ RUN wget -qO /tmp/rustup-init "https://static.rust-lang.org/rustup/dist/$(uname 
  && /tmp/rustup-init -qy --default-toolchain=${RUST_VERSION} --component llvm-tools-preview --target thumbv7em-none-eabi \
  && rm -rf /tmp/rustup-init
 
-ENV PATH="$HOME/.cargo/bin:$PATH"
+# See https://github.com/moby/moby/issues/28971 why we can't use $HOME here
+ENV PATH="/root/.cargo/bin:$PATH"
 
 # Install bats
 RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
