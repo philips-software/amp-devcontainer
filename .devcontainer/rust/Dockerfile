@@ -24,7 +24,7 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
 # Install rust
 RUN wget -qO /tmp/rustup-init "https://static.rust-lang.org/rustup/dist/$(uname -m)-unknown-linux-gnu/rustup-init" \
  && chmod +x /tmp/rustup-init \
- && /tmp/rustup-init -qy --default-toolchain=${RUST_VERSION} --component llvm-tools-preview --target thumbv7em-none-eabi \
+ && /tmp/rustup-init -qy --default-toolchain=${RUST_VERSION} --component llvm-tools --target thumbv7em-none-eabi \
  && rm -rf /tmp/rustup-init
 
 # See https://github.com/moby/moby/issues/28971 why we can't use $HOME here
@@ -42,10 +42,9 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-12 20 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-12 20
 
-# hadolint ignore=DL3008,SC1091
-RUN source $HOME/.cargo/env \
- && apt-get update \
- && apt-get install -y --no-install-recommends pkg-config libudev-dev \
+# hadolint ignore=DL3008
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends libudev-dev \
  && cargo install cargo-binutils \
  && cargo install probe-rs --features cli \
  && rm -rf $HOME/.cargo/registry \
