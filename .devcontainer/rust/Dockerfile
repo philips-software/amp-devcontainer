@@ -47,7 +47,7 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends libudev-dev \
  && cargo install cargo-binutils \
  && cargo install probe-rs --features cli \
- && rm -rf $HOME/.cargo/registry \
+ && rm -rf "$HOME/.cargo/registry" \
  && apt-get purge -y libudev-dev \
  && apt-get autoremove -y \
  && apt-get clean \
