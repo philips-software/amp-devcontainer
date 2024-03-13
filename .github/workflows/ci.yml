@@ -25,7 +25,7 @@ jobs:
     steps:
       # While the docker/build-push-action works from the Git context, we still need
       # the checkout step for running our tests.
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
         with:
           persist-credentials: false
       - uses: docker/setup-buildx-action@0d103c3126aa41d772a8362f6aa67afac040f80c # v3.1.0
