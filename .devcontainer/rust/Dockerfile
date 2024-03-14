@@ -2,6 +2,7 @@ FROM ubuntu:22.04@sha256:77906da86b60585ce12215807090eb327e7386c8fafb5402369e421
 
 ARG BATS_VERSION=1.10.0
 ARG RUST_VERSION=1.76.0
+ARG RUSTUP_INIT_VERSION=1.26.0
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -22,13 +23,17 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
  && update-ca-certificates
 
 # Install rust
-RUN wget -qO /tmp/rustup-init "https://static.rust-lang.org/rustup/dist/$(uname -m)-unknown-linux-gnu/rustup-init" \
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:"$PATH"
+RUN declare -A RUSTUP_SHA \
+ RUSTUP_SHA["x86_64"]="0b2f6c8f85a3d02fde2efc0ced4657869d73fccfce59defb4e8d29233116e6db" \
+ RUSTUP_SHA["aarch64"]="673e336c81c65e6b16dcdede33f4cc9ed0f08bde1dbe7a935f113605292dc800" \
+ && wget -qO /tmp/rustup-init "https://static.rust-lang.org/rustup/archive/${RUSTUP_INIT_VERSION}/$(uname -m)-unknown-linux-gnu/rustup-init" \
+ && echo "${RUSTUP_SHA[$(uname -m)]} /tmp/rustup-init" | sha256sum -c - \
  && chmod +x /tmp/rustup-init \
- && /tmp/rustup-init -qy --default-toolchain=${RUST_VERSION} --component llvm-tools --target thumbv7em-none-eabi \
+ && /tmp/rustup-init -y --no-modify-path --default-toolchain=${RUST_VERSION} --component llvm-tools --target thumbv7em-none-eabi \
  && rm -rf /tmp/rustup-init
-
-# See https://github.com/moby/moby/issues/28971 why we can't use $HOME here
-ENV PATH="/root/.cargo/bin:$PATH"
 
 # Install bats
 RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
@@ -39,15 +44,14 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
  && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
 
 # Update all tool alternatives to the correct version
-RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-12 20 \
- && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-12 20
+RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-12 20
 
 # hadolint ignore=DL3008
 RUN apt-get update \
  && apt-get install -y --no-install-recommends libudev-dev \
  && cargo install cargo-binutils \
  && cargo install probe-rs --features cli \
- && rm -rf "$HOME/.cargo/registry" \
+ && rm -rf "$CARGO_HOME/registry" \
  && apt-get purge -y libudev-dev \
  && apt-get autoremove -y \
  && apt-get clean \
