@@ -17,6 +17,7 @@
         "jetmartin.bats@0.1.10",
         "matepek.vscode-catch2-test-adapter@4.6.3",
         "mhutchie.git-graph@1.30.0",
+        "ms-azuretools.vscode-docker@1.29.0",
         "ms-vscode.cmake-tools@1.16.32",
         "ms-vscode.cpptools@1.18.5",
         "SonarSource.sonarlint-vscode@4.1.0",

@@ -18,6 +18,7 @@
         "GitHub.vscode-pull-request-github@0.76.1",
         "jetmartin.bats@0.1.10",
         "mhutchie.git-graph@1.30.0",
+        "ms-azuretools.vscode-docker@1.29.0",
         "rust-lang.rust-analyzer@0.3.1868",
         "usernamehw.errorlens@3.16.0"
       ]
