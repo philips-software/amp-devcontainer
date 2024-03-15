@@ -11,7 +11,7 @@
       "command": "bats",
       "args": ["testsuite.bats"],
       "options": {
-        "cwd": "${workspaceFolder}/test"
+        "cwd": "${workspaceFolder}/.devcontainer/${env:CONTAINER_FLAVOR}/test"
       },
       "presentation": {
         "reveal": "always",
