@@ -35,10 +35,10 @@ jobs:
       - uses: sigstore/cosign-installer@e1523de7571e31dbe865fd2e80c5c7c23ae71eb4 # v3.4.0
         if: github.event_name != 'merge_group'
       - uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
-      - uses: docker/setup-buildx-action@0d103c3126aa41d772a8362f6aa67afac040f80c # v3.1.0
+      - uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20 # v3.2.0
         with:
           version: v0.12.1
-      - uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+      - uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
         if: github.event_name != 'merge_group'
         with:
           registry: ${{ env.REGISTRY }}
@@ -58,7 +58,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-      - uses: docker/build-push-action@af5a7ed5ba88268d5278f7203fb52cd833f66d6e # v5.2.0
+      - uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
         id: build-and-push-base
         with:
           file: .devcontainer/Dockerfile
@@ -89,7 +89,7 @@ jobs:
       # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
       - run: echo "metadata=$(jq -cj '.' .devcontainer/devcontainer-metadata-vscode.json | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
         id: devcontainer-metadata
-      - uses: docker/build-push-action@af5a7ed5ba88268d5278f7203fb52cd833f66d6e # v5.2.0
+      - uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
         id: build-and-push-vscode
         with:
           file: .devcontainer/Dockerfile
