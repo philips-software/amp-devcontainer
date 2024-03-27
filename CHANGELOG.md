@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.7.1](https://github.com/philips-software/amp-devcontainer/compare/v4.7.0...v4.7.1) (2024-03-27)
+
+
+### Chores
+
+* **deps:** Bump cmake from 3.28.3 to 3.28.4 in /.devcontainer ([#369](https://github.com/philips-software/amp-devcontainer/issues/369)) ([944b1c5](https://github.com/philips-software/amp-devcontainer/commit/944b1c5f49bce2e591495029b968809b702c7194))
+
 ## [4.7.0](https://github.com/philips-software/amp-devcontainer/compare/v4.6.0...v4.7.0) (2024-03-21)
 
 
