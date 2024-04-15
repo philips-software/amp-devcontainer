@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.7.1](https://github.com/philips-software/amp-devcontainer/compare/v4.7.0...v4.7.1) (2024-04-15)
+
+
+### Chores
+
+* **deps:** Bump cmake from 3.28.3 to 3.28.4 in /.devcontainer ([#369](https://github.com/philips-software/amp-devcontainer/issues/369)) ([944b1c5](https://github.com/philips-software/amp-devcontainer/commit/944b1c5f49bce2e591495029b968809b702c7194))
+* **deps:** Bump cmake from 3.28.4 to 3.29.0.1 in /.devcontainer ([#375](https://github.com/philips-software/amp-devcontainer/issues/375)) ([da43620](https://github.com/philips-software/amp-devcontainer/commit/da436207fd1834edbd74d1a6f852193301892d0e))
+* **deps:** Bump cmake from 3.29.0.1 to 3.29.1 in /.devcontainer ([#378](https://github.com/philips-software/amp-devcontainer/issues/378)) ([7ba2764](https://github.com/philips-software/amp-devcontainer/commit/7ba27645c97dcbfc26722599e4dd3bc4ddc13bc2))
+* **deps:** Bump cmake from 3.29.1 to 3.29.2 in /.devcontainer ([#380](https://github.com/philips-software/amp-devcontainer/issues/380)) ([c97a1d5](https://github.com/philips-software/amp-devcontainer/commit/c97a1d53c2700dedc97538d7bd2c132ae4d5a27a))
+* **deps:** Update matepek.vscode-catch2-test-adapter, SonarSource.sonarlint-vscode ([#376](https://github.com/philips-software/amp-devcontainer/issues/376)) ([ed3b50c](https://github.com/philips-software/amp-devcontainer/commit/ed3b50ce1f7b2880522e68a2d749ef220be2b5c8))
+
+## [4.7.0](https://github.com/philips-software/amp-devcontainer/compare/v4.6.0...v4.7.0) (2024-03-21)
+
+
+### Features
+
+* **deps:** Bump ubuntu from `f9d633f` to `77906da` in /.devcontainer ([#344](https://github.com/philips-software/amp-devcontainer/issues/344)) ([844c98b](https://github.com/philips-software/amp-devcontainer/commit/844c98bcf2ffb56468d5537b58b7cbbb9be4188d))
+
+
+### Chores
+
+* Add details to VS Code Extension updates ([#339](https://github.com/philips-software/amp-devcontainer/issues/339)) ([b24a2b5](https://github.com/philips-software/amp-devcontainer/commit/b24a2b5922869a6f725e75643b1ae5094b54c8c3))
+* **deps:** Bump the github-actions group with 1 update ([#343](https://github.com/philips-software/amp-devcontainer/issues/343)) ([7f44ba8](https://github.com/philips-software/amp-devcontainer/commit/7f44ba8aef3e614d11ac178857aacf2e9278f29b))
+* **deps:** Bump the github-actions group with 1 update ([#350](https://github.com/philips-software/amp-devcontainer/issues/350)) ([aa27891](https://github.com/philips-software/amp-devcontainer/commit/aa27891dd32088d5ffae4d268432a1e01349edf0))
+* **deps:** Bump the github-actions group with 2 updates ([#336](https://github.com/philips-software/amp-devcontainer/issues/336)) ([07b21cf](https://github.com/philips-software/amp-devcontainer/commit/07b21cfe89b24229bbedf7240d48cd2f2385bc2b))
+* **deps:** Bump the github-actions group with 2 updates ([#355](https://github.com/philips-software/amp-devcontainer/issues/355)) ([cb909f8](https://github.com/philips-software/amp-devcontainer/commit/cb909f89e56843710acc447f83e6c35fe1c5ce1b))
+* **deps:** Update llvm-vs-code-extensions.vscode-clangd, ms-vscode.cpptools ([#364](https://github.com/philips-software/amp-devcontainer/issues/364)) ([b6888d3](https://github.com/philips-software/amp-devcontainer/commit/b6888d36230045e8de59775ab0fc3af31d3d888a))
+* **deps:** Update llvm-vs-code-extensions.vscode-clangd, ms-vscode.cpptools ([#367](https://github.com/philips-software/amp-devcontainer/issues/367)) ([1ac268b](https://github.com/philips-software/amp-devcontainer/commit/1ac268b49b9d64804325744b83bcc72ac1c72d24))
+* **deps:** Update matepek.vscode-catch2-test-adapter, ms-vscode.cmake-tools, ms-vscode.cpptools, ms-vsliveshare.vsliveshare, SonarSource.sonarlint-vscode ([#361](https://github.com/philips-software/amp-devcontainer/issues/361)) ([e254625](https://github.com/philips-software/amp-devcontainer/commit/e25462503773386be342066d81c04bf25451e0c3))
+* Fix sorting order of vscode.extensions ([#335](https://github.com/philips-software/amp-devcontainer/issues/335)) ([9d70915](https://github.com/philips-software/amp-devcontainer/commit/9d70915bd28b5b7a54587b6c16e3e3186af48850))
+
 ## [4.6.0](https://github.com/philips-software/amp-devcontainer/compare/v4.5.0...v4.6.0) (2024-02-29)
 
 

@@ -6,14 +6,14 @@
     "customizations": {
       "vscode": {
         "extensions": [
-          "llvm-vs-code-extensions.vscode-clangd@0.1.26",
+          "llvm-vs-code-extensions.vscode-clangd@0.1.28",
           "marus25.cortex-debug@1.12.1",
-          "matepek.vscode-catch2-test-adapter@4.11.0",
+          "matepek.vscode-catch2-test-adapter@4.12.0",
           "mhutchie.git-graph@1.30.0",
           "ms-vscode.cmake-tools@1.17.17",
-          "ms-vscode.cpptools@1.19.7",
+          "ms-vscode.cpptools@1.19.9",
           "ms-vsliveshare.vsliveshare@1.0.5918",
-          "SonarSource.sonarlint-vscode@4.4.1",
+          "SonarSource.sonarlint-vscode@4.4.2",
           "xaver.clang-format@1.9.0"
         ],
         "settings": {
