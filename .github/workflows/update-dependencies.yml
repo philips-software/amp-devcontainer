@@ -30,7 +30,7 @@ jobs:
           app_id: ${{ secrets.FOREST_RELEASER_APP_ID }}
           app_base64_private_key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY_BASE64 }}
           auth_type: installation
-      - uses: peter-evans/create-pull-request@70a41aba780001da0a30141984ae2a0c95d8704e # v6.0.2
+      - uses: peter-evans/create-pull-request@c55203cfde3e5c11a452d352b4393e68b85b4533 # v6.0.3
         with:
           commit-message: "chore(deps): update dependencies"
           branch: feature/update-apt-dependencies
@@ -56,7 +56,7 @@ jobs:
           app_id: ${{ secrets.FOREST_RELEASER_APP_ID }}
           app_base64_private_key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY_BASE64 }}
           auth_type: installation
-      - uses: peter-evans/create-pull-request@70a41aba780001da0a30141984ae2a0c95d8704e # v6.0.2
+      - uses: peter-evans/create-pull-request@c55203cfde3e5c11a452d352b4393e68b85b4533 # v6.0.3
         with:
           commit-message: "chore(deps): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
           branch: feature/update-vscode-extensions
