@@ -54,7 +54,9 @@ jobs:
     needs: build-test
     steps:
       - uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
+        with:
+          merge-multiple: true
       - uses: EnricoMi/publish-unit-test-result-action@30eadd5010312f995f0d3b3cff7fe2984f69409e # v2.16.1
         if: always()
         with:
-          files: **/test-report-*.xml
+          files: test-report-*.xml
