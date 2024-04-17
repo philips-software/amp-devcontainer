@@ -25,8 +25,10 @@ jobs:
       - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
         with:
           persist-credentials: false
-      - run: ./update-apt-dependencies.sh apt-requirements-*.json
-        working-directory: .devcontainer/${{ matrix.flavor }}
+      - uses: ./.github/actions/update-apt-packages
+        id: update-packages
+        with:
+          input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements-*.json
       - uses: philips-software/app-token-action@9f5d57062c9f2beaffafaa9a34f66f824ead63a9 # v2.0.0
         id: token
         with:
@@ -35,9 +37,9 @@ jobs:
           auth_type: installation
       - uses: peter-evans/create-pull-request@c55203cfde3e5c11a452d352b4393e68b85b4533 # v6.0.3
         with:
-          commit-message: "Update dependencies for amp-devcontainer-${{ matrix.flavor }}"
-          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-apt-dependencies
-          title: "chore(deps,${{ matrix.flavor }}): update dependencies"
+          commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
+          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-apt-packages
+          title: "chore(deps,${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
           labels: dependencies,apt
           token: ${{ steps.token.outputs.token }}
   update-vscode-extensions:
