@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.7.2](https://github.com/philips-software/amp-devcontainer/compare/v4.7.1...v4.7.2) (2024-04-20)
+
+
+### Chores
+
+* **deps:** Bump ubuntu from `77906da` to `1b8d8ff` in /.devcontainer ([#382](https://github.com/philips-software/amp-devcontainer/issues/382)) ([07dcd66](https://github.com/philips-software/amp-devcontainer/commit/07dcd6647b97d99fafbe3fa71b902b5bd902222b))
+
 ## [4.7.1](https://github.com/philips-software/amp-devcontainer/compare/v4.7.0...v4.7.1) (2024-04-15)
 
 
