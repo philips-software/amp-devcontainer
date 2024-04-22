@@ -103,6 +103,6 @@ jobs:
         # This step uses the GitHub OIDC identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         env:
-          DIGEST: ${{ steps.build-and-push-base.outputs.digest }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
         run: |
           cosign sign --yes --recursive "${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${DIGEST}"
