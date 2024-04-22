@@ -3,7 +3,7 @@
   "gcc-12": "12.3.0-1ubuntu1~22.04",
   "git": "1:2.34.1-1ubuntu1.10",
   "gnupg2": "2.2.27-3ubuntu2.1",
-  "libc6-dev": "2.35-0ubuntu3.6",
+  "libc6-dev": "2.35-0ubuntu3.7",
   "pkg-config": "0.29.2-1ubuntu3",
   "wget": "1.21.2-2ubuntu1"
 }
