@@ -26,7 +26,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: oxsecurity/megalinter/flavors/documentation@a7a0163b6c8ff7474a283d99a706e27483ddd80f # v7.10.0
+      - uses: oxsecurity/megalinter/flavors/documentation@03986e6993ccf699a22451118520680b438e7d2a # v7.11.1
         env:
           APPLY_FIXES: all
           VALIDATE_ALL_CODEBASE: true
@@ -41,6 +41,6 @@ jobs:
           name: Linter Report
           path: |
             megalinter-reports
-      - uses: reviewdog/action-suggester@3d7fde6859623ad6174df5fd662677a0eb63310a # v1.11.0
+      - uses: reviewdog/action-suggester@185c9c06d0a28fbe43b50aca4b32777b649e7cbd # v1.12.0
         with:
           tool_name: MegaLinter
