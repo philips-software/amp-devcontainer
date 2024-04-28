@@ -2,10 +2,10 @@ FROM ubuntu:24.04@sha256:562456a05a0dbd62a671c1854868862a4687bf979a96d48ae8e7666
 
 ARG BATS_VERSION=1.10.0
 ARG CCACHE_VERSION=4.9.1
-ARG CLANG_VERSION=16
-ARG DOCKER_VERSION=24.0.6
+ARG CLANG_VERSION=17
+ARG DOCKER_VERSION=25.0.3
 ARG MULL_VERSION=main
-ARG INCLUDE_WHAT_YOU_USE_VERSION=0.20
+ARG INCLUDE_WHAT_YOU_USE_VERSION=0.21
 ARG XWIN_VERSION=0.5.0
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -28,7 +28,7 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
 
 # Install some tools via pip to get more recent versions
 COPY .devcontainer/requirements.txt /tmp/requirements.txt
-RUN python3 -m pip install --require-hashes --no-cache-dir -r /tmp/requirements.txt \
+RUN python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt \
  && rm -rf /tmp/requirements.txt
 
 # Set default environment options for CMake
@@ -40,8 +40,9 @@ COPY .devcontainer/apt-requirements-clang.json /tmp/apt-requirements-clang.json
 # hadolint ignore=SC1091
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
  && UBUNTU_CODENAME=$(. /etc/os-release; echo "${UBUNTU_CODENAME/*, /}") \
- && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
- && apt-get update \
+ # && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
+ # Temporarily hardcode the Ubuntu version to 23.10 (mantic) as there is no support for 24.04 (noble) yet on apt.llvm.org
+ && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/mantic/ llvm-toolchain-mantic-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \ && apt-get update \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends \
  && rm /tmp/apt-requirements* \
  && rm -rf /var/lib/apt/lists/*
@@ -54,10 +55,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLAN
  && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
  && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
- && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
- && CC=clang CXX=clang++ cmake -S /tmp/mull -B /tmp/mull/build \
- && cmake --build /tmp/mull/build --target install \
- && rm -rf /tmp/mull \
+# && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
+# && CC=clang CXX=clang++ cmake -S /tmp/mull -B /tmp/mull/build \
+# && cmake --build /tmp/mull/build --target install \
+# && rm -rf /tmp/mull \
  && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
  && apt-get autoremove -y \
  && apt-get clean \
@@ -71,7 +72,7 @@ RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERS
 
 # Install arm-gcc toolchain
 RUN mkdir /opt/gcc-arm-none-eabi \
- && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
+ && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
 ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Install docker-cli for Docker-from-Docker tools
@@ -91,10 +92,10 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
 
 # Update all tool alternatives to the correct version
-RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-12 20 \
- && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-12 20 \
- && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-12 10 \
+RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
+ && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20 \
+ && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 10 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
- && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
- && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
+# && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
+# && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10
