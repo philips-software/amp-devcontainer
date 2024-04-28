@@ -1,10 +1,10 @@
 {
-  "clang-17": "1:17.0.6-5build1",
-  "clangd-17": "1:17.0.6-5build1",
-  "clang-format-17": "1:17.0.6-5build1",
-  "clang-tidy-17": "1:17.0.6-5build1",
-  "clang-tools-17": "1:17.0.6-5build1",
-  "libclang-rt-17-dev": "1:17.0.6-5build1",
-  "lld-17": "1:17.0.6-5build1",
-  "llvm-17": "1:17.0.6-5build1"
+  "clang-17": "1:17.0.6-9ubuntu1",
+  "clangd-17": "1:17.0.6-9ubuntu1",
+  "clang-format-17": "1:17.0.6-9ubuntu1",
+  "clang-tidy-17": "1:17.0.6-9ubuntu1",
+  "clang-tools-17": "1:17.0.6-9ubuntu1",
+  "libclang-rt-17-dev": "1:17.0.6-9ubuntu1",
+  "lld-17": "1:17.0.6-9ubuntu1",
+  "llvm-17": "1:17.0.6-9ubuntu1"
 }
