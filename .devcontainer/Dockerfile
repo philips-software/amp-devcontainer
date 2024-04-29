@@ -55,10 +55,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLAN
  && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
  && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
-# && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
-# && CC=clang CXX=clang++ cmake -S /tmp/mull -B /tmp/mull/build \
-# && cmake --build /tmp/mull/build --target install \
-# && rm -rf /tmp/mull \
+ && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/rjaegers/mull.git \
+ && CC=clang CXX=clang++ cmake -S /tmp/mull -B /tmp/mull/build \
+ && cmake --build /tmp/mull/build --target install \
+ && rm -rf /tmp/mull \
  && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
  && apt-get autoremove -y \
  && apt-get clean \
@@ -96,6 +96,6 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20 \
  && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 10 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
-# && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
-# && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
+ && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
+ && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10
