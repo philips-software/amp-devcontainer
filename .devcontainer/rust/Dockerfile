@@ -1,4 +1,4 @@
-FROM ubuntu:22.04@sha256:1b8d8ff4777f36f19bfe73ee4df61e3a0b789caeff29caa019539ec7c9a57f95
+FROM ubuntu:24.04@sha256:3f85b7caad41a95462cf5b787d8a04604c8262cdcdf9a472b8c52ef83375fe15
 
 ARG BATS_VERSION=1.10.0
 ARG RUST_VERSION=1.77.2
@@ -44,7 +44,7 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
  && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
 
 # Update all tool alternatives to the correct version
-RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-12 20
+RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20
 
 # hadolint ignore=DL3008
 RUN apt-get update \

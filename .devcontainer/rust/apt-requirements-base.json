@@ -1,9 +1,9 @@
 {
-  "ca-certificates": "20230311ubuntu0.22.04.1",
-  "gcc-12": "12.3.0-1ubuntu1~22.04",
-  "git": "1:2.34.1-1ubuntu1.10",
-  "gnupg2": "2.2.27-3ubuntu2.1",
-  "libc6-dev": "2.35-0ubuntu3.7",
-  "pkg-config": "0.29.2-1ubuntu3",
-  "wget": "1.21.2-2ubuntu1"
+  "ca-certificates": "20240203",
+  "g++-13": "13.2.0-23ubuntu4",
+  "git": "1:2.43.0-1ubuntu7",
+  "gnupg2": "2.4.4-2ubuntu17",
+  "libc6-dev": "2.39-0ubuntu8.1",
+  "pkg-config": "1.8.1-2build1",
+  "wget": "1.21.4-1ubuntu4"
 }
