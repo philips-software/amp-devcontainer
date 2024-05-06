@@ -27,7 +27,7 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
  && update-ca-certificates
 
 # Install some tools via pip to get more recent versions
-COPY .devcontainer/requirements.txt /tmp/requirements.txt
+COPY .devcontainer/cpp/requirements.txt /tmp/requirements.txt
 RUN python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt \
  && rm -rf /tmp/requirements.txt
 
