@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.0.0](https://github.com/philips-software/amp-devcontainer/compare/v4.7.2...v5.0.0) (2024-04-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump ubuntu from 22.04 to 24.04 in /.devcontainer ([#393](https://github.com/philips-software/amp-devcontainer/issues/393))
+
+### Features
+
+* Bump ubuntu from 22.04 to 24.04 in /.devcontainer ([#393](https://github.com/philips-software/amp-devcontainer/issues/393)) ([81b1996](https://github.com/philips-software/amp-devcontainer/commit/81b1996ee4e74d4a6655e490aa0e51a42debb2c0))
+
+
+### Chores
+
+* **deps:** Update SonarSource.sonarlint-vscode ([#390](https://github.com/philips-software/amp-devcontainer/issues/390)) ([660fa44](https://github.com/philips-software/amp-devcontainer/commit/660fa445cd5b88b3bd81f7f918e25e92cc184d98))
+
 ## [4.7.2](https://github.com/philips-software/amp-devcontainer/compare/v4.7.1...v4.7.2) (2024-04-20)
 
 
