@@ -70,10 +70,10 @@ teardown() {
 # bats test_tags=tc:20
 @test "compilation database should be generated on CMake configure" {
   run cmake --preset gcc
-  [ -e build/gcc/compile_commands.json ]
+  assert [ -e build/gcc/compile_commands.json ]
 
   run cmake --preset gcc-arm-none-eabi
-  [ -e build/gcc-arm-none-eabi/compile_commands.json ]
+  assert [ -e build/gcc-arm-none-eabi/compile_commands.json ]
 }
 
 # bats test_tags=tc:4

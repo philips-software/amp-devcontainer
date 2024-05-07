@@ -1,4 +1,4 @@
 [package]
-name = "hello-cargo"
+name = "hello-clippy"
 version = "0.1.0"
 edition = "2021"

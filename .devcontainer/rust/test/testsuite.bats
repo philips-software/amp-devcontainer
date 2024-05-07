@@ -47,3 +47,26 @@ teardown() {
   assert_failure
   assert_output --partial "error: "
 }
+
+@test "running clippy should result in warning diagnostics" {
+  pushd clippy
+
+  run cargo clippy
+  assert_failure
+  assert_output --partial "approximate value of"
+
+  popd
+}
+
+@test "running rustfmt should result in re-formatted code" {
+  run rustfmt --color=never --check rust/unformatted.rs
+  assert_failure
+  assert_output --partial - <<EOF
+-fn main()
+-{
+-  println!("Hello, world!");
++fn main() {
++    println!("Hello, world!");
+ }
+EOF
+}

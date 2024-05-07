@@ -2,3 +2,4 @@
 .xwin-hash/
 build/
 megalinter-reports/
+target/
