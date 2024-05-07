@@ -50,7 +50,7 @@ teardown() {
   assert_output --partial "Machine:                           ARM"
 }
 
-@test "valid code input should result in working Windows executable using clang-cl compiler" {
+@test "valid code input should result in Windows executable using clang-cl compiler" {
   cmake --preset clang-cl
   cmake --build --preset clang-cl
 }
