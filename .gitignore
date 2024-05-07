@@ -2,6 +2,7 @@
 .xwin-hash/
 build/
 megalinter-reports/
+mutants.out/
 target/
 *.profdata
 *.profraw

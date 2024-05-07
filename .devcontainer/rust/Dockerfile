@@ -50,6 +50,7 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20
 RUN apt-get update \
  && apt-get install -y --no-install-recommends libudev-dev \
  && cargo install cargo-binutils \
+ && cargo install cargo-mutants \
  && cargo install flip-link \
  && cargo install probe-rs --features cli \
  && rm -rf "$CARGO_HOME/registry" \

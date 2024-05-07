@@ -6,7 +6,7 @@ setup() {
 }
 
 teardown() {
-  rm -rf build ./**/target ./**/default*.prof*
+  rm -rf build ./**/target ./**/default*.prof* ./**/mutants.out
 }
 
 @test "valid code input should result in working executable targeting the host architecture" {
@@ -81,6 +81,16 @@ EOF
   run cargo cov -- report --instr-profile=default.profdata --object target/debug/deps/test-39ae9a37530d18ea
   assert_success
   assert_output --partial "77.78%"
+
+  popd
+}
+
+@test "mutation testing a test executable should be supported" {
+  pushd test
+
+  run cargo mutants
+  assert_failure
+  assert_output --partial "MISSED   src/main.rs:4:25: replace + with * in factorial"
 
   popd
 }
