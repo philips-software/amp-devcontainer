@@ -10,8 +10,7 @@ teardown() {
 }
 
 @test "valid code input should result in working executable targeting the host architecture" {
-  run rustc --out-dir build rust/hello.rs
-  assert_success
+  rustc --out-dir build rust/hello.rs
 
   run build/hello
   assert_success
@@ -21,8 +20,7 @@ teardown() {
 @test "valid code input should result in working elf executable targeting the cortex-m architecture" {
   pushd cortex-m
 
-  run cargo build
-  assert_success
+  cargo build
 
   run cargo readobj --bin hello-cortex -- --file-headers
   assert_output --partial "Class:                             ELF32"
@@ -78,8 +76,7 @@ EOF
   assert_success
   assert_output --partial "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out;"
 
-  run cargo profdata -- merge -sparse default_*.profraw -o default.profdata
-  assert_success
+  cargo profdata -- merge -sparse default_*.profraw -o default.profdata
 
   run cargo cov -- report --instr-profile=default.profdata --object target/debug/deps/test-39ae9a37530d18ea
   assert_success

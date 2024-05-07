@@ -33,11 +33,8 @@ teardown() {
 }
 
 @test "valid code input should result in working executable using host compiler" {
-  run cmake --preset gcc
-  assert_success
-
-  run cmake --build --preset gcc
-  assert_success
+  cmake --preset gcc
+  cmake --build --preset gcc
 
   run build/gcc/gcc/test-gcc
   assert_success
@@ -45,11 +42,8 @@ teardown() {
 }
 
 @test "valid code input should result in elf executable using arm-none-eabi compiler" {
-  run cmake --preset gcc-arm-none-eabi
-  assert_success
-
-  run cmake --build --preset gcc-arm-none-eabi
-  assert_success
+  cmake --preset gcc-arm-none-eabi
+  cmake --build --preset gcc-arm-none-eabi
 
   run readelf -h build/gcc-arm-none-eabi/gcc-arm-none-eabi/test-gcc-arm-none-eabi
   assert_output --partial "Type:                              EXEC"
@@ -57,50 +51,36 @@ teardown() {
 }
 
 @test "valid code input should result in working Windows executable using clang-cl compiler" {
-  run cmake --preset clang-cl
-  assert_success
-
-  run cmake --build --preset clang-cl
-  assert_success
+  cmake --preset clang-cl
+  cmake --build --preset clang-cl
 }
 
 @test "compilation database should be generated on CMake configure" {
-  run cmake --preset gcc
+  cmake --preset gcc
   assert [ -e build/gcc/compile_commands.json ]
 
-  run cmake --preset gcc-arm-none-eabi
+  cmake --preset gcc-arm-none-eabi
   assert [ -e build/gcc-arm-none-eabi/compile_commands.json ]
 }
 
 @test "invalid code input should result in failing build" {
-  run cmake --preset gcc
-  assert_success
-
-  run cmake --build --preset gcc-fail
-  assert_failure
+  cmake --preset gcc
+  run ! cmake --build --preset gcc-fail
 }
 
 @test "using ccache as a compiler launcher should result in cached build using gcc compiler" {
-  run ccache --clear --zero-stats
-
-  run cmake --preset gcc -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-  assert_success
-
-  run cmake --build --preset gcc
-  assert_success
+  ccache --clear --zero-stats
+  cmake --preset gcc -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+  cmake --build --preset gcc
 
   run ccache -s
   assert_output --partial "Hits:               0"
   assert_output --partial "Misses:             1"
 
-  run rm -rf build
-  run ccache --zero-stats
-
-  run cmake --preset gcc -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-  assert_success
-
-  run cmake --build --preset gcc
-  assert_success
+  rm -rf build
+  ccache --zero-stats
+  cmake --preset gcc -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+  cmake --build --preset gcc
 
   run ccache -s
   assert_output --partial "Hits:               1"
@@ -108,26 +88,18 @@ teardown() {
 }
 
 @test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
-  run ccache --clear --zero-stats
-
-  run cmake --preset clang-cl -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-  assert_success
-
-  run cmake --build --preset clang-cl
-  assert_success
+  ccache --clear --zero-stats
+  cmake --preset clang-cl -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+  cmake --build --preset clang-cl
 
   run ccache -s
   assert_output --partial "Hits:               0"
   assert_output --partial "Misses:             1"
 
-  run rm -rf build
-  run ccache --zero-stats
-
-  run cmake --preset clang-cl -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-  assert_success
-
-  run cmake --build --preset clang-cl
-  assert_success
+  rm -rf build
+  ccache --zero-stats
+  cmake --preset clang-cl -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+  cmake --build --preset clang-cl
 
   run ccache -s
   assert_output --partial "Hits:               1"
@@ -135,8 +107,7 @@ teardown() {
 }
 
 @test "running clang-tidy as part of the build should result in warning diagnostics" {
-  run cmake --preset clang
-  assert_success
+  cmake --preset clang
 
   run cmake --build --preset clang-tidy
   assert_success
@@ -144,8 +115,7 @@ teardown() {
 }
 
 @test "running include-what-you-use as part of the build should result in warning diagnostics" {
-  run cmake --preset clang
-  assert_success
+  cmake --preset clang
 
   run cmake --build --preset clang-iwyu
   assert_success
@@ -159,11 +129,8 @@ teardown() {
 }
 
 @test "coverage information should be generated when running a testsuite" {
-  run cmake --preset coverage
-  assert_success
-
-  run cmake --build --preset coverage
-  assert_success
+  cmake --preset coverage
+  cmake --build --preset coverage
 
   run ctest --preset coverage
   assert_success
@@ -175,11 +142,8 @@ teardown() {
 }
 
 @test "crashes should be detected when fuzzing an executable" {
-  run cmake --preset clang
-  assert_success
-
-  run cmake --build --preset fuzzing
-  assert_success
+  cmake --preset clang
+  cmake --build --preset fuzzing
 
   run build/clang/fuzzing/test-fuzzing
   assert_failure
@@ -187,24 +151,19 @@ teardown() {
 }
 
 @test "a mutation score should be calculated when mutation testing a testsuite" {
-  run cmake --preset mutation
-  assert_success
-
-  run cmake --build --preset mutation
-  assert_success
+  cmake --preset mutation
+  cmake --build --preset mutation
 
   run ctest --preset mutation
   assert_output --partial "[info] Mutation score:"
 }
 
 @test "host gdb should be able to start" {
-  run gdb --version
-  assert_success
+  gdb --version
 }
 
 @test "gdb-multiarch should be able to start" {
-  run gdb-multiarch --version
-  assert_success
+  gdb-multiarch --version
 }
 
 @test "clangd should be able to analyze source files" {
@@ -214,11 +173,8 @@ teardown() {
 }
 
 @test "using lld as an alternative linker should result in working host executable" {
-  run cmake --preset gcc
-  assert_success
-
-  run cmake --build --preset gcc-lld
-  assert_success
+  cmake --preset gcc
+  cmake --build --preset gcc-lld
 
   run readelf --string-dump .comment build/gcc/gcc/test-gcc-lld
   assert_output --partial "Linker: Ubuntu LLD"
@@ -235,9 +191,8 @@ teardown() {
 }
 
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with gcc" {
-  run cmake --preset gcc
-  run cmake --build --preset gcc-sanitizers
-  assert_success
+  cmake --preset gcc
+  cmake --build --preset gcc-sanitizers
 
   run build/gcc/sanitizers/test-asan
   assert_failure
@@ -249,9 +204,8 @@ teardown() {
 }
 
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with clang" {
-  run cmake --preset clang
-  run cmake --build --preset clang-sanitizers
-  assert_success
+  cmake --preset clang
+  cmake --build --preset clang-sanitizers
 
   run build/clang/sanitizers/test-asan
   assert_failure
