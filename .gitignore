@@ -3,3 +3,5 @@
 build/
 megalinter-reports/
 target/
+*.profdata
+*.profraw
