@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.0.1](https://github.com/philips-software/amp-devcontainer/compare/v5.0.0...v5.0.1) (2024-05-08)
+
+
+### Chores
+
+* **deps:** Bump jinja2 from 3.1.3 to 3.1.4 in /.devcontainer ([#401](https://github.com/philips-software/amp-devcontainer/issues/401)) ([d766134](https://github.com/philips-software/amp-devcontainer/commit/d76613496e6053fce6e16a730c41609627d944cf))
+* **deps:** Bump ubuntu from `562456a` to `3f85b7c` in /.devcontainer ([#400](https://github.com/philips-software/amp-devcontainer/issues/400)) ([111f15a](https://github.com/philips-software/amp-devcontainer/commit/111f15a671d35ed3ccbfc57d7312a2a7885aae32))
+* **deps:** Update ms-vscode.cpptools ([#403](https://github.com/philips-software/amp-devcontainer/issues/403)) ([b4f5c86](https://github.com/philips-software/amp-devcontainer/commit/b4f5c8645de9e411106402d38c69035be3794b4a))
+* **deps:** Update SonarSource.sonarlint-vscode ([#398](https://github.com/philips-software/amp-devcontainer/issues/398)) ([ff23ab0](https://github.com/philips-software/amp-devcontainer/commit/ff23ab07571959b64b6d394c98132ad89d611bc0))
+
 ## [5.0.0](https://github.com/philips-software/amp-devcontainer/compare/v4.7.2...v5.0.0) (2024-04-30)
 
 
