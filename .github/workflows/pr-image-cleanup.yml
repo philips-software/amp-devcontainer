@@ -14,6 +14,9 @@ env:
 jobs:
   delete-images:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        flavor: ["cpp", "rust"]
     permissions:
       packages: write
     steps:
@@ -23,17 +26,10 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - run: cosign clean -f --type=signature "${{ env.REGISTRY }}/${{ github.repository }}:pr-${{ github.event.pull_request.number }}"
-      - run: cosign clean -f --type=signature "${{ env.REGISTRY }}/${{ github.repository }}-vscode:pr-${{ github.event.pull_request.number }}"
+      - run: cosign clean -f --type=signature "${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}:pr-${{ github.event.pull_request.number }}"
       - uses: bots-house/ghcr-delete-image-action@3827559c68cb4dcdf54d813ea9853be6d468d3a4 # v1.1.0
         with:
           owner: ${{ github.repository_owner }}
-          name: ${{ github.event.repository.name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: pr-${{ github.event.pull_request.number }}
-      - uses: bots-house/ghcr-delete-image-action@3827559c68cb4dcdf54d813ea9853be6d468d3a4 # v1.1.0
-        with:
-          owner: ${{ github.repository_owner }}
-          name: ${{ github.event.repository.name }}-vscode
+          name: ${{ github.event.repository.name }}-${{ matrix.flavor }}
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: pr-${{ github.event.pull_request.number }}

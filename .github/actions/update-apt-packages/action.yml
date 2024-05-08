@@ -1,0 +1,33 @@
+---
+name: "Update apt packages"
+description: "Updates version-pinned apt packages in JSON files"
+
+inputs:
+  input-file:
+    description: "Input file(s) in JSON format containing a list of version pinned apt packages"
+    required: true
+
+outputs:
+  updated-dependencies:
+    description: "JSON array with the names of the updated dependencies"
+    value: ${{ steps.update-extensions.outputs.updated-dependencies }}
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo "$GITHUB_ACTION_PATH" >> "$GITHUB_PATH"
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+    - run: |
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends -y jq
+      shell: bash
+    - run: |
+        update-apt-packages.sh ${INPUT_FILE}
+        echo "updated-dependencies=$(cat updated-packages.json)" >> "${GITHUB_OUTPUT}"
+        rm updated-packages.json
+      id: update-extensions
+      shell: bash
+      env:
+        INPUT_FILE: ${{ inputs.input-file }}
