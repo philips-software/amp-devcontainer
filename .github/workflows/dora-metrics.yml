@@ -1,0 +1,20 @@
+---
+name: DORA metrics
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deployment-frequency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: DeveloperMetrics/deployment-frequency@main
+        with:
+          workflows: 'Build & Push'
