@@ -8,14 +8,11 @@ concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
+permissions: read-all
 
 jobs:
   deployment-frequency:
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
     steps:
       - uses: DeveloperMetrics/deployment-frequency@c23f44474a3416c2e09ff8b3b5cde52d0d2d7ce5 # v1.5.9
         with:
