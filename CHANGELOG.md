@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.1.0](https://github.com/philips-software/amp-devcontainer/compare/v5.0.1...v5.1.0) (2024-05-14)
+
+
+### Features
+
+* Add rust container flavor ([#351](https://github.com/philips-software/amp-devcontainer/issues/351)) ([f7b357b](https://github.com/philips-software/amp-devcontainer/commit/f7b357be4f1c4dfc9808cd9012e34142b27397e6))
+
+
+### Chores
+
+* **deps,rust:** Update ms-vsliveshare.vsliveshare, rust-lang.rust-analyzer, usernamehw.errorlens ([#413](https://github.com/philips-software/amp-devcontainer/issues/413)) ([3e67ad2](https://github.com/philips-software/amp-devcontainer/commit/3e67ad251de323840c0c34946714f0a41d047232))
+* **deps:** Bump cmake from 3.29.2 to 3.29.3 in /.devcontainer ([#412](https://github.com/philips-software/amp-devcontainer/issues/412)) ([98ab2e5](https://github.com/philips-software/amp-devcontainer/commit/98ab2e5886b2b7d05e35e404cc4be01c254848f5))
+
 ## [5.0.1](https://github.com/philips-software/amp-devcontainer/compare/v5.0.0...v5.0.1) (2024-05-08)
 
 
