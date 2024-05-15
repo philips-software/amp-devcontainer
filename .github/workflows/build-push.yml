@@ -22,6 +22,7 @@ jobs:
   build-push:
     runs-on: ubuntu-latest
     permissions:
+      attestations: write
       contents: write
       packages: write
       pull-requests: write
@@ -98,6 +99,10 @@ jobs:
         with:
           comment-summary-in-pr: on-failure
           fail-on-severity: critical
+      - uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}
+          subject-digest: ${{ steps.build-and-push.outputs.digest }}
       - name: Sign the images with GitHub OIDC token
         if: github.event_name != 'merge_group'
         # This step uses the GitHub OIDC identity token to provision an ephemeral certificate
