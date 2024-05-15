@@ -20,8 +20,8 @@ runs:
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
     - run: |
-        sudo apt-get update
-        sudo apt-get install --no-install-recommends -y jq
+        apt-get update
+        apt-get install --no-install-recommends -y jq
       shell: bash
     - run: |
         update-apt-packages.sh ${INPUT_FILE}
