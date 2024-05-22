@@ -22,7 +22,8 @@ jobs:
   build-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      # dependency-submission needs contents write permission.
+      contents: write
       packages: write
       pull-requests: write
       # This is used to complete the identity challenge
