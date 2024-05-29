@@ -4,6 +4,6 @@
   "git": "1:2.43.0-1ubuntu7",
   "gnupg2": "2.4.4-2ubuntu17",
   "libc6-dev": "2.39-0ubuntu8.1",
-  "pkg-config": "1.8.1-2build1",
+  "rustup": "1.26.0-5build1",
   "wget": "1.21.4-1ubuntu4"
 }
