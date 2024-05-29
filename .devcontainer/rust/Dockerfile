@@ -23,6 +23,8 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
  && update-ca-certificates
 
 # Install rust
+ENV CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:"$PATH"
 RUN rustup set profile minimal \
  && rustup default ${RUST_VERSION} \
  && rustup component add clippy llvm-tools rustfmt \
@@ -41,4 +43,6 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20
 
 # Install additional rust tools
 RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
- && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@24.5.0 flip-link@0.1.8 probe-rs-tools@0.24.0
+ && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@24.5.0 flip-link@0.1.8 \
+ # cargo-binstall can't (yet) install probe-rs-tools for aarch64, fall-back to script installation
+ && wget -qO - https://github.com/probe-rs/probe-rs/releases/download/v0.24.0/probe-rs-tools-installer.sh | sh
