@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+bats_require_minimum_version 1.5.0
+
 setup_file() {
   # Installing the Windows SDK/CRT takes a long time.
   # When still valid, use the installation from cache.
