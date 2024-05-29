@@ -28,7 +28,6 @@ jobs:
           fi
           new_issue_url=$(gh issue create \
             --title "$TITLE" \
-            --assignee "$ASSIGNEES" \
             --label "$LABELS" \
             --body "$BODY")
           if [[ $PINNED == true ]]; then
@@ -38,12 +37,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           TITLE: Evaluate tool versions
-          ASSIGNEES: awesome-embedded-projects
           LABELS: scheduled,tool-versions
           BODY: |
             ## Description
 
-            This issue is automatically created as a gentle reminder to evaluate and update the tool versions for the container image built from this repository.
+            This issue is automatically created as a gentle reminder to evaluate and update the tool versions for the container images built from this repository.
             The checklist below describes the steps that should be taken, and checked-off before this issue can be closed.
             Any decisions about purposefully not updating a tool to a newer version should be logged as issue comment.
             The general philosophy is to always include the latest tool versions and the latest [LTS](https://ubuntu.com/about/release-cycle) version of Ubuntu.
@@ -53,6 +51,8 @@ jobs:
 
             ## Checklist
 
+            ### amp-devcontainer-cpp
+
             - [ ] The [ARM GNU](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) toolchain is up to date and matches with the GCC version
             - [ ] The [Clang toolchain](https://apt.llvm.org/) is up to date
             - [ ] The [Docker cli](https://download.docker.com/linux/static/stable/) is up to date
@@ -60,5 +60,11 @@ jobs:
             - [ ] [Mull](https://github.com/mull-project/mull) is up to date and compatible with the currently installed Clang version
             - [ ] [include-what-you-use](https://github.com/include-what-you-use/include-what-you-use) is up to date and compatible with the currently installed Clang version
             - [ ] [xwin](https://github.com/Jake-Shadle/xwin) is up to date
+
+            ### amp-devcontainer-rust
+
+            - [ ] The [rust](https://rust-lang.org/) toolchain is up to date
+            - [ ] [rust-binstall](https://github.com/cargo-bins/cargo-binstall/releases) is up to date
+            - [ ] [bats-core](https://github.com/bats-core/bats-core), [bats-support](https://github.com/bats-core/bats-support) and [bats-assert](https://github.com/bats-core/bats-assert) are up to date
           PINNED: true
           CLOSE_PREVIOUS: true
