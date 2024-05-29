@@ -1,7 +1,7 @@
 {
   "ca-certificates": "20240203",
   "g++-13": "13.2.0-23ubuntu4",
-  "git": "1:2.43.0-1ubuntu7",
+  "git": "1:2.43.0-1ubuntu7.1",
   "gnupg2": "2.4.4-2ubuntu17",
   "libc6-dev": "2.39-0ubuntu8.1",
   "pkg-config": "1.8.1-2build1",
