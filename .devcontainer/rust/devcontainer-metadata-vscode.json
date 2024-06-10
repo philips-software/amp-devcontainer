@@ -8,9 +8,9 @@
         "extensions": [
           "mhutchie.git-graph@1.30.0",
           "ms-vsliveshare.vsliveshare@1.0.5918",
-          "rust-lang.rust-analyzer@0.3.1958",
+          "rust-lang.rust-analyzer@0.3.1983",
           "tamasfe.even-better-toml@0.19.2",
-          "usernamehw.errorlens@3.17.0"
+          "usernamehw.errorlens@3.18.0"
         ]
       }
     }

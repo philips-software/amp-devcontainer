@@ -2,7 +2,7 @@
   "ca-certificates": "20240203",
   "g++-13": "13.2.0-23ubuntu4",
   "gdb-multiarch": "15.0.50.20240403-0ubuntu1",
-  "git": "1:2.43.0-1ubuntu7",
+  "git": "1:2.43.0-1ubuntu7.1",
   "gnupg2": "2.4.4-2ubuntu17",
   "ninja-build": "1.11.1-2",
   "python3-pip": "24.0+dfsg-1ubuntu1",

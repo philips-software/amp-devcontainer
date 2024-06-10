@@ -1,12 +1,12 @@
 FROM ubuntu:24.04@sha256:3f85b7caad41a95462cf5b787d8a04604c8262cdcdf9a472b8c52ef83375fe15
 
-ARG BATS_VERSION=1.10.0
+ARG BATS_VERSION=1.11.0
 ARG CCACHE_VERSION=4.9.1
 ARG CLANG_VERSION=17
-ARG DOCKER_VERSION=26.1.1
-ARG MULL_VERSION=main
+ARG DOCKER_VERSION=26.1.3
+ARG MULL_VERSION=0.22.0
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.21
-ARG XWIN_VERSION=0.5.0
+ARG XWIN_VERSION=0.5.2
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -55,7 +55,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLAN
  && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
  && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
- && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/rjaegers/mull.git \
+ && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
  && CC=clang CXX=clang++ cmake -S /tmp/mull -B /tmp/mull/build \
  && cmake --build /tmp/mull/build --target install \
  && rm -rf /tmp/mull \
