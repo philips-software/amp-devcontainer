@@ -76,8 +76,8 @@ jobs:
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
           provenance: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}
+          cache-to: type=gha,mode=max,scope=${{ github.repository }}-${{ matrix.flavor }}
       - uses: ./.github/actions/container-size-diff
         id: container-size-diff
         with:

@@ -31,8 +31,7 @@ jobs:
           file: .devcontainer/${{ matrix.flavor }}/Dockerfile
           load: true
           tags: ${{ github.repository }}-${{ matrix.flavor }}:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}
       - uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.flavor == 'cpp'
         with:
