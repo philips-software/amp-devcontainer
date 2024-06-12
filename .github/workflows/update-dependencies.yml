@@ -69,10 +69,10 @@ jobs:
           commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
           branch: feature/update-vscode-extensions
           body: |
-            ${{ steps.update-extensions.outputs.markdown-summary }}
-
             > [!NOTE]
             > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are no automated tests for the VS Code Extension updates.
+
+            ${{ steps.update-extensions.outputs.markdown-summary }}
           title: "chore(deps,${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
           labels: dependencies,vscode-extensions
           token: ${{ steps.token.outputs.token }}
