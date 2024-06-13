@@ -22,7 +22,7 @@ jobs:
     steps:
       # While the docker/build-push-action works from the Git context, we still need
       # the checkout step for running our tests.
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           persist-credentials: false
       - uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
@@ -31,8 +31,7 @@ jobs:
           file: .devcontainer/${{ matrix.flavor }}/Dockerfile
           load: true
           tags: ${{ github.repository }}-${{ matrix.flavor }}:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}
       - uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.flavor == 'cpp'
         with:
