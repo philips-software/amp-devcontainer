@@ -21,6 +21,6 @@ jobs:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           persist-credentials: false
-      - uses: philips-software/pull-request-report-action@1299b0918dbffca0f5a601d3d230e04e0a3d2418 # v0.1.4
+      - uses: philips-software/pull-request-report-action@39e2f082490099021474c109cb207953221a8e47 # v0.1.5
         env:
           GITHUB_TOKEN: ${{ github.token }}
