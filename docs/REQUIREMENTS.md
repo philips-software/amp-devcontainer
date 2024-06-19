@@ -101,12 +101,15 @@ amp-devcontainer *SHALL* cryptographically sign its released container images.
 #### Software Bill of Materials (SBOM)
 
 amp-devcontainer *SHALL* include an SBOM including all software packages for every container image that is built.
-
+<!-- @sbdl software_bill_of_materials is requirement { [@DFP] }
+-->
 Having an overview of all software packages included in a specific build of a container image helps in monitoring and detection of vulnerabilities.
 
-#### Vulnerability Scanning
+#### Vulnerability Disclosure
 
 amp-devcontainer *SHALL* have vulnerability information for the latest released version of all containers.
+<!-- @sbdl vulnarability_disclosure is requirement { [@DFP] }
+-->
 
 ### Compatibility Requirements
 
@@ -115,7 +118,8 @@ This chapter describes requirements pertaining to compatibility of amp-devcontai
 #### Host Architecture
 
 amp-devcontainer *SHALL* be compatible with both the x86-64 (AMD64) *and* AArch64 (ARM64) host architectures.
-
+<!-- @sbdl host_architecture is requirement { [@DFP] }
+-->
 Supporting both x86-64 and AArch64 has several advantages:
   - Increasing useability on a wide range of host machines, from PC hardware using the x86-64 architecture to Apple Silicon using the AArch64 architecture
   - Unlocking the power efficiency of the AArch64 architecture, potentially reducing energy consumption and cost for metered ci-systems
@@ -123,14 +127,16 @@ Supporting both x86-64 and AArch64 has several advantages:
 #### Open Container Initiative (OCI) Image Specification
 
 amp-devcontainer images *SHALL* be compatible with the [OCI image specification](https://github.com/opencontainers/image-spec/blob/main/spec.md)
-
+<!-- @sbdl oci_image is requirement { [@DFP] }
+-->
 To guarantee compatibility with container runtimes and container- and image tooling; amp-devcontainer should be compatible with the latest version
 of the OCI image specification.
 
 #### Integrated Development Environment
 
 amp-devcontainer *SHALL* be compatible with [VS Code](https://code.visualstudio.com/) *and* [GitHub Codespaces](https://github.com/features/codespaces).
-
+<!-- @sbdl integrated_development_environment is requirement { [@DFP] }
+-->
 It should be possible to use amp-devcontainer and all of its features in both VS Code and GitHub Codespaces with minimal effort.
 Where minimal effort means: with the least amount of additional set-up, user intervention or configuration for all functionality that is provided by amp-devcontainer. Features and functions should work "out-of-the-box" without being overly opinionated.
 
