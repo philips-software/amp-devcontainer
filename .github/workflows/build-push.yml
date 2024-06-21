@@ -63,7 +63,7 @@ jobs:
       # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
       - run: echo "metadata=$(jq -cj '.' .devcontainer/${{ matrix.flavor }}/devcontainer-metadata-vscode.json | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
         id: devcontainer-metadata
-      - uses: docker/build-push-action@94f8f8c2eec4bc3f1d78c1755580779804cb87b2 # v6.0.1
+      - uses: docker/build-push-action@31159d49c0d4756269a0940a750801a1ea5d7003 # v6.1.0
         id: build-and-push
         with:
           file: .devcontainer/${{ matrix.flavor }}/Dockerfile
