@@ -217,3 +217,16 @@ teardown() {
   assert_failure
   assert_output --partial "runtime error: load of null pointer"
 }
+
+# bats test_tags=tc:16
+@test "using clang-uml to generate uml class diagram" {
+  run cmake --preset clang
+  assert_success
+
+  run cmake --build --preset clang-uml
+  assert_success
+
+  run cd tests
+  run clang-uml
+  assert_success
+}

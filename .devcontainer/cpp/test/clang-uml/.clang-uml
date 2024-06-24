@@ -1,0 +1,13 @@
+compilation_database_dir: build/clang
+output_directory: puml
+diagrams:
+  test_class:
+    type: class
+    glob:
+      - clang-tools/clang-uml-class.cpp
+    comment_parser: clang
+    using_namespace:
+      - clanguml::t00002
+    include:
+      namespaces:
+        - clanguml::t00002

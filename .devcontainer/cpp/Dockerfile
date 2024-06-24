@@ -16,9 +16,11 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install the base system with all tool dependencies
 COPY .devcontainer/cpp/apt-requirements-base.json /tmp/apt-requirements-base.json
+COPY .devcontainer/base/apt-repositories.json /tmp/apt-repositories.json
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
+ && jq -r 'to_entries | .[] | .key + ":" + .value' /tmp/apt-repositories.json | xargs add-apt-repository \
  && rm /tmp/apt-requirements-base.json \
  && rm -rf /var/lib/apt/lists/*
 
@@ -42,6 +44,7 @@ RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /us
  && UBUNTU_CODENAME=$(. /etc/os-release; echo "${UBUNTU_CODENAME/*, /}") \
  && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
  && echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences \
+ && jq -r 'to_entries | .[] | .key + ":" + .value' /tmp/apt-repositories.json | xargs add-apt-repository \
  && apt-get update \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends \
  && rm /tmp/apt-requirements* \
@@ -87,6 +90,20 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
  && rm -rf "${batstmp}" \
  && git -C /usr/local clone -b v0.3.0 https://github.com/bats-core/bats-support.git \
  && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
+
+
+# Install clang-uml from source
+RUN git clone https://github.com/bkryza/clang-uml \
+&& apt-get update && apt-get install -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
+&& cd clang-uml \
+&& LLVM_VERSION=${CLANG_VERSION} make release/CMakeLists.txt \
+&& cmake --build release --config release --target clang-uml \
+&& cmake --install release \
+&& cd .. \
+&& rm -rf /clang-uml \
+&& apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
+&& apt-get autoremove -y \
+&& apt-get clean
 
 # Install xwin
 RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
