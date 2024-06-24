@@ -16,7 +16,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install the base system with all tool dependencies
 COPY .devcontainer/cpp/apt-requirements-base.json /tmp/apt-requirements-base.json
-COPY .devcontainer/base/apt-repositories.json /tmp/apt-repositories.json
+COPY .devcontainer/cpp/apt-repositories.json /tmp/apt-repositories.json
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \

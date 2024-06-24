@@ -1,4 +1,5 @@
 {
+  "software-properties-common": "0.99.48",
   "ca-certificates": "20240203",
   "g++-13": "13.2.0-23ubuntu4",
   "gdb-multiarch": "15.0.50.20240403-0ubuntu1",
