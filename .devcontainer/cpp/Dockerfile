@@ -7,6 +7,7 @@ ARG DOCKER_VERSION=26.1.3
 ARG MULL_VERSION=0.22.0
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.21
 ARG XWIN_VERSION=0.5.2
+ARG CLANG_UML_VERSION=0.5.2
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -16,11 +17,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install the base system with all tool dependencies
 COPY .devcontainer/cpp/apt-requirements-base.json /tmp/apt-requirements-base.json
-COPY .devcontainer/cpp/apt-repositories.json /tmp/apt-repositories.json
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
- && jq -r 'to_entries | .[] | .key + ":" + .value' /tmp/apt-repositories.json | xargs add-apt-repository \
  && rm /tmp/apt-requirements-base.json \
  && rm -rf /var/lib/apt/lists/*
 
@@ -44,7 +43,6 @@ RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /us
  && UBUNTU_CODENAME=$(. /etc/os-release; echo "${UBUNTU_CODENAME/*, /}") \
  && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
  && echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences \
- && jq -r 'to_entries | .[] | .key + ":" + .value' /tmp/apt-repositories.json | xargs add-apt-repository \
  && apt-get update \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends \
  && rm /tmp/apt-requirements* \
@@ -94,12 +92,11 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 
 # Install clang-uml from source
 RUN git clone https://github.com/bkryza/clang-uml \
-&& apt-get update && apt-get install -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
-&& cd clang-uml \
-&& LLVM_VERSION=${CLANG_VERSION} make release/CMakeLists.txt \
-&& cmake --build release --config release --target clang-uml \
-&& cmake --install release \
-&& cd .. \
+&& git -C clang-uml checkout ${CLANG_UML_VERSION} \
+&& apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
+&& LLVM_VERSION=${CLANG_VERSION} make -C clang-uml release/CMakeLists.txt \
+&& cmake --build /clang-uml/release --config release --target clang-uml\
+&& cmake --install clang-uml/release \
 && rm -rf /clang-uml \
 && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
 && apt-get autoremove -y \
