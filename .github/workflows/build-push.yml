@@ -61,7 +61,7 @@ jobs:
             type=semver,pattern={{major}}
       # Generate image LABEL for devcontainer.metadata
       # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
-      - run: echo "metadata=$(jq -cj '.' .devcontainer/${{ matrix.flavor }}/devcontainer-metadata-vscode.json | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
+      - run: echo "metadata=$(jq -cj '[.]' .devcontainer/${{ matrix.flavor }}/devcontainer-metadata-vscode.json | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
         id: devcontainer-metadata
       - uses: docker/build-push-action@31159d49c0d4756269a0940a750801a1ea5d7003 # v6.1.0
         id: build-and-push
