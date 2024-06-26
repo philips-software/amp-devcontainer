@@ -26,7 +26,7 @@ get_github_releasenotes() {
     done
 }
 
-for EXTENSION in $(echo $JSON | jq -r '.[].customizations.vscode.extensions | flatten[]'); do
+for EXTENSION in $(echo $JSON | jq -r '.customizations.vscode.extensions | flatten[]'); do
     NAME="${EXTENSION%%@*}"
     CURRENT_VERSION="${EXTENSION#*@}"
 
@@ -46,7 +46,7 @@ for EXTENSION in $(echo $JSON | jq -r '.[].customizations.vscode.extensions | fl
 done
 
 EXTENSIONS=$(echo "[${EXTENSIONS::-1}]" | jq 'sort_by(. | ascii_downcase)')
-echo $JSON | jq '.[].customizations.vscode.extensions = $extensions' --argjson extensions "$EXTENSIONS" > $FILE
+echo $JSON | jq '.customizations.vscode.extensions = $extensions' --argjson extensions "$EXTENSIONS" > $FILE
 
 echo "$UPDATE_DETAILS_MARKDOWN"
 echo "$UPDATED_EXTENSIONS_JSON" > updated-extensions.json
