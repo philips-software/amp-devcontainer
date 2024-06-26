@@ -94,8 +94,8 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 RUN git clone https://github.com/bkryza/clang-uml \
 && git -C clang-uml checkout ${CLANG_UML_VERSION} \
 && apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
-&& LLVM_VERSION=${CLANG_VERSION} make -C clang-uml release/CMakeLists.txt \
-&& cmake --build /clang-uml/release --config release --target clang-uml\
+&& LLVM_VERSION=${CLANG_VERSION} make -C clang-uml release/CMakeLists.txt CMAKE_CXX_FLAGS=-Wno-sign-compare\
+&& cmake --build clang-uml/release --config release --target clang-uml\
 && cmake --install clang-uml/release \
 && rm -rf /clang-uml \
 && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
