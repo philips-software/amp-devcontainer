@@ -1,0 +1,20 @@
+---
+name: Finalize Release
+
+permissions:
+  contents: read
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  comment-released-prs:
+    name: Comment on released PRs
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: rdlf0/comment-released-prs-action@a81897eaea04a5faa8779d28607826ddb033321a # v3.1.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
