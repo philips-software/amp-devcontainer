@@ -91,10 +91,24 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 
 
 # Install clang-uml from source
-RUN git clone https://github.com/bkryza/clang-uml \
-&& git -C clang-uml checkout ${CLANG_UML_VERSION} \
+RUN git clone -b v${CLANG_UML_VERSION} https://github.com/bkryza/clang-uml \
 && apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
-&& LLVM_VERSION=${CLANG_VERSION} make -C clang-uml release/CMakeLists.txt CMAKE_CXX_FLAGS=-Wno-sign-compare\
+&& LLVM_VERSION=${CLANG_VERSION}\
+&& cmake -S clang-uml -B clang-uml/release \
+#-G"Unix Makefiles" \
+#-DGIT_VERSION=$(GIT_VERSION) \
+#-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+-DCMAKE_BUILD_TYPE=Release \
+#-DCMAKE_CXX_FLAGS="$(CMAKE_CXX_FLAGS)" \
+#-DCMAKE_EXE_LINKER_FLAGS="$(CMAKE_EXE_LINKER_FLAGS)" \
+-DLLVM_VERSION=${LLVM_VERSION} \
+#-DLLVM_CONFIG_PATH=${LLVM_CONFIG_PATH} \
+-DLINK_LLVM_SHARED=ON \
+#-DCMAKE_PREFIX=${CMAKE_PREFIX} \
+-DENABLE_CUDA_TEST_CASES=OFF \
+-DENABLE_CXX_MODULES_TEST_CASES=OFF \
+#-DCLANG_UML_ENABLE_BACKTRACE=OFF\
+--compile-no-warning-as-error\
 && cmake --build clang-uml/release --config release --target clang-uml\
 && cmake --install clang-uml/release \
 && rm -rf /clang-uml \
