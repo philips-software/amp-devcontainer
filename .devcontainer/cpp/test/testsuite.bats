@@ -71,41 +71,11 @@ teardown() {
 }
 
 @test "using ccache as a compiler launcher should result in cached build using gcc compiler" {
-  ccache --clear --zero-stats
-  cmake --preset gcc -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-  cmake --build --preset gcc
-
-  run ccache -s
-  assert_output --partial "Hits:               0"
-  assert_output --partial "Misses:             1"
-
-  rm -rf build
-  ccache --zero-stats
-  cmake --preset gcc -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-  cmake --build --preset gcc
-
-  run ccache -s
-  assert_output --partial "Hits:               1"
-  assert_output --partial "Misses:             0"
+  configure_and_build_with_ccache gcc
 }
 
 @test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
-  ccache --clear --zero-stats
-  cmake --preset clang-cl -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-  cmake --build --preset clang-cl
-
-  run ccache -s
-  assert_output --partial "Hits:               0"
-  assert_output --partial "Misses:             1"
-
-  rm -rf build
-  ccache --zero-stats
-  cmake --preset clang-cl -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-  cmake --build --preset clang-cl
-
-  run ccache -s
-  assert_output --partial "Hits:               1"
-  assert_output --partial "Misses:             0"
+  configure_and_build_with_ccache clang-cl
 }
 
 @test "running clang-tidy as part of the build should result in warning diagnostics" {
@@ -193,27 +163,45 @@ teardown() {
 }
 
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with gcc" {
-  cmake --preset gcc
-  cmake --build --preset gcc-sanitizers
-
-  run build/gcc/sanitizers/test-asan
-  assert_failure
-  assert_output --partial "AddressSanitizer: stack-buffer-overflow"
-
-  run build/gcc/sanitizers/test-ubsan
-  assert_failure
-  assert_output --partial "runtime error: load of null pointer"
+  build_and_run_with_sanitizers gcc
 }
 
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with clang" {
-  cmake --preset clang
-  cmake --build --preset clang-sanitizers
+  build_and_run_with_sanitizers clang
+}
 
-  run build/clang/sanitizers/test-asan
+function configure_and_build_with_ccache() {
+  local PRESET=${1:?}
+
+  ccache --clear --zero-stats
+  cmake --preset ${PRESET} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+  cmake --build --preset ${PRESET}
+
+  run ccache -s
+  assert_output --partial "Hits:               0"
+  assert_output --partial "Misses:             1"
+
+  rm -rf build
+  ccache --zero-stats
+  cmake --preset ${PRESET} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+  cmake --build --preset ${PRESET}
+
+  run ccache -s
+  assert_output --partial "Hits:               1"
+  assert_output --partial "Misses:             0"
+}
+
+function build_and_run_with_sanitizers() {
+  local PRESET=${1:?}
+
+  cmake --preset ${PRESET}
+  cmake --build --preset ${PRESET}-sanitizers
+
+  run build/${PRESET}/sanitizers/test-asan
   assert_failure
   assert_output --partial "AddressSanitizer: stack-buffer-overflow"
 
-  run build/clang/sanitizers/test-ubsan
+  run build/${PRESET}/sanitizers/test-ubsan
   assert_failure
   assert_output --partial "runtime error: load of null pointer"
 }
