@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.1.3](https://github.com/philips-software/amp-devcontainer/compare/v5.1.2...v5.1.3) (2024-07-02)
+
+
+### Chores
+
+* **deps, cpp:** Update wget ([#474](https://github.com/philips-software/amp-devcontainer/issues/474)) ([1ee385d](https://github.com/philips-software/amp-devcontainer/commit/1ee385d11b3c0cb75de80b94dde1e11c478b2d43))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#481](https://github.com/philips-software/amp-devcontainer/issues/481)) ([d317b09](https://github.com/philips-software/amp-devcontainer/commit/d317b09ba465ce9dd430ee593222cfa3aede00a4))
+* **deps, rust:** Update wget ([#473](https://github.com/philips-software/amp-devcontainer/issues/473)) ([c8fd21e](https://github.com/philips-software/amp-devcontainer/commit/c8fd21e6498e436fc0ab93daa4ae68b960959fa3))
+* **deps,rust:** Update rust-lang.rust-analyzer ([#469](https://github.com/philips-software/amp-devcontainer/issues/469)) ([24d6697](https://github.com/philips-software/amp-devcontainer/commit/24d6697fa7fecb71e65f6b53f27fc421778d8f3f))
+
 ## [5.1.2](https://github.com/philips-software/amp-devcontainer/compare/v5.1.1...v5.1.2) (2024-06-24)
 
 
