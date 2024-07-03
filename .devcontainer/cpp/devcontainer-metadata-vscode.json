@@ -12,7 +12,7 @@
         "ms-vscode.cmake-tools@1.18.42",
         "ms-vscode.cpptools@1.20.5",
         "ms-vsliveshare.vsliveshare@1.0.5932",
-        "SonarSource.sonarlint-vscode@4.6.0",
+        "SonarSource.sonarlint-vscode@4.7.0",
         "xaver.clang-format@1.9.0"
       ],
       "settings": {
