@@ -12,15 +12,21 @@
   ],
   "customizations": {
     "vscode": {
+      "settings": {
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true
+      },
       "extensions": [
-        "tamasfe.even-better-toml@0.19.2",
-        "GitHub.vscode-github-actions@0.26.2",
-        "GitHub.vscode-pull-request-github@0.76.1",
+        "github.copilot@1.208.0",
+        "github.vscode-github-actions@0.26.3",
+        "github.vscode-pull-request-github@0.90.0",
         "jetmartin.bats@0.1.10",
         "mhutchie.git-graph@1.30.0",
-        "ms-azuretools.vscode-docker@1.29.0",
-        "rust-lang.rust-analyzer@0.3.1868",
-        "usernamehw.errorlens@3.16.0"
+        "ms-azuretools.vscode-docker@1.29.1",
+        "rust-lang.rust-analyzer@0.3.2020",
+        "sonarsource.sonarlint-vscode@4.7.0",
+        "tamasfe.even-better-toml@0.19.2",
+        "usernamehw.errorlens@3.20.0"
       ]
     }
   }
