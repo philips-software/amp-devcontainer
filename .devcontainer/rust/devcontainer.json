@@ -24,7 +24,7 @@
         "mhutchie.git-graph@1.30.0",
         "ms-azuretools.vscode-docker@1.29.1",
         "rust-lang.rust-analyzer@0.3.2020",
-        "sonarsource.sonarlint-vscode@4.6.0",
+        "sonarsource.sonarlint-vscode@4.7.0",
         "tamasfe.even-better-toml@0.19.2",
         "usernamehw.errorlens@3.20.0"
       ]

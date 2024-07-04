@@ -25,7 +25,7 @@
         "ms-azuretools.vscode-docker@1.29.1",
         "ms-vscode.cmake-tools@1.18.42",
         "ms-vscode.cpptools@1.20.5",
-        "sonarsource.sonarlint-vscode@4.6.0",
+        "sonarsource.sonarlint-vscode@4.7.0",
         "usernamehw.errorlens@3.20.0"
       ]
     }
