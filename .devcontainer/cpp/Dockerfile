@@ -51,19 +51,19 @@ ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 
 # Compile and install additional clang tools now that we have a clang toolchain
 # hadolint ignore=DL3008
-# RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
-#  && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
-#  && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
-#  && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
-#  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
-#  && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
-#  && CC=clang CXX=clang++ cmake -S /tmp/mull -B /tmp/mull/build \
-#  && cmake --build /tmp/mull/build --target install \
-#  && rm -rf /tmp/mull \
-#  && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
-#  && apt-get autoremove -y \
-#  && apt-get clean \
-#  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
+ && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
+ && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
+ && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
+ && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
+ && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
+ && CC=clang CXX=clang++ cmake -S /tmp/mull -B /tmp/mull/build \
+ && cmake --build /tmp/mull/build --target install \
+ && rm -rf /tmp/mull \
+ && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
+ && apt-get autoremove -y \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 # Install ccache from source for a recent version
 RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
@@ -95,20 +95,12 @@ RUN git clone -b v${CLANG_UML_VERSION} https://github.com/bkryza/clang-uml \
 && apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
 && LLVM_VERSION=${CLANG_VERSION}\
 && cmake -S clang-uml -B clang-uml/release \
-#-G"Unix Makefiles" \
-#-DGIT_VERSION=$(GIT_VERSION) \
-#-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
 -DCMAKE_BUILD_TYPE=Release \
-#-DCMAKE_CXX_FLAGS="$(CMAKE_CXX_FLAGS)" \
 -DCUSTOM_COMPILE_OPTIONS=-Wno-sign-compare \
-#-DCMAKE_EXE_LINKER_FLAGS="$(CMAKE_EXE_LINKER_FLAGS)" \
 -DLLVM_VERSION=${LLVM_VERSION} \
-#-DLLVM_CONFIG_PATH=${LLVM_CONFIG_PATH} \
 -DLINK_LLVM_SHARED=ON \
-#-DCMAKE_PREFIX=${CMAKE_PREFIX} \
 -DENABLE_CUDA_TEST_CASES=OFF \
 -DENABLE_CXX_MODULES_TEST_CASES=OFF \
-#-DCLANG_UML_ENABLE_BACKTRACE=OFF\
 --compile-no-warning-as-error\
 && cmake --build clang-uml/release --config release --target clang-uml\
 && cmake --install clang-uml/release \
@@ -124,7 +116,7 @@ RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VER
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20 \
  && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 10 \
-#  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
-#  && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
-#  && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
+ && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
+ && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
+ && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10
