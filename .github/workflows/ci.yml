@@ -25,8 +25,8 @@ jobs:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           persist-credentials: false
-      - uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
-      - uses: docker/build-push-action@31159d49c0d4756269a0940a750801a1ea5d7003 # v6.1.0
+      - uses: docker/setup-buildx-action@4fd812986e6c8c2a69e18311145f9371337f27d4 # v3.4.0
+      - uses: docker/build-push-action@1a162644f9a7e87d8f4b053101d1d9a712edc18c # v6.3.0
         with:
           file: .devcontainer/${{ matrix.flavor }}/Dockerfile
           load: true
@@ -41,7 +41,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           docker run --rm --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=bind,src="${{ github.workspace }}/.devcontainer/${{ matrix.flavor }}/test",dst=/ws -w /ws ${{ github.repository }}-${{ matrix.flavor }}:test bats --formatter junit testsuite.bats | tee test-report-${{ matrix.flavor }}.xml
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+      - uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         if: always()
         with:
           name: test-results-${{ matrix.flavor }}
@@ -54,7 +54,7 @@ jobs:
     needs: build-test
     if: always()
     steps:
-      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           merge-multiple: true
           pattern: test-results-*
