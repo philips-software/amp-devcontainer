@@ -92,7 +92,8 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 
 
 # Install clang-uml from source
-RUN git clone -b v${CLANG_UML_VERSION} https://github.com/bkryza/clang-uml \
+# hadolint ignore=DL3008
+RUN git clone -b "v${CLANG_UML_VERSION}" https://github.com/bkryza/clang-uml \
 && apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
 && LLVM_VERSION=${CLANG_VERSION}\
  && NUMPROC=`nproc` \
