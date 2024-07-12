@@ -53,13 +53,12 @@ ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
  && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
- && NUMPROC=`nproc` \
  && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
- && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install -j"$NUMPROC" \
+ && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
  && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
  && CC=clang CXX=clang++ cmake -S /tmp/mull -B /tmp/mull/build \
- && cmake --build /tmp/mull/build --target install -j"$NUMPROC" \
+ && cmake --build /tmp/mull/build --target install \
  && rm -rf /tmp/mull \
  && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
  && apt-get autoremove -y \
@@ -94,24 +93,22 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 # Install clang-uml from source
 # hadolint ignore=DL3008
 RUN git clone -b "v${CLANG_UML_VERSION}" https://github.com/bkryza/clang-uml \
-&& apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
-&& LLVM_VERSION=${CLANG_VERSION}\
- && NUMPROC=`nproc` \
- && echo "using processor count " "$NUMPROC" \
-&& cmake -S clang-uml -B clang-uml/release \
--DCMAKE_BUILD_TYPE=Release \
--DCUSTOM_COMPILE_OPTIONS=-Wno-sign-compare \
--DLLVM_VERSION=${LLVM_VERSION} \
--DLINK_LLVM_SHARED=ON \
--DENABLE_CUDA_TEST_CASES=OFF \
--DENABLE_CXX_MODULES_TEST_CASES=OFF \
---compile-no-warning-as-error\
- && cmake --build clang-uml/release --config release --target clang-uml -j"$NUMPROC" \
-&& cmake --install clang-uml/release \
-&& rm -rf /clang-uml \
-&& apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
-&& apt-get autoremove -y \
-&& apt-get clean
+ && apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
+ && LLVM_VERSION=${CLANG_VERSION}\
+ && cmake -S clang-uml -B clang-uml/release \
+ -DCMAKE_BUILD_TYPE=Release \
+ -DCUSTOM_COMPILE_OPTIONS=-Wno-sign-compare \
+ -DLLVM_VERSION=${LLVM_VERSION} \
+ -DLINK_LLVM_SHARED=ON \
+ -DENABLE_CUDA_TEST_CASES=OFF \
+ -DENABLE_CXX_MODULES_TEST_CASES=OFF \
+ --compile-no-warning-as-error\
+ && cmake --build clang-uml/release --config release --target clang-uml \
+ && cmake --install clang-uml/release \
+ && rm -rf /clang-uml \
+ && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
+ && apt-get autoremove -y \
+ && apt-get clean
 
 # Install xwin
 RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
