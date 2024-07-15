@@ -68,7 +68,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLAN
  -DENABLE_CUDA_TEST_CASES=OFF \
  -DENABLE_CXX_MODULES_TEST_CASES=OFF \
  --compile-no-warning-as-error\
- && cmake --install /tmp/clang-uml-0.5.2/release --config release \
+ && cmake --build /tmp/clang-uml-0.5.2/release --config release --target clang-uml \
+ && cmake --install /tmp/clang-uml-0.5.2/release \
  && rm -rf /tmp/clang-uml-0.5.2 \
  && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev libyaml-cpp-dev \
  && apt-get autoremove -y \
