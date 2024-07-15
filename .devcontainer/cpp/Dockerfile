@@ -51,7 +51,7 @@ ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 
 # Compile and install additional clang tools now that we have a clang toolchain
 # hadolint ignore=DL3008
-RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev libyaml-cpp-dev\
  && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
  && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
  && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
@@ -69,10 +69,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLAN
  -DENABLE_CUDA_TEST_CASES=OFF \
  -DENABLE_CXX_MODULES_TEST_CASES=OFF \
  --compile-no-warning-as-error\
- && cmake --build /tmp/clang-uml-${CLANG_UML_VERSION}/release --config release --target clang-uml \
- && cmake --install /tmp/clang-uml-${CLANG_UML_VERSION}/release \
+ && cmake --install /tmp/clang-uml-${CLANG_UML_VERSION}/release --config release --target clang-uml \
  && rm -rf /tmp/clang-uml-${CLANG_UML_VERSION} \
- && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev \
+ && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev libyaml-cpp-dev \
  && apt-get autoremove -y \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*

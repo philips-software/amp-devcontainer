@@ -206,12 +206,9 @@ function build_and_run_with_sanitizers() {
   assert_output --partial "runtime error: load of null pointer"
 }
 
-@test "using clang-uml to generate uml class diagram" {
-  run cmake --preset clang
-  assert_success
-
-  run cmake --build --preset clang-uml
-  assert_success
+@test "using clang-uml should generate a uml class diagram for a source file" {
+  cmake --preset clang
+  cmake --build --preset clang-uml
 
   run clang-uml --config ./clang-uml/.clang-uml
   assert_success
