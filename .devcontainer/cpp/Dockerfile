@@ -7,7 +7,6 @@ ARG DOCKER_VERSION=27.0.3
 ARG MULL_VERSION=0.22.0
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.21
 ARG XWIN_VERSION=0.6.2
-ARG CLANG_UML_VERSION=0.5.2
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -60,8 +59,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLAN
  && CC=clang CXX=clang++ cmake -S /tmp/mull -B /tmp/mull/build \
  && cmake --build /tmp/mull/build --target install \
  && rm -rf /tmp/mull \
- && wget -qO - https://github.com/bkryza/clang-uml/archive/refs/tags/${CLANG_UML_VERSION}.tar.gz | tar xz -C /tmp \
- && CC=clang CXX=clang++ cmake -S /tmp/clang-uml-${CLANG_UML_VERSION} -B /tmp/clang-uml-${CLANG_UML_VERSION}/release \
+ && wget -qO - https://github.com/bkryza/clang-uml/archive/refs/tags/0.5.2.tar.gz | tar xz -C /tmp \
+ && CC=clang CXX=clang++ cmake -S /tmp/clang-uml-0.5.2 -B /tmp/clang-uml-0.5.2/release \
  -DCMAKE_BUILD_TYPE=Release \
  -DCUSTOM_COMPILE_OPTIONS=-Wno-sign-compare \
  -DLLVM_VERSION=${CLANG_VERSION} \
@@ -69,8 +68,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLAN
  -DENABLE_CUDA_TEST_CASES=OFF \
  -DENABLE_CXX_MODULES_TEST_CASES=OFF \
  --compile-no-warning-as-error\
- && cmake --install /tmp/clang-uml-${CLANG_UML_VERSION}/release --config release --target clang-uml \
- && rm -rf /tmp/clang-uml-${CLANG_UML_VERSION} \
+ && cmake --install /tmp/clang-uml-0.5.2/release --config release --target clang-uml \
+ && rm -rf /tmp/clang-uml-0.5.2 \
  && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libclang-cpp${CLANG_VERSION}-dev libsqlite3-dev libyaml-cpp-dev \
  && apt-get autoremove -y \
  && apt-get clean \
