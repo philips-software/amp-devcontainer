@@ -2,10 +2,10 @@ FROM ubuntu:24.04@sha256:3f85b7caad41a95462cf5b787d8a04604c8262cdcdf9a472b8c52ef
 
 ARG BATS_VERSION=1.11.0
 ARG CCACHE_VERSION=4.10.1
-ARG CLANG_VERSION=17
+ARG CLANG_VERSION=18
 ARG DOCKER_VERSION=27.0.3
 ARG MULL_VERSION=0.22.0
-ARG INCLUDE_WHAT_YOU_USE_VERSION=0.21
+ARG INCLUDE_WHAT_YOU_USE_VERSION=0.22
 ARG XWIN_VERSION=0.6.2
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -57,7 +57,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLAN
  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
  && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
  && CC=clang CXX=clang++ cmake -S /tmp/mull -B /tmp/mull/build \
- && cmake --build /tmp/mull/build --target install \
+# && cmake --build /tmp/mull/build --target install \
  && rm -rf /tmp/mull \
  && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
  && apt-get autoremove -y \
@@ -96,6 +96,6 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20 \
  && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 10 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
- && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
- && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
+ #&& update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
+ #&& update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10
