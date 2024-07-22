@@ -49,7 +49,9 @@ jobs:
         id: buildkit-cache
         with:
           path: root-ccache
-          key: buildkit-cache
+          key: buildkit-cache-${{ github.run_id }}
+          restore-keys: |
+            buildkit-cache
       - uses: reproducible-containers/buildkit-cache-dance@5b6db76d1da5c8b307d5d2e0706d266521b710de # v3.1.2
         if: matrix.flavor == 'cpp'
         with:
