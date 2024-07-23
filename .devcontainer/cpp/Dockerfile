@@ -31,9 +31,10 @@ COPY .devcontainer/cpp/requirements.txt /tmp/requirements.txt
 RUN python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt \
  && rm -rf /tmp/requirements.txt
 
-# Set default environment options for CMake
+# Set default environment options for CMake and ccache
 ENV CMAKE_GENERATOR="Ninja"
 ENV CMAKE_EXPORT_COMPILE_COMMANDS="On"
+ENV CCACHE_DIR=/root/.ccache
 
 # Install clang toolchain
 COPY .devcontainer/cpp/apt-requirements-clang.json /tmp/apt-requirements-clang.json
@@ -47,28 +48,6 @@ RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /us
  && rm /tmp/apt-requirements* \
  && rm -rf /var/lib/apt/lists/*
 ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
-
-# Compile and install additional clang tools now that we have a clang toolchain
-# hadolint ignore=DL3008
-RUN apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
- && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
- && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
- && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
- && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
- && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
- && CC=clang CXX=clang++ cmake -S /tmp/mull -B /tmp/mull/build \
- && cmake --build /tmp/mull/build --target install \
- && rm -rf /tmp/mull \
- && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
- && apt-get autoremove -y \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-# Install ccache from source for a recent version
-RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
- && CC=clang CXX=clang++ cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=Off -DENABLE_DOCUMENTATION=Off -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
- && cmake --build /tmp/ccache-${CCACHE_VERSION}/build --target install \
- && rm -rf /tmp/ccache-${CCACHE_VERSION}
 
 # Install arm-gcc toolchain
 RUN mkdir /opt/gcc-arm-none-eabi \
@@ -90,6 +69,30 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 
 # Install xwin
 RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
+
+# Compile and install additional clang tools; often necessary as a binary arm64 build are lacking, or packages are out-of-date
+# Install ccache from source for a recent version
+RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
+ && CC=clang CXX=clang++ cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=Off -DENABLE_DOCUMENTATION=Off -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
+ && cmake --build /tmp/ccache-${CCACHE_VERSION}/build --target install \
+ && rm -rf /tmp/ccache-${CCACHE_VERSION}
+
+# Install include-what-you-use (iwyu) and Mull from source
+# hadolint ignore=DL3008
+RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
+ apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
+ && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
+ && CC=clang CXX=clang++ cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
+ && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
+ && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
+ && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
+ && CC=clang CXX=clang++ cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -S /tmp/mull -B /tmp/mull/build \
+ && cmake --build /tmp/mull/build --target install \
+ && rm -rf /tmp/mull \
+ && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
+ && apt-get autoremove -y \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 # Update all tool alternatives to the correct version
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
