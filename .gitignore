@@ -3,6 +3,7 @@
 build/
 megalinter-reports/
 mutants.out/
+node_modules/
 target/
 *.profdata
 *.profraw

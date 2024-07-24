@@ -5,7 +5,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
     groups:
       github-actions:
         update-types:
@@ -16,8 +16,16 @@ updates:
   - package-ecosystem: docker
     directory: .devcontainer
     schedule:
-      interval: daily
+      interval: weekly
+  - package-ecosystem: devcontainer
+    directory: .devcontainer
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
   - package-ecosystem: pip
     directory: .devcontainer
     schedule:
-      interval: daily
+      interval: weekly
