@@ -1,4 +1,4 @@
 {
-  "image": "ghcr.io/philips-software/amp-devcontainer-cpp:${localEnv:IMAGE_VERSION}",
+  "image": "ghcr.io/philips-software/amp-devcontainer-cpp",
   "workspaceFolder": "/workspace/cpp/e2e/workspace"
 }
