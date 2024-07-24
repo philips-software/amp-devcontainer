@@ -29,12 +29,11 @@ jobs:
         id: update-packages
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements-*.json
-      - uses: philips-software/app-token-action@9f5d57062c9f2beaffafaa9a34f66f824ead63a9 # v2.0.0
+      - uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1.10.3
         id: token
         with:
-          app_id: ${{ secrets.FOREST_RELEASER_APP_ID }}
-          app_base64_private_key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY_BASE64 }}
-          auth_type: installation
+          app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
+          private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
       - uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
@@ -58,16 +57,15 @@ jobs:
         id: update-extensions
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata-vscode.json
-      - uses: philips-software/app-token-action@9f5d57062c9f2beaffafaa9a34f66f824ead63a9 # v2.0.0
+      - uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1.10.3
         id: token
         with:
-          app_id: ${{ secrets.FOREST_RELEASER_APP_ID }}
-          app_base64_private_key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY_BASE64 }}
-          auth_type: installation
+          app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
+          private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
       - uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
-          branch: feature/update-vscode-extensions
+          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions
           body: |
             > [!NOTE]
             > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are no automated tests for the VS Code Extension updates.
