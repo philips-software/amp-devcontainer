@@ -22,24 +22,23 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           persist-credentials: false
       - uses: ./.github/actions/update-apt-packages
         id: update-packages
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements-*.json
-      - uses: philips-software/app-token-action@9f5d57062c9f2beaffafaa9a34f66f824ead63a9 # v2.0.0
+      - uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1.10.3
         id: token
         with:
-          app_id: ${{ secrets.FOREST_RELEASER_APP_ID }}
-          app_base64_private_key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY_BASE64 }}
-          auth_type: installation
-      - uses: peter-evans/create-pull-request@6d6857d36972b65feb161a90e484f2984215f83e # v6.0.5
+          app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
+          private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
+      - uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
           branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-apt-packages
-          title: "chore(deps,${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
+          title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
           labels: dependencies,apt
           token: ${{ steps.token.outputs.token }}
   update-vscode-extensions:
@@ -51,28 +50,27 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           persist-credentials: false
       - uses: ./.github/actions/update-vscode-extensions
         id: update-extensions
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata-vscode.json
-      - uses: philips-software/app-token-action@9f5d57062c9f2beaffafaa9a34f66f824ead63a9 # v2.0.0
+      - uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1.10.3
         id: token
         with:
-          app_id: ${{ secrets.FOREST_RELEASER_APP_ID }}
-          app_base64_private_key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY_BASE64 }}
-          auth_type: installation
-      - uses: peter-evans/create-pull-request@6d6857d36972b65feb161a90e484f2984215f83e # v6.0.5
+          app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
+          private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
+      - uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
-          branch: feature/update-vscode-extensions
+          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions
           body: |
-            ${{ steps.update-extensions.outputs.markdown-summary }}
-
             > [!NOTE]
             > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are no automated tests for the VS Code Extension updates.
-          title: "chore(deps,${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
+
+            ${{ steps.update-extensions.outputs.markdown-summary }}
+          title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
           labels: dependencies,vscode-extensions
           token: ${{ steps.token.outputs.token }}

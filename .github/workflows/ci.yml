@@ -22,17 +22,16 @@ jobs:
     steps:
       # While the docker/build-push-action works from the Git context, we still need
       # the checkout step for running our tests.
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           persist-credentials: false
-      - uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
-      - uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
+      - uses: docker/setup-buildx-action@aa33708b10e362ff993539393ff100fa93ed6a27 # v3.5.0
+      - uses: docker/build-push-action@5176d81f87c23d6fc96624dfdbcd9f3830bbe445 # v6.5.0
         with:
           file: .devcontainer/${{ matrix.flavor }}/Dockerfile
           load: true
           tags: ${{ github.repository }}-${{ matrix.flavor }}:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}
       - uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.flavor == 'cpp'
         with:
@@ -42,7 +41,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           docker run --rm --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=bind,src="${{ github.workspace }}/.devcontainer/${{ matrix.flavor }}/test",dst=/ws -w /ws ${{ github.repository }}-${{ matrix.flavor }}:test bats --formatter junit testsuite.bats | tee test-report-${{ matrix.flavor }}.xml
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+      - uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         if: always()
         with:
           name: test-results-${{ matrix.flavor }}
@@ -55,9 +54,10 @@ jobs:
     needs: build-test
     if: always()
     steps:
-      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           merge-multiple: true
-      - uses: EnricoMi/publish-unit-test-result-action@30eadd5010312f995f0d3b3cff7fe2984f69409e # v2.16.1
+          pattern: test-results-*
+      - uses: EnricoMi/publish-unit-test-result-action@567cc7f8dcea3eba5da355f6ebc95663310d8a07 # v2.17.0
         with:
           files: test-report-*.xml

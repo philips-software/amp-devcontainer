@@ -8,6 +8,12 @@ EXTENSIONS=
 UPDATE_DETAILS_MARKDOWN=
 UPDATED_EXTENSIONS_JSON="[]"
 
+prevent_github_backlinks() {
+    # Prevent GitHub from creating backlinks to issues by replacing the URL with a non-redirecting one
+    # See: https://github.com/orgs/community/discussions/23123#discussioncomment-3239240
+    sed 's|https://github.com|https://www.github.com|g'
+}
+
 get_github_releasenotes() {
     local GITHUB_URL=${1:?}
     local CURRENT_RELEASE=${2:?}
@@ -26,7 +32,7 @@ get_github_releasenotes() {
     done
 }
 
-for EXTENSION in $(echo $JSON | jq -r '.[].customizations.vscode.extensions | flatten[]'); do
+for EXTENSION in $(echo $JSON | jq -r '.customizations.vscode.extensions | flatten[]'); do
     NAME="${EXTENSION%%@*}"
     CURRENT_VERSION="${EXTENSION#*@}"
 
@@ -37,7 +43,7 @@ for EXTENSION in $(echo $JSON | jq -r '.[].customizations.vscode.extensions | fl
     then
         GITHUB_URL=$(echo $LATEST_NON_PRERELEASE_VERSION_JSON | jq -r '.properties | map(select(.key == "Microsoft.VisualStudio.Services.Links.GitHub"))[] | .value')
 
-        RELEASE_DETAILS=$(get_github_releasenotes $GITHUB_URL $CURRENT_VERSION)
+        RELEASE_DETAILS=$(get_github_releasenotes $GITHUB_URL $CURRENT_VERSION | prevent_github_backlinks)
         UPDATE_DETAILS_MARKDOWN=$(printf "Updates \`%s\` from %s to %s\n<details>\n<summary>Release notes</summary>\n<blockquote>\n\n%s\n</blockquote>\n</details>\n\n%s" $NAME $CURRENT_VERSION $LATEST_NON_PRERELEASE_VERSION "$RELEASE_DETAILS" "$UPDATE_DETAILS_MARKDOWN")
         UPDATED_EXTENSIONS_JSON=$(echo $UPDATED_EXTENSIONS_JSON | jq -c '. += ["'$NAME'"]')
     fi
@@ -46,7 +52,7 @@ for EXTENSION in $(echo $JSON | jq -r '.[].customizations.vscode.extensions | fl
 done
 
 EXTENSIONS=$(echo "[${EXTENSIONS::-1}]" | jq 'sort_by(. | ascii_downcase)')
-echo $JSON | jq '.[].customizations.vscode.extensions = $extensions' --argjson extensions "$EXTENSIONS" > $FILE
+echo $JSON | jq '.customizations.vscode.extensions = $extensions' --argjson extensions "$EXTENSIONS" > $FILE
 
 echo "$UPDATE_DETAILS_MARKDOWN"
 echo "$UPDATED_EXTENSIONS_JSON" > updated-extensions.json
