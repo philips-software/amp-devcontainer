@@ -1,5 +1,4 @@
 {
   "image": "ghcr.io/philips-software/amp-devcontainer-cpp",
-  "mounts": ["source=${localWorkspaceFolder}/.devcontainer/cpp/e2e/workspace,target=/workspace,type=bind,consistency=cached"],
-  "workspaceFolder": "/workspace"
+  "workspaceFolder": "/workspaces/amp-devcontainer/.devcontainer/cpp/e2e/workspace"
 }
