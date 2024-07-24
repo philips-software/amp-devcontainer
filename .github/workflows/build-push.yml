@@ -22,6 +22,7 @@ jobs:
   build-push:
     runs-on: ubuntu-latest
     permissions:
+      # dependency-submission needs contents write permission.
       contents: write
       packages: write
       pull-requests: write
@@ -78,8 +79,12 @@ jobs:
       # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
       - run: echo "metadata=$(jq -cj '[.]' .devcontainer/${{ matrix.flavor }}/devcontainer-metadata-vscode.json | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
         id: devcontainer-metadata
+      - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
+        id: devcontainer-epoch
       - uses: docker/build-push-action@5176d81f87c23d6fc96624dfdbcd9f3830bbe445 # v6.5.0
         id: build-and-push
+        env:
+          SOURCE_DATE_EPOCH: ${{ steps.devcontainer-epoch.outputs.git-commit-epoch }}
         with:
           file: .devcontainer/${{ matrix.flavor }}/Dockerfile
           platforms: linux/amd64,linux/arm64
