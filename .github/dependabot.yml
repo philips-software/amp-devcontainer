@@ -17,7 +17,7 @@ updates:
     directory: .devcontainer
     schedule:
       interval: weekly
-  - package-ecosystem: devcontainer
+  - package-ecosystem: devcontainers
     directory: .devcontainer
     schedule:
       interval: weekly
