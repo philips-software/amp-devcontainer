@@ -1,0 +1,42 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "defaults",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel"
+      }
+    },
+    {
+      "name": "host",
+      "displayName": "host",
+      "description": "Build for host",
+      "inherits": "defaults"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "host-Debug",
+      "configuration": "Debug",
+      "configurePreset": "host"
+    },
+    {
+      "name": "host-Release",
+      "configuration": "Release",
+      "configurePreset": "host"
+    },
+    {
+      "name": "host-RelWithDebInfo",
+      "configuration": "RelWithDebInfo",
+      "configurePreset": "host"
+    },
+    {
+      "name": "host-MinSizeRel",
+      "configuration": "MinSizeRel",
+      "configurePreset": "host"
+    }
+  ]
+}
