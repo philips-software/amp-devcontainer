@@ -15,6 +15,9 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        flavor: [cpp]
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
@@ -25,11 +28,12 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps
       - run: |
-          gh codespace create --branch ${{ github.head_ref }} --machine basicLinux32gb
+          gh codespace create --branch $HEAD_REF --devcontainer-path .devcontainer/${{ matrix.flavor }}-test/devcontainer.json --machine basicLinux32gb
         env:
+          HEAD_REF: ${{ github.head_ref }}
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           IMAGE_VERSION: pr-${{ github.event.pull_request.number }}
-      - run: cd .devcontainer/cpp/e2e && npm test
+      - run: cd .devcontainer/${{ matrix.flavor }}/e2e && npm test
         env:
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
           GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
