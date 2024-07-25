@@ -24,6 +24,11 @@ jobs:
           node-version: 18
       - run: npm ci
       - run: npx playwright install --with-deps
+      - run: |
+          gh codespace create --branch ${{ github.head_ref }} --machine basicLinux32gb
+        env:
+          GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+          IMAGE_VERSION: pr-${{ github.event.pull_request.number }}
       - run: cd .devcontainer/cpp/e2e && npm test
         env:
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
