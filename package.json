@@ -4,5 +4,7 @@
     "@types/node": "^20.14.11",
     "otpauth": "^9.3.1"
   },
-  "scripts": {}
+  "scripts": {
+    "test": "npx playwright test"
+  }
 }
