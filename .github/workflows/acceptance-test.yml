@@ -25,3 +25,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps
       - run: cd .devcontainer/cpp/e2e && npm test
+        env:
+          GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
+          GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
+          GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}

@@ -107,7 +107,21 @@ This project uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.htm
 
 The containers can be built and tested locally by importing this repository in VS Code with the [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) plug-in installed. As a prerequisite Docker needs to be installed on the host system. Alternatively a GitHub Codespace can be started.
 
+#### Running the Integration Tests
+
 A test task is available to run the included `bats` tests. Choose `Tasks: Run Test Task` from the command pallette (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>).
+
+#### Running the Acceptance Tests
+
+Create an .env file with the following contents, this assumes a GitHub account that has rights to create a Codespace on this repository and is configured for time-based one-time password (TOTP) two-factor authentication (2FA).
+
+```dotenv
+GITHUB_USER=
+GITHUB_PASSWORD=
+GITHUB_TOTP_SECRET=
+```
+
+Test can now be run using the Test Explorer. The user interface, when selected, is available [here](http://localhost:6080) by-default. When port 6080 is already taken another port will be exposed. This can be seen with the Ports view (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>, Ports: Focus on Ports View).
 
 ## Reporting vulnerabilities
 
