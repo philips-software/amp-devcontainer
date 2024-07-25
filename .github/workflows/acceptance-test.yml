@@ -28,7 +28,7 @@ jobs:
       #- run: npm ci
       #- run: npx playwright install --with-deps
       - run: |
-          gh codespace create --repository ${{ github.repository }} --branch $HEAD_REF --devcontainer-path .devcontainer/${{ matrix.flavor }}-test/devcontainer.json --machine basicLinux32gb
+          gh codespace create -R ${{ github.repository }} -b $HEAD_REF -m basicLinux32gb --devcontainer-path .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
         env:
           HEAD_REF: ${{ github.head_ref }}
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
