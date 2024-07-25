@@ -6,6 +6,6 @@
     "otpauth": "^9.3.1"
   },
   "scripts": {
-    "test": "npx playwright test"
+    "test": "cd $INIT_CWD && npx playwright test"
   }
 }
