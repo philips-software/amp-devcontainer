@@ -8,5 +8,6 @@ node_modules/
 playwright-report/
 target/
 test-results/
+.env
 *.profdata
 *.profraw

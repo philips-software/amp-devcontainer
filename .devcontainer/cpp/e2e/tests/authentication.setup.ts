@@ -1,7 +1,6 @@
 import { test as setup } from '@playwright/test';
 import * as OTPAuth from 'otpauth';
-
-const authFile = 'playwright/.auth/user.json';
+import { STORAGE_STATE } from '../playwright.config';
 
 setup('authenticate', async ({ page }) => {
   await page.goto('https://github.com/login');
@@ -26,5 +25,5 @@ setup('authenticate', async ({ page }) => {
   // Sometimes login flow sets cookies in the process of several redirects.
   // Wait for the final URL to ensure that the cookies are actually set.
   await page.waitForURL('https://github.com/');
-  await page.context().storageState({ path: authFile });
+  await page.context().storageState({ path: STORAGE_STATE });
 });

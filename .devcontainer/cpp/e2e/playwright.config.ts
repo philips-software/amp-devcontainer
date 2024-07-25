@@ -1,4 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
+
+require('dotenv').config();
+
+export const STORAGE_STATE = path.join(__dirname, 'playwright/.auth/user.json');
 
 export default defineConfig({
   testDir: './tests',
@@ -8,7 +13,8 @@ export default defineConfig({
   workers: 1,
   reporter: 'html',
   use: {
-    trace: 'on-first-retry',
+    baseURL: 'https://github.com',
+    trace: 'on-first-retry'
   },
   projects: [
     { name: 'setup', testMatch: '**/*.setup.ts' },
@@ -16,7 +22,7 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/user.json'
+        storageState: STORAGE_STATE
       },
       dependencies: ['setup']
     }
