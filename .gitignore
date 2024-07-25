@@ -1,9 +1,13 @@
+.auth/
 .xwin-cache/
 .xwin-hash/
 build/
 megalinter-reports/
 mutants.out/
 node_modules/
+playwright-report/
 target/
+test-results/
 *.profdata
 *.profraw
+.last-run.json
