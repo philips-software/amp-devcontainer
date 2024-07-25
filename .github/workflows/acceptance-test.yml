@@ -25,10 +25,10 @@ jobs:
       - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version: 18
-      - run: npm ci
-      - run: npx playwright install --with-deps
+      #- run: npm ci
+      #- run: npx playwright install --with-deps
       - run: |
-          gh codespace create --branch $HEAD_REF --devcontainer-path .devcontainer/${{ matrix.flavor }}-test/devcontainer.json --machine basicLinux32gb
+          gh codespace create --repository ${{ github.repository }} --branch $HEAD_REF --devcontainer-path .devcontainer/${{ matrix.flavor }}-test/devcontainer.json --machine basicLinux32gb
         env:
           HEAD_REF: ${{ github.head_ref }}
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
