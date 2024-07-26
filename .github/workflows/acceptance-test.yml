@@ -28,7 +28,6 @@ jobs:
       #- run: npm ci
       #- run: npx playwright install --with-deps
       - run: |
-          gh auth login -s codespace
           gh secret set -a codespaces --body "pr-${{ github.event.pull_request.number }}"
           gh codespace create -R ${{ github.repository }} -b $HEAD_REF -m basicLinux32gb --devcontainer-path .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
         env:
