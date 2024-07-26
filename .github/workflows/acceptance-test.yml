@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.ref }}-${{ github.workflow }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -24,14 +24,16 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
-          node-version: 18
+          node-version: 20
       #- run: npm ci
       #- run: npx playwright install --with-deps
       - run: |
+          gh auth login -s codespace
+          gh secret set -a codespaces --body "pr-${{ github.event.pull_request.number }}"
           gh codespace create -R ${{ github.repository }} -b $HEAD_REF -m basicLinux32gb --devcontainer-path .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
         env:
-          HEAD_REF: ${{ github.head_ref }}
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+          HEAD_REF: ${{ github.head_ref }}
           IMAGE_VERSION: pr-${{ github.event.pull_request.number }}
       - run: cd .devcontainer/${{ matrix.flavor }}/e2e && npm test
         env:

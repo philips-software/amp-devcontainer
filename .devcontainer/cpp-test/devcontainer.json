@@ -1,5 +1,4 @@
 {
   "image": "ghcr.io/philips-software/amp-devcontainer-cpp:${localEnv:IMAGE_VERSION}",
-  "workspaceFolder": "/workspaces/amp-devcontainer/.devcontainer/cpp/e2e/workspace",
-  "initializeCommand": "env"
+  "workspaceFolder": "/workspaces/amp-devcontainer/.devcontainer/cpp/e2e/workspace"
 }
