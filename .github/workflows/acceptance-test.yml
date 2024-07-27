@@ -27,9 +27,11 @@ jobs:
           node-version: 20
       - run: npm ci
       - run: npx playwright install --with-deps
+      # Create a GitHub Codespace and communicate the image version via a Codespace secret (should be a Codespace environment variable).
+      # This secret is used by devcontainer.json, as such it is a resource that should not be used concurrently.
       - run: |
           gh secret set -a codespaces IMAGE_VERSION --body "pr-${{ github.event.pull_request.number }}"
-          gh codespace create -R ${{ github.repository }} -b $HEAD_REF -m basicLinux32gb --devcontainer-path .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
+          gh codespace create -R "${{ github.repository }}" -b "$HEAD_REF" -m basicLinux32gb --devcontainer-path ".devcontainer/${{ matrix.flavor }}-test/devcontainer.json" --idle-timeout 10m --retention-period 1h
         env:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}

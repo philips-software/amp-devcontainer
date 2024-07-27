@@ -121,7 +121,7 @@ GITHUB_PASSWORD=
 GITHUB_TOTP_SECRET=
 ```
 
-Test can now be run using the Test Explorer. The user interface, when selected, is available [here](http://localhost:6080) by-default. When port 6080 is already taken another port will be exposed. This can be seen with the Ports view (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>, Ports: Focus on Ports View).
+Test can now be run using the Test Explorer. The user interface is available on port 6080 by-default. When port 6080 is already taken another port will be exposed. This can be seen with the Ports view (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>, Ports: Focus on Ports View).
 
 ## Reporting vulnerabilities
 
