@@ -31,7 +31,7 @@ jobs:
       # This secret is used by devcontainer.json, as such it is a resource that should not be used concurrently.
       - run: |
           gh secret set -a codespaces IMAGE_VERSION --body "pr-${{ github.event.pull_request.number }}"
-          echo CODESPACE_NAME=$(gh codespace create -R "${{ github.repository }}" -b "$HEAD_REF" -m basicLinux32gb --devcontainer-path ".devcontainer/${{ matrix.flavor }}-test/devcontainer.json" --idle-timeout 10m --retention-period 1h) >> "$GITHUB_ENV"
+          echo CODESPACE_NAME="$(gh codespace create -R "${{ github.repository }}" -b "$HEAD_REF" -m basicLinux32gb --devcontainer-path ".devcontainer/${{ matrix.flavor }}-test/devcontainer.json" --idle-timeout 10m --retention-period 1h)" >> "$GITHUB_ENV"
         env:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
