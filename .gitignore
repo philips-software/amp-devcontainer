@@ -1,4 +1,3 @@
-.auth/
 .xwin-cache/
 .xwin-hash/
 build/
@@ -11,3 +10,4 @@ test-results/
 .env
 *.profdata
 *.profraw
+**/playwright/.auth/user.json
