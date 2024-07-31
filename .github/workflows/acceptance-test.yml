@@ -2,8 +2,11 @@
 name: Acceptance Test
 
 on:
-  pull_request:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      flavor:
+        required: true
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}
@@ -15,9 +18,6 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        flavor: [cpp]
     steps:
       - uses: step-security/harden-runner@0d381219ddf674d61a7572ddd19d7941e271515c # v9.0.1
         with:
@@ -39,7 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
-      - run: cd .devcontainer/${{ matrix.flavor }}/e2e && npm test
+      - run: cd .devcontainer/${{ inputs.flavor }}/e2e && npm test
         env:
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
           GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
