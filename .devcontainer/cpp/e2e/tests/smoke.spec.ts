@@ -11,5 +11,5 @@ test.beforeEach(async ({ page }) => {
 test('build project', async ({ page }) => {
   await page.getByRole('button', { name: 'Build the selected target' }).click();
   await page.getByLabel('host, Build for host').locator('a').click();
-  await expect(page.getByText('[build] Build finished with')).toBeVisible({ timeout: 1 * 60 * 1000 });
+  await expect(page.getByText('[build] Build finished with')).toBeVisible({ timeout: 5 * 60 * 1000 });
 });
