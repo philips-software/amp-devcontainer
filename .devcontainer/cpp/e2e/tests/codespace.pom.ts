@@ -11,10 +11,26 @@ export class CodespacePage {
     await this.page.goto('https://' + process.env.CODESPACE_NAME + '.github.dev');
   }
 
-  async areExtensionsActive(plugins: string[]) {
+  /**
+   * Wait for the extensions to be active in the Codespace.
+   *
+   * This method is used to verify that the extensions in `extensions` are active in the Codespace.
+   * Used when waiting for the Codespace to be ready for testing. As the
+   * extensions are typically activated last, before the Codespace is ready for use.
+   *
+   * ** USAGE **
+   *
+   * ```ts
+   * const codespace = new CodespacePage(page);
+   * await codespace.areExtensionsActive(['SonarLint', 'CMake', 'Live Share', 'GitHub Pull Requests']);
+   * ```
+   *
+   * @param extensions List of extensions to wait for.
+   */
+  async areExtensionsActive(extensions: string[]) {
     test.setTimeout(3 * 60 * 1000);
 
-    for (const plugin of plugins) {
+    for (const plugin of extensions) {
       await expect(this.page.getByRole('tab', { name: plugin }).locator('a')).toBeVisible({ timeout: 5 * 60 * 1000 });
     }
   }
