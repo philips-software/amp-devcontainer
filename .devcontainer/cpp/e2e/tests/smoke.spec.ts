@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import { CodespacePage } from './codespace.pom';
 
 test.beforeEach(async ({ page }) => {
-  test.slow();
   const codespace = new CodespacePage(page);
   await codespace.goto();
   await codespace.areExtensionsActive(['Testing', 'SonarLint', 'CMake', 'Live Share', 'GitHub Pull Requests']);

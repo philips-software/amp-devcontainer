@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 export class CodespacePage {
   readonly page: Page;
@@ -12,6 +12,8 @@ export class CodespacePage {
   }
 
   async areExtensionsActive(plugins: string[]) {
+    test.setTimeout(3 * 60 * 1000);
+
     for (const plugin of plugins) {
       await expect(this.page.getByRole('tab', { name: plugin }).locator('a')).toBeVisible({ timeout: 5 * 60 * 1000 });
     }
