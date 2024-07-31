@@ -11,9 +11,9 @@ export class CodespacePage {
     await this.page.goto('https://' + process.env.CODESPACE_NAME + '.github.dev');
   }
 
-  async arePluginsActive(plugins: string[]) {
+  async areExtensionsActive(plugins: string[]) {
     for (const plugin of plugins) {
-      await expect(this.page.getByRole('tab', { name: plugin })).toBeVisible();
+      await expect(this.page.getByRole('tab', { name: plugin }).locator('a')).toBeVisible();
     }
   }
 
@@ -21,10 +21,15 @@ export class CodespacePage {
     let commandsWithExit = Array.isArray(commands) ? [...commands + 'exit'] : [commands, 'exit'];
 
     await this.page.keyboard.press('Control+Shift+`');
+    expect(this.page.locator('.terminal-widget-container')).toBeVisible();
 
     for (const command of commandsWithExit) {
       await this.page.keyboard.type(command);
       await this.page.keyboard.press('Enter');
     }
+  }
+
+  async openTabByName(name: string) {
+    await this.page.getByRole('tab', { name: name }).locator('a').click();
   }
 }

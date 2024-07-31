@@ -5,7 +5,7 @@ test.beforeEach(async ({ page }) => {
   test.slow();
   const codespace = new CodespacePage(page);
   await codespace.goto();
-  await codespace.arePluginsActive(['Testing', 'SonarLint', 'CMake', 'Live Share', 'GitHub Pull Requests']);
+  await codespace.areExtensionsActive(['Testing', 'SonarLint', 'CMake', 'Live Share', 'GitHub Pull Requests']);
   await codespace.executeInTerminal('git clean -fdx');
 });
 

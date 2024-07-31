@@ -12,9 +12,9 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: 'list',
-  timeout: 3 * 60 * 1000,
+  timeout: 2 * 60 * 1000,
   expect: {
-    timeout: 30 * 1000
+    timeout: 1 * 60 * 1000
   },
   use: {
     trace: 'on-first-retry'
