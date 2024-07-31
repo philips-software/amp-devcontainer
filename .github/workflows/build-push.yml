@@ -129,8 +129,10 @@ jobs:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
         run: |
           cosign sign --yes --recursive "${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${DIGEST}"
-      - uses: ./.github/workflows/acceptance-test.yml
-        if: github.event_name == 'pull_request'
-        with:
-          flavor: ${{ matrix.flavor }}
-          secrets: inherit
+  acceptance-test:
+    if: github.event_name == 'pull_request'
+    needs: build-push
+    secrets: inherit
+    uses: ./.github/workflows/acceptance-test.yml
+    with:
+      flavor: cpp
