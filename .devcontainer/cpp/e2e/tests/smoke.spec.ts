@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { CodespacePage } from './codespace.pom';
-import { describe } from 'node:test';
 
 test.beforeEach(async ({ page }) => {
   const codespace = new CodespacePage(page);
@@ -10,7 +9,7 @@ test.beforeEach(async ({ page }) => {
   await codespace.executeInTerminal('git clean -fdx');
 });
 
-describe('CMake', () => {
+test.describe('CMake', () => {
   test('should succesfully build without selecting configuration', async ({ page }) => {
     const codespace = new CodespacePage(page);
 
