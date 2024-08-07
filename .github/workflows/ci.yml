@@ -26,7 +26,7 @@ jobs:
         with:
           persist-credentials: false
       - uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
-      - uses: docker/build-push-action@5176d81f87c23d6fc96624dfdbcd9f3830bbe445 # v6.5.0
+      - uses: docker/build-push-action@4f7cdeb0f05278b464e71357394bf2c61f94138e # v6.6.0
         with:
           file: .devcontainer/${{ matrix.flavor }}/Dockerfile
           load: true
@@ -41,7 +41,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           docker run --rm --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=bind,src="${{ github.workspace }}/.devcontainer/${{ matrix.flavor }}/test",dst=/ws -w /ws ${{ github.repository }}-${{ matrix.flavor }}:test bats --formatter junit testsuite.bats | tee test-report-${{ matrix.flavor }}.xml
-      - uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+      - uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
         if: always()
         with:
           name: test-results-${{ matrix.flavor }}
