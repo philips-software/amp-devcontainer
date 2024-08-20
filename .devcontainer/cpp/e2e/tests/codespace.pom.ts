@@ -8,10 +8,12 @@ type CommandAndPrompt = {
 export class CodespacePage {
   readonly page: Page;
   readonly outputPanel: Locator;
+  readonly terminal: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.outputPanel = page.locator('[id="workbench.panel.output"]');
+    this.terminal = page.locator('.terminal-widget-container').first();
   }
 
   async goto() {
@@ -40,6 +42,8 @@ export class CodespacePage {
     for (const plugin of extensions) {
       await expect(this.page.getByRole('tab', { name: plugin }).locator('a')).toBeVisible({ timeout: 5 * 60 * 1000 });
     }
+
+    await expect(this.page.getByRole('button', { name: 'Activating Extensions...' })).toBeHidden();
   }
 
   /**
@@ -56,10 +60,11 @@ export class CodespacePage {
    */
   async executeInTerminal(commands: string | string[]) {
     await this.page.keyboard.press('Control+Shift+`');
+    await expect(this.page.locator('.terminal-wrapper.active')).toBeVisible();
 
     for (const command of Array.isArray(commands) ? [...commands + 'exit'] : [commands, 'exit']) {
-      await this.page.locator('.terminal-widget-container').first().pressSequentially(command);
-      await this.page.locator('.terminal-widget-container').first().press('Enter');
+      await this.terminal.pressSequentially(command);
+      await this.terminal.press('Enter');
     }
   }
 
@@ -74,7 +79,7 @@ export class CodespacePage {
   async executeFromCommandPalette(commands: CommandAndPrompt | CommandAndPrompt[]) {
     await this.page.keyboard.press('Control+Shift+P');
 
-    for (const command of Array.isArray(commands) ? [...commands] : [commands]) {
+    for (const command of Array.isArray(commands) ? commands : [commands]) {
       let prompt = this.page.getByPlaceholder(command.prompt || 'Type the name of a command to run');
 
       await prompt.pressSequentially(command.command);
@@ -89,5 +94,10 @@ export class CodespacePage {
    */
   async openTabByName(name: string) {
     await this.page.getByRole('tab', { name: name }).locator('a').click();
+  }
+
+  async openFileInEditor(name: string) {
+    await this.page.getByRole('treeitem', { name: name }).locator('a').click();
+    await expect(this.page.locator('[id="workbench.parts.editor"]')).toContainText(name);
   }
 }
