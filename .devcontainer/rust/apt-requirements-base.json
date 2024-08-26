@@ -3,8 +3,8 @@
   "g++-13": "13.2.0-23ubuntu4",
   "git": "1:2.43.0-1ubuntu7.1",
   "gnupg2": "2.4.4-2ubuntu17",
-  "libc6-dev": "2.39-0ubuntu8.2",
+  "libc6-dev": "2.39-0ubuntu8.3",
   "rustup": "1.26.0-5build1",
   "wget": "1.21.4-1ubuntu4.1",
-  "xz-utils": "5.6.1+really5.4.5-1"
+  "xz-utils": "5.6.1+really5.4.5-1build0.1"
 }
