@@ -3,12 +3,20 @@
     "dockerfile": "Dockerfile",
     "context": "../.."
   },
+  "forwardPorts": [6080],
   "remoteEnv": {
-    "CONTAINER_FLAVOR": "cpp"
+    "CONTAINER_FLAVOR": "cpp",
+    "NODE_EXTRA_CA_CERTS": "/usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt"
   },
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
+  "features": {
+    "ghcr.io/devcontainers/features/desktop-lite:1.2.4": {},
+    "ghcr.io/devcontainers/features/github-cli:1.0.13": {},
+    "ghcr.io/devcontainers/features/node:1.5.0": {}
+  },
+  "postCreateCommand": "npm install && npx playwright install --with-deps",
   "customizations": {
     "vscode": {
       "settings": {
@@ -23,6 +31,7 @@
         "matepek.vscode-catch2-test-adapter@4.12.0",
         "mhutchie.git-graph@1.30.0",
         "ms-azuretools.vscode-docker@1.29.1",
+        "ms-playwright.playwright@1.1.7",
         "ms-vscode.cmake-tools@1.18.42",
         "ms-vscode.cpptools@1.20.5",
         "sonarsource.sonarlint-vscode@4.7.0",

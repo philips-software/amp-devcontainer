@@ -1,7 +1,7 @@
 # amp-devcontainer
 
 <!-- markdownlint-disable -->
-[![Linting & Formatting](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/philips-software/amp-devcontainer/actions/workflows/build-push.yml/badge.svg?branch=main)](https://github.com/philips-software/amp-devcontainer/actions/workflows/build-push.yml) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/philips-software/amp-devcontainer/badge)](https://securityscorecards.dev/viewer/?uri=github.com/philips-software/amp-devcontainer) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267)
+[![Linting & Formatting](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/philips-software/amp-devcontainer/actions/workflows/build-push.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/build-push.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/philips-software/amp-devcontainer/badge)](https://securityscorecards.dev/viewer/?uri=github.com/philips-software/amp-devcontainer)
 <!-- markdownlint enable -->
 
 ## Overview
@@ -107,7 +107,21 @@ This project uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.htm
 
 The containers can be built and tested locally by importing this repository in VS Code with the [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) plug-in installed. As a prerequisite Docker needs to be installed on the host system. Alternatively a GitHub Codespace can be started.
 
+#### Running the Integration Tests
+
 A test task is available to run the included `bats` tests. Choose `Tasks: Run Test Task` from the command pallette (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>).
+
+#### Running the Acceptance Tests
+
+Create an .env file with the following contents, this assumes a GitHub account that has rights to create a Codespace on this repository and is configured for time-based one-time password (TOTP) two-factor authentication (2FA).
+
+```dotenv
+GITHUB_USER=
+GITHUB_PASSWORD=
+GITHUB_TOTP_SECRET=
+```
+
+Test can now be run using the Test Explorer. The user interface is available on port 6080 by-default. When port 6080 is already taken another port will be exposed. This can be seen with the Ports view (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>, Ports: Focus on Ports View).
 
 ## Reporting vulnerabilities
 
