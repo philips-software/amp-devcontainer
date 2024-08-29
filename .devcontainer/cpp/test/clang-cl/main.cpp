@@ -1,4 +1,7 @@
 #include <iostream>
+#include <winsock2.h>
+#include <windows.h>
+#include <setupapi.h>
 
 int main()
 {
