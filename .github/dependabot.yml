@@ -14,17 +14,28 @@ updates:
     commit-message:
       prefix: "ci(deps)"
   - package-ecosystem: docker
-    directory: .devcontainer
+    directories:
+      - .devcontainer/cpp
+      - .devcontainer/rust
     schedule:
       interval: weekly
   - package-ecosystem: devcontainers
-    directory: .devcontainer
+    directories:
+      - .devcontainer/cpp
+      - .devcontainer/rust
     schedule:
       interval: weekly
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    groups:
+      npm:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: "test(deps)"
   - package-ecosystem: pip
     directory: .devcontainer
     schedule:
