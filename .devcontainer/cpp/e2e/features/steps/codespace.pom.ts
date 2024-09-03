@@ -100,4 +100,8 @@ export class CodespacePage {
     await this.page.getByRole('treeitem', { name: name }).locator('a').click();
     await expect(this.page.locator('[id="workbench.parts.editor"]')).toContainText(name);
   }
+
+  async buildSelectedTarget() {
+    await this.page.getByRole('button', { name: 'Build the selected target' }).click();
+  }
 }

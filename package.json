@@ -3,9 +3,10 @@
     "@playwright/test": "^1.46.1",
     "@types/node": "^22.5.2",
     "dotenv": "^16.4.5",
-    "otpauth": "^9.3.2"
+    "otpauth": "^9.3.2",
+    "playwright-bdd": "7.2.2"
   },
   "scripts": {
-    "test": "cd $INIT_CWD && npx playwright test"
+    "test": "cd $INIT_CWD && npx bddgen && npx playwright test"
   }
 }
