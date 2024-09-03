@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import { defineBddConfig } from "playwright-bdd";
 import path from 'path';
 
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '..', '.env') });
 
 export const STORAGE_STATE = path.join(__dirname, 'playwright/.auth/user.json');
 

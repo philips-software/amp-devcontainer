@@ -113,7 +113,7 @@ A test task is available to run the included `bats` tests. Choose `Tasks: Run Te
 
 #### Running the Acceptance Tests
 
-Create an .env file with the following contents, this assumes a GitHub account that has rights to create a Codespace on this repository and is configured for time-based one-time password (TOTP) two-factor authentication (2FA).
+Create a .env file in the root of the workspace with the following contents, this assumes a GitHub account that has rights to create a Codespace on this repository and is configured for time-based one-time password (TOTP) two-factor authentication (2FA).
 
 ```dotenv
 GITHUB_USER=
