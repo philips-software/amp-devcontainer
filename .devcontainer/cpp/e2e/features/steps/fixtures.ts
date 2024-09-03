@@ -1,5 +1,5 @@
-import { AuthenticationPage } from './authentication.pom';
-import { CodespacePage } from './codespace.pom';
+import { AuthenticationPage } from '../pages/authentication.pom';
+import { CodespacePage } from '../pages/codespace.pom';
 import { test as base, createBdd } from 'playwright-bdd';
 
 export const test = base.extend<{ codespacePage: CodespacePage }, { authenticationPage: AuthenticationPage }>({

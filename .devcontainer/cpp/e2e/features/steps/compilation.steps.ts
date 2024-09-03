@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { Given, When, Then } from "./codespace.fixture";
+import { Given, When, Then } from "./fixtures";
 
 Given("I select the default build configuration", async () => {
   // No-op

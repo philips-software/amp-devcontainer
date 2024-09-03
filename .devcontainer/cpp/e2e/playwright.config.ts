@@ -8,7 +8,7 @@ export const STORAGE_STATE = path.join(__dirname, 'playwright/.auth/user.json');
 
 const testDir = defineBddConfig({
   features: "features/*.feature",
-  steps: ["features/steps/*.steps.ts", "features/steps/*.fixture.ts"],
+  steps: ["features/steps/*.ts"],
 });
 
 export default defineConfig({
