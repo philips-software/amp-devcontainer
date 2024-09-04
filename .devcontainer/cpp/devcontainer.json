@@ -12,9 +12,9 @@
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
   "features": {
-    "ghcr.io/devcontainers/features/desktop-lite:1.2.4": {},
-    "ghcr.io/devcontainers/features/github-cli:1.0.13": {},
-    "ghcr.io/devcontainers/features/node:1.5.0": {}
+    "ghcr.io/devcontainers/features/desktop-lite:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {}
   },
   "postCreateCommand": "npm install && npx playwright install --with-deps",
   "customizations": {

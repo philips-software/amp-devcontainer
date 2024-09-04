@@ -3,7 +3,7 @@ name: Update Dependencies
 
 on:
   schedule:
-    - cron: "30 2 * * *"
+    - cron: "30 2 * * 0"
   workflow_dispatch:
 
 permissions:
@@ -68,7 +68,7 @@ jobs:
           branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions
           body: |
             > [!NOTE]
-            > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are no automated tests for the VS Code Extension updates.
+            > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates.
 
             ${{ steps.update-extensions.outputs.markdown-summary }}
           title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
