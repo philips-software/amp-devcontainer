@@ -41,6 +41,7 @@ jobs:
           title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
           labels: dependencies,apt
           token: ${{ steps.token.outputs.token }}
+          sign-commits: true
   update-vscode-extensions:
     runs-on: ubuntu-latest
     strategy:
@@ -74,3 +75,4 @@ jobs:
           title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
           labels: dependencies,vscode-extensions
           token: ${{ steps.token.outputs.token }}
+          sign-commits: true
