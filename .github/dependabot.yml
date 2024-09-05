@@ -20,9 +20,7 @@ updates:
     schedule:
       interval: weekly
   - package-ecosystem: devcontainers
-    directories:
-      - .devcontainer/cpp
-      - .devcontainer/rust
+    directory: /
     schedule:
       interval: weekly
   - package-ecosystem: npm
