@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "@playwright/test": "^1.46.1",
+    "@playwright/test": "^1.47.0",
     "@types/node": "^22.5.4",
     "dotenv": "^16.4.5",
     "otpauth": "^9.3.2"
