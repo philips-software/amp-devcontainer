@@ -29,12 +29,12 @@ jobs:
         id: update-packages
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements-*.json
-      - uses: actions/create-github-app-token@3378cda945da322a8db4b193e19d46352ebe2de5 # v1.10.4
+      - uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1.11.0
         id: token
         with:
           app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
-      - uses: peter-evans/create-pull-request@8867c4aba1b742c39f8d0ba35429c2dfa4b6cb20 # v7.0.1
+      - uses: peter-evans/create-pull-request@d121e62763d8cc35b5fb1710e887d6e69a52d3a4 # v7.0.2
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
           branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-apt-packages
@@ -58,12 +58,12 @@ jobs:
         id: update-extensions
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata-vscode.json
-      - uses: actions/create-github-app-token@3378cda945da322a8db4b193e19d46352ebe2de5 # v1.10.4
+      - uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1.11.0
         id: token
         with:
           app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
-      - uses: peter-evans/create-pull-request@8867c4aba1b742c39f8d0ba35429c2dfa4b6cb20 # v7.0.1
+      - uses: peter-evans/create-pull-request@d121e62763d8cc35b5fb1710e887d6e69a52d3a4 # v7.0.2
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
           branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions
