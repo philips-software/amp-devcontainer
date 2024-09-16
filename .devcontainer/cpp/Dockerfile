@@ -94,9 +94,6 @@ RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
- # Install udev
- RUN apt-get update && apt-get install -y --no-install-recommends udev
-
 # Update all tool alternatives to the correct version
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20 \
