@@ -49,9 +49,9 @@ Both containers can be used in Visual Studio Code or GitHub Codespaces without a
 
 ### Verify image signature
 
-The container images are signed with [SigStore](https://www.sigstore.dev/) [Cosign](https://docs.sigstore.dev/signing/quickstart/) using a keyless signing method.
+The container images are signed with [SigStore](https://www.sigstore.dev/) [Cosign](https://docs.sigstore.dev/cosign/signing/overview/) using a keyless signing method.
 
-The signature can be verified with the following command (using Docker), verifying that the image is actually signed by the GitHub CI system:
+The signature can be [verified](https://docs.sigstore.dev/cosign/verifying/verify/) with the following command (using Docker), verifying that the image is actually signed by the GitHub CI system:
 
 > amp-devcontainer-cpp
 
