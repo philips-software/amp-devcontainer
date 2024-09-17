@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.2.0](https://github.com/philips-software/amp-devcontainer/compare/v5.1.4...v5.2.0) (2024-09-17)
+
+
+### Features
+
+* Add udev to amp-devcontainer-cpp ([#572](https://github.com/philips-software/amp-devcontainer/issues/572)) ([ebe907e](https://github.com/philips-software/amp-devcontainer/commit/ebe907e11d9b0d385ccc92b83f94194a0fc56074))
+
+
+### Chores
+
+* **deps, cpp:** Update ms-vscode.cmake-tools ([#564](https://github.com/philips-software/amp-devcontainer/issues/564)) ([5781af5](https://github.com/philips-software/amp-devcontainer/commit/5781af555940a346a0537efc565493de69d115f2))
+* **deps, cpp:** Update ms-vscode.cmake-tools, sonarsource.sonarlint-vscode ([#559](https://github.com/philips-software/amp-devcontainer/issues/559)) ([6afa3f4](https://github.com/philips-software/amp-devcontainer/commit/6afa3f415f40e67ab2fb366850bcd25d491d6604))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#556](https://github.com/philips-software/amp-devcontainer/issues/556)) ([2c1cf3d](https://github.com/philips-software/amp-devcontainer/commit/2c1cf3dfcb17945019dc55ca44936ca68ab75905))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#568](https://github.com/philips-software/amp-devcontainer/issues/568)) ([7d08457](https://github.com/philips-software/amp-devcontainer/commit/7d084574ffa1e55ef13843d7e130f7a7619090e9))
+* **deps:** Bump cmake from 3.30.2 to 3.30.3 in /.devcontainer ([#567](https://github.com/philips-software/amp-devcontainer/issues/567)) ([a0f0d70](https://github.com/philips-software/amp-devcontainer/commit/a0f0d70b91ffd7fb0895e5fa230a8809bbfc6dce))
+* **deps:** Bump ghcr.io/devcontainers/features/desktop-lite from 1.2.4 to 1.2.5 ([#569](https://github.com/philips-software/amp-devcontainer/issues/569)) ([473e8a3](https://github.com/philips-software/amp-devcontainer/commit/473e8a329eeabac020990b003bee1ae8d14fac32))
+
 ## [5.1.4](https://github.com/philips-software/amp-devcontainer/compare/v5.1.3...v5.1.4) (2024-08-29)
 
 
