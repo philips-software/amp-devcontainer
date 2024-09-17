@@ -3,7 +3,7 @@ name: Update Dependencies
 
 on:
   schedule:
-    - cron: "30 2 * * *"
+    - cron: "30 2 * * 0"
   workflow_dispatch:
 
 permissions:
@@ -29,18 +29,19 @@ jobs:
         id: update-packages
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements-*.json
-      - uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1.10.3
+      - uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1.11.0
         id: token
         with:
           app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
-      - uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
+      - uses: peter-evans/create-pull-request@d121e62763d8cc35b5fb1710e887d6e69a52d3a4 # v7.0.2
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
           branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-apt-packages
           title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
           labels: dependencies,apt
           token: ${{ steps.token.outputs.token }}
+          sign-commits: true
   update-vscode-extensions:
     runs-on: ubuntu-latest
     strategy:
@@ -57,20 +58,21 @@ jobs:
         id: update-extensions
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata-vscode.json
-      - uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1.10.3
+      - uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1.11.0
         id: token
         with:
           app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
-      - uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
+      - uses: peter-evans/create-pull-request@d121e62763d8cc35b5fb1710e887d6e69a52d3a4 # v7.0.2
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
           branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions
           body: |
             > [!NOTE]
-            > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are no automated tests for the VS Code Extension updates.
+            > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates.
 
             ${{ steps.update-extensions.outputs.markdown-summary }}
           title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
           labels: dependencies,vscode-extensions
           token: ${{ steps.token.outputs.token }}
+          sign-commits: true
