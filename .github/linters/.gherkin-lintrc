@@ -1,6 +1,6 @@
 {
-  "file-name": ["on", {"style": "PascalCase"}],
-  "indentation": ["on", {"Step": 4, "example": 4}],
+  "file-name": ["on", {"style": "kebab-case"}],
+  "indentation": ["on"],
   "new-line-at-eof": ["on", "yes"],
   "no-background-only-scenario": "off",
   "no-dupe-feature-names": "on",
@@ -8,7 +8,7 @@
   "no-duplicate-tags": "on",
   "no-empty-background": "on",
   "no-empty-file": "on",
-  "no-files-without-scenarios" : "on",
+  "no-files-without-scenarios": "on",
   "no-multiple-empty-lines": "on",
   "no-partially-commented-tag-lines": "on",
   "no-scenario-outlines-without-examples": "on",

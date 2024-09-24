@@ -1,11 +1,11 @@
 import { expect } from "@playwright/test";
 import { Given, When, Then } from "./fixtures";
 
-Given("I select the default build configuration", async () => {
+Given("the default build configuration is selected", async () => {
   // No-op
 });
 
-When("I build configuration {string}", async ({ codespacePage }, configuration: string) => {
+When("the configuration {string} is built", async ({ codespacePage }, configuration: string) => {
   await codespacePage.page.getByRole('button', { name: 'Build the selected target' }).click();
   await codespacePage.page.getByLabel(configuration).locator('a').click();
 });
