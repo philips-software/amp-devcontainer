@@ -6,11 +6,12 @@ Feature: Compile source code into working software
 
   Scenario: Compile valid source code into working software targeting the host architecture
 
-    Compiling valid source code into working software, able to run on the host architecture, can be necessary in several scenarios e.g.
+    Compiling valid source code into working software, able to run on the host architecture,
+    can be necessary in several scenarios; for example when:
 
-    * When the host is the target
-    * When running tests on the host
-    * When building plug-ins, extensions, code generators, or other additional tools that need to run on the host
+    * the host is the deployment target
+    * running tests on the host
+    * building plug-ins, extensions, code generators, or other additional tools that need to run on the host
 
     Given the default build configuration is selected
     When the configuration "host" is built
