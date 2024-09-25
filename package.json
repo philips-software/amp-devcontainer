@@ -1,4 +1,6 @@
 {
+  "name": "amp-devcontainer-tests",
+  "version": "1.0.0",
   "devDependencies": {
     "@playwright/test": "^1.47.2",
     "@types/node": "^22.5.5",

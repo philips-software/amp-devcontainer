@@ -1,6 +1,5 @@
 {
   "file-name": ["on", {"style": "kebab-case"}],
-  "indentation": ["on"],
   "new-line-at-eof": ["on", "yes"],
   "no-background-only-scenario": "off",
   "no-dupe-feature-names": "on",
