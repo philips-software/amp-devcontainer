@@ -25,12 +25,10 @@
         "cortex-debug.objdumpPath": "arm-none-eabi-objdump",
         "sonarlint.pathToCompileCommands": "/root/.amp/compile_commands.json",
         "[c]": {
-          "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
-          "editor.formatOnSave": true
+          "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
         },
         "[cpp]": {
-          "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
-          "editor.formatOnSave": true
+          "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
         }
       }
     }
