@@ -20,10 +20,16 @@
   "customizations": {
     "vscode": {
       "settings": {
+        "cucumberautocomplete.steps": [".devcontainer/cpp/e2e/features/steps/*.steps.ts"],
+        "cucumberautocomplete.strictGherkinCompletion": false,
+        "cucumberautocomplete.strictGherkinValidation": false,
+        "cucumberautocomplete.smartSnippets": true,
+        "cucumberautocomplete.onTypeFormat": true,
         "files.insertFinalNewline": true,
         "files.trimTrailingWhitespace": true
       },
       "extensions": [
+        "alexkrechik.cucumberautocomplete@3.0.5",
         "github.copilot@1.208.0",
         "github.vscode-github-actions@0.26.3",
         "github.vscode-pull-request-github@0.90.0",

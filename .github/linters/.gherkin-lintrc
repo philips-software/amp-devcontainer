@@ -1,0 +1,22 @@
+{
+  "file-name": ["on", {"style": "kebab-case"}],
+  "new-line-at-eof": ["on", "yes"],
+  "no-background-only-scenario": "off",
+  "no-dupe-feature-names": "on",
+  "no-dupe-scenario-names": ["on", "in-feature"],
+  "no-duplicate-tags": "on",
+  "no-empty-background": "on",
+  "no-empty-file": "on",
+  "no-files-without-scenarios": "on",
+  "no-multiple-empty-lines": "on",
+  "no-partially-commented-tag-lines": "on",
+  "no-scenario-outlines-without-examples": "on",
+  "no-superfluous-tags": "on",
+  "no-trailing-spaces": "on",
+  "no-unnamed-features": "on",
+  "no-unnamed-scenarios": "on",
+  "no-unused-variables": "on",
+  "one-space-between-tags": "on",
+  "scenario-size": ["on", { "steps-length": {"Background": 5}}],
+  "use-and": "on"
+}
