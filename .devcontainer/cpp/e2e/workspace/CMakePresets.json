@@ -12,8 +12,6 @@
     },
     {
       "name": "host",
-      "displayName": "host",
-      "description": "Build for host",
       "inherits": "defaults"
     }
   ],
