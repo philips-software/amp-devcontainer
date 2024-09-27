@@ -47,28 +47,6 @@ export class CodespacePage {
   }
 
   /**
-   * Executes the given commands in the terminal.
-   *
-   * **Usage**
-   *
-   * ```ts
-   * const codespace = new CodespacePage(page);
-   * await codespace.executeInTerminal('git clean -fdx');
-   * ```
-   *
-   * @param commands - The commands to execute in the terminal. It can be a single command or an array of commands.
-   */
-  async executeInTerminal(commands: string | string[]) {
-    await this.page.keyboard.press('Control+Shift+`');
-    await expect(this.page.locator('.terminal-wrapper.active')).toBeVisible();
-
-    for (const command of Array.isArray(commands) ? [...commands + 'exit'] : [commands, 'exit']) {
-      await this.terminal.pressSequentially(command);
-      await this.terminal.press('Enter');
-    }
-  }
-
-  /**
    * Executes the given commands in the command palette.
    *
    * This method waits for `prompt` to appear and then types `command` and presses Enter.
@@ -82,8 +60,30 @@ export class CodespacePage {
     for (const command of Array.isArray(commands) ? commands : [commands]) {
       let prompt = this.page.getByPlaceholder(command.prompt || 'Type the name of a command to run');
 
-      await prompt.pressSequentially(command.command);
+      await prompt.fill(`> ${command.command}`);
       await prompt.press('Enter');
+    }
+  }
+
+  /**
+   * Executes the given commands in the terminal.
+   *
+   * **Usage**
+   *
+   * ```ts
+   * const codespace = new CodespacePage(page);
+   * await codespace.executeInTerminal('git clean -fdx');
+   * ```
+   *
+   * @param commands - The commands to execute in the terminal. It can be a single command or an array of commands.
+   */
+  async executeInTerminal(commands: string | string[]) {
+    await this.executeFromCommandPalette({ command: 'Terminal: Focus on Terminal View' });
+    await expect(this.page.locator('.terminal-widget-container')).toBeVisible();
+
+    for (const command of Array.isArray(commands) ? commands : [commands]) {
+      await this.terminal.pressSequentially(command);
+      await this.terminal.press('Enter');
     }
   }
 
@@ -101,7 +101,29 @@ export class CodespacePage {
     await expect(this.page.locator('[id="workbench.parts.editor"]')).toContainText(name);
   }
 
+  async openCppFileInEditor(name: string) {
+    await this.openFileInEditor(name);
+    await expect(this.page.locator('[id="llvm-vs-code-extensions.vscode-clangd"]')).toContainText('clangd: idle', { timeout: 1 * 60 * 1000 });
+  }
+
+  async formatDocument() {
+    await this.executeFromCommandPalette({ command: 'Format Document' });
+  }
+
+  async saveDocument() {
+    await this.page.keyboard.press('Control+S');
+  }
+
   async buildSelectedTarget() {
     await this.page.getByRole('button', { name: 'Build the selected target' }).click();
+  }
+
+  async expectEditorContent(expected: RegExp) {
+    await expect(this.page.getByRole('code')).toContainText(expected);
+  }
+
+  async expectFileContentsToMatch(actual: string, expected: string) {
+    await this.executeInTerminal(`diff -s ${actual} ${expected}`);
+    await expect(this.page.locator('#terminal')).toContainText(`Files ${actual} and ${expected} are identical`);
   }
 }
