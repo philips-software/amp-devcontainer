@@ -82,7 +82,7 @@ export class CodespacePage {
     await expect(this.page.locator('.terminal-widget-container')).toBeVisible();
 
     for (const command of Array.isArray(commands) ? commands : [commands]) {
-      await this.terminal.fill(command);
+      await this.terminal.pressSequentially(command);
       await this.terminal.press('Enter');
     }
   }
