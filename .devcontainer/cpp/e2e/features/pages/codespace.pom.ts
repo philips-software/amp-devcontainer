@@ -124,6 +124,6 @@ export class CodespacePage {
 
   async expectFileContentsToMatch(actual: string, expected: string) {
     await this.executeInTerminal(`diff -s ${actual} ${expected}`);
-    await expect(this.outputPanel).toContainText(`Files ${actual} and ${expected} are identical`);
+    await expect(this.page.locator('#terminal')).toContainText(`Files ${actual} and ${expected} are identical`);
   }
 }
