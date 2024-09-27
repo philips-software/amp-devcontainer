@@ -37,6 +37,8 @@ jobs:
         with:
           path: test/.xwin-cache
           key: xwin-cache
+          restore-keys: |
+            xwin-cache
       - name: Run Tests
         run: |
           set -Eeuo pipefail
