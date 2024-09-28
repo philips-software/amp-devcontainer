@@ -39,7 +39,9 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
  && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
 
 # Update all tool alternatives to the correct version
-RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20
+# and patch root's bashrc to include bash-completion
+RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20 \
+ && cp /etc/skel/.bashrc /root/.bashrc
 
 # Install additional rust tools
 RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
