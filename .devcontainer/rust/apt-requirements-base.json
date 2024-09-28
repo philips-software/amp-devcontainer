@@ -1,4 +1,5 @@
 {
+  "bash-completion": "1:2.11-8",
   "ca-certificates": "20240203",
   "g++-13": "13.2.0-23ubuntu4",
   "git": "1:2.43.0-1ubuntu7.1",
