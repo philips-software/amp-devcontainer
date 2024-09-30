@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.3.0](https://github.com/philips-software/amp-devcontainer/compare/v5.2.0...v5.3.0) (2024-09-30)
+
+
+### Features
+
+* Add bash completion support to amp-devcontainer ([#581](https://github.com/philips-software/amp-devcontainer/issues/581)) ([063e1bb](https://github.com/philips-software/amp-devcontainer/commit/063e1bb97abb88fe1cbd27b745009ade75db7a84))
+
+
+### Chores
+
+* Consolidate formatting in amp-devcontainer-cpp ([#582](https://github.com/philips-software/amp-devcontainer/issues/582)) ([cc9380c](https://github.com/philips-software/amp-devcontainer/commit/cc9380c6238708b32e89c422b99e9c40d35afae6))
+* **deps, cpp:** Update docker cli from v27.0.3 to v27.3.1 ([#580](https://github.com/philips-software/amp-devcontainer/issues/580)) ([e242369](https://github.com/philips-software/amp-devcontainer/commit/e24236967aee078f52c93e2dc6f028a814490e12))
+* **deps, cpp:** Update ms-vscode.cmake-tools, ms-vsliveshare.vsliveshare ([#573](https://github.com/philips-software/amp-devcontainer/issues/573)) ([14da656](https://github.com/philips-software/amp-devcontainer/commit/14da65653fe8a97661f28c87e619352f2b8f9c27))
+* **deps, cpp:** Update ms-vsliveshare.vsliveshare ([#583](https://github.com/philips-software/amp-devcontainer/issues/583)) ([5c16ea4](https://github.com/philips-software/amp-devcontainer/commit/5c16ea41db57be2773da6a59262821a4e32b5b37))
+* **deps, rust:** Update ms-vsliveshare.vsliveshare, rust-lang.rust-analyzer ([#574](https://github.com/philips-software/amp-devcontainer/issues/574)) ([f09f8bb](https://github.com/philips-software/amp-devcontainer/commit/f09f8bbd49ad9cc50a469a7b1e2cef9893e020ee))
+* **deps, rust:** Update ms-vsliveshare.vsliveshare, rust-lang.rust-analyzer ([#584](https://github.com/philips-software/amp-devcontainer/issues/584)) ([c876f4f](https://github.com/philips-software/amp-devcontainer/commit/c876f4f5a0963f0988c131068e30075d2893119b))
+* **deps:** Bump cmake from 3.30.3 to 3.30.4 in /.devcontainer ([#586](https://github.com/philips-software/amp-devcontainer/issues/586)) ([b70c2ed](https://github.com/philips-software/amp-devcontainer/commit/b70c2ed5c7f9ec87edc3124e80693b203223a6cc))
+* **deps:** Bump ubuntu from `8a37d68` to `dfc1087` in /.devcontainer/cpp ([#575](https://github.com/philips-software/amp-devcontainer/issues/575)) ([7848fff](https://github.com/philips-software/amp-devcontainer/commit/7848fffccc6a4b7a2665f8a87a20c9714417a0d0))
+* **deps:** Bump ubuntu from `8a37d68` to `dfc1087` in /.devcontainer/rust ([#576](https://github.com/philips-software/amp-devcontainer/issues/576)) ([39429b1](https://github.com/philips-software/amp-devcontainer/commit/39429b179dcfc6d793f305a3cb02abee8337a93a))
+
 ## [5.2.0](https://github.com/philips-software/amp-devcontainer/compare/v5.1.4...v5.2.0) (2024-09-17)
 
 
