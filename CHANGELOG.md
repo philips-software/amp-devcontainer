@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.3.1](https://github.com/philips-software/amp-devcontainer/compare/v5.3.0...v5.3.1) (2024-10-09)
+
+
+### Chores
+
+* **deps, cpp:** Update sonarsource.sonarlint-vscode ([#589](https://github.com/philips-software/amp-devcontainer/issues/589)) ([2aee0e8](https://github.com/philips-software/amp-devcontainer/commit/2aee0e85205519e8e80add98aa667a32eecb0e4d))
+* **deps, cpp:** Update unzip ([#591](https://github.com/philips-software/amp-devcontainer/issues/591)) ([7a6121d](https://github.com/philips-software/amp-devcontainer/commit/7a6121dfedc8e9be0ed531a2ffaa6e86ac13ae05))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#590](https://github.com/philips-software/amp-devcontainer/issues/590)) ([3d60313](https://github.com/philips-software/amp-devcontainer/commit/3d6031371188cba5b3b5146d62911dd175d180e3))
+* **deps:** Bump ubuntu from `dfc1087` to `b359f10` in /.devcontainer/cpp ([#594](https://github.com/philips-software/amp-devcontainer/issues/594)) ([eea7e46](https://github.com/philips-software/amp-devcontainer/commit/eea7e4611a236b3a8c9b2d716c47827619014919))
+* **deps:** Bump ubuntu from `dfc1087` to `b359f10` in /.devcontainer/rust ([#595](https://github.com/philips-software/amp-devcontainer/issues/595)) ([8615962](https://github.com/philips-software/amp-devcontainer/commit/8615962b8a324cf08bd3e1cfa5bfe2db241b20fa))
+
 ## [5.3.0](https://github.com/philips-software/amp-devcontainer/compare/v5.2.0...v5.3.0) (2024-09-30)
 
 
