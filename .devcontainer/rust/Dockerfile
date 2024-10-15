@@ -1,8 +1,8 @@
 FROM ubuntu:24.04@sha256:ab64a8382e935382638764d8719362bb50ee418d944c1f3d26e0c99fae49a345
 
 ARG BATS_VERSION=1.11.0
-ARG CARGO_BINSTALL_VERSION=1.6.8
-ARG RUST_VERSION=1.78.0
+ARG CARGO_BINSTALL_VERSION=1.10.8
+ARG RUST_VERSION=1.81.0
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -43,8 +43,7 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20 \
  && cp /etc/skel/.bashrc /root/.bashrc
 
+ENV BINSTALL_DISABLE_TELEMETRY=true
 # Install additional rust tools
 RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
- && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@24.5.0 flip-link@0.1.8 \
- # cargo-binstall can't (yet) install probe-rs-tools for aarch64, fall-back to script installation
- && wget -qO - https://github.com/probe-rs/probe-rs/releases/download/v0.24.0/probe-rs-tools-installer.sh | sh
+ && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@24.9.0 flip-link@0.1.9 probe-rs-tools@0.24.0
