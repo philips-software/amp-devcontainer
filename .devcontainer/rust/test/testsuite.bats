@@ -73,14 +73,14 @@ EOF
 
 @test "coverage information should be generated when running a testsuite" {
   pushd test
- 
+
   RUSTFLAGS="-C instrument-coverage" run cargo test
   assert_success
   assert_output --partial "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out;"
 
   cargo profdata -- merge -sparse default_*.profraw -o default.profdata
 
-  run cargo cov -- report --instr-profile=default.profdata --object target/debug/deps/test-39ae9a37530d18ea
+  run cargo cov -- report --instr-profile=default.profdata --object target/debug/deps/test-79ff237e4a2ee06d
   assert_success
   assert_output --partial "77.78%"
 
