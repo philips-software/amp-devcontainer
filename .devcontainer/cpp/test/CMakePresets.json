@@ -37,6 +37,13 @@
       }
     },
     {
+      "name": "cpm",
+      "inherits": "defaults",
+      "cacheVariables": {
+        "ENABLE_CPM_TEST": "On"
+      }
+    },
+    {
       "name": "gcc",
       "inherits": "defaults"
     },
@@ -80,6 +87,11 @@
       "name": "coverage",
       "configurePreset": "coverage",
       "targets": ["test-coverage"]
+    },
+    {
+      "name": "cpm",
+      "configurePreset": "cpm",
+      "targets": ["cpm-test"]
     },
     {
       "name": "fuzzing",
