@@ -3,6 +3,6 @@ if (ENABLE_CPM_TEST)
 
     CPMAddPackage("gh:fmtlib/fmt#11.0.2")
 
-    add_executable(cpm-test EXCLUDE_FROM_ALL main.cpp)
-    target_link_libraries(cpm-test PRIVATE fmt::fmt)
+    add_executable(test-cpm EXCLUDE_FROM_ALL main.cpp)
+    target_link_libraries(test-cpm PRIVATE fmt::fmt)
 endif()
