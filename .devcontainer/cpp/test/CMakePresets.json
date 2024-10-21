@@ -91,7 +91,7 @@
     {
       "name": "cpm",
       "configurePreset": "cpm",
-      "targets": ["cpm-test"]
+      "targets": ["test-cpm"]
     },
     {
       "name": "fuzzing",
