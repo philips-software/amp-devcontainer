@@ -12,3 +12,4 @@ test-results/
 *.profdata
 *.profraw
 **/playwright/.auth/user.json
+CMakeUserPresets.json

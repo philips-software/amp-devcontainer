@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.30)
 project(devcontainer-test LANGUAGES ASM C CXX)
 
 include(CTest)
