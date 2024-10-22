@@ -31,7 +31,7 @@ setup() {
 }
 
 teardown() {
-  rm -rf build crash-*
+  rm -rf build crash-* $(conan config home)/p
 }
 
 @test "valid code input should result in working executable using host compiler" {
@@ -168,6 +168,17 @@ teardown() {
 
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with clang" {
   build_and_run_with_sanitizers clang
+}
+
+@test "using Conan as package manager should resolve external dependencies" {
+  pushd package-managers/conan
+
+  conan install . --output-folder=../../build --build=missing
+
+  cmake --preset conan-release
+  cmake --build --preset conan-release
+
+  popd
 }
 
 @test "using CPM as package manager should resolve external dependencies" {
