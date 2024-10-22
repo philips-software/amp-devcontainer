@@ -182,6 +182,11 @@ teardown() {
   popd
 }
 
+@test "using CPM as package manager should resolve external dependencies" {
+  cmake --preset cpm
+  cmake --build --preset cpm
+}
+
 function configure_and_build_with_ccache() {
   local PRESET=${1:?}
 

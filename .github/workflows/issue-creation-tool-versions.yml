@@ -55,6 +55,7 @@ jobs:
 
             - [ ] The [ARM GNU](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) toolchain is up to date and matches with the GCC version
             - [ ] The [Clang toolchain](https://apt.llvm.org/) is up to date
+            - [ ] The [CPM](https://github.com/cpm-cmake/CPM.cmake) package manager is up to date
             - [ ] The [Docker cli](https://download.docker.com/linux/static/stable/) is up to date
             - [ ] [bats-core](https://github.com/bats-core/bats-core), [bats-support](https://github.com/bats-core/bats-support) and [bats-assert](https://github.com/bats-core/bats-assert) are up to date
             - [ ] [Mull](https://github.com/mull-project/mull) is up to date and compatible with the currently installed Clang version

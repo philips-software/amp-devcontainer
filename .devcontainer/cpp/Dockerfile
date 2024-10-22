@@ -1,8 +1,9 @@
-FROM ubuntu:24.04@sha256:ab64a8382e935382638764d8719362bb50ee418d944c1f3d26e0c99fae49a345
+FROM ubuntu:24.04@sha256:99c35190e22d294cdace2783ac55effc69d32896daaa265f0bbedbcde4fbe3e5
 
 ARG BATS_VERSION=1.11.0
 ARG CCACHE_VERSION=4.10.1
 ARG CLANG_VERSION=17
+ARG CPM_VERSION=0.40.2
 ARG DOCKER_VERSION=27.3.1
 ARG MULL_VERSION=0.22.0
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.21
@@ -35,6 +36,9 @@ RUN python3 -m pip install --break-system-packages --require-hashes --no-cache-d
 ENV CMAKE_GENERATOR="Ninja"
 ENV CMAKE_EXPORT_COMPILE_COMMANDS="On"
 ENV CCACHE_DIR=/root/.ccache
+
+# Install CPM.cmake to the CMake module path
+RUN wget -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake
 
 # Install clang toolchain
 COPY .devcontainer/cpp/apt-requirements-clang.json /tmp/apt-requirements-clang.json
