@@ -31,7 +31,7 @@ setup() {
 }
 
 teardown() {
-  rm -rf build crash-* /root/.conan2/p
+  rm -rf build crash-* $(conan config home)/p
 }
 
 @test "valid code input should result in working executable using host compiler" {
