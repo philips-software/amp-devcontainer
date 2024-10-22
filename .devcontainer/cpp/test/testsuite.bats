@@ -31,7 +31,7 @@ setup() {
 }
 
 teardown() {
-  rm -rf build crash-* /root/.conan2
+  rm -rf build crash-* /root/.conan2/p
 }
 
 @test "valid code input should result in working executable using host compiler" {
@@ -173,7 +173,6 @@ teardown() {
 @test "using Conan as package manager should resolve external dependencies" {
   pushd package-managers/conan
 
-  conan profile detect --force
   conan install . --output-folder=../../build --build=missing
 
   cmake -G Ninja --preset conan-release

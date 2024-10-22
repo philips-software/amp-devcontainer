@@ -1,6 +1,6 @@
 FROM ubuntu:24.04@sha256:99c35190e22d294cdace2783ac55effc69d32896daaa265f0bbedbcde4fbe3e5
 
-ARG BATS_VERSION=1.11.0
+ARG BATS_VERSION=1.11.
 ARG CCACHE_VERSION=4.10.1
 ARG CLANG_VERSION=17
 ARG CPM_VERSION=0.40.2
@@ -37,8 +37,12 @@ ENV CMAKE_GENERATOR="Ninja"
 ENV CMAKE_EXPORT_COMPILE_COMMANDS="On"
 ENV CCACHE_DIR=/root/.ccache
 
-# Install CPM.cmake to the CMake module path
-RUN wget -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake
+# Set up package managers CPM and Conan
+# - Install CPM.cmake to the CMake module path
+# - Configure a default profile for Conan and set the CMake generator to Ninja
+RUN wget -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake \
+ && conan profile detect \
+ && echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> $(conan profile path default)
 
 # Install clang toolchain
 COPY .devcontainer/cpp/apt-requirements-clang.json /tmp/apt-requirements-clang.json
