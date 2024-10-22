@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.4.0](https://github.com/philips-software/amp-devcontainer/compare/v5.3.2...v5.4.0) (2024-10-22)
+
+
+### Features
+
+* Add conan package manager to amp-devcontainer-cpp ([#607](https://github.com/philips-software/amp-devcontainer/issues/607)) ([e142e40](https://github.com/philips-software/amp-devcontainer/commit/e142e40d820bfa71851bb8bd93b4caf9dd22dc9b))
+* Add cpm package manager to amp-devcontainer-cpp ([#609](https://github.com/philips-software/amp-devcontainer/issues/609)) ([f4338f3](https://github.com/philips-software/amp-devcontainer/commit/f4338f3a96d0b727a5f4d25969a46f7effdf44cd))
+
+
+### Chores
+
+* **deps, cpp:** Update matepek.vscode-catch2-test-adapter, ms-vscode.cpptools ([#610](https://github.com/philips-software/amp-devcontainer/issues/610)) ([27c6b57](https://github.com/philips-software/amp-devcontainer/commit/27c6b57eb416b94ac07098d6f4cea1e15672996b))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#611](https://github.com/philips-software/amp-devcontainer/issues/611)) ([3db4d23](https://github.com/philips-software/amp-devcontainer/commit/3db4d23c83e9f58e82b2ff08bcfbdedfc627c845))
+* **deps:** Bump cmake from 3.30.4 to 3.30.5 in amp-devcontainer-cpp ([#614](https://github.com/philips-software/amp-devcontainer/issues/614)) ([a6b889f](https://github.com/philips-software/amp-devcontainer/commit/a6b889f1f02736942acce3b142ecb5cc250e8f1c))
+* **deps:** Bump ubuntu from `ab64a83` to `99c3519` in amp-devcontainer-cpp ([#612](https://github.com/philips-software/amp-devcontainer/issues/612)) ([e73794d](https://github.com/philips-software/amp-devcontainer/commit/e73794df5d463c7ac97398e39c78c731d425f747))
+* **deps:** Bump ubuntu from `ab64a83` to `99c3519` in amp-devcontainer-rust ([#613](https://github.com/philips-software/amp-devcontainer/issues/613)) ([f868315](https://github.com/philips-software/amp-devcontainer/commit/f868315747d8dfd8b1338d066e7f0cb4d4072f3a))
+* Update Rust toolchain to v1.81.0 ([#605](https://github.com/philips-software/amp-devcontainer/issues/605)) ([94025e9](https://github.com/philips-software/amp-devcontainer/commit/94025e954c8490821dc13f228088d24c2104e0af))
+
 ## [5.3.2](https://github.com/philips-software/amp-devcontainer/compare/v5.3.1...v5.3.2) (2024-10-15)
 
 
