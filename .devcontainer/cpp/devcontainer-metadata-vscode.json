@@ -7,10 +7,10 @@
       "extensions": [
         "llvm-vs-code-extensions.vscode-clangd@0.1.29",
         "marus25.cortex-debug@1.12.1",
-        "matepek.vscode-catch2-test-adapter@4.12.1",
+        "matepek.vscode-catch2-test-adapter@4.12.2",
         "mhutchie.git-graph@1.30.0",
         "ms-vscode.cmake-tools@1.19.52",
-        "ms-vscode.cpptools@1.22.9",
+        "ms-vscode.cpptools@1.22.10",
         "ms-vsliveshare.vsliveshare@1.0.5941",
         "sonarsource.sonarlint-vscode@4.11.1"
       ],
