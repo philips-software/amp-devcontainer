@@ -5,10 +5,14 @@ bats_require_minimum_version 1.5.0
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
+
+  pushd workspace
 }
 
 teardown() {
   rm -rf build ./**/target ./**/default*.prof* ./**/mutants.out
+
+  popd
 }
 
 @test "valid code input should result in working executable targeting the host architecture" {
