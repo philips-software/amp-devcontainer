@@ -9,12 +9,10 @@ Given("the default build configuration is selected", async () => {
 Given("the file {string} is opened in the editor", async ({ codespacePage }, file: string) => {
   const fileExtension = path.extname(file).slice(1);
 
-  switch (fileExtension) {
-    case 'cpp':
-      await codespacePage.openCppFileInEditor(file);
-      break;
-    default:
-      await codespacePage.openFileInEditor(file);
+  if (fileExtension === 'cpp') {
+    await codespacePage.openCppFileInEditor(file);
+  } else {
+    await codespacePage.openFileInEditor(file);
   }
 });
 
