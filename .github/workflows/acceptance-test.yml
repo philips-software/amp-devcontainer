@@ -39,7 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
-      - run: cd .devcontainer/${{ inputs.flavor }}/e2e && npm test
+      - run: cd test/${{ inputs.flavor }}/e2e && npm test
         env:
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
           GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}

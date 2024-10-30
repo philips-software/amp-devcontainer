@@ -28,10 +28,14 @@ teardown_file() {
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
+
+  pushd workspace
 }
 
 teardown() {
   rm -rf build crash-* $(conan config home)/p
+
+  popd
 }
 
 @test "valid code input should result in working executable using host compiler" {
