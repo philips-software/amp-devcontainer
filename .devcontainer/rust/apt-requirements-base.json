@@ -6,6 +6,7 @@
   "gnupg2": "2.4.4-2ubuntu17",
   "libc6-dev": "2.39-0ubuntu8.3",
   "rustup": "1.26.0-5build1",
+  "udev": "255.4-1ubuntu8.4",
   "wget": "1.21.4-1ubuntu4.1",
   "xz-utils": "5.6.1+really5.4.5-1build0.1"
 }
