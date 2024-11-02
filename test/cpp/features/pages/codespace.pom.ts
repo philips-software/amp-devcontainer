@@ -1,5 +1,6 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
 import path from 'path';
+import { serialize } from 'v8';
 
 type CommandAndPrompt = {
   command: string,
@@ -101,7 +102,9 @@ export class CodespacePage {
     await this.page.keyboard.press('Control+P');
     const searchBox = this.page.getByPlaceholder('Search files by name');
     await expect(searchBox).toBeVisible();
+
     await searchBox.fill(name);
+    await searchBox.press('Enter');
     await expect(this.page.locator('[id="workbench.parts.editor"]')).toContainText(path.basename(name));
   }
 
