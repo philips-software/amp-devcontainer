@@ -104,7 +104,7 @@ export class CodespacePage {
     await expect(searchBox).toBeVisible();
 
     await searchBox.fill(name);
-    await searchBox.press('Enter');
+    await this.page.keyboard.press('Enter');
     await expect(this.page.locator('[id="workbench.parts.editor"]')).toContainText(path.basename(name));
   }
 
