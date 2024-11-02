@@ -1,4 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
+import path from 'path';
 
 type CommandAndPrompt = {
   command: string,
@@ -97,8 +98,11 @@ export class CodespacePage {
   }
 
   async openFileInEditor(name: string) {
-    await this.page.getByRole('treeitem', { name: name }).locator('a').click();
-    await expect(this.page.locator('[id="workbench.parts.editor"]')).toContainText(name);
+    await this.page.keyboard.press('Control+P');
+    const searchBox = this.page.getByPlaceholder('Search files by name');
+    await expect(searchBox).toBeVisible();
+    await searchBox.fill(name);
+    await expect(this.page.locator('[id="workbench.parts.editor"]')).toContainText(path.basename(name));
   }
 
   async openCppFileInEditor(name: string) {
@@ -106,12 +110,32 @@ export class CodespacePage {
     await expect(this.page.locator('[id="llvm-vs-code-extensions.vscode-clangd"]')).toContainText('clangd: idle', { timeout: 1 * 60 * 1000 });
   }
 
-  async formatDocument() {
-    await this.executeFromCommandPalette({ command: 'Format Document' });
+  async openDocument(name: string) {
+    const fileExtension = path.extname(name).slice(1);
+
+    if (fileExtension === 'cpp') {
+      await this.openCppFileInEditor(name);
+    } else {
+      await this.openFileInEditor(name);
+    }
   }
 
   async saveDocument() {
     await this.page.keyboard.press('Control+S');
+  }
+
+  async formatDocument() {
+    await this.executeFromCommandPalette({ command: 'Format Document' });
+  }
+
+  async selectBuildConfiguration(configuration: string) {
+    await this.executeFromCommandPalette({ command: 'CMake: Select Configure Preset' });
+    await this.page.getByRole('option', { name: configuration, exact: true }).locator('a').click();
+  }
+
+  async selectBuildPreset(preset: string) {
+    await this.executeFromCommandPalette({ command: 'CMake: Select Build Preset' });
+    await this.page.getByRole('option', { name: preset, exact: true }).locator('a').click();
   }
 
   async buildSelectedTarget() {

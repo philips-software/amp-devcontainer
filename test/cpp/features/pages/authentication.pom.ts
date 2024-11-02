@@ -1,6 +1,6 @@
 import { type Page } from '@playwright/test';
 import * as OTPAuth from 'otpauth';
-import { STORAGE_STATE } from '../../playwright.config';
+import { STORAGE_STATE } from '../playwright.config';
 
 export class AuthenticationPage {
   readonly page: Page;

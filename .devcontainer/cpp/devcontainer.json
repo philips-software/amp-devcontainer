@@ -20,7 +20,7 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "cucumberautocomplete.steps": [".devcontainer/cpp/e2e/features/steps/*.steps.ts"],
+        "cucumberautocomplete.steps": ["test/cpp/features/steps/*.steps.ts"],
         "cucumberautocomplete.strictGherkinCompletion": false,
         "cucumberautocomplete.strictGherkinValidation": false,
         "cucumberautocomplete.smartSnippets": true,

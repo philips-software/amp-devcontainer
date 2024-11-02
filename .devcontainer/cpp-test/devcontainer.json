@@ -4,7 +4,9 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "cmake.automaticReconfigure": false
+        "cmake.automaticReconfigure": false,
+        "cmake.configureOnOpen": false,
+        "cmake.ctest.testExplorerIntegrationEnabled": false
       }
     }
   }
