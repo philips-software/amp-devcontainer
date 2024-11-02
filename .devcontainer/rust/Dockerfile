@@ -28,7 +28,8 @@ ENV CARGO_HOME=/usr/local/cargo \
 RUN rustup set profile minimal \
  && rustup default ${RUST_VERSION} \
  && rustup component add clippy llvm-tools rustfmt \
- && rustup target add thumbv7em-none-eabi
+ && rustup target add thumbv7em-none-eabi \
+ && rustup target add thumbv7em-none-eabihf
 
 # Install bats
 RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
