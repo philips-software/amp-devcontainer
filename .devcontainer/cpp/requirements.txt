@@ -134,7 +134,7 @@ cmake==3.30.5 \
     --hash=sha256:e4fd409b3455a01fe80860503be4c1b34e2e12cc5433921c7aed1102a3870322 \
     --hash=sha256:ef454176664c941da91197feb91b68cab91ef0354ab0c4d7bfb70e069cb700f1 \
     --hash=sha256:f9b351ad3b0bacd04fe73a35b71bf603416b0441d295c13881e56eba6ec01b4b
-    # via -r requirements.in
+    # via -r cpp/requirements.in
 colorama==0.4.6 \
     --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
     --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
@@ -143,9 +143,9 @@ colorlog==6.8.2 \
     --hash=sha256:3e3e079a41feb5a1b64f978b5ea4f46040a94f11f0e8bbb8261e3dbbeca64d44 \
     --hash=sha256:4dcbb62368e2800cb3c5abd348da7e53f6c362dda502ec27c560b2e58a66bd33
     # via gcovr
-conan==2.8.1 \
-    --hash=sha256:8355da1f5294eae25fbfc2ccf066bc6dde93adca976b7e5480796b28a30782d8
-    # via -r requirements.in
+conan==2.9.1 \
+    --hash=sha256:98e3a2366be1980100746250655fdbd1deafc6534a67220441790c40ce73361a
+    # via -r cpp/requirements.in
 distro==1.8.0 \
     --hash=sha256:02e111d1dc6a50abb8eed6bf31c3e48ed8b0830d1ea2a1b78c61765c2513fdd8 \
     --hash=sha256:99522ca3e365cac527b44bde033f64c6945d90eb9f769703caaec52b09bbd3ff
@@ -157,7 +157,7 @@ fasteners==0.19 \
 gcovr==8.2 \
     --hash=sha256:9a1dddd4585d13ec77555db5d6b6a31ee81587ea6fc604ff9fcd232cb0782df5 \
     --hash=sha256:bee23da2198bc1e0b9d0109018b9460df52355372319b5ddf81aca4e54f6bd61
-    # via -r requirements.in
+    # via -r cpp/requirements.in
 idna==3.10 \
     --hash=sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9 \
     --hash=sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3
