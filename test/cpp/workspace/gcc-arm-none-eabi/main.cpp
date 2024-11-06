@@ -1,6 +1,6 @@
-void _exit(int status)
+[[noreturn]] void _exit(int)
 {
-    while (1) {}
+    while (true);
 }
 
 int main() {}

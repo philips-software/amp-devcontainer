@@ -1,12 +1,17 @@
+#include <ranges>
 #include <thread>
+#include <vector>
 
 int main()
 {
-    int i = 0;
+    std::vector<std::jthread> threads;
+    int counter = 0;
 
-    std::thread t([&] { i = 10; });
-    i = 20;
-    t.join();
+    for (auto i : std::ranges::iota_view(0, 10))
+        threads.emplace_back(std::jthread([&counter] {
+            for (auto j : std::ranges::iota_view(0, 1000))
+                ++counter;
+        }));
 
-    return i;
+    return counter;
 }

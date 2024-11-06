@@ -224,4 +224,8 @@ function build_and_run_with_sanitizers() {
   run build/${PRESET}/sanitizers/test-ubsan
   assert_failure
   assert_output --partial "runtime error: load of null pointer"
+
+  run build/${PRESET}/sanitizers/test-threadsan
+  assert_failure
+  assert_output --partial "ThreadSanitizer: data race"
 }
