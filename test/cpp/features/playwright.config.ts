@@ -7,8 +7,8 @@ require('dotenv').config({ path: path.join(__dirname, '..', '..', '..', '.env') 
 export const STORAGE_STATE = path.join(__dirname, 'playwright/.auth/user.json');
 
 const testDir = defineBddConfig({
-  features: "features/*.feature",
-  steps: ["features/steps/*.ts"],
+  features: "*.feature",
+  steps: ["steps/*.ts"],
 });
 
 export default defineConfig({

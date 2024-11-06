@@ -1,26 +1,20 @@
 import { expect } from "@playwright/test";
 import { Given, When, Then } from "./fixtures";
-import * as path from 'path';
 
-Given("the default build configuration is selected", async () => {
-  // No-op
+Given("build configuration {string} is selected", async ({ codespacePage }, configuration: string) => {
+  await codespacePage.selectBuildConfiguration(configuration);
+});
+
+Given("build preset {string} is selected", async ({ codespacePage }, preset: string) => {
+  await codespacePage.selectBuildPreset(preset);
 });
 
 Given("the file {string} is opened in the editor", async ({ codespacePage }, file: string) => {
-  const fileExtension = path.extname(file).slice(1);
-
-  switch (fileExtension) {
-    case 'cpp':
-      await codespacePage.openCppFileInEditor(file);
-      break;
-    default:
-      await codespacePage.openFileInEditor(file);
-  }
+  await codespacePage.openDocument(file);
 });
 
-When("the configuration {string} is built", async ({ codespacePage }, configuration: string) => {
-  await codespacePage.page.getByRole('button', { name: 'Build the selected target' }).click();
-  await codespacePage.page.getByLabel(configuration).locator('a').click();
+When("the selected target is built", async ({ codespacePage }) => {
+  await codespacePage.buildSelectedTarget();
 });
 
 When("the active document is formatted", async ({ codespacePage }) => {

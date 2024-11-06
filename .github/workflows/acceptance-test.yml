@@ -39,11 +39,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
-      - run: cd .devcontainer/${{ inputs.flavor }}/e2e && npm test
+      - run: cd test/${{ inputs.flavor }}/features && npm test
         env:
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
           GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
           GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
+      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        if: always()
+        with:
+          name: playwright-artifacts
+          path: |
+            test-results/
+          retention-days: 10
       - run: |
           set -Eeuo pipefail
           gh codespace delete --force --codespace "$CODESPACE_NAME"

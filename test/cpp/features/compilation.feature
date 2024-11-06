@@ -1,7 +1,7 @@
 Feature: Compile source code into working software
 
   As a developer
-  In order to generate working software
+  To generate working software
   Source code needs to be compiled successfully
 
   Scenario: Compile valid source code into working software targeting the host architecture
@@ -13,6 +13,7 @@ Feature: Compile source code into working software
     - running tests on the host
     - building plug-ins, extensions, code generators, or other additional tools that need to run on the host
 
-    Given the default build configuration is selected
-    When the configuration "host" is built
+    Given build configuration "gcc" is selected
+    And build preset "gcc" is selected
+    When the selected target is built
     Then the output should contain "Build finished with exit code 0"

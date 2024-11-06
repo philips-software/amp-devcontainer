@@ -28,10 +28,14 @@ teardown_file() {
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
+
+  pushd workspace
 }
 
 teardown() {
   rm -rf build crash-* $(conan config home)/p
+
+  popd
 }
 
 @test "valid code input should result in working executable using host compiler" {
@@ -220,4 +224,8 @@ function build_and_run_with_sanitizers() {
   run build/${PRESET}/sanitizers/test-ubsan
   assert_failure
   assert_output --partial "runtime error: load of null pointer"
+
+  run build/${PRESET}/sanitizers/test-threadsan
+  assert_failure
+  assert_output --partial "ThreadSanitizer: data race"
 }
