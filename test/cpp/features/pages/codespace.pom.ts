@@ -1,6 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
 import path from 'path';
-import { serialize } from 'v8';
 
 type CommandAndPrompt = {
   command: string,

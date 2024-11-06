@@ -6,7 +6,9 @@
       "settings": {
         "cmake.automaticReconfigure": false,
         "cmake.configureOnOpen": false,
-        "cmake.ctest.testExplorerIntegrationEnabled": false
+        "cmake.ctest.testExplorerIntegrationEnabled": false,
+        "cmake.enableAutomaticKitScan": false,
+        "cmake.showOptionsMovedNotification": false
       }
     }
   }
