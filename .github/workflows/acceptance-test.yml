@@ -25,20 +25,44 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
-        with:
-          node-version: 20
-      - run: npm ci
-      - run: npx playwright install --with-deps
       # Create a GitHub Codespace and communicate the image version via a Codespace secret (should be a Codespace environment variable).
       # This secret is used by devcontainer.json, as such it is a resource that should not be used concurrently.
-      - run: |
+      - name: Start Codespace
+        run: |
           set -Eeuo pipefail
           gh secret set -a codespaces IMAGE_VERSION --body "pr-${{ github.event.pull_request.number }}"
           echo CODESPACE_NAME="$(gh codespace create -R "${{ github.repository }}" -b "$HEAD_REF" -m basicLinux32gb --devcontainer-path ".devcontainer/${{ inputs.flavor }}-test/devcontainer.json" --idle-timeout 10m --retention-period 1h)" >> "$GITHUB_ENV"
         env:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - name: Wait for Codespace to be active
+        run: |
+          set -Eeuo pipefail
+
+          MAX_WAIT_SECONDS=$((3 * 60))
+          SECONDS_ELAPSED=0
+
+          while true; do
+            STATE=$(gh codespace list --json name,state --jq ".[] | select(.name == \"$CODESPACE_NAME\") | .state")
+            echo "Current state: $STATE"
+            if [ "$STATE" == "Available" ]; then
+              echo "Codespace is active!"
+              break
+            fi
+            if [ $SECONDS_ELAPSED -ge $MAX_WAIT_SECONDS ]; then
+              echo "Timeout reached. Codespace is not active."
+              exit 1
+            fi
+            sleep 5
+            SECONDS_ELAPSED=$((SECONDS_ELAPSED + 5))
+          done
+        env:
+          GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
       - run: cd test/${{ inputs.flavor }}/features && npm test
         env:
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
