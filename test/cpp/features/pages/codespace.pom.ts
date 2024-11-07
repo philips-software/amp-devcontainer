@@ -148,6 +148,10 @@ export class CodespacePage {
     await expect(this.page.getByRole('code')).toContainText(expected);
   }
 
+  async expectOutputToContain(expectedOutput: string) {
+    await expect(this.outputPanel).toContainText(expectedOutput, { timeout: 5 * 60 * 1000 });
+  }
+
   async expectFileContentsToMatch(actual: string, expected: string) {
     await this.executeInTerminal(`diff -s ${actual} ${expected}`);
     await expect(this.page.locator('#terminal')).toContainText(`Files ${actual} and ${expected} are identical`);
