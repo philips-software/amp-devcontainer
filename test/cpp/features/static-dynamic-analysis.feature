@@ -1,8 +1,8 @@
 Feature: Analyze source code using static and dynamic analysis
 
-  As a software craftsman
+  As a software craftsperson
   To maintain consistent, high-quality and bug-free code
-  Source code needs to be statically and dynamically analyzed
+  I want my source code to be statically and dynamically analyzed
 
   @fixme
   Scenario: Format source code according to a formatting style
