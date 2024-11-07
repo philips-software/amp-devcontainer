@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.5.0](https://github.com/philips-software/amp-devcontainer/compare/v5.4.0...v5.5.0) (2024-11-07)
+
+
+### Features
+
+* Add thumbv7em-none-eabihf for cortex-m floating point processors ([#625](https://github.com/philips-software/amp-devcontainer/issues/625)) ([17e13c8](https://github.com/philips-software/amp-devcontainer/commit/17e13c88096a33273ef935a249639da2ddd81f6a))
+* Add udev to amp-devcontainer-rust ([#626](https://github.com/philips-software/amp-devcontainer/issues/626)) ([c0ae629](https://github.com/philips-software/amp-devcontainer/commit/c0ae62958a5a325e58563aa1286b13200d9b3fc2))
+
+
+### Chores
+
+* **deps, cpp:** Update matepek.vscode-catch2-test-adapter, ms-vscode.cpptools ([#619](https://github.com/philips-software/amp-devcontainer/issues/619)) ([ba4ced0](https://github.com/philips-software/amp-devcontainer/commit/ba4ced0ffa13bb2b9cc659cf3b7bf679d7ddde03))
+* **deps, cpp:** Update python3-pip ([#628](https://github.com/philips-software/amp-devcontainer/issues/628)) ([a3aba35](https://github.com/philips-software/amp-devcontainer/commit/a3aba35c46d299f52d3664c22d78b6b8e1f6399b))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#618](https://github.com/philips-software/amp-devcontainer/issues/618)) ([09fe055](https://github.com/philips-software/amp-devcontainer/commit/09fe05507f20f047298632609ce96cc43be4ebc7))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#627](https://github.com/philips-software/amp-devcontainer/issues/627)) ([28eaef3](https://github.com/philips-software/amp-devcontainer/commit/28eaef34380ada8de118bd467030c226a7f4045a))
+* **deps:** Bump conan from 2.8.1 to 2.9.1 in amp-devcontainer-cpp ([#631](https://github.com/philips-software/amp-devcontainer/issues/631)) ([252fab6](https://github.com/philips-software/amp-devcontainer/commit/252fab6880834dc00c41f692e905e18d35e70c7a))
+* **deps:** Bump ghcr.io/devcontainers/features/node from 1.6.0 to 1.6.1 ([#622](https://github.com/philips-software/amp-devcontainer/issues/622)) ([81908d4](https://github.com/philips-software/amp-devcontainer/commit/81908d47d5d4ec7d6b180bf9b368cd04c70cce81))
+
 ## [5.4.0](https://github.com/philips-software/amp-devcontainer/compare/v5.3.2...v5.4.0) (2024-10-22)
 
 
