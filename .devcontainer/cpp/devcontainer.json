@@ -26,7 +26,8 @@
         "cucumberautocomplete.smartSnippets": true,
         "cucumberautocomplete.onTypeFormat": true,
         "files.insertFinalNewline": true,
-        "files.trimTrailingWhitespace": true
+        "files.trimTrailingWhitespace": true,
+        "git.alwaysSignOff": true
       },
       "extensions": [
         "alexkrechik.cucumberautocomplete@3.0.5",
