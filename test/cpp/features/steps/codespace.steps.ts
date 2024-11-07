@@ -1,4 +1,3 @@
-import { expect } from "@playwright/test";
 import { Given, When, Then } from "./fixtures";
 
 Given("build configuration {string} is selected", async ({ codespacePage }, configuration: string) => {
@@ -26,7 +25,7 @@ When("the active document is saved", async ({ codespacePage }) => {
 });
 
 Then("the output should contain {string}", async ({ codespacePage }, expectedOutput: string) => {
-  await expect(codespacePage.outputPanel).toContainText(expectedOutput, { timeout: 5 * 60 * 1000 });
+  await codespacePage.expectOutputToContain(expectedOutput);
 });
 
 Then("the editor should contain {string}", async ({ codespacePage }, expectedContent: string) => {

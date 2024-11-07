@@ -41,7 +41,7 @@ export class CodespacePage {
     test.setTimeout(3 * 60 * 1000);
 
     for (const plugin of extensions) {
-      await expect(this.page.getByRole('tab', { name: plugin }).locator('a')).toBeVisible({ timeout: 5 * 60 * 1000 });
+      await expect(this.page.getByRole('tab', { name: plugin, exact: true }).locator('a')).toBeVisible({ timeout: 5 * 60 * 1000 });
     }
 
     await expect(this.page.getByRole('button', { name: 'Activating Extensions...' })).toBeHidden();
@@ -146,6 +146,10 @@ export class CodespacePage {
 
   async expectEditorContent(expected: RegExp) {
     await expect(this.page.getByRole('code')).toContainText(expected);
+  }
+
+  async expectOutputToContain(expectedOutput: string) {
+    await expect(this.outputPanel).toContainText(expectedOutput, { timeout: 5 * 60 * 1000 });
   }
 
   async expectFileContentsToMatch(actual: string, expected: string) {
