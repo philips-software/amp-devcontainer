@@ -10,9 +10,9 @@
         "matepek.vscode-catch2-test-adapter@4.12.2",
         "mhutchie.git-graph@1.30.0",
         "ms-vscode.cmake-tools@1.19.52",
-        "ms-vscode.cpptools@1.22.10",
+        "ms-vscode.cpptools@1.22.11",
         "ms-vsliveshare.vsliveshare@1.0.5941",
-        "sonarsource.sonarlint-vscode@4.11.1"
+        "sonarsource.sonarlint-vscode@4.12.0"
       ],
       "settings": {
         "C_Cpp.intelliSenseEngine": "disabled",
