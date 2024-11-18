@@ -6,7 +6,7 @@
     "@types/node": "^22.9.0",
     "dotenv": "^16.4.5",
     "nodemon": "^3.1.7",
-    "otpauth": "^9.3.4",
+    "otpauth": "^9.3.5",
     "playwright-bdd": "^7.5.0"
   },
   "scripts": {
