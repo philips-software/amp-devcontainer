@@ -5,7 +5,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "llvm-vs-code-extensions.vscode-clangd@0.1.31",
+        "llvm-vs-code-extensions.vscode-clangd@0.1.33",
         "marus25.cortex-debug@1.12.1",
         "matepek.vscode-catch2-test-adapter@4.12.2",
         "mhutchie.git-graph@1.30.0",
