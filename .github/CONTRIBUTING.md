@@ -149,7 +149,7 @@ Before you submit your pull request consider the following guidelines:
 1. Commit your changes using a descriptive commit message.
 
    ```shell
-   git commit --all
+   git commit -s -m 'Awesome commit message'
    ```
 
    Note: the optional commit `-a` command-line option will automatically "add" and "rm" edited files.

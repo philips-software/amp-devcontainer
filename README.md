@@ -6,7 +6,11 @@
 
 ## Overview
 
-This repository contains [devcontainers](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/introduction-to-dev-containers) tailored towards modern, embedded, C++ and Rust development.
+This repository contains [devcontainers](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/introduction-to-dev-containers) tailored towards modern, embedded, software development.
+
+The containers try to be as ":battery: batteries included" as possible without being overly opinionated, and are useable for both local development and continuous integration.
+
+All containers are multi-platform, and can be used on x64 (x86-64) and arm64 hardware on an operating system that supports an [OCI](https://opencontainers.org/) compatible container engine. This includes Windows and Linux, and macOS on both Intel and Apple silicon.
 
 ## State
 
@@ -16,7 +20,7 @@ This repository is under active development; see [pulse](https://github.com/phil
 
 ### Image variants
 
-Two devcontainers are published towards the [GitHub Container Registry](https://ghcr.io/):
+The following devcontainers are published towards the [GitHub Container Registry](https://ghcr.io/):
 
 - [amp-devcontainer-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-cpp); the C++ container
 - [amp-devcontainer-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-rust); the Rust container
@@ -43,7 +47,7 @@ For embedded development and flashing and debugging [probe-rs](https://probe.rs/
 
 ### Visual Studio Code
 
-Both containers can be used in Visual Studio Code or GitHub Codespaces without any additional configuration. All included tools are set-up and necessary plug-ins will be installed at container start. This behavior is implemented by appending devcontainer metadata to an image label according to the [specifications](https://containers.dev/implementors/reference/#labels). It is possible to override, amend or change the options following this [merge logic](https://containers.dev/implementors/spec/#merge-logic).
+Both containers can be used in Visual Studio Code or GitHub Codespaces without any additional configuration. All included tools are set-up and necessary plug-ins will be installed at container start. This behavior is implemented by appending devcontainer metadata to an image label according to these [specifications](https://containers.dev/implementors/reference/#labels). It is possible to override, amend or change the options following this [merge logic](https://containers.dev/implementors/spec/#merge-logic).
 
 ## Usage
 
@@ -130,4 +134,4 @@ See [security](.github/SECURITY.md) for more information.
 
 ## Licenses
 
-See [license](./LICENSE)
+See [license](./LICENSE).
