@@ -21,7 +21,6 @@ Use your best judgment, and feel free to propose changes to this document in a p
   - [Submission Guidelines](#submission-guidelines)
     - [Submitting an Issue](#submitting-an-issue)
     - [Naming a Pull Request (PR)](#naming-a-pull-request-pr)
-    - [Developer Certificate of Origin](#developer-certificate-of-origin)
     - [Submitting a Pull Request](#submitting-a-pull-request)
     - [Reviewing a Pull Request](#reviewing-a-pull-request)
   - [Your First Contribution](#your-first-contribution)
@@ -124,45 +123,6 @@ Examples:
 
 > [!TIP]
 > If your work consists of a single commit, creating a pull request will default to the name of that commit. If you use conventional commit style for that single commit, your pull request already has the correct name.
-
-### Developer Certificate of Origin
-
-This project has adopted a [Developers Certificate of Origin (DCO)](https://developercertificate.org/). A DCO is a lightweight way for a developer to certify that they wrote or otherwise have the right to submit code or documentation to a project.
-
-To certify the code you submit to the repository, you'll need to add a `Signed-off-by` line to your commits.
-
-`$ git commit -s -m 'Awesome commit message'`
-
-Which will look something like the following in the repo;
-
-```text
-Awesome commit message
-
-Signed-off-by: Jane Smith <jane.smith@example.com>
-```
-
-> Note: this assumes you have setup your git name and email, if you have not you can use these commands to set that up:
->
-> ```shell
-> git config --global user.name "Your Name"
-> git config --global user.email "youremail@example.com"
-> ```
-
-- In case you forgot to add it to the most recent commit, use `git commit --amend --signoff`
-- In case you forgot to add it to the last N commits in your branch, use `git rebase --signoff HEAD~N` and replace N with the number of new commits you created in your branch.
-- If you have a very deep branch with a lot of commits, run `git rebase -i --signoff $(git merge-base -a main HEAD)`, double check to make sense of the commits (keep all lines as `pick`) and save and close the editor. This should sign all the commits in your PR. Be careful though; if you have a complex flow with a lot of branching and re-merging, merge-base may not be the right solution for you.
-
-Note: If you have already pushed your branch to a remote, you might have to force push: `git push -f` after the rebase.
-
-#### Using VS Code?
-
-If you are using VS Code you can enable always signing your commits by setting the following in your `settings.json` file:
-
-```json
-"git.alwaysSignOff": true,
-```
-
-Or from the Settings UI look for the "Git: Always Sign Off" setting and check the "Controls the signoff flag for all commits" box. This setting is already enabled when using the devcontainer.
 
 ### Submitting a Pull Request
 

@@ -14,8 +14,7 @@
     "vscode": {
       "settings": {
         "files.insertFinalNewline": true,
-        "files.trimTrailingWhitespace": true,
-        "git.alwaysSignOff": true
+        "files.trimTrailingWhitespace": true
       },
       "extensions": [
         "github.copilot@1.208.0",
