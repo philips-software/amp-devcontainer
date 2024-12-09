@@ -32,7 +32,7 @@ jobs:
           load: true
           tags: ${{ github.repository }}-${{ matrix.flavor }}:test
           cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}
-      - uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+      - uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         if: matrix.flavor == 'cpp'
         with:
           path: test/.xwin-cache
