@@ -11,8 +11,8 @@
   },
   "scripts": {
     "test": "cd $INIT_CWD && npx bddgen && npx playwright test",
-    "watch:bdd-gen": "cd $INIT_CWD && nodemon -L -w features -w steps -w pages -e feature,ts -x 'npx bddgen'",
+    "watch:bdd-gen": "cd $INIT_CWD && nodemon -L -w . -w steps -w pages -e feature,ts -x 'npx bddgen'",
     "watch:playwright": "cd $INIT_CWD && playwright test --ui",
-    "watch": "cd $INIT_CWD && npm run watch:bdd-gen & npm run watch:playwright"
+    "watch": "cd $INIT_CWD && npm run watch:playwright & cd $INIT_CWD && npm run watch:bdd-gen"
   }
 }
