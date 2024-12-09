@@ -14,10 +14,12 @@ export const test = base.extend<{ codespacePage: CodespacePage }, { authenticati
         const codespacePage = new CodespacePage(page);
         await codespacePage.goto();
         await codespacePage.areExtensionsActive(['Testing', 'SonarLint', 'CMake', 'Live Share', 'GitHub Pull Requests']);
+        await codespacePage.killAllTerminals();
+        await codespacePage.clearAllNotifications();
 
         await use(codespacePage);
 
-        await codespacePage.executeInTerminal('git clean -fdx');
+        await codespacePage.executeInTerminal(['git clean -fdx', 'git reset --hard', 'exit']);
     },
 });
 

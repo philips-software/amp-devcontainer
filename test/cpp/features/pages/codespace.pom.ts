@@ -38,10 +38,8 @@ export class CodespacePage {
    * @param extensions - The list of extensions to wait for.
    */
   async areExtensionsActive(extensions: string[]) {
-    test.setTimeout(3 * 60 * 1000);
-
     for (const plugin of extensions) {
-      await expect(this.page.getByRole('tab', { name: plugin, exact: true }).locator('a')).toBeVisible({ timeout: 5 * 60 * 1000 });
+      await expect(this.page.getByRole('tab', { name: plugin, exact: true }).locator('a')).toBeVisible({ timeout: 30 * 1000 });
     }
 
     await expect(this.page.getByRole('button', { name: 'Activating Extensions...' })).toBeHidden();
@@ -57,13 +55,21 @@ export class CodespacePage {
    */
   async executeFromCommandPalette(commands: CommandAndPrompt | CommandAndPrompt[]) {
     await this.page.keyboard.press('Control+Shift+P');
+    let commandPrompt = '> ';
 
     for (const command of Array.isArray(commands) ? commands : [commands]) {
       let prompt = this.page.getByPlaceholder(command.prompt || 'Type the name of a command to run');
 
-      await prompt.fill(`> ${command.command}`);
+      await expect(prompt).toBeVisible();
+      await prompt.fill(`${commandPrompt}${command.command}`);
       await prompt.press('Enter');
+      await expect(prompt).toBeHidden();
+
+      commandPrompt = '';
     }
+
+    // While waiting is an anti-pattern, it is necessary to wait for the command to be executed.
+    await this.page.waitForTimeout(500);
   }
 
   /**
@@ -85,7 +91,19 @@ export class CodespacePage {
     for (const command of Array.isArray(commands) ? commands : [commands]) {
       await this.terminal.pressSequentially(command);
       await this.terminal.press('Enter');
+
+      // While waiting is an anti-pattern, it is necessary to wait for the command to be executed
+      // especially when running multiple commands in sequence.
+      await this.page.waitForTimeout(250);
     }
+  }
+
+  async clearAllNotifications() {
+    await this.executeFromCommandPalette({ command: 'Notifications: Clear All Notifications' });
+  }
+
+  async killAllTerminals() {
+    await this.executeFromCommandPalette({ command: 'Terminal: Kill All Terminals' });
   }
 
   /**
@@ -98,12 +116,7 @@ export class CodespacePage {
   }
 
   async openFileInEditor(name: string) {
-    await this.page.keyboard.press('Control+P');
-    const searchBox = this.page.getByPlaceholder('Search files by name');
-    await expect(searchBox).toBeVisible();
-
-    await searchBox.fill(name);
-    await this.page.keyboard.press('Enter');
+    await this.executeInTerminal(`code -r ${name}`);
     await expect(this.page.locator('[id="workbench.parts.editor"]')).toContainText(path.basename(name));
   }
 
@@ -131,13 +144,17 @@ export class CodespacePage {
   }
 
   async selectBuildConfiguration(configuration: string) {
-    await this.executeFromCommandPalette({ command: 'CMake: Select Configure Preset' });
-    await this.page.getByRole('option', { name: configuration, exact: true }).locator('a').click();
+    await this.executeFromCommandPalette([
+      { command: 'CMake: Select Configure Preset' },
+      { command: configuration, prompt: 'Select a configure preset' }
+    ]);
   }
 
   async selectBuildPreset(preset: string) {
-    await this.executeFromCommandPalette({ command: 'CMake: Select Build Preset' });
-    await this.page.getByRole('option', { name: preset, exact: true }).locator('a').click();
+    await this.executeFromCommandPalette([
+      { command: 'CMake: Select Build Preset' },
+      { command: preset, prompt: 'Select a build preset' }
+    ]);
   }
 
   async buildSelectedTarget() {

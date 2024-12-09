@@ -4,7 +4,6 @@ Feature: Analyze source code using static and dynamic analysis
   To maintain consistent, high-quality and bug-free code
   Source code needs to be statically and dynamically analyzed
 
-  @fixme
   Scenario: Format source code according to a formatting style
 
     Given the file "clang-tools/unformatted.cpp" is opened in the editor
