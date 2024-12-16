@@ -111,7 +111,7 @@ jobs:
           header: container-size-diff-${{ matrix.flavor }}
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
-      - uses: anchore/sbom-action@55dc4ee22412511ee8c3142cbea40418e6cec693 # v0.17.8
+      - uses: anchore/sbom-action@df80a981bc6edbc4e220a492d3cbe9f5547a6e75 # v0.17.9
         if: steps.build-and-push.outputs.digest != '' && github.event_name != 'merge_group'
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }}
