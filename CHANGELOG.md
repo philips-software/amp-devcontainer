@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.5.4](https://github.com/philips-software/amp-devcontainer/compare/v5.5.3...v5.5.4) (2025-01-06)
+
+
+### Bug Fixes
+
+* Prevent GitHub at mentions in quoted release notes ([#684](https://github.com/philips-software/amp-devcontainer/issues/684)) ([1e65a95](https://github.com/philips-software/amp-devcontainer/commit/1e65a950cd376c09c7e09ef830b7f402fbea570f)), closes [#679](https://github.com/philips-software/amp-devcontainer/issues/679)
+
+
+### Chores
+
+* **deps, cpp:** Update sonarsource.sonarlint-vscode ([#674](https://github.com/philips-software/amp-devcontainer/issues/674)) ([32879be](https://github.com/philips-software/amp-devcontainer/commit/32879be0fcfef44f35a7f2620108b26ef576865a))
+* **deps, rust:** Update rust-lang.rust-analyzer, tamasfe.even-better-toml, usernamehw.errorlens ([#675](https://github.com/philips-software/amp-devcontainer/issues/675)) ([0663172](https://github.com/philips-software/amp-devcontainer/commit/0663172806eac9270e690a2dc0c0a0b2cc094bf0))
+* **deps:** Bump cmake from 3.31.1 to 3.31.2 in amp-devcontainer-cpp ([#669](https://github.com/philips-software/amp-devcontainer/issues/669)) ([040e7a8](https://github.com/philips-software/amp-devcontainer/commit/040e7a8b90d3a6ae18a01dde93f42ac3d259c30c))
+* **deps:** Bump conan from 2.10.1 to 2.10.2 in amp-devcontainer-cpp ([#670](https://github.com/philips-software/amp-devcontainer/issues/670)) ([2b017b6](https://github.com/philips-software/amp-devcontainer/commit/2b017b697a741d5b6bc490ed5ccb765519f4c418))
+* **deps:** Bump conan from 2.10.2 to 2.11.0 in amp-devcontainer-cpp ([#677](https://github.com/philips-software/amp-devcontainer/issues/677)) ([8ba2b3d](https://github.com/philips-software/amp-devcontainer/commit/8ba2b3d2acded2cd18cf894e72f9b61b7c5aeefe))
+* **deps:** Bump jinja2 from 3.1.4 to 3.1.5 in amp-devcontainer-cpp ([#680](https://github.com/philips-software/amp-devcontainer/issues/680)) ([2270b53](https://github.com/philips-software/amp-devcontainer/commit/2270b531abc9514465a491d4d0215d6a5eb0c44d))
+
 ## [5.5.3](https://github.com/philips-software/amp-devcontainer/compare/v5.5.2...v5.5.3) (2024-12-16)
 
 
