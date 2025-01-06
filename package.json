@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "devDependencies": {
     "@playwright/test": "^1.49.1",
-    "@types/node": "^22.10.2",
+    "@types/node": "^22.10.5",
     "dotenv": "^16.4.7",
     "nodemon": "^3.1.9",
     "otpauth": "^9.3.6",
-    "playwright-bdd": "^7.5.0"
+    "playwright-bdd": "^8.0.1"
   },
   "scripts": {
     "test": "cd $INIT_CWD && npx bddgen && npx playwright test",

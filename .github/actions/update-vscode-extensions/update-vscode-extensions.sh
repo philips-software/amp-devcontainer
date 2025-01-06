@@ -14,6 +14,10 @@ prevent_github_backlinks() {
     sed 's|https://github.com|https://www.github.com|g'
 }
 
+prevent_github_at_mentions() {
+    sed 's| @| [at]|g'
+}
+
 get_github_releasenotes() {
     local GITHUB_URL=${1:?}
     local CURRENT_RELEASE=${2:?}
@@ -43,7 +47,7 @@ for EXTENSION in $(echo $JSON | jq -r '.customizations.vscode.extensions | flatt
     then
         GITHUB_URL=$(echo $LATEST_NON_PRERELEASE_VERSION_JSON | jq -r '.properties | map(select(.key == "Microsoft.VisualStudio.Services.Links.GitHub"))[] | .value')
 
-        RELEASE_DETAILS=$(get_github_releasenotes $GITHUB_URL $CURRENT_VERSION | prevent_github_backlinks)
+        RELEASE_DETAILS=$(get_github_releasenotes $GITHUB_URL $CURRENT_VERSION | prevent_github_backlinks | prevent_github_at_mentions)
         UPDATE_DETAILS_MARKDOWN=$(printf "Updates \`%s\` from %s to %s\n<details>\n<summary>Release notes</summary>\n<blockquote>\n\n%s\n</blockquote>\n</details>\n\n%s" $NAME $CURRENT_VERSION $LATEST_NON_PRERELEASE_VERSION "$RELEASE_DETAILS" "$UPDATE_DETAILS_MARKDOWN")
         UPDATED_EXTENSIONS_JSON=$(echo $UPDATED_EXTENSIONS_JSON | jq -c '. += ["'$NAME'"]')
     fi
