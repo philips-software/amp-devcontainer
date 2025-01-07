@@ -52,7 +52,7 @@ ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 
 # Install arm-gcc toolchain
 RUN mkdir /opt/gcc-arm-none-eabi \
- && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
+ && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
 ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Install docker-cli for Docker-from-Docker tools
@@ -97,9 +97,9 @@ RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
 
 # Update all tool alternatives to the correct version
 # and patch root's bashrc to include bash-completion
-RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
- && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20 \
- && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 10 \
+RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-14 20 \
+ && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20 \
+ && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-14 10 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
  && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \

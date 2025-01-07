@@ -41,7 +41,7 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 
 # Update all tool alternatives to the correct version
 # and patch root's bashrc to include bash-completion
-RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20 \
+RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20 \
  && cp /etc/skel/.bashrc /root/.bashrc
 
 ENV BINSTALL_DISABLE_TELEMETRY=true
