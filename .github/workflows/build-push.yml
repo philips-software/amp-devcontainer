@@ -96,7 +96,6 @@ jobs:
             devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
-          provenance: true
           cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}
           cache-to: type=gha,mode=max,scope=${{ github.repository }}-${{ matrix.flavor }}
       - uses: ./.github/actions/container-size-diff
@@ -130,7 +129,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh attestation verify --owner "$GITHUB_REPOSITORY_OWNER" oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }}
+          gh attestation verify --repo ${{ github.repository }} oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }}
   acceptance-test:
     if: github.event_name == 'pull_request'
     needs: build-push
