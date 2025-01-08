@@ -3,7 +3,9 @@ name: Social Interaction
 
 on:
   issues:
+    types: [opened]
   pull_request:
+    types: [opened]
 
 permissions:
   contents: read

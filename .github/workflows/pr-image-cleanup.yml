@@ -20,13 +20,11 @@ jobs:
     permissions:
       packages: write
     steps:
-      - uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
       - uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - run: cosign clean -f --type=signature "${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}:pr-${{ github.event.pull_request.number }}"
       - uses: bots-house/ghcr-delete-image-action@3827559c68cb4dcdf54d813ea9853be6d468d3a4 # v1.1.0
         with:
           owner: ${{ github.repository_owner }}

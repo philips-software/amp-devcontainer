@@ -53,6 +53,8 @@ Both containers can be used in Visual Studio Code or GitHub Codespaces without a
 
 ### Verify image signature
 
+<details><summary>Prior to version 5.6.0</summary>
+
 The container images are signed with [SigStore](https://www.sigstore.dev/) [Cosign](https://docs.sigstore.dev/cosign/signing/overview/) using a keyless signing method.
 
 The signature can be [verified](https://docs.sigstore.dev/cosign/verifying/verify/) with the following command (using Docker), verifying that the image is actually signed by the GitHub CI system:
@@ -69,12 +71,33 @@ docker run --rm gcr.io/projectsigstore/cosign verify ghcr.io/philips-software/am
 docker run --rm gcr.io/projectsigstore/cosign verify ghcr.io/philips-software/amp-devcontainer-rust --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/philips-software/amp-devcontainer
 ```
 
+</details>
+
+The container images are signed using the [attest-build-provenance](https://github.com/actions/attest-build-provenance) action.
+
+The attestations can be checked with the following command, verifying that the image is actually built by the GitHub CI system:
+
+> amp-devcontainer-cpp
+
+```sh
+gh attestation verify --repo philips-software/amp-devcontainer oci://ghcr.io/philips-software/amp-devcontainer-cpp
+```
+
+> amp-devcontainer-rust
+
+```sh
+gh attestation verify --repo philips-software/amp-devcontainer oci://ghcr.io/philips-software/amp-devcontainer-rust
+```
+
+### Local development
+
 The resulting containers can be used in a `.devcontainer.json` file or in a `.devcontainer` folder.
 
 > [!NOTE]
 > While the following examples use the `latest` tag, it is recommended to pin to a specific version. Or better yet, a specific SHA.
+> See the [releases](https://github.com/philips-software/amp-devcontainer/releases) for the SHA corresponding to a specific release.
 
-### amp-devcontainer-cpp
+#### amp-devcontainer-cpp
 
 > .devcontainer/devcontainer.json or .devcontainer.json
 
@@ -84,7 +107,7 @@ The resulting containers can be used in a `.devcontainer.json` file or in a `.de
 }
 ```
 
-### amp-devcontainer-rust
+#### amp-devcontainer-rust
 
 > .devcontainer/devcontainer.json or .devcontainer.json
 
