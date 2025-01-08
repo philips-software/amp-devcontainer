@@ -130,7 +130,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh attestation verify oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }} --owner "$GITHUB_REPOSITORY_OWNER"
+          gh attestation verify --owner "$GITHUB_REPOSITORY_OWNER" oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }}
   acceptance-test:
     if: github.event_name == 'pull_request'
     needs: build-push

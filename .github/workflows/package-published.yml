@@ -5,6 +5,9 @@ on:
   registry_package:
     types: [published]
 
+permissions:
+  contents: read
+
 jobs:
   attach-provenance-to-release:
     runs-on: ubuntu-latest
