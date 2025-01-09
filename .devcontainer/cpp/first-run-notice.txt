@@ -1,0 +1,9 @@
+<!-- x-release-please-start-version
+
+🚀 Welcome to amp-devcontainer-cpp v5.5.4
+
+Release notes for this version can be found ]8;;https://github.com/philips-software/amp-devcontainer/releases/tag/v5.5.4\here]8;;\
+
+Happy coding!
+
+<!-- x-release-please-end

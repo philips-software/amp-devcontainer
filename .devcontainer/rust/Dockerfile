@@ -50,3 +50,6 @@ RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v
  && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@24.9.0 flip-link@0.1.9 \
  # cargo-binstall can't (yet) install probe-rs-tools for aarch64, fall-back to script installation
  && wget -qO - https://github.com/probe-rs/probe-rs/releases/download/v0.24.0/probe-rs-tools-installer.sh | sh
+
+COPY first-run-notice.txt /usr/local/etc/vscode-dev-containers/first-run-notice.txt
+RUN sed -i '/^<!--/d' /usr/local/etc/vscode-dev-containers/first-run-notice.txt
