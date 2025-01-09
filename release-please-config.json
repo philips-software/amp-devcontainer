@@ -21,7 +21,11 @@
   "packages": {
     ".": {
       "package-name": "amp-devcontainer",
-      "release-type": "simple"
+      "release-type": "simple",
+      "extra-files": [
+        ".devcontainer/cpp/first-run-notice.txt",
+        ".devcontainer/rust/first-run-notice.txt"
+      ]
     }
   },
   "plugins": ["sentence-case"]
