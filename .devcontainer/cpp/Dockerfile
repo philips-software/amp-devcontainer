@@ -113,5 +113,5 @@ RUN wget -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modul
  && conan profile detect \
  && echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
 
-COPY first-run-notice.txt /usr/local/etc/vscode-dev-containers/first-run-notice.txt
+COPY .devcontainer/cpp/first-run-notice.txt /usr/local/etc/vscode-dev-containers/first-run-notice.txt
 RUN sed -i '/^<!--/d' /usr/local/etc/vscode-dev-containers/first-run-notice.txt
