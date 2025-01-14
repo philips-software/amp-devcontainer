@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.6.0](https://github.com/philips-software/amp-devcontainer/compare/v5.5.4...v5.6.0) (2025-01-14)
+
+
+### Features
+
+* Update Clang/LLVM toolchain to version 18.1.8 ([556d28b](https://github.com/philips-software/amp-devcontainer/commit/556d28b704119ca6418a3232b7f292236907eac4))
+* Update GCC toolchain to version 14.2 ([#672](https://github.com/philips-software/amp-devcontainer/issues/672)) ([50c6d2a](https://github.com/philips-software/amp-devcontainer/commit/50c6d2ad76039676c9cdf36d34b8434544e4cbcb))
+* Update LLVM/Clang toolchain to version 18.1.8 ([#685](https://github.com/philips-software/amp-devcontainer/issues/685)) ([556d28b](https://github.com/philips-software/amp-devcontainer/commit/556d28b704119ca6418a3232b7f292236907eac4))
+
+
+### Chores
+
+* **deps, cpp:** Update ms-vsliveshare.vsliveshare ([#689](https://github.com/philips-software/amp-devcontainer/issues/689)) ([2f0fefd](https://github.com/philips-software/amp-devcontainer/commit/2f0fefd2f7beed4d6bfc4e8b7f07155c4480e915))
+* **deps, rust:** Update ms-vsliveshare.vsliveshare, rust-lang.rust-analyzer ([#690](https://github.com/philips-software/amp-devcontainer/issues/690)) ([9738109](https://github.com/philips-software/amp-devcontainer/commit/9738109f65f6e11a9f9565fb903796bd79bad744))
+* **deps:** Bump cmake from 3.31.2 to 3.31.4 in /.devcontainer ([#693](https://github.com/philips-software/amp-devcontainer/issues/693)) ([d48e6ac](https://github.com/philips-software/amp-devcontainer/commit/d48e6ac281c3cdd8f7d4eafe560482702592e80d))
+* Switch to GitHub attestations ([#687](https://github.com/philips-software/amp-devcontainer/issues/687)) ([b6cb15e](https://github.com/philips-software/amp-devcontainer/commit/b6cb15e85157c5e6a1c92cb18ad66285318b22b2))
+
 ## [5.5.4](https://github.com/philips-software/amp-devcontainer/compare/v5.5.3...v5.5.4) (2025-01-06)
 
 
