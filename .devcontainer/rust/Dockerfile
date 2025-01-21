@@ -48,4 +48,4 @@ ENV BINSTALL_DISABLE_TELEMETRY=true
 # Install additional rust tools
 RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
  && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@25.0.0 flip-link@0.1.10 \
- && cargo-binstall -v -y --locked --pkg-url="{ repo }/releases/download/v{ version }/probe-rs-tools-$(uname -m)-unknown-linux-gnu.{ archive-format }" probe-rs-tools@0.26.0
+ && cargo-binstall -v -y --targets="$(uname -m)-unknown-linux-gnu" --pkg-format=txz probe-rs@0.26.0
