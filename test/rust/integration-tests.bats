@@ -97,7 +97,7 @@ EOF
 
   cargo profdata -- merge -sparse default_*.profraw -o default.profdata
 
-  run cargo cov -- report --instr-profile=default.profdata --object target/debug/deps/test-79ff237e4a2ee06d
+  run cargo cov -- report --instr-profile=default.profdata --object $(find target/debug/deps -name "test-*" -executable)
   assert_success
   assert_output --partial "77.78%"
 
