@@ -155,9 +155,9 @@ fasteners==0.19 \
     --hash=sha256:758819cb5d94cdedf4e836988b74de396ceacb8e2794d21f82d131fd9ee77237 \
     --hash=sha256:b4f37c3ac52d8a445af3a66bce57b33b5e90b97c696b7b984f530cf8f0ded09c
     # via conan
-gcovr==8.2 \
-    --hash=sha256:9a1dddd4585d13ec77555db5d6b6a31ee81587ea6fc604ff9fcd232cb0782df5 \
-    --hash=sha256:bee23da2198bc1e0b9d0109018b9460df52355372319b5ddf81aca4e54f6bd61
+gcovr==8.3 \
+    --hash=sha256:d613a90aeea967b4972fbff69587bf8995ee3cd80df2556983b73141f30642d2 \
+    --hash=sha256:faa371f9c4a7f78c9800da655107d4f99f04b718d1c0d9f48cafdcbef0049079
     # via -r cpp/requirements.in
 idna==3.10 \
     --hash=sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9 \
