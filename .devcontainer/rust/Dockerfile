@@ -1,8 +1,8 @@
 FROM ubuntu:24.04@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab
 
 ARG BATS_VERSION=1.11.0
-ARG CARGO_BINSTALL_VERSION=1.10.8
-ARG RUST_VERSION=1.81.0
+ARG CARGO_BINSTALL_VERSION=1.10.22
+ARG RUST_VERSION=1.84.0
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -47,6 +47,6 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20 \
 ENV BINSTALL_DISABLE_TELEMETRY=true
 # Install additional rust tools
 RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
- && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@24.9.0 flip-link@0.1.9 \
+ && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@25.0.0 flip-link@0.1.10 \
  # cargo-binstall can't (yet) install probe-rs-tools for aarch64, fall-back to script installation
- && wget -qO - https://github.com/probe-rs/probe-rs/releases/download/v0.24.0/probe-rs-tools-installer.sh | sh
+ && wget -qO - https://github.com/probe-rs/probe-rs/releases/download/v0.26.0/probe-rs-tools-installer.sh | sh
