@@ -2,12 +2,12 @@
   "name": "amp-devcontainer-tests",
   "version": "1.0.0",
   "devDependencies": {
-    "@playwright/test": "^1.49.1",
-    "@types/node": "^22.10.7",
+    "@playwright/test": "^1.50.0",
+    "@types/node": "^22.10.10",
     "dotenv": "^16.4.7",
     "nodemon": "^3.1.9",
     "otpauth": "^9.3.6",
-    "playwright-bdd": "^8.0.1"
+    "playwright-bdd": "^8.1.0"
   },
   "scripts": {
     "test": "cd $INIT_CWD && npx bddgen && npx playwright test",
