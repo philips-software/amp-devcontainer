@@ -11,8 +11,8 @@
         "mhutchie.git-graph@1.30.0",
         "ms-vscode.cmake-tools@1.19.52",
         "ms-vscode.cpptools@1.22.11",
-        "ms-vsliveshare.vsliveshare@1.0.5941",
-        "sonarsource.sonarlint-vscode@4.14.1"
+        "ms-vsliveshare.vsliveshare@1.0.5948",
+        "sonarsource.sonarlint-vscode@4.15.0"
       ],
       "settings": {
         "C_Cpp.intelliSenseEngine": "disabled",

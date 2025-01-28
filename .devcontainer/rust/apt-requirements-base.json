@@ -2,7 +2,7 @@
   "bash-completion": "1:2.11-8",
   "ca-certificates": "20240203",
   "g++-14": "14.2.0-4ubuntu2~24.04",
-  "git": "1:2.43.0-1ubuntu7.1",
+  "git": "1:2.43.0-1ubuntu7.2",
   "gnupg2": "2.4.4-2ubuntu17",
   "libc6-dev": "2.39-0ubuntu8.3",
   "rustup": "1.26.0-5build1",

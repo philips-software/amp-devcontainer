@@ -1,0 +1,19 @@
+---
+name: Package Published
+
+on:
+  registry_package:
+    types: [updated]
+
+permissions:
+  contents: read
+
+jobs:
+  attach-provenance-to-release:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          set -Eeuo pipefail
+          echo "${{ toJson(github.event.registry_package) }}" | jq .
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
