@@ -20,7 +20,8 @@ env:
 
 jobs:
   build-push:
-    runs-on: ubuntu-latest
+    # The ARM64 build segfaults with Ubuntu 24.04, so use 22.04 (for now)
+    runs-on: ubuntu-22.04
     permissions:
       attestations: write
       # dependency-submission needs contents write permission.
