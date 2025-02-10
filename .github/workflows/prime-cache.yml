@@ -14,7 +14,8 @@ concurrency:
 
 jobs:
   prime-docker-cache:
-    runs-on: ubuntu-latest
+    # The ARM64 build segfaults with Ubuntu 24.04, so use 22.04 (for now)
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         flavor: ["cpp", "rust"]

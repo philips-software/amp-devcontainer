@@ -3,7 +3,6 @@ name: Package Published
 
 on:
   registry_package:
-    types: [updated]
 
 permissions:
   contents: read
