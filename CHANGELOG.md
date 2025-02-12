@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.6.1](https://github.com/philips-software/amp-devcontainer/compare/v5.6.0...v5.6.1) (2025-02-11)
+
+
+### Chores
+
+* **deps, cpp:** Update ms-vscode.cpptools ([#706](https://github.com/philips-software/amp-devcontainer/issues/706)) ([c28374b](https://github.com/philips-software/amp-devcontainer/commit/c28374bfbe188da0862476d7037a00a4eb389f8d))
+* **deps, cpp:** Update ms-vscode.cpptools ([#713](https://github.com/philips-software/amp-devcontainer/issues/713)) ([9d0866d](https://github.com/philips-software/amp-devcontainer/commit/9d0866dfcba21c6c673e3943f289d4eb84f408f2))
+* **deps, cpp:** Update sonarsource.sonarlint-vscode ([#701](https://github.com/philips-software/amp-devcontainer/issues/701)) ([f9faadb](https://github.com/philips-software/amp-devcontainer/commit/f9faadbf97762c7a57898f8485a5e2a8064b06e7))
+* **deps, cpp:** Update udev ([#709](https://github.com/philips-software/amp-devcontainer/issues/709)) ([f7bb736](https://github.com/philips-software/amp-devcontainer/commit/f7bb73618a5861371d8c98bcf1430832aa1748d6))
+* **deps, rust:** Update libc6-dev, udev ([#707](https://github.com/philips-software/amp-devcontainer/issues/707)) ([eb87ea8](https://github.com/philips-software/amp-devcontainer/commit/eb87ea88d2ed1f621e19fc36c4893a46317ff201))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#702](https://github.com/philips-software/amp-devcontainer/issues/702)) ([da8e8d3](https://github.com/philips-software/amp-devcontainer/commit/da8e8d381110a99d79e13d3ce66f4b14f71694f8))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#714](https://github.com/philips-software/amp-devcontainer/issues/714)) ([238dd7e](https://github.com/philips-software/amp-devcontainer/commit/238dd7e7105a030fc299b4e1c98ab88fe6a325ff))
+* **deps, rust:** Update rust-lang.rust-analyzer, usernamehw.errorlens ([#708](https://github.com/philips-software/amp-devcontainer/issues/708)) ([178ee21](https://github.com/philips-software/amp-devcontainer/commit/178ee21469d33dd791a239a9784a62a000555b4d))
+* **deps:** Bump conan from 2.11.0 to 2.12.1 in amp-devcontainer-cpp ([#710](https://github.com/philips-software/amp-devcontainer/issues/710)) ([76e6cc6](https://github.com/philips-software/amp-devcontainer/commit/76e6cc6eb60813be7aef56779233bb52088688df))
+* **deps:** Bump ubuntu from `80dd3c3` to `7229784` in amp-devcontainer-cpp ([#715](https://github.com/philips-software/amp-devcontainer/issues/715)) ([63b8ebd](https://github.com/philips-software/amp-devcontainer/commit/63b8ebdc1136557a103eaebd20de330da37f7637))
+* **deps:** Bump ubuntu from `80dd3c3` to `7229784` in amp-devcontainer-rust ([#716](https://github.com/philips-software/amp-devcontainer/issues/716)) ([af9585a](https://github.com/philips-software/amp-devcontainer/commit/af9585a19648611a0feab5fdac3b05ab41a47ee2))
+
 ## [5.6.0](https://github.com/philips-software/amp-devcontainer/compare/v5.5.4...v5.6.0) (2025-01-23)
 
 
