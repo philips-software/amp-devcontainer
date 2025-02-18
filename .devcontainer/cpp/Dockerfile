@@ -112,3 +112,8 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-14 20 \
 RUN wget -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake \
  && conan profile detect \
  && echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
+
+COPY .devcontainer/cpp/first-run-notice.txt /tmp/first-run-notice.txt
+RUN mkdir -p "/usr/local/etc/vscode-dev-containers/" \
+ && sed -i '/^<!--/d' /tmp/first-run-notice.txt \
+ && mv -f /tmp/first-run-notice.txt /usr/local/etc/vscode-dev-containers/
