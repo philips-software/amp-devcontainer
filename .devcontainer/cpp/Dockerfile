@@ -115,5 +115,5 @@ RUN wget -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modul
 
 COPY .devcontainer/cpp/first-run-notice.txt /tmp/first-run-notice.txt
 RUN mkdir -p "/usr/local/etc/vscode-dev-containers/" \
- && sed -i '/^<!--/d' /tmp/first-run-notice.txt
+ && sed -i '/^<!--/d' /tmp/first-run-notice.txt \
  && mv -f /tmp/first-run-notice.txt /usr/local/etc/vscode-dev-containers/
