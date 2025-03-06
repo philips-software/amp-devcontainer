@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.6.2](https://github.com/philips-software/amp-devcontainer/compare/v5.6.1...v5.6.2) (2025-03-06)
+
+
+### Chores
+
+* **deps, cpp:** Update ms-vscode.cmake-tools, sonarsource.sonarlint-vscode ([#727](https://github.com/philips-software/amp-devcontainer/issues/727)) ([273b241](https://github.com/philips-software/amp-devcontainer/commit/273b24147195851950ea6abd198479bd8cd8069d))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#721](https://github.com/philips-software/amp-devcontainer/issues/721)) ([a3a616d](https://github.com/philips-software/amp-devcontainer/commit/a3a616d9d497941ad3ba9955ec527cf1bb26ce31))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#726](https://github.com/philips-software/amp-devcontainer/issues/726)) ([f6c9e2c](https://github.com/philips-software/amp-devcontainer/commit/f6c9e2c68ca5e3a3e6c750e0cee60a38d0a2e0e4))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#730](https://github.com/philips-software/amp-devcontainer/issues/730)) ([670040e](https://github.com/philips-software/amp-devcontainer/commit/670040e55f36e8b2dd1e39d9fdb148a80527e347))
+* **deps:** Bump cmake from 3.31.4 to 3.31.6 in /.devcontainer ([e989ee3](https://github.com/philips-software/amp-devcontainer/commit/e989ee3967e86647a94b4533dd123a88e3f49606))
+* **deps:** Bump cmake from 3.31.4 to 3.31.6 in amp-devcontainer-cpp ([#731](https://github.com/philips-software/amp-devcontainer/issues/731)) ([e989ee3](https://github.com/philips-software/amp-devcontainer/commit/e989ee3967e86647a94b4533dd123a88e3f49606))
+* **deps:** Bump conan from 2.12.1 to 2.12.2 in /.devcontainer ([fc8fc47](https://github.com/philips-software/amp-devcontainer/commit/fc8fc4783b438487415eb4c0434ddc06c34feac9))
+* **deps:** Bump conan from 2.12.1 to 2.12.2 in amp-devcontainer-cpp ([#723](https://github.com/philips-software/amp-devcontainer/issues/723)) ([fc8fc47](https://github.com/philips-software/amp-devcontainer/commit/fc8fc4783b438487415eb4c0434ddc06c34feac9))
+* **deps:** Bump conan from 2.12.2 to 2.13.0 in /.devcontainer ([aece43f](https://github.com/philips-software/amp-devcontainer/commit/aece43f82608264b44ae52c0202ac0940533613b))
+* **deps:** Bump conan from 2.12.2 to 2.13.0 in amp-devcontainer-cpp ([#732](https://github.com/philips-software/amp-devcontainer/issues/732)) ([aece43f](https://github.com/philips-software/amp-devcontainer/commit/aece43f82608264b44ae52c0202ac0940533613b))
+* **deps:** Bump jinja2 from 3.1.5 to 3.1.6 in /.devcontainer/cpp ([9ebc7ad](https://github.com/philips-software/amp-devcontainer/commit/9ebc7ad1fb6778bf9e4a803e9a5672685fe5cc6f))
+* **deps:** Bump jinja2 from 3.1.5 to 3.1.6 in amp-devcontainer-cpp ([#735](https://github.com/philips-software/amp-devcontainer/issues/735)) ([9ebc7ad](https://github.com/philips-software/amp-devcontainer/commit/9ebc7ad1fb6778bf9e4a803e9a5672685fe5cc6f))
+
 ## [5.6.1](https://github.com/philips-software/amp-devcontainer/compare/v5.6.0...v5.6.1) (2025-02-11)
 
 
