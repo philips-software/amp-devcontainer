@@ -35,7 +35,8 @@ RUN python3 -m pip install --break-system-packages --require-hashes --no-cache-d
 # Set default environment options for CMake and ccache
 ENV CMAKE_GENERATOR="Ninja"
 ENV CMAKE_EXPORT_COMPILE_COMMANDS="On"
-ENV CCACHE_DIR=/root/.ccache
+ENV CCACHE_DIR=/cache/.ccache
+ENV CPM_SOURCE_CACHE=/cache/.cpm-cache
 
 # Install clang toolchain
 COPY .devcontainer/cpp/apt-requirements-clang.json /tmp/apt-requirements-clang.json
