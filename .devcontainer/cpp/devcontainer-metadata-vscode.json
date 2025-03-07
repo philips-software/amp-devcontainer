@@ -9,10 +9,10 @@
         "marus25.cortex-debug@1.12.1",
         "matepek.vscode-catch2-test-adapter@4.12.2",
         "mhutchie.git-graph@1.30.0",
-        "ms-vscode.cmake-tools@1.19.52",
-        "ms-vscode.cpptools@1.22.11",
+        "ms-vscode.cmake-tools@1.20.52",
+        "ms-vscode.cpptools@1.23.6",
         "ms-vsliveshare.vsliveshare@1.0.5948",
-        "sonarsource.sonarlint-vscode@4.15.0"
+        "sonarsource.sonarlint-vscode@4.16.0"
       ],
       "settings": {
         "C_Cpp.intelliSenseEngine": "disabled",
