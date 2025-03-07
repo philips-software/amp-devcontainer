@@ -4,9 +4,9 @@
   "g++-14": "14.2.0-4ubuntu2~24.04",
   "git": "1:2.43.0-1ubuntu7.2",
   "gnupg2": "2.4.4-2ubuntu17",
-  "libc6-dev": "2.39-0ubuntu8.3",
+  "libc6-dev": "2.39-0ubuntu8.4",
   "rustup": "1.26.0-5build1",
-  "udev": "255.4-1ubuntu8.4",
+  "udev": "255.4-1ubuntu8.5",
   "wget": "1.21.4-1ubuntu4.1",
   "xz-utils": "5.6.1+really5.4.5-1build0.1"
 }
