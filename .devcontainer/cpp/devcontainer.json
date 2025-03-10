@@ -30,18 +30,17 @@
       },
       "extensions": [
         "alexkrechik.cucumberautocomplete@3.0.5",
-        "github.copilot@1.208.0",
-        "github.vscode-github-actions@0.26.3",
-        "github.vscode-pull-request-github@0.90.0",
+        "github.copilot@1.277.0",
+        "github.vscode-github-actions@0.27.1",
+        "github.vscode-pull-request-github@0.106.0",
         "jetmartin.bats@0.1.10",
-        "matepek.vscode-catch2-test-adapter@4.12.0",
         "mhutchie.git-graph@1.30.0",
         "ms-azuretools.vscode-docker@1.29.1",
-        "ms-playwright.playwright@1.1.7",
-        "ms-vscode.cmake-tools@1.18.42",
-        "ms-vscode.cpptools@1.20.5",
-        "sonarsource.sonarlint-vscode@4.7.0",
-        "usernamehw.errorlens@3.20.0"
+        "ms-playwright.playwright@1.1.13",
+        "ms-vscode.cmake-tools@1.20.53",
+        "ms-vscode.cpptools@1.23.6",
+        "sonarsource.sonarlint-vscode@4.17.0",
+        "usernamehw.errorlens@3.24.0"
       ]
     }
   }

@@ -13,9 +13,11 @@ if (ENABLE_COVERAGE_TEST)
 
     add_executable(test-coverage EXCLUDE_FROM_ALL test.cpp)
     target_compile_options(test-coverage PRIVATE
-        -g -O0 --coverage -fprofile-arcs -ftest-coverage -fno-inline
+        -g -O0 --coverage -fcondition-coverage -fno-inline
     )
-    target_link_libraries(test-coverage PRIVATE gmock_main gcov)
+    target_link_options(test-coverage PRIVATE --coverage)
+    target_link_libraries(test-coverage PRIVATE gmock_main)
+
     add_test(NAME test-coverage COMMAND test-coverage)
 endif()
 
