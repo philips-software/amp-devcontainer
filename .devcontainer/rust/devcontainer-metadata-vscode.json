@@ -2,6 +2,9 @@
   "remoteEnv": {
     "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
   },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2.5.2": {}
+  },
   "customizations": {
     "vscode": {
       "extensions": [
