@@ -6,7 +6,7 @@ setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
 
-  pushd workspace
+  pushd ${BATS_TEST_DIRNAME}/workspace
 }
 
 teardown() {

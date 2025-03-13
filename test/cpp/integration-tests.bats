@@ -6,30 +6,30 @@ setup_file() {
   # Installing the Windows SDK/CRT takes a long time.
   # When still valid, use the installation from cache.
 
-  xwin --accept-license --cache-dir .xwin-hash list
-  HASH_LIST_MANIFEST=$(sha256sum .xwin-hash/dl/manifest*.json | awk '{ print $1 }')
+  xwin --accept-license --cache-dir ${BATS_TEST_DIRNAME}/.xwin-hash list
+  HASH_LIST_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-hash/dl/manifest*.json | awk '{ print $1 }')
   HASH_CACHED_MANIFEST=
 
-  if [[ -d .xwin-cache/dl ]]; then
-    HASH_CACHED_MANIFEST=$(sha256sum .xwin-cache/dl/manifest*.json | awk '{ print $1 }')
+  if [[ -d ${BATS_TEST_DIRNAME}/.xwin-cache/dl ]]; then
+    HASH_CACHED_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-cache/dl/manifest*.json | awk '{ print $1 }')
   fi
 
   if [[ $HASH_LIST_MANIFEST != $HASH_CACHED_MANIFEST ]]; then
-    xwin --accept-license splat --preserve-ms-arch-notation
+    xwin --accept-license --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
   fi
 
-  cp -r .xwin-cache/splat/ /winsdk
+  ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
 }
 
 teardown_file() {
-  rm -rf .xwin-hash/ /winsdk
+  rm -rf ${BATS_TEST_DIRNAME}/.xwin-hash/ /winsdk
 }
 
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
 
-  pushd workspace
+  pushd ${BATS_TEST_DIRNAME}/workspace
 }
 
 teardown() {
