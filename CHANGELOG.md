@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.6.3](https://github.com/philips-software/amp-devcontainer/compare/v5.6.2...v5.6.3) (2025-03-13)
+
+
+### Chores
+
+* **deps, rust:** Update rust-lang.rust-analyzer, usernamehw.errorlens ([#740](https://github.com/philips-software/amp-devcontainer/issues/740)) ([d247fb2](https://github.com/philips-software/amp-devcontainer/commit/d247fb2984baa47b455185e155b14025eb399f3a))
+* **deps:** Update ccache to v4.11 in amp-devcontainer-cpp ([#744](https://github.com/philips-software/amp-devcontainer/issues/744)) ([d386fd0](https://github.com/philips-software/amp-devcontainer/commit/d386fd0bb2f5184830601fa1ec3144b482fe15f7))
+* **deps:** Update mull to v0.25.0 ([54c0f1a](https://github.com/philips-software/amp-devcontainer/commit/54c0f1a283d56d079d3b87c608c82a6e54494e0f))
+* **deps:** Update mull to v0.25.0 in amp-devcontainer-cpp ([#745](https://github.com/philips-software/amp-devcontainer/issues/745)) ([54c0f1a](https://github.com/philips-software/amp-devcontainer/commit/54c0f1a283d56d079d3b87c608c82a6e54494e0f))
+
 ## [5.6.2](https://github.com/philips-software/amp-devcontainer/compare/v5.6.1...v5.6.2) (2025-03-06)
 
 
