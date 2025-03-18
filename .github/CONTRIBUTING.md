@@ -175,7 +175,7 @@ Unsure where to begin contributing? You can start by looking through good-first-
 "Good first issue" issues - issues that should only require a few lines of code, and a test or two.
 "Help wanted" issues - issues that should be a bit more involved than good-first-issue issues.
 
-Working on your first Pull Request? You can learn how from this _free_ series, [How to Contribute to an Open Source Project on GitHub](https://app.egghead.io/playlists/how-to-contribute-to-an-open-source-project-on-github). If you prefer to read through some tutorials, visit <https://makeapullrequest.com/> and <https://www.firsttimersonly.com/>
+Working on your first Pull Request? You can learn how from this _free_ series, [How to Contribute to an Open Source Project on GitHub](https://app.egghead.io/playlists/how-to-contribute-to-an-open-source-project-on-github). If you prefer to read through some tutorials, visit <https://github.blog/developer-skills/github/beginners-guide-to-github-creating-a-pull-request/> and <https://www.firsttimersonly.com/>
 
 At this point, you're ready to make your changes! Feel free to ask for help; everyone is a beginner at first :smile_cat:
 
