@@ -120,7 +120,7 @@ The resulting containers can be used in a `.devcontainer.json` file or in a `.de
 ## Community
 
 This project uses a [code of conduct](.github/CODE_OF_CONDUCT.md) to define expected conduct in our community. Instances of
-abusive, harassing, or otherwise unacceptable behavior may be reported to the repository administrators by using the [Report content](https://docs.github.com/en/communities/maintaining-your-safety-on-github/reporting-abuse-or-spam) functionality of GitHub.
+abusive, harassing, or otherwise unacceptable behavior may be reported to the repository administrators by using the [report content](https://docs.github.com/en/communities/maintaining-your-safety-on-github/reporting-abuse-or-spam) functionality of GitHub.
 
 ## Changelog
 
@@ -132,11 +132,11 @@ This project uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.htm
 
 ### Build & Test
 
-The containers can be built and tested locally by importing this repository in VS Code with the [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) plug-in installed. As a prerequisite Docker needs to be installed on the host system. Alternatively a GitHub Codespace can be started.
+The containers can be built and tested locally by importing this repository in VS Code with the [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) plug-in installed. As a prerequisite an OCI compatible container engine needs to be installed on the host system. Alternatively a GitHub Codespace can be started.
 
 #### Running the Integration Tests
 
-A test task is available to run the included `bats` tests. Choose `Tasks: Run Test Task` from the command pallette (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>).
+Run the included `bats` integration tests from the test explorer. Alternatively run all tests with <kbd>Ctrl</kbd> + <kbd>;</kbd> <kbd>A</kbd>.
 
 #### Running the Acceptance Tests
 
