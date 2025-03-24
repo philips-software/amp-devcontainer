@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.7.0](https://github.com/philips-software/amp-devcontainer/compare/v5.6.2...v5.7.0) (2025-03-24)
+
+
+### Features
+
+* Add cpm source cache environment variable ([#737](https://github.com/philips-software/amp-devcontainer/issues/737)) ([7d9ac85](https://github.com/philips-software/amp-devcontainer/commit/7d9ac8519db35ac941524f12be64d5f8ae60760d))
+
+
+### Chores
+
+* **deps, cpp:** Update udev, xsltproc ([#751](https://github.com/philips-software/amp-devcontainer/issues/751)) ([b116225](https://github.com/philips-software/amp-devcontainer/commit/b1162253b08850729253c16091024ee6b2cc4f37))
+* **deps, cpp:** Update xsltproc in amp-devcontainer-cpp ([#752](https://github.com/philips-software/amp-devcontainer/issues/752)) ([1641050](https://github.com/philips-software/amp-devcontainer/commit/16410508c5bdad19a44a21e7b30a65be080b1f95))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#746](https://github.com/philips-software/amp-devcontainer/issues/746)) ([3f65407](https://github.com/philips-software/amp-devcontainer/commit/3f654075af84e848c1a5999c0ce5953fee3e3bca))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#750](https://github.com/philips-software/amp-devcontainer/issues/750)) ([6dd40e7](https://github.com/philips-software/amp-devcontainer/commit/6dd40e77623588ff905f626cc652b77b7e9a2706))
+* **deps, rust:** Update rust-lang.rust-analyzer, usernamehw.errorlens ([#740](https://github.com/philips-software/amp-devcontainer/issues/740)) ([d247fb2](https://github.com/philips-software/amp-devcontainer/commit/d247fb2984baa47b455185e155b14025eb399f3a))
+* **deps, rust:** Update udev ([#749](https://github.com/philips-software/amp-devcontainer/issues/749)) ([39e2f85](https://github.com/philips-software/amp-devcontainer/commit/39e2f852bd0aeb969ef70deef99308e2e6da7885))
+* **deps,cpp:** Update xsltproc in amp-devcontainer-cpp ([1641050](https://github.com/philips-software/amp-devcontainer/commit/16410508c5bdad19a44a21e7b30a65be080b1f95))
+* **deps:** Bump conan from 2.13.0 to 2.14.0 in /.devcontainer ([393c837](https://github.com/philips-software/amp-devcontainer/commit/393c837cc47e45d5cb26102a5161e23032f8ba33))
+* **deps:** Bump conan from 2.13.0 to 2.14.0 in amp-devcontainer-cpp ([#748](https://github.com/philips-software/amp-devcontainer/issues/748)) ([393c837](https://github.com/philips-software/amp-devcontainer/commit/393c837cc47e45d5cb26102a5161e23032f8ba33))
+* **deps:** Update ccache to v4.11 in amp-devcontainer-cpp ([#744](https://github.com/philips-software/amp-devcontainer/issues/744)) ([d386fd0](https://github.com/philips-software/amp-devcontainer/commit/d386fd0bb2f5184830601fa1ec3144b482fe15f7))
+* **deps:** Update mull to v0.25.0 ([54c0f1a](https://github.com/philips-software/amp-devcontainer/commit/54c0f1a283d56d079d3b87c608c82a6e54494e0f))
+* **deps:** Update mull to v0.25.0 in amp-devcontainer-cpp ([#745](https://github.com/philips-software/amp-devcontainer/issues/745)) ([54c0f1a](https://github.com/philips-software/amp-devcontainer/commit/54c0f1a283d56d079d3b87c608c82a6e54494e0f))
+
 ## [5.6.2](https://github.com/philips-software/amp-devcontainer/compare/v5.6.1...v5.6.2) (2025-03-06)
 
 
