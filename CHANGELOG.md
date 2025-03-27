@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.7.1](https://github.com/philips-software/amp-devcontainer/compare/v5.7.0...v5.7.1) (2025-03-27)
+
+
+### Chores
+
+* Remove matepek.vscode-catch2-test-adapter ([#738](https://github.com/philips-software/amp-devcontainer/issues/738)) ([8491493](https://github.com/philips-software/amp-devcontainer/commit/8491493d989945530f27b67a7065aeb11cb688d5))
+
 ## [5.7.0](https://github.com/philips-software/amp-devcontainer/compare/v5.6.2...v5.7.0) (2025-03-24)
 
 
