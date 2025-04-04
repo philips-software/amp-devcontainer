@@ -47,6 +47,6 @@ RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20 \
 ENV BINSTALL_DISABLE_TELEMETRY=true
 # Install additional rust tools
 RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
- && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@25.0.1 flip-link@0.1.10 \
+ && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@25.0.0 flip-link@0.1.10 \
  # cargo-binstall can't (yet) install probe-rs-tools for aarch64, fall-back to script installation
  && wget -qO - https://github.com/probe-rs/probe-rs/releases/download/v0.27.0/probe-rs-tools-installer.sh | sh
