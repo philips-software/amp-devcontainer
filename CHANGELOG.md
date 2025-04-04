@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [5.7.1](https://github.com/philips-software/amp-devcontainer/compare/v5.7.0...v5.7.1) (2025-04-04)
+
+
+### Chores
+
+* **deps, cpp:** Update gnupg2, xz-utils, mull-18 ([#764](https://github.com/philips-software/amp-devcontainer/issues/764)) ([8ffa3ef](https://github.com/philips-software/amp-devcontainer/commit/8ffa3ef7041222d2aa531842b0ecca1777d2386d))
+* **deps, rust:** Update gnupg2, xz-utils ([#763](https://github.com/philips-software/amp-devcontainer/issues/763)) ([e10fd2d](https://github.com/philips-software/amp-devcontainer/commit/e10fd2dfa642a63010f577de927f51cedfc3019c))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#756](https://github.com/philips-software/amp-devcontainer/issues/756)) ([5b216b1](https://github.com/philips-software/amp-devcontainer/commit/5b216b18e8ec5c0c14e75d4b0d2c18a0fa2a74dc))
+* **deps, rust:** Update rust-lang.rust-analyzer, usernamehw.errorlens ([#762](https://github.com/philips-software/amp-devcontainer/issues/762)) ([6363a3a](https://github.com/philips-software/amp-devcontainer/commit/6363a3aec0d76bfdf6c863f829cb6a44639cbffb))
+* **deps:** Bump cmake from 3.31.6 to 4.0.0 in /.devcontainer ([#758](https://github.com/philips-software/amp-devcontainer/issues/758)) ([dce0c5e](https://github.com/philips-software/amp-devcontainer/commit/dce0c5e98b5c352e11750a5d52953c4a4be33238))
+* Remove matepek.vscode-catch2-test-adapter ([#738](https://github.com/philips-software/amp-devcontainer/issues/738)) ([8491493](https://github.com/philips-software/amp-devcontainer/commit/8491493d989945530f27b67a7065aeb11cb688d5))
+
 ## [5.7.0](https://github.com/philips-software/amp-devcontainer/compare/v5.6.2...v5.7.0) (2025-03-24)
 
 
