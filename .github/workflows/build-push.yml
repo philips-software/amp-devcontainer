@@ -143,8 +143,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           UPDATED_NOTES=$(gh release view ${{ github.ref_name }} --json body -q '.body')
-          UPDATED_NOTES=$(echo "$UPDATED_NOTES" | sed "s/{{ amp-devcontainer-${{ matrix.flavor }}-version }}/${{ github.ref_name }}/g")
-          UPDATED_NOTES=$(echo "$UPDATED_NOTES" | sed "s/{{ amp-devcontainer-${{ matrix.flavor }}-sha }}/${{ steps.build-and-push.outputs.digest }}/g")
+          UPDATED_NOTES=${UPDATED_NOTES//'{{ amp-devcontainer-${{ matrix.flavor }}-version }}'/'${{ github.ref_name }}'}
+          UPDATED_NOTES=${UPDATED_NOTES//'{{ amp-devcontainer-${{ matrix.flavor }}-sha }}'/'${{ steps.build-and-push.outputs.digest }}'}
           gh release edit ${{ github.ref_name }} --notes "${UPDATED_NOTES}"
   acceptance-test:
     if: github.event_name == 'pull_request'
