@@ -130,6 +130,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh attestation verify --repo ${{ github.repository }} oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }}
+      - name: Upload provenance to release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh attestation verify --repo ${{ github.repository }} oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }} --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ matrix.flavor }}_sha256_${{ steps.build-and-push.outputs.digest }}.intoto.jsonl
+          gh release upload ${{ github.ref_name }} ./*.intoto.jsonl
+      - name: Update package details in release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          UPDATED_NOTES=$(gh release view ${{ github.ref_name }} --json body -q '.body')
+          UPDATED_NOTES=${UPDATED_NOTES//'{{ amp-devcontainer-${{ matrix.flavor }}-version }}'/'${{ github.ref_name }}'}
+          UPDATED_NOTES=${UPDATED_NOTES//'{{ amp-devcontainer-${{ matrix.flavor }}-sha }}'/'${{ steps.build-and-push.outputs.digest }}'}
+          gh release edit ${{ github.ref_name }} --notes "${UPDATED_NOTES}"
   acceptance-test:
     if: github.event_name == 'pull_request'
     needs: build-push
