@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.0.2](https://github.com/philips-software/amp-devcontainer/compare/v6.0.1...v6.0.2) (2025-05-07)
+
+
+### Chores
+
+* **deps, rust:** Update rust-lang.rust-analyzer, usernamehw.errorlens ([#787](https://github.com/philips-software/amp-devcontainer/issues/787)) ([d4b92ad](https://github.com/philips-software/amp-devcontainer/commit/d4b92adad3e2bfe6004e65c51ebbff74b6cc6e72))
+* **deps:** Bump conan from 2.15.0 to 2.15.1 in /.devcontainer ([#786](https://github.com/philips-software/amp-devcontainer/issues/786)) ([008ad45](https://github.com/philips-software/amp-devcontainer/commit/008ad459065f4f197011a16b453cf6351486bf7c))
+
 ## [6.0.1](https://github.com/philips-software/amp-devcontainer/compare/v6.0.0...v6.0.1) (2025-04-20)
 
 
