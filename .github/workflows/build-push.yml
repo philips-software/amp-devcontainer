@@ -135,7 +135,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          FORMATTED_SHA=${${{ steps.build-and-push.outputs.digest }}//:/_}
+          RAW_SHA=${{ steps.build-and-push.outputs.digest }}
+          FORMATTED_SHA=${RAW_SHA//:/_}
           gh attestation verify --repo ${{ github.repository }} oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }} --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ matrix.flavor }}_${FORMATTED_SHA}.intoto.jsonl"
           gh release upload ${{ github.ref_name }} ./*.intoto.jsonl
       - name: Update package details in release
