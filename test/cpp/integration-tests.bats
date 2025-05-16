@@ -5,8 +5,9 @@ bats_require_minimum_version 1.5.0
 setup_file() {
   # Installing the Windows SDK/CRT takes a long time.
   # When still valid, use the installation from cache.
+  WINDOWS_SDK_VERSION=10.0.26100
 
-  xwin --accept-license --cache-dir ${BATS_TEST_DIRNAME}/.xwin-hash list
+  xwin --accept-license --sdk-version "${WINDOWS_SDK_VERSION}" --cache-dir ${BATS_TEST_DIRNAME}/.xwin-hash list
   HASH_LIST_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-hash/dl/manifest*.json | awk '{ print $1 }')
   HASH_CACHED_MANIFEST=
 
@@ -15,7 +16,7 @@ setup_file() {
   fi
 
   if [[ $HASH_LIST_MANIFEST != $HASH_CACHED_MANIFEST ]]; then
-    xwin --accept-license --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
+    xwin --accept-license --sdk-version "${WINDOWS_SDK_VERSION}" --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
   fi
 
   ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
