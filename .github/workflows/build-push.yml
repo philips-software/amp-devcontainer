@@ -113,7 +113,7 @@ jobs:
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }}
           dependency-snapshot: true
-      - uses: actions/dependency-review-action@ce3cf9537a52e8119d91fd484ab5b8a807627bf8 # v4.6.0
+      - uses: actions/dependency-review-action@38ecb5b593bf0eb19e335c03f97670f792489a8b # v4.7.0
         if: github.event_name == 'pull_request'
         with:
           comment-summary-in-pr: on-failure
@@ -135,7 +135,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh attestation verify --repo ${{ github.repository }} oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }} --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ matrix.flavor }}_sha256_${{ steps.build-and-push.outputs.digest }}.intoto.jsonl
+          RAW_SHA=${{ steps.build-and-push.outputs.digest }}
+          FORMATTED_SHA=${RAW_SHA//:/_}
+          gh attestation verify --repo ${{ github.repository }} oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }} --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ matrix.flavor }}_${FORMATTED_SHA}.intoto.jsonl"
           gh release upload ${{ github.ref_name }} ./*.intoto.jsonl
       - name: Update package details in release
         if: startsWith(github.ref, 'refs/tags/')
