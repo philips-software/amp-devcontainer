@@ -35,6 +35,6 @@ jobs:
         run: |
           CURRENT_NOTES=$(gh release view ${{ steps.release.outputs.tag_name }} --json body -q '.body')
           HEADER=$(echo "$CURRENT_NOTES" | awk '/^## / {print; exit}')
-          TEMPLATE=$(cat ../RELEASE_TEMPLATE.md)
+          TEMPLATE=$(cat "$GITHUB_WORKSPACE/.github/RELEASE_TEMPLATE.md")
           BODY=$(echo "$CURRENT_NOTES" | sed "0,/^## /d")
           gh release edit ${{ steps.release.outputs.tag_name }} --notes "${HEADER}${TEMPLATE}${BODY}"
