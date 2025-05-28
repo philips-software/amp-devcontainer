@@ -38,6 +38,18 @@ teardown() {
   popd
 }
 
+@test "host gcc toolchain versions and alternatives should be aligned with expected versions" {
+  EXPECTED_VERSION=$(get_expected_version_for g++)
+
+  for TOOL in cc gcc c++ g++; do
+    INSTALLED_VERSION=$($TOOL -dumpfullversion)
+    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
+  done
+
+  INSTALLED_GCOV_VERSION=$(gcov --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1)
+  assert_equal $INSTALLED_GCOV_VERSION $EXPECTED_VERSION
+}
+
 @test "valid code input should result in working executable using host compiler" {
   cmake --preset gcc
   cmake --build --preset gcc
@@ -228,4 +240,12 @@ function build_and_run_with_sanitizers() {
   run build/${PRESET}/sanitizers/test-threadsan
   assert_failure
   assert_output --partial "ThreadSanitizer: data race"
+}
+
+function get_expected_version_for() {
+  local TOOL=${1:?}
+
+  jq -sr ".[0] * .[1] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
+    ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-base.json \
+    ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-clang.json
 }
