@@ -7,8 +7,8 @@ setup_file() {
   # When still valid, use the installation from cache.
 
   xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-hash list
-  HASH_LIST_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-hash/dl/manifest*.json | awk '{ print $1 }')
-  HASH_CACHED_MANIFEST=
+  local HASH_LIST_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-hash/dl/manifest*.json | awk '{ print $1 }')
+  local HASH_CACHED_MANIFEST=
 
   if [[ -d ${BATS_TEST_DIRNAME}/.xwin-cache/dl ]]; then
     HASH_CACHED_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-cache/dl/manifest*.json | awk '{ print $1 }')
@@ -36,6 +36,24 @@ teardown() {
   rm -rf build crash-* $(conan config home)/p
 
   popd
+}
+
+@test "host gcc toolchain versions and alternatives should be aligned with expected versions" {
+  EXPECTED_VERSION=$(get_expected_version_for g++)
+
+  for TOOL in cc gcc c++ g++; do
+    INSTALLED_VERSION=$($TOOL -dumpfullversion)
+    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
+  done
+
+  INSTALLED_GCOV_VERSION=$(gcov --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1)
+  assert_equal $INSTALLED_GCOV_VERSION $EXPECTED_VERSION
+}
+
+@test "host and embedded gcc toolchain versions should be the same major and minor version" {
+  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_version_for g++ | cut -d. -f1,2)
+  INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
+  assert_equal $INSTALLED_MAJOR_MINOR_VERSION $EXPECTED_MAJOR_MINOR_VERSION
 }
 
 @test "valid code input should result in working executable using host compiler" {
@@ -228,4 +246,12 @@ function build_and_run_with_sanitizers() {
   run build/${PRESET}/sanitizers/test-threadsan
   assert_failure
   assert_output --partial "ThreadSanitizer: data race"
+}
+
+function get_expected_version_for() {
+  local TOOL=${1:?}
+
+  jq -sr ".[0] * .[1] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
+    ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-base.json \
+    ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-clang.json
 }
