@@ -4,8 +4,7 @@ option(ENABLE_MUTATION_TESTING_TEST Off)
 include(FetchContent)
 
 FetchContent_Declare(googletest
-    GIT_REPOSITORY https://github.com/google/googletest
-    GIT_TAG v1.15.2
+    URL https://github.com/google/googletest/releases/download/v1.17.0/googletest-1.17.0.tar.gz
 )
 
 if (ENABLE_COVERAGE_TEST)
