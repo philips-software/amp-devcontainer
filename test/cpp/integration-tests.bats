@@ -2,25 +2,6 @@
 
 bats_require_minimum_version 1.5.0
 
-setup_file() {
-  # Installing the Windows SDK/CRT takes a long time.
-  # When still valid, use the installation from cache.
-
-  xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-hash list
-  local HASH_LIST_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-hash/dl/manifest*.json | awk '{ print $1 }')
-  local HASH_CACHED_MANIFEST=
-
-  if [[ -d ${BATS_TEST_DIRNAME}/.xwin-cache/dl ]]; then
-    HASH_CACHED_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-cache/dl/manifest*.json | awk '{ print $1 }')
-  fi
-
-  if [[ $HASH_LIST_MANIFEST != $HASH_CACHED_MANIFEST ]]; then
-    xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
-  fi
-
-  ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
-}
-
 teardown_file() {
   rm -rf ${BATS_TEST_DIRNAME}/.xwin-hash/ /winsdk
 }
@@ -36,6 +17,34 @@ teardown() {
   rm -rf build crash-* $(conan config home)/p
 
   popd
+}
+
+## This section contains tests for version correctness and compatibility of the installed tools.
+#  Comparing the versions of the installed tools with the expected versions and ensuring
+#  that the tools are compatible with each other. E.g. that the host and embedded toolchains
+#  are aligned in terms of major and minor versions.
+
+@test "host clang toolchain versions and alternatives should be aligned with expected versions" {
+  EXPECTED_VERSION=$(get_expected_version_for clang | sed -E 's/^[0-9]+://' | cut -d '~' -f1)
+
+  for TOOL in clang clang++; do
+    INSTALLED_VERSION=$($TOOL -dumpversion)
+    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
+  done
+
+  for TOOL in clang-cl clang-format clang-tidy; do
+    INSTALLED_VERSION=$($TOOL --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1)
+    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
+  done
+}
+
+@test "all tool versions should be aligned with the expected version" {
+  for TOOL in git ninja; do
+    EXPECTED_VERSION=$(get_expected_version_for ${TOOL} | sed -E 's/^[0-9]+://' | cut -d '~' -f1)
+    INSTALLED_VERSION=$(${TOOL} --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1)
+
+    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
+  done
 }
 
 @test "host gcc toolchain versions and alternatives should be aligned with expected versions" {
@@ -75,6 +84,8 @@ teardown() {
 }
 
 @test "valid code input should result in Windows executable using clang-cl compiler" {
+  install_win_sdk
+
   cmake --preset clang-cl
   cmake --build --preset clang-cl
 }
@@ -97,6 +108,8 @@ teardown() {
 }
 
 @test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
+  install_win_sdk
+
   configure_and_build_with_ccache clang-cl
 }
 
@@ -254,4 +267,23 @@ function get_expected_version_for() {
   jq -sr ".[0] * .[1] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
     ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-base.json \
     ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-clang.json
+}
+
+function install_win_sdk() {
+  # Installing the Windows SDK/CRT takes a long time.
+  # When still valid, use the installation from cache.
+
+  xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-hash list
+  local HASH_LIST_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-hash/dl/manifest*.json | awk '{ print $1 }')
+  local HASH_CACHED_MANIFEST=
+
+  if [[ -d ${BATS_TEST_DIRNAME}/.xwin-cache/dl ]]; then
+    HASH_CACHED_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-cache/dl/manifest*.json | awk '{ print $1 }')
+  fi
+
+  if [[ $HASH_LIST_MANIFEST != $HASH_CACHED_MANIFEST ]]; then
+    xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
+  fi
+
+  ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
 }
