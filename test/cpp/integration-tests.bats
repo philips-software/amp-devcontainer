@@ -2,6 +2,10 @@
 
 bats_require_minimum_version 1.5.0
 
+setup_file() {
+  install_win_sdk_when_ci_set
+}
+
 teardown_file() {
   rm -rf ${BATS_TEST_DIRNAME}/.xwin-hash/ /winsdk
 }
@@ -84,7 +88,7 @@ teardown() {
 }
 
 @test "valid code input should result in Windows executable using clang-cl compiler" {
-  install_win_sdk
+  install_win_sdk_when_ci_unset
 
   cmake --preset clang-cl
   cmake --build --preset clang-cl
@@ -108,7 +112,7 @@ teardown() {
 }
 
 @test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
-  install_win_sdk
+  install_win_sdk_when_ci_unset
 
   configure_and_build_with_ccache clang-cl
 }
@@ -286,4 +290,22 @@ function install_win_sdk() {
   fi
 
   ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
+}
+
+function install_win_sdk_when_ci_unset() {
+  # When running tests locally we typically run them one by one,
+  # and want to install the Win SDK only for each test that requires it.
+
+  if [[ -z "${CI}" ]]; then
+    install_win_sdk
+  fi
+}
+
+function install_win_sdk_when_ci_set() {
+  # When running on a CI environment we run all tests in a single batch,
+  # and only want to install the Win SKD once.
+
+  if [[ -n "${CI}" ]]; then
+    install_win_sdk
+  fi
 }
