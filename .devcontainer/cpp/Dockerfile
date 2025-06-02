@@ -1,21 +1,17 @@
 FROM scratch AS downloader-amd64
-ARG DOCKER_VERSION=28.2.2
-
 ADD --checksum=sha256:53dc06dc3f775282ddff93b2d0974bbe6480761018c61e7a797342a9c7f14e23 \
- https://download.docker.com/linux/static/stable/x86_64/docker-$DOCKER_VERSION.tgz /docker.tgz
+ https://download.docker.com/linux/static/stable/x86_64/docker-28.2.2.tgz /docker.tgz
 
 FROM scratch AS downloader-arm64
-ARG DOCKER_VERSION=28.2.2
-
 ADD --checksum=sha256:c9506628d1845c69230df3d87e2eedd7980caf8bd966f5e6a5d7a2364de42497 \
- https://download.docker.com/linux/static/stable/aarch64/docker-$DOCKER_VERSION.tgz /docker.tgz
+ https://download.docker.com/linux/static/stable/aarch64/docker-28.2.2.tgz /docker.tgz
 
 FROM downloader-$TARGETARCH AS downloader
 
 FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233 AS extractor
 
-RUN --mount=from=downloader,target=/tmp \
- tar xzf /tmp/docker.tgz -C /tmp
+RUN --mount=from=downloader,target=/dl \
+ tar xzf /dl/docker.tgz -C /tmp
 
 FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233
 
