@@ -19,4 +19,4 @@ find_program(CMAKE_CXX_COMPILER NAMES clang-cl REQUIRED)
 find_program(CMAKE_AR NAMES llvm-lib REQUIRED)
 
 add_compile_options(--target=x86_64-pc-windows-msvc -fuse-ld=lld /winsdkdir ${WINDOWS_SDK_ROOT}/sdk /vctoolsdir ${WINDOWS_SDK_ROOT}/crt)
-add_link_options(/manifest:no -libpath:${WINDOWS_SDK_ROOT}/sdk/lib/um/x64 -libpath:${WINDOWS_SDK_ROOT}/sdk/lib/ucrt/x64 -libpath:${WINDOWS_SDK_ROOT}/crt/lib/x64)
+add_link_options(/machine:x64 /manifest:no -libpath:${WINDOWS_SDK_ROOT}/sdk/lib/um/x64 -libpath:${WINDOWS_SDK_ROOT}/sdk/lib/ucrt/x64 -libpath:${WINDOWS_SDK_ROOT}/crt/lib/x64)
