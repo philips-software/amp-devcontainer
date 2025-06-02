@@ -3,22 +3,7 @@
 bats_require_minimum_version 1.5.0
 
 setup_file() {
-  # Installing the Windows SDK/CRT takes a long time.
-  # When still valid, use the installation from cache.
-
-  xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-hash list
-  HASH_LIST_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-hash/dl/manifest*.json | awk '{ print $1 }')
-  HASH_CACHED_MANIFEST=
-
-  if [[ -d ${BATS_TEST_DIRNAME}/.xwin-cache/dl ]]; then
-    HASH_CACHED_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-cache/dl/manifest*.json | awk '{ print $1 }')
-  fi
-
-  if [[ $HASH_LIST_MANIFEST != $HASH_CACHED_MANIFEST ]]; then
-    xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
-  fi
-
-  ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
+  install_win_sdk_when_ci_set
 }
 
 teardown_file() {
@@ -36,6 +21,55 @@ teardown() {
   rm -rf build crash-* $(conan config home)/p
 
   popd
+}
+
+## This section contains tests for version correctness and compatibility of the installed tools.
+#  Comparing the versions of the installed tools with the expected versions and ensuring
+#  that the tools are compatible with each other. E.g. that the host and embedded toolchains
+#  are aligned in terms of major and minor versions.
+
+# bats test_tags=Compatibility,Version,Clang
+@test "clang toolchain versions should be aligned with expected versions" {
+  EXPECTED_VERSION=$(get_expected_semver_for clang)
+
+  for TOOL in clang clang++ clang-cl clang-format clang-tidy; do
+    INSTALLED_VERSION=$($TOOL --version | to_semver)
+    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+  done
+}
+
+# bats test_tags=Compatibility,Version,GCC
+@test "host gcc toolchain versions and alternatives should be aligned with expected versions" {
+  EXPECTED_VERSION=$(get_expected_semver_for g++)
+
+  for TOOL in cc gcc c++ g++ gcov; do
+    INSTALLED_VERSION=$($TOOL --version | to_semver)
+    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+  done
+}
+
+# bats test_tags=Compatibility,Version,HostGCCArmGCC
+@test "host and embedded gcc toolchain versions should be the same major and minor version" {
+  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for g++ | cut -d. -f1,2)
+  INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
+  assert_equal_print $EXPECTED_MAJOR_MINOR_VERSION $INSTALLED_MAJOR_MINOR_VERSION "Host and ARM GCC major and minor version"
+}
+
+# bats test_tags=Compatibility,Version,Tools
+@test "supporting tool versions should be aligned with expected versions" {
+  for TOOL in gdb gdb-multiarch git ninja; do
+    EXPECTED_VERSION=$(get_expected_semver_for ${TOOL})
+    INSTALLED_VERSION=$(${TOOL} --version | to_semver)
+
+    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+  done
+
+  for TOOL in cmake conan; do
+    EXPECTED_VERSION=$(cat ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/requirements.in | grep ${TOOL} | to_semver)
+    INSTALLED_VERSION=$(${TOOL} --version | to_semver)
+
+    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+  done
 }
 
 @test "valid code input should result in working executable using host compiler" {
@@ -57,6 +91,8 @@ teardown() {
 }
 
 @test "valid code input should result in Windows executable using clang-cl compiler" {
+  install_win_sdk_when_ci_unset
+
   cmake --preset clang-cl
   cmake --build --preset clang-cl
 }
@@ -79,6 +115,8 @@ teardown() {
 }
 
 @test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
+  install_win_sdk_when_ci_unset
+
   configure_and_build_with_ccache clang-cl
 }
 
@@ -132,14 +170,6 @@ teardown() {
 
   run ctest --preset mutation
   assert_output --partial "[info] Mutation score:"
-}
-
-@test "host gdb should be able to start" {
-  gdb --version
-}
-
-@test "gdb-multiarch should be able to start" {
-  gdb-multiarch --version
 }
 
 @test "clangd should be able to analyze source files" {
@@ -228,4 +258,68 @@ function build_and_run_with_sanitizers() {
   run build/${PRESET}/sanitizers/test-threadsan
   assert_failure
   assert_output --partial "ThreadSanitizer: data race"
+}
+
+function to_semver() {
+  grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1
+}
+
+function get_expected_version_for() {
+  local TOOL=${1:?}
+
+  jq -sr ".[0] * .[1] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
+    ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-base.json \
+    ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-clang.json
+}
+
+function get_expected_semver_for() {
+  local TOOL=${1:?}
+
+  get_expected_version_for ${TOOL} | to_semver
+}
+
+function install_win_sdk() {
+  # Installing the Windows SDK/CRT takes a long time.
+  # When still valid, use the installation from cache.
+
+  xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-hash list
+  local HASH_LIST_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-hash/dl/manifest*.json | awk '{ print $1 }')
+  local HASH_CACHED_MANIFEST=
+
+  if [[ -d ${BATS_TEST_DIRNAME}/.xwin-cache/dl ]]; then
+    HASH_CACHED_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-cache/dl/manifest*.json | awk '{ print $1 }')
+  fi
+
+  if [[ $HASH_LIST_MANIFEST != $HASH_CACHED_MANIFEST ]]; then
+    xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
+  fi
+
+  ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
+}
+
+function install_win_sdk_when_ci_unset() {
+  # When running tests locally we typically run them one by one,
+  # and want to install the Win SDK only for each test that requires it.
+
+  if [[ -z "${CI}" ]]; then
+    install_win_sdk
+  fi
+}
+
+function install_win_sdk_when_ci_set() {
+  # When running on a CI environment we run all tests in a single batch,
+  # and only want to install the Win SKD once.
+
+  if [[ -n "${CI}" ]]; then
+    install_win_sdk
+  fi
+}
+
+function assert_equal_print() {
+  local EXPECTED=${1:?}
+  local ACTUAL=${2:?}
+  local MESSAGE=${3:-"Expecting values to be equal"}
+
+  echo "# ${MESSAGE} expected(${EXPECTED}) actual(${ACTUAL})" >&3
+  assert_equal ${ACTUAL} ${EXPECTED}
 }

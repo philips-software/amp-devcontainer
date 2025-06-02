@@ -43,7 +43,7 @@ jobs:
       - name: Run Tests
         run: |
           set -Eeuo pipefail
-          docker run --rm --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=bind,src="${{ github.workspace }}/test/${{ matrix.flavor }}",dst=/ws -w /ws ${{ github.repository }}-${{ matrix.flavor }}:test bats --formatter junit integration-tests.bats | tee test-report-${{ matrix.flavor }}-${{ matrix.runner }}.xml
+          docker run --rm --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=bind,src="${{ github.workspace }}",dst=/ws -w /ws ${{ github.repository }}-${{ matrix.flavor }}:test bats --formatter junit test/${{ matrix.flavor }}/integration-tests.bats | tee test-report-${{ matrix.flavor }}-${{ matrix.runner }}.xml
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
