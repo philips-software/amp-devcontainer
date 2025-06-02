@@ -16,7 +16,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Include the Cisco Umbrella PKI Root
 ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd306e85fb \
-    https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem /usr/local/share/ca-certificates/ciscoumbrellaroot.pem
+ https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem /usr/local/share/ca-certificates/ciscoumbrellaroot.pem
 
 # Install the base system with all tool dependencies
 # hadolint ignore=DL3008
@@ -47,7 +47,6 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,targe
  && echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences \
  && apt-get update \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends \
- && rm /tmp/apt-requirements* \
  && rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
 ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 
