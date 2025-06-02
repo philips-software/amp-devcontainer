@@ -1,10 +1,23 @@
+ARG DOCKER_VERSION=28.2.2
+
+FROM scratch as downloader-amd64
+
+ADD --checksum=sha256:53dc06dc3f775282ddff93b2d0974bbe6480761018c61e7a797342a9c7f14e23
+ "https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" /docker
+
+FROM scratch as downloader-arm64
+
+ADD --checksum=sha256:c9506628d1845c69230df3d87e2eedd7980caf8bd966f5e6a5d7a2364de42497
+ "https://download.docker.com/linux/static/stable/aarch64/docker-${DOCKER_VERSION}.tgz" /docker
+
+FROM downloader-$TARGETARCH as downloader
+
 FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233
 
 ARG BATS_VERSION=1.11.0
 ARG CCACHE_VERSION=4.11
 ARG CLANG_VERSION=18
 ARG CPM_VERSION=0.40.2
-ARG DOCKER_VERSION=27.3.1
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.22
 ARG XWIN_VERSION=0.6.5
 
@@ -56,9 +69,7 @@ RUN mkdir /opt/gcc-arm-none-eabi \
 ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Install docker-cli for Docker-from-Docker tools
-RUN wget -qO - "https://download.docker.com/linux/static/stable/$(uname -m)/docker-${DOCKER_VERSION}.tgz" | tar xz -C /tmp \
- && mv /tmp/docker/docker /usr/local/bin/ \
- && rm -rf /tmp/docker
+COPY --from=downloader /docker/docker/docker /usr/local/bin
 
 # Install bats
 RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
@@ -86,7 +97,7 @@ RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
  && CC=clang CXX=clang++ cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
  && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
- && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
+ && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev \
  && apt-get autoremove -y \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
