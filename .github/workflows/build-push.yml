@@ -67,21 +67,24 @@ jobs:
         id: devcontainer-metadata
       - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
         id: devcontainer-epoch
+      - run: echo "arch=${RUNNER_ARCH@L}" >> "$GITHUB_OUTPUT"
+        id: devcontainer-arch
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         id: build-and-push
         env:
           SOURCE_DATE_EPOCH: ${{ steps.devcontainer-epoch.outputs.git-commit-epoch }}
+          ARCH: ${{ steps.devcontainer-arch.outputs.arch }}
         with:
           file: .devcontainer/${{ matrix.flavor }}/Dockerfile
           push: ${{ github.event_name != 'merge_group' }}
-          tags: ${{ steps.metadata.outputs.tags }}-${RUNNER_ARCH@L}
+          tags: ${{ steps.metadata.outputs.tags }}-${{ env.ARCH }}
           labels: |
             ${{ steps.metadata.outputs.labels }}
             devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
-          cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}-${RUNNER_ARCH@L}
-          cache-to: type=gha,mode=max,scope=${{ github.repository }}-${{ matrix.flavor }}-${RUNNER_ARCH@L}
+          cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}-${{ env.ARCH }}
+          cache-to: type=gha,mode=max,scope=${{ github.repository }}-${{ matrix.flavor }}-${{ env.ARCH }}
       # - uses: ./.github/actions/container-size-diff
       #   id: container-size-diff
       #   with:
