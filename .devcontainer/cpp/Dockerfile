@@ -33,16 +33,15 @@ ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd30
  https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem /usr/local/share/ca-certificates/ciscoumbrellaroot.pem
 
 # Install the base system with all tool dependencies
+# Some tools are installed via pip to get more recent versions
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
+    --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
  apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
  && update-ca-certificates \
+ && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt
  && rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
-
-# Install some tools via pip to get more recent versions
-RUN --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
- python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt
 
 # Set default environment options for CMake and ccache
 ENV CMAKE_GENERATOR="Ninja"
