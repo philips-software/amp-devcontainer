@@ -95,13 +95,15 @@ RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
 
 # Update all tool alternatives to the correct version
 # and patch root's bashrc to include bash-completion
-RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-14 20 \
- && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20 \
- && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-14 10 \
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 10 \
+                        --slave /usr/bin/g++ g++ /usr/bin/g++-14 \
+                        --slave /usr/bin/gcov gcov /usr/bin/gcov-14 \
+ && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 10 \
+                        --slave /usr/bin/c++ c++ /usr/bin/g++-14 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
  && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/bin/mull-runner-${CLANG_VERSION} 10 \
- && update-alternatives --install /usr/bin/mull-reporter mull-reporter /usr/bin/mull-reporter-${CLANG_VERSION} 10 \
- && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
+                        --slave /usr/bin/mull-reporter mull-reporter /usr/bin/mull-reporter-${CLANG_VERSION} \
+                        --slave /usr/lib/mull-ir-frontend mull-ir-frontend /usr/lib/mull-ir-frontend-${CLANG_VERSION} \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
  && cp /etc/skel/.bashrc /root/.bashrc
 
