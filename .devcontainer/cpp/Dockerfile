@@ -44,7 +44,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
  apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
  && update-ca-certificates \
- && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt
+ && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt \
  && rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
 
 # Set default environment options for CMake and ccache
