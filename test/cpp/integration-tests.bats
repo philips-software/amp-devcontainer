@@ -28,6 +28,7 @@ teardown() {
 #  that the tools are compatible with each other. E.g. that the host and embedded toolchains
 #  are aligned in terms of major and minor versions.
 
+# bats test_tags=Compatibility,Version,Clang
 @test "clang toolchain versions should be aligned with expected versions" {
   EXPECTED_VERSION=$(get_expected_semver_for clang)
 
@@ -37,28 +38,38 @@ teardown() {
   done
 }
 
-@test "supporting tool versions should be aligned with expected versions" {
-  for TOOL in gdb git ninja; do
-    EXPECTED_VERSION=$(get_expected_semver_for ${TOOL})
-    INSTALLED_VERSION=$(${TOOL} --version | to_semver)
-
-    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION
-  done
-}
-
+# bats test_tags=Compatibility,Version,GCC
 @test "host gcc toolchain versions and alternatives should be aligned with expected versions" {
   EXPECTED_VERSION=$(get_expected_semver_for g++)
 
   for TOOL in cc gcc c++ g++ gcov; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
-    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION
+    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
   done
 }
 
+# bats test_tags=Compatibility,Version,HostGCCArmGCC
 @test "host and embedded gcc toolchain versions should be the same major and minor version" {
-  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_version_for g++ | cut -d. -f1,2)
+  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for g++ | cut -d. -f1,2)
   INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
-  assert_equal $EXPECTED_MAJOR_MINOR_VERSION $INSTALLED_MAJOR_MINOR_VERSION
+  assert_equal_print $EXPECTED_MAJOR_MINOR_VERSION $INSTALLED_MAJOR_MINOR_VERSION "Host and ARM GCC major and minor version"
+}
+
+# bats test_tags=Compatibility,Version,Tools
+@test "supporting tool versions should be aligned with expected versions" {
+  for TOOL in gdb gdb-multiarch git ninja; do
+    EXPECTED_VERSION=$(get_expected_semver_for ${TOOL})
+    INSTALLED_VERSION=$(${TOOL} --version | to_semver)
+
+    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+  done
+
+  for TOOL in cmake conan; do
+    EXPECTED_VERSION=$(cat ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/requirements.in | grep ${TOOL} | to_semver)
+    INSTALLED_VERSION=$(${TOOL} --version | to_semver)
+
+    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+  done
 }
 
 @test "valid code input should result in working executable using host compiler" {
@@ -159,14 +170,6 @@ teardown() {
 
   run ctest --preset mutation
   assert_output --partial "[info] Mutation score:"
-}
-
-@test "host gdb should be able to start" {
-  gdb --version
-}
-
-@test "gdb-multiarch should be able to start" {
-  gdb-multiarch --version
 }
 
 @test "clangd should be able to analyze source files" {
