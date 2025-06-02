@@ -28,45 +28,37 @@ teardown() {
 #  that the tools are compatible with each other. E.g. that the host and embedded toolchains
 #  are aligned in terms of major and minor versions.
 
-@test "host clang toolchain versions and alternatives should be aligned with expected versions" {
-  EXPECTED_VERSION=$(get_expected_version_for clang | sed -E 's/^[0-9]+://' | cut -d '~' -f1)
+@test "clang toolchain versions should be aligned with expected versions" {
+  EXPECTED_VERSION=$(get_expected_semver_for clang)
 
-  for TOOL in clang clang++; do
-    INSTALLED_VERSION=$($TOOL -dumpversion)
-    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
-  done
-
-  for TOOL in clang-cl clang-format clang-tidy; do
-    INSTALLED_VERSION=$($TOOL --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1)
-    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
+  for TOOL in clang clang++ clang-cl clang-format clang-tidy; do
+    INSTALLED_VERSION=$($TOOL --version | to_semver)
+    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
   done
 }
 
-@test "all tool versions should be aligned with the expected version" {
-  for TOOL in git ninja; do
-    EXPECTED_VERSION=$(get_expected_version_for ${TOOL} | sed -E 's/^[0-9]+://' | cut -d '~' -f1)
-    INSTALLED_VERSION=$(${TOOL} --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1)
+@test "supporting tool versions should be aligned with expected versions" {
+  for TOOL in gdb git ninja; do
+    EXPECTED_VERSION=$(get_expected_semver_for ${TOOL})
+    INSTALLED_VERSION=$(${TOOL} --version | to_semver)
 
-    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
+    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION
   done
 }
 
 @test "host gcc toolchain versions and alternatives should be aligned with expected versions" {
-  EXPECTED_VERSION=$(get_expected_version_for g++)
+  EXPECTED_VERSION=$(get_expected_semver_for g++)
 
-  for TOOL in cc gcc c++ g++; do
-    INSTALLED_VERSION=$($TOOL -dumpfullversion)
-    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
+  for TOOL in cc gcc c++ g++ gcov; do
+    INSTALLED_VERSION=$($TOOL --version | to_semver)
+    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION
   done
-
-  INSTALLED_GCOV_VERSION=$(gcov --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1)
-  assert_equal $INSTALLED_GCOV_VERSION $EXPECTED_VERSION
 }
 
 @test "host and embedded gcc toolchain versions should be the same major and minor version" {
   EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_version_for g++ | cut -d. -f1,2)
   INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
-  assert_equal $INSTALLED_MAJOR_MINOR_VERSION $EXPECTED_MAJOR_MINOR_VERSION
+  assert_equal $EXPECTED_MAJOR_MINOR_VERSION $INSTALLED_MAJOR_MINOR_VERSION
 }
 
 @test "valid code input should result in working executable using host compiler" {
@@ -265,12 +257,22 @@ function build_and_run_with_sanitizers() {
   assert_output --partial "ThreadSanitizer: data race"
 }
 
+function to_semver() {
+  grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1
+}
+
 function get_expected_version_for() {
   local TOOL=${1:?}
 
   jq -sr ".[0] * .[1] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
     ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-base.json \
     ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-clang.json
+}
+
+function get_expected_semver_for() {
+  local TOOL=${1:?}
+
+  get_expected_version_for ${TOOL} | to_semver
 }
 
 function install_win_sdk() {
@@ -308,4 +310,13 @@ function install_win_sdk_when_ci_set() {
   if [[ -n "${CI}" ]]; then
     install_win_sdk
   fi
+}
+
+function assert_equal_print() {
+  local EXPECTED=${1:?}
+  local ACTUAL=${2:?}
+  local MESSAGE=${3:-"Expecting values to be equal"}
+
+  echo "# ${MESSAGE} expected(${EXPECTED}) actual(${ACTUAL})" >&3
+  assert_equal ${ACTUAL} ${EXPECTED}
 }
