@@ -36,7 +36,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Include the Cisco Umbrella PKI Root
 ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd306e85fb \
- https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem /usr/local/share/ca-certificates/ciscoumbrellaroot.pem
+ https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem /usr/local/share/ca-certificates/cisco-umbrella.crt
 
 # Install the base system with all tool dependencies
 # Some tools are installed via pip to get more recent versions
