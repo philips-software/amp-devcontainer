@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 
+ARG BATS_VERSION=1.12.0
 ARG DOCKER_VERSION=28.2.2
 ARG XWIN_VERSION=0.6.5
 
@@ -24,22 +25,26 @@ ADD --checksum=sha256:5e131007fad7c5f30d2f41090b49937fb8f16a787e5a95b4b3140e88d1
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 FROM downloader-$TARGETARCH AS downloader
+ARG BATS_VERSION
 ADD --checksum=sha256:ce6eee4130298f79b0e0f09a89f93c1bc711cd68e7e3182d37c8e96c5227e2f0 \
  https://apt.llvm.org/llvm-snapshot.gpg.key /llvm.gpg.key
 ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323fefcf1 \
  https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key /mull.gpg.key
+ADD --checksum=sha256:e36b020436228262731e3319ed013d84fcd7c4bd97a1b34dee33d170e9ae6bab \
+ https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz /bats-core.tar.gz
 
 FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233 AS extractor
 
 ARG XWIN_VERSION
 
-WORKDIR /tmp
+WORKDIR /
 
 # hadolint ignore=DL3008
 RUN --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
  apt-get update && apt-get install -y --no-install-recommends xz-utils \
+ && tar xzf /dl/bats-core.tar.gz && mv bats-core-*/ bats-core \
  && tar xzf /dl/docker.tgz \
  && tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin" \
  && tar xJf /dl/arm-gnu-toolchain.tar.xz --exclude='*arm-none-eabi-gdb*' --exclude='share' \
@@ -47,7 +52,6 @@ RUN --mount=from=downloader,target=/dl \
 
 FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233
 
-ARG BATS_VERSION=1.11.0
 ARG CCACHE_VERSION=4.11
 ARG CLANG_VERSION=18
 ARG CPM_VERSION=0.40.2
@@ -59,9 +63,13 @@ HEALTHCHECK NONE
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Include the Cisco Umbrella PKI Root
+# Add the Cisco Umbrella PKI Root
 ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd306e85fb \
  https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem /usr/local/share/ca-certificates/cisco-umbrella.crt
+
+# Add additional tools for bats testing framework
+ADD https://github.com/bats-core/bats-support#v0.3.0 /usr/local
+ADD https://github.com/bats-core/bats-assert#v2.1.0 /usr/local
 
 # Install the base system with all tool dependencies
 # Some tools are installed via pip to get more recent versions
@@ -70,11 +78,13 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    --mount=from=extractor,target=/src \
  apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
     xargs apt-get install -y --no-install-recommends \
  && update-ca-certificates \
- && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt
+ && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt \
+ && bash /src/bats-core/install.sh /usr/local
 
 # Set default environment options for CMake and ccache
 ENV CMAKE_GENERATOR="Ninja"
@@ -99,17 +109,9 @@ ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Copy tools from the extractor stage
-COPY --from=extractor /tmp/docker/docker /usr/local/bin
-COPY --from=extractor /tmp/xwin /usr/local/bin/xwin
-COPY --from=extractor /tmp/gcc-arm-none-eabi /opt/gcc-arm-none-eabi
-
-# Install bats
-RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
- && wget -qO - https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz | tar xz -C "${batstmp}" \
- && bash "${batstmp}/bats-core-${BATS_VERSION}/install.sh" /usr/local \
- && rm -rf "${batstmp}" \
- && git -C /usr/local clone -b v0.3.0 https://github.com/bats-core/bats-support.git \
- && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
+COPY --from=extractor /docker/docker /usr/local/bin
+COPY --from=extractor /xwin /usr/local/bin/xwin
+COPY --from=extractor /gcc-arm-none-eabi /opt/gcc-arm-none-eabi
 
 # Compile and install additional clang tools; often necessary as binary arm64 builds are lacking, or packages are out-of-date
 # Install ccache from source for a recent version
