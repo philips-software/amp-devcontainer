@@ -1,16 +1,27 @@
 # syntax=docker/dockerfile:1
 
+ARG DOCKER_VERSION=28.2.2
+ARG XWIN_VERSION=0.6.5
+
 FROM scratch AS downloader-amd64
+ARG DOCKER_VERSION
+ARG XWIN_VERSION
 ADD --checksum=sha256:53dc06dc3f775282ddff93b2d0974bbe6480761018c61e7a797342a9c7f14e23 \
- https://download.docker.com/linux/static/stable/x86_64/docker-28.2.2.tgz /docker.tgz
+ https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz /docker.tgz
 ADD --checksum=sha256:62a63b981fe391a9cbad7ef51b17e49aeaa3e7b0d029b36ca1e9c3b2a9b78823 \
  https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz /arm-gnu-toolchain.tar.xz
+ADD --checksum=sha256:9fd53950b064d067f42428a69453b927656cae68dbd7f8d3f86dcb81c80dd22d \
+ https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 FROM scratch AS downloader-arm64
+ARG DOCKER_VERSION
+ARG XWIN_VERSION
 ADD --checksum=sha256:c9506628d1845c69230df3d87e2eedd7980caf8bd966f5e6a5d7a2364de42497 \
- https://download.docker.com/linux/static/stable/aarch64/docker-28.2.2.tgz /docker.tgz
+ https://download.docker.com/linux/static/stable/aarch64/docker-${DOCKER_VERSION}.tgz /docker.tgz
 ADD --checksum=sha256:87330bab085dd8749d4ed0ad633674b9dc48b237b61069e3b481abd364d0a684 \
  https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-aarch64-arm-none-eabi.tar.xz /arm-gnu-toolchain.tar.xz
+ADD --checksum=sha256:5e131007fad7c5f30d2f41090b49937fb8f16a787e5a95b4b3140e88d174dab2 \
+ https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 FROM downloader-$TARGETARCH AS downloader
 ADD --checksum=sha256:ce6eee4130298f79b0e0f09a89f93c1bc711cd68e7e3182d37c8e96c5227e2f0 \
@@ -20,6 +31,8 @@ ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323
 
 FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233 AS extractor
 
+ARG XWIN_VERSION
+
 WORKDIR /tmp
 
 # hadolint ignore=DL3008
@@ -28,6 +41,7 @@ RUN --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
  apt-get update && apt-get install -y --no-install-recommends xz-utils \
  && tar xzf /dl/docker.tgz \
+ && tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin" \
  && tar xJf /dl/arm-gnu-toolchain.tar.xz --exclude='*arm-none-eabi-gdb*' --exclude='share' \
  && mv arm-gnu-toolchain-*/ gcc-arm-none-eabi
 
@@ -38,7 +52,6 @@ ARG CCACHE_VERSION=4.11
 ARG CLANG_VERSION=18
 ARG CPM_VERSION=0.40.2
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.22
-ARG XWIN_VERSION=0.6.5
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -87,6 +100,7 @@ ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Copy tools from the extractor stage
 COPY --from=extractor /tmp/docker/docker /usr/local/bin
+COPY --from=extractor /tmp/xwin /usr/local/bin/xwin
 COPY --from=extractor /tmp/gcc-arm-none-eabi /opt/gcc-arm-none-eabi
 
 # Install bats
@@ -96,9 +110,6 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
  && rm -rf "${batstmp}" \
  && git -C /usr/local clone -b v0.3.0 https://github.com/bats-core/bats-support.git \
  && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
-
-# Install xwin
-RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
 
 # Compile and install additional clang tools; often necessary as binary arm64 builds are lacking, or packages are out-of-date
 # Install ccache from source for a recent version
