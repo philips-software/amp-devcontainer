@@ -28,7 +28,8 @@ RUN --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
  apt-get update && apt-get install -y --no-install-recommends xz-utils \
  && tar xzf /dl/docker.tgz \
- && tar xJf /dl/arm-gnu-toolchain.tar.xz --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1
+ && tar xJf /dl/arm-gnu-toolchain.tar.xz --exclude='*arm-none-eabi-gdb*' --exclude='share' \
+ && mv arm-gnu-toolchain-*/ gcc-arm-none-eabi
 
 FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233
 
@@ -86,7 +87,7 @@ ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Copy tools from the extractor stage
 COPY --from=extractor /tmp/docker/docker /usr/local/bin
-COPY --from=extractor /tmp/arm-none-eabi /opt
+COPY --from=extractor /tmp/gcc-arm-none-eabi /opt/gcc-arm-none-eabi
 
 # Install bats
 RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
