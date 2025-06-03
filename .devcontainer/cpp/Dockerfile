@@ -3,10 +3,14 @@
 FROM scratch AS downloader-amd64
 ADD --checksum=sha256:53dc06dc3f775282ddff93b2d0974bbe6480761018c61e7a797342a9c7f14e23 \
  https://download.docker.com/linux/static/stable/x86_64/docker-28.2.2.tgz /docker.tgz
+ADD --checksum=sha256:62a63b981fe391a9cbad7ef51b17e49aeaa3e7b0d029b36ca1e9c3b2a9b78823 \
+ https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz /arm-gnu-toolchain.tar.xz
 
 FROM scratch AS downloader-arm64
 ADD --checksum=sha256:c9506628d1845c69230df3d87e2eedd7980caf8bd966f5e6a5d7a2364de42497 \
  https://download.docker.com/linux/static/stable/aarch64/docker-28.2.2.tgz /docker.tgz
+ADD --checksum=sha256:87330bab085dd8749d4ed0ad633674b9dc48b237b61069e3b481abd364d0a684 \
+ https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-aarch64-arm-none-eabi.tar.xz /arm-gnu-toolchain.tar.xz
 
 FROM downloader-$TARGETARCH AS downloader
 ADD --checksum=sha256:ce6eee4130298f79b0e0f09a89f93c1bc711cd68e7e3182d37c8e96c5227e2f0 \
@@ -16,8 +20,15 @@ ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323
 
 FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233 AS extractor
 
+WORKDIR /tmp
+
+# hadolint ignore=DL3008
 RUN --mount=from=downloader,target=/dl \
- tar xzf /dl/docker.tgz -C /tmp
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+ apt-get update && apt-get install -y --no-install-recommends xz-utils \
+ && tar xzf /dl/docker.tgz \
+ && tar xJf /dl/arm-gnu-toolchain.tar.xz --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1
 
 FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233
 
@@ -43,11 +54,13 @@ ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd30
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
  apt-get update && apt-get install -y --no-install-recommends jq \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
+ && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
+    xargs apt-get install -y --no-install-recommends \
  && update-ca-certificates \
- && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt \
- && rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
+ && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt
 
 # Set default environment options for CMake and ccache
 ENV CMAKE_GENERATOR="Ninja"
@@ -69,14 +82,11 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,targe
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends \
  && rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
 ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
-
-# Install arm-gcc toolchain
-RUN mkdir /opt/gcc-arm-none-eabi \
- && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
 ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
-# Install docker-cli for Docker-from-Docker tools
+# Copy tools from the extractor stage
 COPY --from=extractor /tmp/docker/docker /usr/local/bin
+COPY --from=extractor /tmp/arm-none-eabi /opt
 
 # Install bats
 RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
