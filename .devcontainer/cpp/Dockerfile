@@ -32,6 +32,10 @@ ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323
  https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key /mull.gpg.key
 ADD --checksum=sha256:e36b020436228262731e3319ed013d84fcd7c4bd97a1b34dee33d170e9ae6bab \
  https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz /bats-core.tar.gz
+ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd306e85fb \
+ https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem /cisco-umbrella.crt
+ADD https://github.com/bats-core/bats-support#v0.3.0 /
+ADD https://github.com/bats-core/bats-assert#v2.1.0 /
 
 FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233 AS extractor
 
@@ -63,55 +67,47 @@ HEALTHCHECK NONE
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Add the Cisco Umbrella PKI Root
-ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd306e85fb \
- https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem /usr/local/share/ca-certificates/cisco-umbrella.crt
-
-# Add additional tools for bats testing framework
-ADD https://github.com/bats-core/bats-support#v0.3.0 /usr/local
-ADD https://github.com/bats-core/bats-assert#v2.1.0 /usr/local
+# Set default environment options for CMake, ccache, and CPM
+# and update the PATH to include the toolchain binaries
+ENV CMAKE_GENERATOR="Ninja" \
+    CMAKE_EXPORT_COMPILE_COMMANDS="On" \
+    CCACHE_DIR=/cache/.ccache \
+    CPM_SOURCE_CACHE=/cache/.cpm-cache \
+    PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin"
 
 # Install the base system with all tool dependencies
 # Some tools are installed via pip to get more recent versions
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
+    --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    --mount=from=downloader,target=/dl \
     --mount=from=extractor,target=/src \
  apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
     xargs apt-get install -y --no-install-recommends \
+ && cp /dl/cisco-umbrella.crt /usr/local/share/ca-certificates/cisco-umbrella.crt \
  && update-ca-certificates \
  && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt \
- && bash /src/bats-core/install.sh /usr/local
-
-# Set default environment options for CMake and ccache
-ENV CMAKE_GENERATOR="Ninja"
-ENV CMAKE_EXPORT_COMPILE_COMMANDS="On"
-ENV CCACHE_DIR=/cache/.ccache
-ENV CPM_SOURCE_CACHE=/cache/.cpm-cache
-
-# Install clang toolchain and mull mutation testing framework
-# hadolint ignore=SC1091
-RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
-    --mount=from=downloader,target=/keys \
-    cat /keys/llvm.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
- && cat /keys/mull.gpg.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg \
- && UBUNTU_CODENAME=$(. /etc/os-release; echo "${UBUNTU_CODENAME/*, /}") \
+ # Copy and install tools from the extractor stage
+ && bash /src/bats-core/install.sh /usr/local \
+ && cp -r /dl/bats-support /usr/local/bats-support \
+ && cp -r /dl/bats-assert /usr/local/bats-assert \
+ && cp /src/docker/docker /usr/local/bin \
+ && cp /src/xwin /usr/local/bin/xwin \
+ && cp -r /src/gcc-arm-none-eabi /opt/gcc-arm-none-eabi \
+ # Install clang toolchain and mull mutation testing framework
+ && cat /dl/llvm.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
+ && cat /dl/mull.gpg.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg \
+ && UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2) \
  && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
  && echo "deb [signed-by=/usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/mull-project/mull-stable/deb/ubuntu ${UBUNTU_CODENAME} main" | tee /etc/apt/sources.list.d/mull-project-mull-stable.list > /dev/null \
  && echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences \
  && apt-get update \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends \
- && rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
-ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
-ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
-
-# Copy tools from the extractor stage
-COPY --from=extractor /docker/docker /usr/local/bin
-COPY --from=extractor /xwin /usr/local/bin/xwin
-COPY --from=extractor /gcc-arm-none-eabi /opt/gcc-arm-none-eabi
+ && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
+    xargs apt-get install -y --no-install-recommends
 
 # Compile and install additional clang tools; often necessary as binary arm64 builds are lacking, or packages are out-of-date
 # Install ccache from source for a recent version
