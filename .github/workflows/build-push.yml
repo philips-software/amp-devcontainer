@@ -95,6 +95,8 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
+    outputs:
+      digest: ${{ steps.inspect-manifest.outputs.digest }}
     steps:
       - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
         with:
@@ -195,8 +197,35 @@ jobs:
           UPDATED_NOTES=${UPDATED_NOTES//'{{ amp-devcontainer-${{ matrix.flavor }}-sha }}'/'${{ steps.inspect-manifest.outputs.digest }}'}
           gh release edit ${{ github.ref_name }} --notes "${UPDATED_NOTES}"
 
-  # integration_test:
-
+  integration-test:
+    if: github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        flavor: ["cpp", "rust"]
+        runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
+    needs: merge-image
+    runs-on: ${{ matrix.runner }}
+    container: ghcr.io/${{ github.repository }}-${{ matrix.flavor }}@${{ needs.merge-image.outputs.digest }}
+    steps:
+      - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        if: matrix.flavor == 'cpp'
+        with:
+          path: test/.xwin-cache
+          key: xwin-cache
+          restore-keys: |
+            xwin-cache
+      - run: bats --formatter junit test/${{ matrix.flavor }}/integration-tests.bats | tee test-report-${{ matrix.flavor }}-${{ matrix.runner }}.xml
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: test-results-${{ matrix.flavor }}-${{ matrix.runner }}
+          path: test-report-*.xml
 
   acceptance-test:
     if: github.event_name == 'pull_request'
@@ -206,11 +235,21 @@ jobs:
     with:
       flavor: cpp
 
-  # publish_test_results:
-  #   if: github.event_name == 'pull_request'
-  #   needs: [acceptance-test, integration-test]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Publish test results
-  #       run: |
-  #         set -Eeuo pipefail
+  publish-test-results:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
+    needs: [acceptance-test, integration-test]
+    if: always()
+    steps:
+      - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          merge-multiple: true
+          pattern: test-results-*
+      - uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
+        with:
+          files: test-report-*.xml
