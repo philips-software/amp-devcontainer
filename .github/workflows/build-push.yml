@@ -141,7 +141,7 @@ jobs:
         id: container-size-diff
         with:
           from-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}:latest
-          to-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.metadata.outputs.version }}
+          to-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}:${{ steps.metadata.outputs.version }}
       - uses: marocchino/sticky-pull-request-comment@67d0dec7b07ed060a405f9b2a64b8ab319fdd7db # v2.9.2
         with:
           header: container-size-diff-${{ matrix.flavor }}
