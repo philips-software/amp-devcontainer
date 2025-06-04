@@ -58,7 +58,7 @@ jobs:
         with:
           file: .devcontainer/${{ matrix.flavor }}/Dockerfile
           push: ${{ github.event_name != 'merge_group' }}
-          tags: ${{ steps.metadata.outputs.tags }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}
           labels: |
             ${{ steps.metadata.outputs.labels }}
             devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
@@ -82,6 +82,7 @@ jobs:
       matrix:
         flavor: ["cpp", "rust"]
     runs-on: ubuntu-latest
+    needs: build-push
     permissions:
       attestations: write
       # dependency-submission needs contents write permission.
