@@ -51,6 +51,8 @@ jobs:
         id: devcontainer-metadata
       - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
         id: devcontainer-epoch
+      - run: echo "arch=${RUNNER_ARCH@L}" >> "$GITHUB_OUTPUT"
+        id: devcontainer-arch
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         id: build-and-push
         env:
@@ -72,7 +74,7 @@ jobs:
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: digests-${{ matrix.flavor }}-${{ env.RUNNER_ARCH }}
+          name: digests-${{ matrix.flavor }}-${{ steps.devcontainer-arch.outputs.arch }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
