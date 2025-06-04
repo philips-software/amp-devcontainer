@@ -132,13 +132,15 @@ jobs:
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
+          set -Eeuo pipefail
           docker buildx imagetools create \
             $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags | map("--tag " + .) | join(" ")') \
-            $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.annotation | map("--annotation " + .) | join(" ")') \
+            $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.annotations | map("--annotation " + .) | join(" ")') \
             $(printf '${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@sha256:%s ' *)
       - name: Inspect manifest and extract digest
         id: inspect-manifest
         run: |
+          set -Eeuo pipefail
           output=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}:${{ steps.metadata.outputs.version }} --format '{{json .}}')
           digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
