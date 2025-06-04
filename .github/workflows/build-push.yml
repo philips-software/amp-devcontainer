@@ -42,6 +42,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
+        env:
+          DOCKER_METADATA_SET_OUTPUT_ENV: false
         id: metadata
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}
@@ -116,6 +118,7 @@ jobs:
         id: metadata
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
+          DOCKER_METADATA_SET_OUTPUT_ENV: false
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}
           # Generate Docker tags based on the following events/attributes
@@ -129,7 +132,7 @@ jobs:
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${{ steps.metadata.outputs.json }}") \
             $(printf '${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@sha256:%s ' *)
       - name: Inspect manifest and extract digest
         id: inspect-manifest
@@ -193,7 +196,7 @@ jobs:
 
   acceptance-test:
     if: github.event_name == 'pull_request'
-    needs: build-push
+    needs: merge-image
     secrets: inherit
     uses: ./.github/workflows/acceptance-test.yml
     with:
