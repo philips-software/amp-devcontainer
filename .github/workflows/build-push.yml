@@ -196,23 +196,18 @@ jobs:
           UPDATED_NOTES=${UPDATED_NOTES//'{{ amp-devcontainer-${{ matrix.flavor }}-sha }}'/'${{ steps.inspect-manifest.outputs.digest }}'}
           gh release edit ${{ github.ref_name }} --notes "${UPDATED_NOTES}"
 
-  integration-test-cpp:
+  integration-test:
     if: github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        flavor: [cpp, rust]
+        runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
     needs: merge-image
     secrets: inherit
     uses: ./.github/workflows/integration-test.yml
     with:
-      container: ghcr.io/${{ github.repository }}-cpp@${{ needs.merge-image-cpp.outputs.digest }}
-      flavor: cpp
-
-  integration-test-rust:
-    if: github.event_name == 'pull_request'
-    needs: merge-image
-    secrets: inherit
-    uses: ./.github/workflows/integration-test.yml
-    with:
-      container: ghcr.io/${{ github.repository }}-rust@${{ needs.merge-image-rust.outputs.digest }}
-      flavor: rust
+      flavor: ${{ matrix.flavor }}
+      runner: ${{ matrix.runner }}
 
   acceptance-test:
     if: github.event_name == 'pull_request'
@@ -227,7 +222,7 @@ jobs:
     permissions:
       checks: write
       pull-requests: write
-    needs: [acceptance-test, integration-test-cpp, integration-test-rust]
+    needs: [acceptance-test, integration-test]
     if: always()
     steps:
       - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
