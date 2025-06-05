@@ -11,10 +11,6 @@ on:
         required: true
         type: string
 
-concurrency:
-  group: ${{ github.ref }}-${{ github.workflow }}
-  cancel-in-progress: false
-
 permissions:
   contents: read
 
