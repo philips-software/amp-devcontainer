@@ -137,7 +137,7 @@ jobs:
           set -Eeuo pipefail
             docker buildx imagetools create \
             $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags | map("--tag " + .) | join(" ")') \
-            $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.annotations | map("--annotation \"" + . + "\"") | join(" ")') \
+            #$(echo '${{ steps.metadata.outputs.json }}' | jq -r '.annotations | map("--annotation \"" + . + "\"") | join(" ")') \
             $(printf '${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@sha256:%s ' *)
       - name: Inspect manifest and extract digest
         id: inspect-manifest
