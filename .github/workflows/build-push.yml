@@ -69,6 +69,8 @@ jobs:
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
           outputs: type=image,push-by-digest=true,name-canonical=true
+          cache-to: type=gha,mode=max,scope=${{ github.repository }}-${{ matrix.flavor }}-${{ matrix.runner }}
+          cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}-${{ matrix.runner }}
       - name: Export digest
         run: |
           mkdir -p ${{ runner.temp }}/digests
@@ -95,8 +97,6 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
-    outputs:
-      digest: ${{ steps.inspect-manifest.outputs.digest }}
     steps:
       - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
         with:
