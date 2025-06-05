@@ -196,32 +196,23 @@ jobs:
           UPDATED_NOTES=${UPDATED_NOTES//'{{ amp-devcontainer-${{ matrix.flavor }}-sha }}'/'${{ steps.inspect-manifest.outputs.digest }}'}
           gh release edit ${{ github.ref_name }} --notes "${UPDATED_NOTES}"
 
-  integration-test:
+  integration-test-cpp:
     if: github.event_name == 'pull_request'
-    strategy:
-      matrix:
-        flavor: ["cpp", "rust"]
-        runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
     needs: merge-image
-    runs-on: ${{ matrix.runner }}
-    container: ghcr.io/${{ github.repository }}-${{ matrix.flavor }}@${{ needs.merge-image.outputs.digest }}
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          persist-credentials: false
-      - uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        if: matrix.flavor == 'cpp'
-        with:
-          path: test/.xwin-cache
-          key: xwin-cache
-          restore-keys: |
-            xwin-cache
-      - run: bats --formatter junit test/${{ matrix.flavor }}/integration-tests.bats | tee test-report-${{ matrix.flavor }}-${{ matrix.runner }}.xml
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always()
-        with:
-          name: test-results-${{ matrix.flavor }}-${{ matrix.runner }}
-          path: test-report-*.xml
+    secrets: inherit
+    uses: ./.github/workflows/acceptance-test.yml
+    with:
+      container: ghcr.io/${{ github.repository }}-cpp@${{ needs.merge-image-cpp.outputs.digest }}
+      flavor: cpp
+
+  integration-test-rust:
+    if: github.event_name == 'pull_request'
+    needs: merge-image
+    secrets: inherit
+    uses: ./.github/workflows/acceptance-test.yml
+    with:
+      container: ghcr.io/${{ github.repository }}-rust@${{ needs.merge-image-rust.outputs.digest }}
+      flavor: rust
 
   acceptance-test:
     if: github.event_name == 'pull_request'
@@ -236,7 +227,7 @@ jobs:
     permissions:
       checks: write
       pull-requests: write
-    needs: [acceptance-test, integration-test]
+    needs: [acceptance-test, integration-test-cpp]
     if: always()
     steps:
       - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
