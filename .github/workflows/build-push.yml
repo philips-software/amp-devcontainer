@@ -200,7 +200,7 @@ jobs:
     if: github.event_name == 'pull_request'
     needs: merge-image
     secrets: inherit
-    uses: ./.github/workflows/acceptance-test.yml
+    uses: ./.github/workflows/integration-test.yml
     with:
       container: ghcr.io/${{ github.repository }}-cpp@${{ needs.merge-image-cpp.outputs.digest }}
       flavor: cpp
@@ -209,7 +209,7 @@ jobs:
     if: github.event_name == 'pull_request'
     needs: merge-image
     secrets: inherit
-    uses: ./.github/workflows/acceptance-test.yml
+    uses: ./.github/workflows/integration-test.yml
     with:
       container: ghcr.io/${{ github.repository }}-rust@${{ needs.merge-image-rust.outputs.digest }}
       flavor: rust
@@ -227,7 +227,7 @@ jobs:
     permissions:
       checks: write
       pull-requests: write
-    needs: [acceptance-test, integration-test-cpp]
+    needs: [acceptance-test, integration-test-cpp, integration-test-rust]
     if: always()
     steps:
       - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
