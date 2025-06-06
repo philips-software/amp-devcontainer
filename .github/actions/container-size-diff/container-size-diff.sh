@@ -23,11 +23,9 @@ get_sizes_from_manifest() {
 get_sizes_from_manifest ${FROM_CONTAINER} FROM_CONTAINER_SIZES
 get_sizes_from_manifest ${TO_CONTAINER} TO_CONTAINER_SIZES
 
-echo "## 📊 Container Size Analysis"
+echo "## 📦 Container Size Analysis"
 echo
-echo "Comparing compressed layer sizes of:"
-echo "📦 Base: \`${FROM_CONTAINER}\`"
-echo "📦 Current: \`${TO_CONTAINER}\`"
+echo "Comparing \`${FROM_CONTAINER}\` to \`${TO_CONTAINER}\`"
 echo
 
 echo "### 📈 Size Comparison Table"
@@ -37,10 +35,20 @@ echo "|-------------|:-------------:|:------------:|:------:|:-----:|"
 
 for PLATFORM in "${!FROM_CONTAINER_SIZES[@]}";
 do
-    BASE_SIZE=${FROM_CONTAINER_SIZES[${PLATFORM}]}
-    HEAD_SIZE=${TO_CONTAINER_SIZES[${PLATFORM}]}
-    DELTA=$((${HEAD_SIZE} - ${BASE_SIZE}))
-    PERCENT_CHANGE=$(python -c "print('{:+0.2f}'.format(((${HEAD_SIZE} - ${BASE_SIZE}) / ${BASE_SIZE}) * 100))")
+    FROM_SIZE=${FROM_CONTAINER_SIZES[${PLATFORM}]:0}
+    TO_SIZE=${TO_CONTAINER_SIZES[${PLATFORM}]:0}
+    DELTA=$((${TO_SIZE} - ${FROM_SIZE}))
+
+    if [[ ${FROM_SIZE} -eq 0 ]]; then
+        # If base size was 0, and there's a change, that's infinite percentage change
+        if [[ ${TO_SIZE} -gt 0 ]]; then
+            PERCENT_CHANGE="+∞"
+        else
+            PERCENT_CHANGE="+0.00"
+        fi
+    else
+        PERCENT_CHANGE=$(awk -v head="${TO_SIZE}" -v base="${FROM_SIZE}" 'BEGIN { printf "%+0.2f", ((head - base) / base) * 100 }')
+    fi
 
     if (( DELTA < 0 )); then
         ICON="🔽"
@@ -56,5 +64,5 @@ do
         MD_COLOR_END=""
     fi
 
-    echo "| ${PLATFORM} | $(numfmt --to iec --format '%.2f' ${BASE_SIZE}) | $(numfmt --to iec --format '%.2f' ${HEAD_SIZE}) | ${MD_COLOR_START}$(numfmt --to iec --format '%.2f' ${DELTA}) (${PERCENT_CHANGE}%)${MD_COLOR_END} | ${ICON} |"
+    echo "| ${PLATFORM} | $(numfmt --to iec --format '%.2f' ${FROM_SIZE}) | $(numfmt --to iec --format '%.2f' ${TO_SIZE}) | ${MD_COLOR_START}$(numfmt --to iec --format '%.2f' ${DELTA}) (${PERCENT_CHANGE}%)${MD_COLOR_END} | ${ICON} |"
 done
