@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.1.0](https://github.com/philips-software/amp-devcontainer/compare/v6.0.2...v6.1.0) (2025-06-06)
+
+
+### Features
+
+* Add alternatives for gcc and g++ ([#805](https://github.com/philips-software/amp-devcontainer/issues/805)) ([3d44ce6](https://github.com/philips-software/amp-devcontainer/commit/3d44ce66df7b82f96ffc6b9787d38b39a3c33e38))
+
+
+### Chores
+
+* Add bootstrap (stub-)container ([#804](https://github.com/philips-software/amp-devcontainer/issues/804)) ([e08e510](https://github.com/philips-software/amp-devcontainer/commit/e08e51010b69fc2b256893d9bf0d33d7ddfc63f1))
+* **deps, cpp:** Update ms-vscode.cpptools ([#783](https://github.com/philips-software/amp-devcontainer/issues/783)) ([cb872e7](https://github.com/philips-software/amp-devcontainer/commit/cb872e79e4dc4fd8baf2f6b94c4eb286eba6f0b2))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#802](https://github.com/philips-software/amp-devcontainer/issues/802)) ([0ff643a](https://github.com/philips-software/amp-devcontainer/commit/0ff643aea60a5dcd6a42b54a9b474040423a721b))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#809](https://github.com/philips-software/amp-devcontainer/issues/809)) ([6d9c7cb](https://github.com/philips-software/amp-devcontainer/commit/6d9c7cbd025027da68447ee325adf0e3ed0355da))
+* **deps:** Bump conan from 2.16.1 to 2.17.0 in /.devcontainer ([798ab61](https://github.com/philips-software/amp-devcontainer/commit/798ab61790bc3b75c15609e336e83b4be960224b))
+* **deps:** Bump conan from 2.16.1 to 2.17.0 in amp-devcontainer-cpp ([#811](https://github.com/philips-software/amp-devcontainer/issues/811)) ([798ab61](https://github.com/philips-software/amp-devcontainer/commit/798ab61790bc3b75c15609e336e83b4be960224b))
+
 ## [6.0.2](https://github.com/philips-software/amp-devcontainer/compare/v6.0.1...v6.0.2) (2025-05-19)
 
 
