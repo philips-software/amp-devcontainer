@@ -1,0 +1,52 @@
+---
+name: Integration Test
+
+on:
+  workflow_call:
+    inputs:
+      flavor:
+        required: true
+        type: string
+      runner:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  determine-container:
+    runs-on: ${{ inputs.runner }}
+    outputs:
+      container: ${{ steps.set-container.outputs.container }}
+    steps:
+      - run: echo "arch=${RUNNER_ARCH@L}" >> "$GITHUB_OUTPUT"
+        id: runner-arch
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          path: ${{ runner.temp }}
+          pattern: digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
+      - run: echo "container=$(printf 'ghcr.io/${{ github.repository }}-${{ inputs.flavor }}@sha256:%s ' *)" >> "$GITHUB_OUTPUT"
+        working-directory: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
+        id: set-container
+  run-test:
+    needs: determine-container
+    runs-on: ${{ inputs.runner }}
+    container: ${{ needs.determine-container.outputs.container }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        if: inputs.flavor == 'cpp'
+        with:
+          path: test/.xwin-cache
+          key: xwin-cache
+          restore-keys: |
+            xwin-cache
+      - run: bats --formatter junit test/${{ inputs.flavor }}/integration-tests.bats | tee test-report-${{ inputs.flavor }}-${{ inputs.runner }}.xml
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: test-results-${{ inputs.flavor }}-${{ inputs.runner }}
+          path: test-report-*.xml
