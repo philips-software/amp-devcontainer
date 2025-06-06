@@ -44,9 +44,7 @@ jobs:
           key: xwin-cache
           restore-keys: |
             xwin-cache
-      - run: |
-          set -Eeuo pipefail
-          bats --formatter junit test/${{ inputs.flavor }}/integration-tests.bats | tee test-report-${{ inputs.flavor }}-${{ inputs.runner }}.xml
+      - run: bats --formatter junit test/${{ inputs.flavor }}/integration-tests.bats | tee test-report-${{ inputs.flavor }}-${{ inputs.runner }}.xml
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
