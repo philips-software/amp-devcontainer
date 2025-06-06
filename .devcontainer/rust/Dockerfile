@@ -24,6 +24,7 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
 
 # Install rust
 ENV CARGO_HOME=/usr/local/cargo \
+    RUSTUP_HOME=/usr/local/rustup \
     PATH=/usr/local/cargo/bin:"$PATH"
 RUN rustup set profile minimal \
  && rustup default ${RUST_VERSION} \
