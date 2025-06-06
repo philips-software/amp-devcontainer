@@ -72,6 +72,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV CMAKE_GENERATOR="Ninja" \
     CMAKE_EXPORT_COMPILE_COMMANDS="On" \
     CCACHE_DIR=/cache/.ccache \
+    CONAN_HOME=/opt/conan \
     CPM_SOURCE_CACHE=/cache/.cpm-cache \
     PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin"
 
