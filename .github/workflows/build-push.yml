@@ -134,8 +134,9 @@ jobs:
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
+          # shellcheck disable=SC2046
           set -Eeuo pipefail
-            docker buildx imagetools create \
+          docker buildx imagetools create \
             $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags | map("--tag " + .) | join(" ")') \
             $(printf '${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@sha256:%s ' *)
       - name: Inspect manifest and extract digest
