@@ -40,29 +40,23 @@ do
     DELTA=$((${TO_SIZE} - ${FROM_SIZE}))
 
     if [[ ${FROM_SIZE} -eq 0 ]]; then
-        # If base size was 0, and there's a change, that's infinite percentage change
+        # If from size was 0, and there's a change, that's infinite percentage change
         if [[ ${TO_SIZE} -gt 0 ]]; then
             PERCENT_CHANGE="+∞"
         else
             PERCENT_CHANGE="+0.00"
         fi
     else
-        PERCENT_CHANGE=$(awk -v head="${TO_SIZE}" -v base="${FROM_SIZE}" 'BEGIN { printf "%+0.2f", ((head - base) / base) * 100 }')
+        PERCENT_CHANGE=$(awk -v to="${TO_SIZE}" -v from="${FROM_SIZE}" 'BEGIN { printf "%+0.2f", ((to - from) / from) * 100 }')
     fi
 
     if (( DELTA < 0 )); then
         ICON="🔽"
-        MD_COLOR_START="<span style=\"color:green\">"
-        MD_COLOR_END="</span>"
     elif (( DELTA > 0 )); then
         ICON="🔼"
-        MD_COLOR_START="<span style=\"color:red\">"
-        MD_COLOR_END="</span>"
     else
         ICON="🔄"
-        MD_COLOR_START=""
-        MD_COLOR_END=""
     fi
 
-    echo "| ${PLATFORM} | $(numfmt --to iec --format '%.2f' ${FROM_SIZE}) | $(numfmt --to iec --format '%.2f' ${TO_SIZE}) | ${MD_COLOR_START}$(numfmt --to iec --format '%.2f' ${DELTA}) (${PERCENT_CHANGE}%)${MD_COLOR_END} | ${ICON} |"
+    echo "| ${PLATFORM} | $(numfmt --to iec --format '%.2f' ${FROM_SIZE}) | $(numfmt --to iec --format '%.2f' ${TO_SIZE}) | $(numfmt --to iec --format '%.2f' ${DELTA}) (${PERCENT_CHANGE}%) | ${ICON} |"
 done
