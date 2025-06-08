@@ -17,7 +17,7 @@ jobs:
         flavor: ["cpp", "rust"]
     # Using our own container is required since we need all package sources
     # set-up correctly.
-    container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:latest
+    container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge
     permissions:
       contents: write
       pull-requests: write
