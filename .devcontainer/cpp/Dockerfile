@@ -37,7 +37,7 @@ ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd30
 ADD https://github.com/bats-core/bats-support#v0.3.0 /
 ADD https://github.com/bats-core/bats-assert#v2.1.0 /
 
-FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233 AS extractor
+FROM ubuntu:24.04@sha256:b59d21599a2b151e23eea5f6602f4af4d7d31c4e236d22bf0b62b86d2e386b8f AS extractor
 
 ARG XWIN_VERSION
 
@@ -54,7 +54,7 @@ RUN --mount=from=downloader,target=/dl \
  && tar xJf /dl/arm-gnu-toolchain.tar.xz --exclude='*arm-none-eabi-gdb*' --exclude='share' \
  && mv arm-gnu-toolchain-*/ gcc-arm-none-eabi
 
-FROM ubuntu:24.04@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233
+FROM ubuntu:24.04@sha256:b59d21599a2b151e23eea5f6602f4af4d7d31c4e236d22bf0b62b86d2e386b8f
 
 ARG CCACHE_VERSION=4.11
 ARG CLANG_VERSION=18
