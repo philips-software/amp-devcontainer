@@ -17,6 +17,9 @@ permissions:
 
 jobs:
   build-push:
+    strategy:
+      matrix:
+        flavor: [cpp, rust]
     uses: ./.github/workflows/build-push.yml
     secrets: inherit
     permissions:
@@ -25,6 +28,8 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
+    with:
+      flavor: ${{ matrix.flavor }}
 
   integration-test:
     strategy:
