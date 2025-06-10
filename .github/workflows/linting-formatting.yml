@@ -28,7 +28,9 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: oxsecurity/megalinter@5a91fb06c83d0e69fbd23756d47438aa723b4a5a # v8.7.0
+      # flavors/dotnet is the smallest flavor of MegaLinter that contains the linters
+      # we are interested in.
+      - uses: oxsecurity/megalinter/flavors/dotnet@5a91fb06c83d0e69fbd23756d47438aa723b4a5a # v8.7.0
         env:
           APPLY_FIXES: all
           VALIDATE_ALL_CODEBASE: true
