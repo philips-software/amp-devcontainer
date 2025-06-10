@@ -41,7 +41,7 @@ jobs:
         if: inputs.flavor == 'cpp'
         with:
           path: test/cpp/.xwin-cache
-          key: xwin-cache
+          key: xwin-cache-${{ inputs.runner }}
           restore-keys: |
             xwin-cache
       - run: bats --formatter junit test/${{ inputs.flavor }}/integration-tests.bats | tee test-report-${{ inputs.flavor }}-${{ inputs.runner }}.xml
