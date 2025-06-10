@@ -135,7 +135,7 @@ cmake==4.0.2 \
     --hash=sha256:eea2c303cf3f009ffc71135e4e0cf03c3ad6cd409543270dc0601de32b50d0c1 \
     --hash=sha256:f8ea86bfd9925575d4a49b3d98ce352f07bbae4fdbb6d703bd26314ca7a3db0c \
     --hash=sha256:fc483ed8a31c22cb1b46c81017b0703b469360584d004ac0f5e346f04b75e3c8
-    # via -r cpp/requirements.in
+    # via -r requirements.in
 colorama==0.4.6 \
     --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
     --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
@@ -146,7 +146,7 @@ colorlog==6.8.2 \
     # via gcovr
 conan==2.17.0 \
     --hash=sha256:91bca3c5b4a9b361d2a9155cf7e678707fccd738cdeb601b5ca398478f99a824
-    # via -r cpp/requirements.in
+    # via -r requirements.in
 distro==1.8.0 \
     --hash=sha256:02e111d1dc6a50abb8eed6bf31c3e48ed8b0830d1ea2a1b78c61765c2513fdd8 \
     --hash=sha256:99522ca3e365cac527b44bde033f64c6945d90eb9f769703caaec52b09bbd3ff
@@ -158,7 +158,7 @@ fasteners==0.19 \
 gcovr==8.3 \
     --hash=sha256:d613a90aeea967b4972fbff69587bf8995ee3cd80df2556983b73141f30642d2 \
     --hash=sha256:faa371f9c4a7f78c9800da655107d4f99f04b718d1c0d9f48cafdcbef0049079
-    # via -r cpp/requirements.in
+    # via -r requirements.in
 idna==3.10 \
     --hash=sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9 \
     --hash=sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3
@@ -391,9 +391,9 @@ pyyaml==6.0.2 \
     --hash=sha256:f753120cb8181e736c57ef7636e83f31b9c0d1722c516f7e86cf15b7aa57ff12 \
     --hash=sha256:ff3824dc5261f50c9b0dfb3be22b4567a6f938ccce4587b38952d85fd9e9afe4
     # via conan
-requests==2.32.3 \
-    --hash=sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760 \
-    --hash=sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6
+requests==2.32.4 \
+    --hash=sha256:27babd3cda2a6d50b30443204ee89830707d396671944c998b5975b031ac2b2c \
+    --hash=sha256:27d0316682c8a29834d3264820024b62a36942083d52caf2f14c0591336d3422
     # via conan
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
