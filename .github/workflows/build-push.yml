@@ -28,7 +28,6 @@ jobs:
           persist-credentials: false
       - uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
       - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
-        if: github.event_name != 'merge_group'
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -53,7 +52,7 @@ jobs:
           SOURCE_DATE_EPOCH: ${{ steps.devcontainer-epoch.outputs.git-commit-epoch }}
         with:
           file: .devcontainer/${{ matrix.flavor }}/Dockerfile
-          push: ${{ github.event_name != 'merge_group' }}
+          push: true
           tags: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}
           labels: |
             ${{ steps.metadata.outputs.labels }}
@@ -103,7 +102,6 @@ jobs:
           merge-multiple: true
       - uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
       - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
-        if: github.event_name != 'merge_group'
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -149,7 +147,6 @@ jobs:
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
       - uses: anchore/sbom-action@e11c554f704a0b820cbf8c51673f6945e0731532 # v0.20.0
-        if: steps.inspect-manifest.outputs.digest != '' && github.event_name != 'merge_group'
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
@@ -159,13 +156,11 @@ jobs:
           comment-summary-in-pr: on-failure
           fail-on-severity: critical
       - uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd # v2.3.0
-        if: github.event_name != 'merge_group'
         with:
           subject-name: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}
           subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
           push-to-registry: true
       - name: Verify attestation
-        if: github.event_name != 'merge_group'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
