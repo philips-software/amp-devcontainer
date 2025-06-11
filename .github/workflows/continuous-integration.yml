@@ -44,11 +44,14 @@ jobs:
       runner: ${{ matrix.runner }}
 
   acceptance-test:
+    strategy:
+      matrix:
+        flavor: [cpp]
     needs: build-push
     uses: ./.github/workflows/acceptance-test.yml
     secrets: inherit
     with:
-      flavor: cpp
+      flavor: ${{ matrix.flavor }}
 
   publish-test-results:
     runs-on: ubuntu-latest
