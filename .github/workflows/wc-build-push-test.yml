@@ -4,6 +4,9 @@ name: Build, Push & Test
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   build-push:
     strategy:

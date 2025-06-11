@@ -20,6 +20,7 @@ jobs:
     secrets: inherit
     permissions:
       attestations: write
+      checks: write
       contents: write
       id-token: write
       packages: write
