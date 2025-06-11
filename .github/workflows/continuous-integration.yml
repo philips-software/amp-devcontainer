@@ -5,22 +5,17 @@ on:
   pull_request:
   push:
     branches: [main]
-    tags: ["v*.*.*"]
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
-  build-push:
-    strategy:
-      matrix:
-        flavor: [cpp, rust]
-    uses: ./.github/workflows/build-push.yml
+  build-push-test:
+    uses: ./.github/workflows/wc-build-push-test.yml
     secrets: inherit
     permissions:
       attestations: write
@@ -28,46 +23,3 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
-    with:
-      flavor: ${{ matrix.flavor }}
-
-  integration-test:
-    strategy:
-      matrix:
-        flavor: [cpp, rust]
-        runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
-    needs: build-push
-    uses: ./.github/workflows/integration-test.yml
-    secrets: inherit
-    with:
-      flavor: ${{ matrix.flavor }}
-      runner: ${{ matrix.runner }}
-
-  acceptance-test:
-    strategy:
-      matrix:
-        flavor: [cpp]
-    needs: build-push
-    uses: ./.github/workflows/acceptance-test.yml
-    secrets: inherit
-    with:
-      flavor: ${{ matrix.flavor }}
-
-  publish-test-results:
-    runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      pull-requests: write
-    needs: [acceptance-test, integration-test]
-    if: always()
-    steps:
-      - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
-        with:
-          egress-policy: audit
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-        with:
-          merge-multiple: true
-          pattern: test-results-*
-      - uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
-        with:
-          files: test-report-*.xml

@@ -5,8 +5,7 @@ on:
   pull_request:
     types: [closed]
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   add-pr-report:

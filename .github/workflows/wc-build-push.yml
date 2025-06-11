@@ -134,8 +134,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           output=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }} --format '{{json .}}')
-          digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')
-          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/container-size-diff
         id: container-size-diff
         with:
@@ -159,27 +158,10 @@ jobs:
         with:
           subject-name: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
           subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
+          show-summary: false
           push-to-registry: true
       - name: Verify attestation
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh attestation verify --repo ${{ github.repository }} oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
-      - name: Upload provenance to release
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          RAW_SHA=${{ steps.inspect-manifest.outputs.digest }}
-          FORMATTED_SHA=${RAW_SHA//:/_}
-          gh attestation verify --repo ${{ github.repository }} oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }} --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ inputs.flavor }}_${FORMATTED_SHA}.intoto.jsonl"
-          gh release upload ${{ github.ref_name }} ./*.intoto.jsonl
-      - name: Update package details in release
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          UPDATED_NOTES=$(gh release view ${{ github.ref_name }} --json body -q '.body')
-          UPDATED_NOTES=${UPDATED_NOTES//'{{ amp-devcontainer-${{ inputs.flavor }}-version }}'/'${{ github.ref_name }}'}
-          UPDATED_NOTES=${UPDATED_NOTES//'{{ amp-devcontainer-${{ inputs.flavor }}-sha }}'/'${{ steps.inspect-manifest.outputs.digest }}'}
-          gh release edit ${{ github.ref_name }} --notes "${UPDATED_NOTES}"

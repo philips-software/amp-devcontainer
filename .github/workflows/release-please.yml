@@ -6,11 +6,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
+
+permissions:
+  contents: read
 
 jobs:
   create-release:
@@ -31,13 +31,3 @@ jobs:
         id: release
         with:
           token: ${{ steps.token.outputs.token }}
-      - name: Amend release description
-        if: ${{ steps.release.outputs.release_created }}
-        env:
-          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
-        run: |
-          CURRENT_NOTES=$(gh release view ${{ steps.release.outputs.tag_name }} --json body -q '.body')
-          HEADER=$(echo "$CURRENT_NOTES" | awk '/^## / {print; exit}')
-          TEMPLATE=$(cat "$GITHUB_WORKSPACE/.github/RELEASE_TEMPLATE.md")
-          BODY=$(echo "$CURRENT_NOTES" | sed "0,/^## /d")
-          gh release edit ${{ steps.release.outputs.tag_name }} --notes "${HEADER}${TEMPLATE}${BODY}"
