@@ -6,8 +6,7 @@ on:
     - cron: "30 2 * * 0"
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   update-apt-dependencies:
@@ -17,7 +16,7 @@ jobs:
         flavor: ["cpp", "rust"]
     # Using our own container is required since we need all package sources
     # set-up correctly.
-    container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:latest
+    container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge
     permissions:
       contents: write
       pull-requests: write
@@ -51,6 +50,9 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
