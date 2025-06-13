@@ -1,0 +1,73 @@
+---
+name: Release Build
+
+on:
+  push:
+    # This workflow should only run on tags, it will trigger when release-please
+    # kicks-off the release process.
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  build-push-test:
+    uses: ./.github/workflows/wc-build-push-test.yml
+    secrets: inherit
+    permissions:
+      attestations: write
+      checks: write
+      contents: write
+      id-token: write
+      packages: write
+      pull-requests: write
+  apply-release-notes-template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+      - name: Amend release description
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          CURRENT_NOTES=$(gh release view ${{ github.ref_name }} --json body -q '.body')
+          HEADER=$(echo "$CURRENT_NOTES" | awk '/^## / {print; exit}')
+          TEMPLATE=$(cat "$GITHUB_WORKSPACE/.github/RELEASE_TEMPLATE.md")
+          BODY=$(echo "$CURRENT_NOTES" | sed "0,/^## /d")
+          gh release edit ${{ github.ref_name }} --notes "${HEADER}${TEMPLATE}${BODY}"
+  update-release-notes:
+    strategy:
+      matrix:
+        flavor: [cpp, rust]
+    runs-on: ubuntu-latest
+    needs: build-push-test
+    env:
+      REGISTRY: ghcr.io
+    steps:
+      - name: Inspect manifest and extract digest
+        id: inspect-manifest
+        run: |
+          set -Eeuo pipefail
+          output=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}:${{ github.ref_name }} --format '{{json .}}')
+          echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
+      - name: Upload provenance to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RAW_SHA=${{ steps.inspect-manifest.outputs.digest }}
+          FORMATTED_SHA=${RAW_SHA//:/_}
+          gh attestation verify --repo ${{ github.repository }} oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.inspect-manifest.outputs.digest }} --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ matrix.flavor }}_${FORMATTED_SHA}.intoto.jsonl"
+          gh release upload ${{ github.ref_name }} ./*.intoto.jsonl
+      - name: Update package details in release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          UPDATED_NOTES=$(gh release view ${{ github.ref_name }} --json body -q '.body')
+          UPDATED_NOTES=${UPDATED_NOTES//'{{ amp-devcontainer-${{ matrix.flavor }}-version }}'/'${{ github.ref_name }}'}
+          UPDATED_NOTES=${UPDATED_NOTES//'{{ amp-devcontainer-${{ matrix.flavor }}-sha }}'/'${{ steps.inspect-manifest.outputs.digest }}'}
+          gh release edit ${{ github.ref_name }} --notes "${UPDATED_NOTES}"

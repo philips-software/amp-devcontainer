@@ -6,16 +6,19 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
+
+permissions:
+  contents: read
 
 jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
+      - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
@@ -28,13 +31,3 @@ jobs:
         id: release
         with:
           token: ${{ steps.token.outputs.token }}
-      - name: Amend release description
-        if: ${{ steps.release.outputs.release_created }}
-        env:
-          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
-        run: |
-          CURRENT_NOTES=$(gh release view ${{ steps.release.outputs.tag_name }} --json body -q '.body')
-          HEADER=$(echo "$CURRENT_NOTES" | awk '/^## / {print; exit}')
-          TEMPLATE=$(cat "$GITHUB_WORKSPACE/.github/RELEASE_TEMPLATE.md")
-          BODY=$(echo "$CURRENT_NOTES" | sed "0,/^## /d")
-          gh release edit ${{ steps.release.outputs.tag_name }} --notes "${HEADER}${TEMPLATE}${BODY}"
