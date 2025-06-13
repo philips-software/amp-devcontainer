@@ -4,6 +4,24 @@
 [![Linting & Formatting](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml) [![Continuous Integration](https://github.com/philips-software/amp-devcontainer/actions/workflows/continuous-integration.yml/badge.svg?branch=main)](https://github.com/philips-software/amp-devcontainer/actions/workflows/continuous-integration.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/philips-software/amp-devcontainer/badge)](https://securityscorecards.dev/viewer/?uri=github.com/philips-software/amp-devcontainer)
 <!-- markdownlint enable -->
 
+## Table of Contents
+
+- [Overview](#overview)
+- [State](#state)
+- [Description](#description)
+  - [Image flavors](#image-flavors)
+  - [Versioning](#versioning)
+  - [Visual Studio Code](#visual-studio-code)
+- [Usage](#usage)
+  - [Verify image signature](#verify-image-signature)
+  - [Local development](#local-development)
+  - [Continuous Integration](#continuous-integration)
+- [Community](#community)
+- [Changelog](#changelog)
+- [Contributing](#contributing)
+- [Reporting vulnerabilities](#reporting-vulnerabilities)
+- [Licenses](#licenses)
+
 ## Overview
 
 This repository contains [devcontainers](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/introduction-to-dev-containers) tailored towards modern, embedded, software development.
@@ -18,7 +36,7 @@ This repository is under active development; see [pulse](https://github.com/phil
 
 ## Description
 
-### Image variants
+### Image flavors
 
 The following devcontainers are published towards the [GitHub Container Registry](https://ghcr.io/):
 
@@ -44,6 +62,27 @@ The amp-devcontainer-rust includes support for host- and cross-compilation.
 Next to the Rust ecosystem there is support for code-coverage measurement, mutation testing (using [cargo-mutants](https://mutants.rs/)), fuzzing (using [rust-fuzz](https://rust-fuzz.github.io/book/introduction.html)) and static analysis and formatting (clippy, rustfmt).
 
 For embedded development and flashing and debugging [probe-rs](https://probe.rs/) and [flip-link](https://github.com/knurling-rs/flip-link) are included.
+
+### Versioning
+
+The amp-devcontainer repository follows a [semantic versioning](https://semver.org/spec/v2.0.0.html) strategy for its container images. This ensures clear communication of updates and compatibility. The versioning format used is `<major>.<minor>.<patch>`. Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<minor>.<patch>` and `v<major>.<minor>.<patch>`. The latest build on the default branch is tagged with `edge` and pull request builds are tagged with `pr-<number>`.
+
+| Branch            | Tag                        |
+|-------------------|----------------------------|
+| Default           | `edge`                     |
+| Pull Request      | `pr-<number>`              |
+| Release           | `v<major>.<minor>.<patch>` |
+|                   | `<major>.<minor>.<patch>`  |
+|                   | `<major>.<minor>`          |
+|                   | `<major>`                  |
+
+Released containers will never be cleaned-up, pull request builds are cleaned up when the pull request is merged, and edge builds may be cleaned up after being stale for a while.
+
+The release notes always contain an overview of the corresponding image versions that included the full SHA next to the version number. This makes it possible for humans to easily see what version is used while still pinning to an exact version. This is the recommended way to refer to an image.
+
+All container images are included in a release. This might change in the future when the need arises to have separate releases per container.
+
+This versioning strategy is implemented as GitHub Actions workflows, ensuring consistency and security across releases. Only the GitHub Action workflow is allowed to create a release, and the resulting images are [signed](#verify-image-signature).
 
 ### Visual Studio Code
 
@@ -117,6 +156,17 @@ The resulting containers can be used in a `.devcontainer.json` file or in a `.de
 }
 ```
 
+### Continuous integration
+
+The resulting containers can be used in a GitHub workflow by using the [`container`](https://docs.github.com/en/actions/writing-workflows/choosing-where-your-workflow-runs/running-jobs-in-a-container) property on a job.
+
+```yaml
+jobs:
+  container-job:
+    runs-on: ubuntu-latest
+    container: ghcr.io/philips-software/amp-devcontainer-cpp:latest
+```
+
 ## Community
 
 This project uses a [code of conduct](.github/CODE_OF_CONDUCT.md) to define expected conduct in our community. Instances of
@@ -157,4 +207,5 @@ See [security](.github/SECURITY.md) for more information.
 
 ## Licenses
 
-See [license](./LICENSE).
+amp-devcontainer is licensed under the MIT license
+See [license](./LICENSE) for more information.
