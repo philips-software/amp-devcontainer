@@ -77,14 +77,14 @@ For embedded development and flashing and debugging [probe-rs](https://probe.rs/
 
 The amp-devcontainer repository follows a [semantic versioning](https://semver.org/spec/v2.0.0.html) strategy for its container images. This ensures clear communication of updates and compatibility. The versioning format used is `<major>.<minor>.<patch>`. Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<minor>.<patch>` and `v<major>.<minor>.<patch>`. The latest build on the default branch is tagged with `edge` and pull request builds are tagged with `pr-<number>`.
 
-| Branch            | Tag                        |
-|-------------------|----------------------------|
-| Default           | `edge`                     |
-| Pull Request      | `pr-<number>`              |
-| Release           | `v<major>.<minor>.<patch>` |
-|                   | `<major>.<minor>.<patch>`  |
-|                   | `<major>.<minor>`          |
-|                   | `<major>`                  |
+| Branch       | Tag                        |
+|--------------|----------------------------|
+| Default      | `edge`                     |
+| Pull Request | `pr-<number>`              |
+| Release      | `v<major>.<minor>.<patch>` |
+|              | `<major>.<minor>.<patch>`  |
+|              | `<major>.<minor>`          |
+|              | `<major>`                  |
 
 Released containers will never be cleaned-up, pull request builds are cleaned up when the pull request is merged, and edge builds may be cleaned up after being stale for a while.
 
