@@ -26,9 +26,9 @@
 
 This repository contains [devcontainers](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/introduction-to-dev-containers) tailored towards modern, embedded, software development.
 
-The containers try to be as "batteries included" as possible without being overly opinionated, and are useable for both local development and continuous integration.
+The containers try to be as "batteries included" as possible without being overly opinionated, and are usable for both local development and continuous integration.
 
-All containers are multi-platform, and can be used on x64 (x86-64) and arm64 hardware on an operating system that supports an [OCI](https://opencontainers.org/) compatible container engine. This includes Windows and Linux, and macOS on both Intel and Apple silicon.
+All containers are multi-platform and can be used on x64 (x86-64) and arm64 hardware on an operating system that supports an [OCI](https://opencontainers.org/) compatible container engine. This includes Windows, Linux, and macOS on both Intel and Apple silicon.
 
 ## State
 
