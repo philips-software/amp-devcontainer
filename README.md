@@ -26,6 +26,16 @@
 
 This repository contains [devcontainers](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/introduction-to-dev-containers) tailored towards modern, embedded, software development.
 
+### Key Features
+
+- **Batteries Included** 🔋: Pre-configured tools for local development and continuous integration.
+- **Multi-platform Support** 🌍: Compatible with x64 and arm64 hardware on Windows, Linux, and macOS.
+- **Image Flavors** 🖼️: Dedicated containers for C++ and Rust development.
+- **IDE Integration** 💻: Fully compatible with GitHub Codespaces and VS Code.
+- **Semantic Versioning** 🔢: Clear versioning strategy for container images.
+- **Secure** 🔒: Emphasis on supply-chain security and compatible with Dependabot.
+- **Tested** ✅: Includes verification tests.
+
 The containers try to be as "batteries included" as possible without being overly opinionated, and are usable for both local development and continuous integration.
 
 All containers are multi-platform and can be used on x64 (x86-64) and arm64 hardware on an operating system that supports an [OCI](https://opencontainers.org/) compatible container engine. This includes Windows, Linux, and macOS on both Intel and Apple silicon.
