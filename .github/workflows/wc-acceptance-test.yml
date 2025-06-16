@@ -30,7 +30,11 @@ jobs:
       - name: Start Codespace
         run: |
           set -Eeuo pipefail
-          gh secret set -a codespaces IMAGE_VERSION --body "pr-${{ github.event.pull_request.number }}"
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            gh secret set -a codespaces IMAGE_VERSION --body "pr-${{ github.event.pull_request.number }}"
+          else
+            gh secret set -a codespaces IMAGE_VERSION --body "edge"
+          fi
           echo CODESPACE_NAME="$(gh codespace create -R "${{ github.repository }}" -b "$HEAD_REF" -m basicLinux32gb --devcontainer-path ".devcontainer/${{ inputs.flavor }}-test/devcontainer.json" --idle-timeout 10m --retention-period 1h)" >> "$GITHUB_ENV"
         env:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
