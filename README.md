@@ -217,5 +217,5 @@ See [security](.github/SECURITY.md) for more information.
 
 ## Licenses
 
-amp-devcontainer is licensed under the MIT license
+amp-devcontainer is licensed under the MIT license.
 See [license](./LICENSE) for more information.
