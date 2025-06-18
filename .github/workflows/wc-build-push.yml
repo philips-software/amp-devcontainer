@@ -125,16 +125,11 @@ jobs:
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
-          set -Eeuo pipefail
-
-          annotations=$(echo '${{ steps.metadata.outputs.json }}' | jq -r '.annotations[]')
-          for annotation in $annotations; do
-            annotation_arguments+=(--annotation "$annotation")
-          done
+          set -xEeuo pipefail
 
           # shellcheck disable=SC2046
           docker buildx imagetools create \
-            "${annotation_arguments[@]}" \
+            $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.annotations | map("--annotation \"" + . + "\"") | join(" ")') \
             $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags | map("--tag " + .) | join(" ")') \
             $(printf '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@sha256:%s ' *)
       - name: Inspect manifest and extract digest
