@@ -124,16 +124,14 @@ jobs:
             type=semver,pattern={{major}}
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
+        shell: bash
         run: |
           set -xEeuo pipefail
 
           # shellcheck disable=SC2046
-          ANNOTATIONS=$(echo '${{ steps.metadata.outputs.json }}' | jq -cr '.annotations | map("--annotation \"" + . + "\"") | join(" ")')
-          TAGS=$(echo '${{ steps.metadata.outputs.json }}' | jq -cr '.tags | map("--tag \"" + . + "\"") | join(" ")')
-
-          # Build the command and execute it
           docker buildx imagetools create \
-            $(printf '%s %s ' $ANNOTATIONS $TAGS) \
+            $(echo '${{ steps.metadata.outputs.json }}' | jq -cr '.annotations | map("--annotation \"" + . + "\"") | join(" ")') \
+            $(echo '${{ steps.metadata.outputs.json }}' | jq -cr '.tags | map("--tag \"" + . + "\"") | join(" ")') \
             $(printf '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@sha256:%s ' *)
       - name: Inspect manifest and extract digest
         id: inspect-manifest
