@@ -130,37 +130,15 @@ jobs:
           import json
           import subprocess
 
-          metadata = json.loads('${{ steps.metadata.outputs.json }}')
+          CONTAINER = '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}'
+          METADATA = json.loads('${{ steps.metadata.outputs.json }}')
 
-          annotations = []
-          for ann in metadata.get('annotations', []):
-            annotations.extend(['--annotation', ann])
+          digests = [f for f in os.listdir('.') if f.startswith('sha256:') or len(f) == 64]
 
-          tags = []
-          for tag in metadata.get('tags', []):
-            tags.extend(['--tag', tag])
-
-          # Collect all digest files in the current directory
-          digests = []
-          for f in os.listdir('.'):
-            if f.startswith('sha256:') or len(f) == 64:
-              digests.append(f)
-
-          if not digests:
-            raise RuntimeError("No digest files found in the current directory.")
-
-          # Compose image references
-          container_name = '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}'
-          image_refs = [
-            f"{container_name}@sha256:{digest}"
-            for digest in digests
-          ]
-
-          cmd = [
-            'docker', 'buildx', 'imagetools', 'create',
-            *annotations,
-            *tags,
-            *image_refs
+          cmd = ['docker', 'buildx', 'imagetools', 'create',
+              *[annotation for annotation in METADATA.get('annotations', []) for item in ['--annotation', annotation]],
+              *[tag for tag in METADATA.get('tags', []) for item in ['--tag', tag]],
+              *[f"{CONTAINER}@sha256:{digest}" for digest in digests]
           ]
 
           print(' '.join(cmd))
