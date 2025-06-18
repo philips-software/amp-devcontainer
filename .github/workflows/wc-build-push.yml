@@ -131,12 +131,10 @@ jobs:
           ANNOTATIONS=$(echo '${{ steps.metadata.outputs.json }}' | jq -cr '.annotations | map("--annotation \"" + . + "\"") | join(" ")')
           TAGS=$(echo '${{ steps.metadata.outputs.json }}' | jq -cr '.tags | map("--tag " + . + "\"") | join(" ")')
 
-          echo $ANNOTATIONS
-
           # Build the command and execute it
           docker buildx imagetools create \
-            $ANNOTATIONS \
-            $TAGS \
+            $(echo $ANNOTATIONS) \
+            $(echo $TAGS) \
             $(printf '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@sha256:%s ' *)
       - name: Inspect manifest and extract digest
         id: inspect-manifest
