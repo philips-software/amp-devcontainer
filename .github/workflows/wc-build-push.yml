@@ -136,8 +136,8 @@ jobs:
           digests = [f for f in os.listdir('.') if f.startswith('sha256:') or len(f) == 64]
 
           cmd = ['docker', 'buildx', 'imagetools', 'create',
-              *[annotation for annotation in METADATA.get('annotations', []) for item in ['--annotation', annotation]],
-              *[tag for tag in METADATA.get('tags', []) for item in ['--tag', tag]],
+              *['--annotation ' + annotation for annotation in METADATA.get('annotations', [])],
+              *['--tag ' + tag for tag in METADATA.get('tags', [])],
               *[f"{CONTAINER}@sha256:{digest}" for digest in digests]
           ]
 
