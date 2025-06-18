@@ -126,7 +126,7 @@ jobs:
         working-directory: ${{ runner.temp }}/digests
 
         run: |
-          set -xEeuo pipefail
+          set -xo pipefail
 
           readarray -t annotations < <(echo '${{ steps.metadata.outputs.json }}' | jq -r '.annotations[] | "--annotation " + @sh')
           readarray -t tags < <(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags[] | "--tag " + @sh')
