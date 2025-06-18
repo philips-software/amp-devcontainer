@@ -131,6 +131,8 @@ jobs:
           ANNOTATIONS=$(echo '${{ steps.metadata.outputs.json }}' | jq -cr '.annotations | map("--annotation \"" + . + "\"") | join(" ")')
           TAGS=$(echo '${{ steps.metadata.outputs.json }}' | jq -cr '.tags | map("--tag " + . + "\"") | join(" ")')
 
+          echo $ANNOTATIONS
+
           # Build the command and execute it
           docker buildx imagetools create \
             $ANNOTATIONS \
