@@ -124,15 +124,46 @@ jobs:
             type=semver,pattern={{major}}
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
-        shell: bash
+        shell: python
         run: |
-          set -xEeuo pipefail
+          import os
+          import json
+          import subprocess
 
-          # shellcheck disable=SC2046
-          docker buildx imagetools create \
-            $(echo '${{ steps.metadata.outputs.json }}' | jq -cr '.annotations | map("--annotation \"" + . + "\"") | join(" ")') \
-            $(echo '${{ steps.metadata.outputs.json }}' | jq -cr '.tags | map("--tag \"" + . + "\"") | join(" ")') \
-            $(printf '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@sha256:%s ' *)
+          metadata = json.loads('${{ steps.metadata.outputs.metadata }}')
+
+          annotations = []
+          for ann in metadata.get('annotations', []):
+            annotations.extend(['--annotation', ann])
+
+          tags = []
+          for tag in metadata.get('tags', []):
+            tags.extend(['--tag', tag])
+
+          # Collect all digest files in the current directory
+          digests = []
+          for f in os.listdir('.'):
+            if f.startswith('sha256:') or len(f) == 64:
+              digests.append(f)
+
+          if not digests:
+            raise RuntimeError("No digest files found in the current directory.")
+
+          # Compose image references
+          image_refs = [
+            f"{${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@sha256:{digest}"
+            for digest in digests
+          ]
+
+          cmd = [
+            'docker', 'buildx', 'imagetools', 'create',
+            *annotations,
+            *tags,
+            *image_refs
+          ]
+
+          print(' '.join(cmd))
+          subprocess.run(cmd, check=True)
       - name: Inspect manifest and extract digest
         id: inspect-manifest
         run: |
