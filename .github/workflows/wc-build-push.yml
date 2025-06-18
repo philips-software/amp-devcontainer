@@ -130,7 +130,7 @@ jobs:
           import json
           import subprocess
 
-          metadata = json.loads('${{ steps.metadata.outputs.metadata }}')
+          metadata = json.loads('${{ steps.metadata.outputs.json }}')
 
           annotations = []
           for ann in metadata.get('annotations', []):
@@ -150,8 +150,9 @@ jobs:
             raise RuntimeError("No digest files found in the current directory.")
 
           # Compose image references
+          container_name = '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}'
           image_refs = [
-            f"{${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@sha256:{digest}"
+            f"{container_name}@sha256:{digest}"
             for digest in digests
           ]
 
