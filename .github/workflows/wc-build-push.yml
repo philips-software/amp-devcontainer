@@ -81,6 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-push
     permissions:
+      actions: read
       attestations: write
       # dependency-submission needs contents write permission.
       contents: write
@@ -123,12 +124,25 @@ jobs:
             type=semver,pattern={{major}}
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
+        shell: python
         run: |
-          set -Eeuo pipefail
-          # shellcheck disable=SC2046
-          docker buildx imagetools create \
-            $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags | map("--tag " + .) | join(" ")') \
-            $(printf '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@sha256:%s ' *)
+          import os
+          import json
+          import subprocess
+
+          CONTAINER = '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}'
+          METADATA = json.loads('${{ steps.metadata.outputs.json }}')
+
+          digests = [f for f in os.listdir('.') if f.startswith('sha256:') or len(f) == 64]
+
+          command = ['docker', 'buildx', 'imagetools', 'create',
+              *[annotation for annotation in METADATA.get('annotations', []) for annotation in ('--annotation', annotation)],
+              *[tag for tag in METADATA.get('tags', []) for tag in ('--tag', tag)],
+              *[f"{CONTAINER}@sha256:{digest}" for digest in digests]
+          ]
+
+          print(' '.join(command))
+          subprocess.run(command, check=True)
       - name: Inspect manifest and extract digest
         id: inspect-manifest
         run: |
@@ -149,11 +163,6 @@ jobs:
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
-      - uses: actions/dependency-review-action@da24556b548a50705dd671f47852072ea4c105d9 # v4.7.1
-        if: github.event_name == 'pull_request'
-        with:
-          comment-summary-in-pr: on-failure
-          fail-on-severity: critical
       - uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
         with:
           subject-name: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}

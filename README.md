@@ -88,7 +88,7 @@ The amp-devcontainer repository follows a [semantic versioning](https://semver.o
 
 Released containers will never be cleaned-up, pull request builds are cleaned up when the pull request is merged, and edge builds may be cleaned up after being stale for a while.
 
-The release notes always contain an overview of the corresponding image versions that included the full SHA next to the version number. This makes it possible for humans to easily see what version is used while still pinning to an exact version. This is the recommended way to refer to an image.
+The release notes always contain an overview of the corresponding image versions that include the full SHA next to the version number. This makes it possible for humans to easily see what version is used while still pinning to an exact version. This is the recommended way to refer to an image.
 
 All container images are included in a release. This might change in the future when the need arises to have separate releases per container.
 
@@ -217,5 +217,5 @@ See [security](.github/SECURITY.md) for more information.
 
 ## Licenses
 
-amp-devcontainer is licensed under the MIT license
+amp-devcontainer is licensed under the MIT license.
 See [license](./LICENSE) for more information.

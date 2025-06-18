@@ -18,6 +18,7 @@ jobs:
     uses: ./.github/workflows/wc-build-push-test.yml
     secrets: inherit
     permissions:
+      actions: read
       attestations: write
       checks: write
       contents: write
