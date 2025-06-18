@@ -128,6 +128,7 @@ jobs:
           set -Eeuo pipefail
           # shellcheck disable=SC2046
           docker buildx imagetools create \
+            $(echo '${{ steps.metadata.outputs.json }}' | | jq -r '.annotations | map("--annotation \"" + . + "\"") | join(" ")') \
             $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags | map("--tag " + .) | join(" ")') \
             $(printf '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@sha256:%s ' *)
       - name: Inspect manifest and extract digest
