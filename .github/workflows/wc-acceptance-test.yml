@@ -72,7 +72,7 @@ jobs:
           done
         env:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
-      - run: cd test/${CONTAINER_FLAVOR}/features && npm test
+      - run: cd "test/${CONTAINER_FLAVOR}/features" && npm test
         env:
           CONTAINER_FLAVOR: ${{ inputs.flavor }}
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}

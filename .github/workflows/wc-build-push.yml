@@ -48,7 +48,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
       # Generate image LABEL for devcontainer.metadata
       # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
-      - run: echo "metadata=$(jq -cj '[.]' .devcontainer/${CONTAINER_FLAVOR}/devcontainer-metadata-vscode.json | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
+      - run: echo "metadata=$(jq -cj '[.]' ".devcontainer/${CONTAINER_FLAVOR}/devcontainer-metadata-vscode.json" | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
         id: devcontainer-metadata
       - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
         id: devcontainer-epoch
@@ -152,7 +152,7 @@ jobs:
         id: inspect-manifest
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect ${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}:${{ steps.metadata.outputs.version }} --format '{{json .}}')
+          output=$(docker buildx imagetools inspect "${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}:${{ steps.metadata.outputs.version }}" --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/container-size-diff
         id: container-size-diff
@@ -175,6 +175,7 @@ jobs:
           show-summary: false
           push-to-registry: true
       - name: Verify attestation
-        run: gh attestation verify --repo ${{ github.repository }} oci://${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}@${{ steps.inspect-manifest.outputs.digest }}
+        run: gh attestation verify --repo ${{ github.repository }} "oci://${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}@${DIGEST}"
         env:
+          DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           GH_TOKEN: ${{ github.token }}

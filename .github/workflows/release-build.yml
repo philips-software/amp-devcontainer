@@ -81,7 +81,7 @@ jobs:
       - name: Update package details in release
         run: |
           set -Eeuo pipefail
-          UPDATED_NOTES=$(gh release view ${REF_NAME} --json body -q '.body')
+          UPDATED_NOTES=$(gh release view "${REF_NAME}" --json body -q '.body')
           UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-version }}"/"${REF_NAME}"}
           UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-sha }}"/"${DIGEST}"}
           gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
