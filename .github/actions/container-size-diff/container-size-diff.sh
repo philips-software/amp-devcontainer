@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -Eeuo pipefail
+
 FROM_CONTAINER=${1:?}
 TO_CONTAINER=${2:?}
 

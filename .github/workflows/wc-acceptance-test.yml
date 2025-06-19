@@ -39,8 +39,9 @@ jobs:
             gh secret set -a codespaces IMAGE_VERSION --body "edge"
           fi
 
-          echo CODESPACE_NAME="$(gh codespace create -R "${{ github.repository }}" -b "$HEAD_REF" -m basicLinux32gb --devcontainer-path ".devcontainer/${{ inputs.flavor }}-test/devcontainer.json" --idle-timeout 10m --retention-period 1h)" >> "$GITHUB_ENV"
+          echo CODESPACE_NAME="$(gh codespace create -R "${{ github.repository }}" -b "$HEAD_REF" -m basicLinux32gb --devcontainer-path ".devcontainer/${CONTAINER_FLAVOR}-test/devcontainer.json" --idle-timeout 10m --retention-period 1h)" >> "$GITHUB_ENV"
         env:
+          CONTAINER_FLAVOR: ${{ inputs.flavor }}
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -56,7 +57,7 @@ jobs:
           SECONDS_ELAPSED=0
 
           while true; do
-            STATE=$(gh codespace list --json name,state --jq ".[] | select(.name == \"$CODESPACE_NAME\") | .state")
+            STATE=$(gh codespace list --json name,state --jq ".[] | select(.name == \"${CODESPACE_NAME}\") | .state")
             echo "Current state: $STATE"
             if [ "$STATE" == "Available" ]; then
               echo "Codespace is active!"
@@ -71,8 +72,9 @@ jobs:
           done
         env:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
-      - run: cd test/${{ inputs.flavor }}/features && npm test
+      - run: cd test/${CONTAINER_FLAVOR}/features && npm test
         env:
+          CONTAINER_FLAVOR: ${{ inputs.flavor }}
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
           GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
           GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
@@ -85,7 +87,7 @@ jobs:
           retention-days: 10
       - run: |
           set -Eeuo pipefail
-          gh codespace delete --force --codespace "$CODESPACE_NAME"
+          gh codespace delete --force --codespace "${CODESPACE_NAME}"
           gh secret set -a codespaces IMAGE_VERSION --body "latest"
         if: always()
         env:

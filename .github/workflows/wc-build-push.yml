@@ -7,11 +7,16 @@ on:
       flavor:
         required: true
         type: string
+      enable-cache:
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read
 
 env:
+  CONTAINER_FLAVOR: ${{ inputs.flavor }}
   REGISTRY: ghcr.io
 
 jobs:
@@ -43,7 +48,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
       # Generate image LABEL for devcontainer.metadata
       # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
-      - run: echo "metadata=$(jq -cj '[.]' .devcontainer/${{ inputs.flavor }}/devcontainer-metadata-vscode.json | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
+      - run: echo "metadata=$(jq -cj '[.]' .devcontainer/${CONTAINER_FLAVOR}/devcontainer-metadata-vscode.json | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
         id: devcontainer-metadata
       - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
         id: devcontainer-epoch
@@ -63,8 +68,8 @@ jobs:
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
           outputs: type=image,push-by-digest=true,name-canonical=true
-          cache-to: type=gha,mode=max,scope=${{ github.repository }}-${{ inputs.flavor }}-${{ matrix.runner }}
-          cache-from: type=gha,scope=${{ github.repository }}-${{ inputs.flavor }}-${{ matrix.runner }}
+          cache-to: ${{ inputs.enable-cache && format('type=gha,mode=max,scope={0}-{1}-{2}', github.repository, inputs.flavor, matrix.runner) || '' }}
+          cache-from: ${{ inputs.enable-cache && format('type=gha,scope={0}-{1}-{2}', github.repository, inputs.flavor, matrix.runner) || '' }}
       - name: Export digest
         run: |
           mkdir -p ${{ runner.temp }}/digests
@@ -147,7 +152,7 @@ jobs:
         id: inspect-manifest
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }} --format '{{json .}}')
+          output=$(docker buildx imagetools inspect ${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}:${{ steps.metadata.outputs.version }} --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/container-size-diff
         id: container-size-diff
@@ -170,7 +175,6 @@ jobs:
           show-summary: false
           push-to-registry: true
       - name: Verify attestation
+        run: gh attestation verify --repo ${{ github.repository }} oci://${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}@${{ steps.inspect-manifest.outputs.digest }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh attestation verify --repo ${{ github.repository }} oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
