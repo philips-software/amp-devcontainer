@@ -18,7 +18,6 @@ jobs:
       matrix:
         flavor: [cpp, rust]
     uses: ./.github/workflows/wc-build-push.yml
-    secrets: inherit
     permissions:
       actions: read
       attestations: write
