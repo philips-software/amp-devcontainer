@@ -73,11 +73,13 @@ jobs:
         run: |
           set -Eeuo pipefail
           FORMATTED_DIGEST=${DIGEST//:/_}
-          gh attestation verify --repo ${{ github.repository }} "oci://${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${{ github.repository_owner }}-${{ github.event.repository.name }}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
+          gh attestation verify --repo ${{ github.repository }} "oci://${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
           gh release upload "${REF_NAME}" ./*.intoto.jsonl
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           GH_TOKEN: ${{ github.token }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
       - name: Update package details in release
         run: |
           set -Eeuo pipefail
