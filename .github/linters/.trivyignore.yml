@@ -4,7 +4,5 @@ misconfigurations:
     statement: We allow root access in our container that we use for development purposes (https://avd.aquasec.com/misconfig/dockerfile/general/avd-ds-0002/)
 vulnerabilities:
   - id: CVE-2025-50182
-    paths:
-      - ".devcontainer/cpp/requirements.txt"
-    expired_at: 2025-09-01
+    expired_at: 2025-10-01
     statement: This vulnerable dependency comes in via the Conan package, work is in-progress on supporting a non-vulnerable version (https://github.com/conan-io/conan/issues/13948)
