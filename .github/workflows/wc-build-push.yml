@@ -136,7 +136,7 @@ jobs:
           import subprocess
 
           CONTAINER = f"{os.getenv('REGISTRY')}/${{ github.repository }}-{os.getenv('CONTAINER_FLAVOR')}"
-          METADATA = json.loads('${METADATA_JSON}')
+          METADATA = json.loads(os.getenv('METADATA_JSON'))
 
           digests = [f for f in os.listdir('.') if f.startswith('sha256:') or len(f) == 64]
 
