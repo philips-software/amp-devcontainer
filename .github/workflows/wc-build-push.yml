@@ -72,9 +72,11 @@ jobs:
           cache-from: ${{ inputs.enable-cache && format('type=gha,scope={0}-{1}-{2}', github.repository, inputs.flavor, matrix.runner) || '' }}
       - name: Export digest
         run: |
+          set -Eeuo pipefail
           mkdir -p ${{ runner.temp }}/digests
-          digest="${{ steps.build-and-push.outputs.digest }}"
-          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+          touch "${{ runner.temp }}/digests/${DIGEST#sha256:}"
+        env:
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: digests-${{ inputs.flavor }}-${{ steps.devcontainer-arch.outputs.arch }}
@@ -128,15 +130,13 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
       - name: Create manifest list and push
-        working-directory: ${{ runner.temp }}/digests
-        shell: python
         run: |
           import os
           import json
           import subprocess
 
-          CONTAINER = '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}'
-          METADATA = json.loads('${{ steps.metadata.outputs.json }}')
+          CONTAINER = f"{os.getenv('REGISTRY')}/${{ github.repository }}-{os.getenv('CONTAINER_FLAVOR')}"'
+          METADATA = json.loads('${METADATA_JSON}')
 
           digests = [f for f in os.listdir('.') if f.startswith('sha256:') or len(f) == 64]
 
@@ -148,12 +148,18 @@ jobs:
 
           print(' '.join(command))
           subprocess.run(command, check=True)
+        env:
+          METADATA_JSON: ${{ steps.metadata.outputs.json }}
+        shell: python
+        working-directory: ${{ runner.temp }}/digests
       - name: Inspect manifest and extract digest
         id: inspect-manifest
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect "${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}:${{ steps.metadata.outputs.version }}" --format '{{json .}}')
+          output=$(docker buildx imagetools inspect "${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}:${CONTAINER_VERSION}" --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
+        env:
+          CONTAINER_VERSION: ${{ steps.metadata.outputs.version }}
       - uses: ./.github/actions/container-size-diff
         id: container-size-diff
         with:
