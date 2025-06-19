@@ -1,0 +1,27 @@
+---
+name: Continuous Integration
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  build-push-test:
+    uses: ./.github/workflows/wc-build-push-test.yml
+    secrets: inherit
+    permissions:
+      actions: read
+      attestations: write
+      checks: write
+      contents: write
+      id-token: write
+      packages: write
+      pull-requests: write

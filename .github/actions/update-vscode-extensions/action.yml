@@ -18,10 +18,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: echo "$GITHUB_ACTION_PATH" >> "$GITHUB_PATH"
-      shell: bash
-      env:
-        GITHUB_ACTION_PATH: ${{ github.action_path }}
     - run: |
         sudo apt-get update
         sudo apt-get install --no-install-recommends -y jq
@@ -30,7 +26,7 @@ runs:
     - run: |
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         echo "markdown-summary<<${EOF}" >> "${GITHUB_OUTPUT}"
-        echo "$(update-vscode-extensions.sh ${INPUT_FILE})" >> "${GITHUB_OUTPUT}"
+        echo "$(${GITHUB_ACTION_PATH}/update-vscode-extensions.sh ${INPUT_FILE})" >> "${GITHUB_OUTPUT}"
         echo "${EOF}" >> "${GITHUB_OUTPUT}"
 
         echo "updated-dependencies=$(cat updated-extensions.json)" >> "${GITHUB_OUTPUT}"

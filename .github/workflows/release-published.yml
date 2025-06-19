@@ -1,12 +1,11 @@
 ---
 name: Finalize Release
 
-permissions:
-  contents: read
-
 on:
   release:
     types: [published]
+
+permissions: {}
 
 jobs:
   comment-released-prs:
@@ -15,6 +14,9 @@ jobs:
     permissions:
       pull-requests: write
     steps:
+      - uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
+        with:
+          egress-policy: audit
       - uses: rdlf0/comment-released-prs-action@a81897eaea04a5faa8779d28607826ddb033321a # v3.1.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
