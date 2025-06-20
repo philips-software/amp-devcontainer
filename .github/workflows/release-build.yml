@@ -28,6 +28,8 @@ jobs:
       pull-requests: write
   apply-release-notes-template:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
         with:
@@ -46,7 +48,9 @@ jobs:
       matrix:
         flavor: [cpp, rust]
     runs-on: ubuntu-latest
-    needs: build-push-test
+    permissions:
+      contents: write
+    needs: [build-push-test, apply-release-notes-template]
     env:
       REGISTRY: ghcr.io
     steps:
