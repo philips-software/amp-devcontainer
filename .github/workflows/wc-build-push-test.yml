@@ -8,6 +8,15 @@ on:
         required: false
         type: boolean
         default: true
+    secrets:
+      TEST_GITHUB_TOKEN:
+        required: true
+      TEST_GITHUB_USER:
+        required: true
+      TEST_GITHUB_PASSWORD:
+        required: true
+      TEST_GITHUB_TOTP_SECRET:
+        required: true
 
 permissions:
   contents: read
@@ -55,7 +64,6 @@ jobs:
         runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
-    secrets: inherit
     with:
       flavor: ${{ matrix.flavor }}
       runner: ${{ matrix.runner }}
@@ -66,7 +74,11 @@ jobs:
         flavor: [cpp]
     needs: build-push
     uses: ./.github/workflows/wc-acceptance-test.yml
-    secrets: inherit
+    secrets:
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
+      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
+      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     with:
       flavor: ${{ matrix.flavor }}
 

@@ -7,6 +7,15 @@ on:
       flavor:
         required: true
         type: string
+    secrets:
+      TEST_GITHUB_TOKEN:
+        required: true
+      TEST_GITHUB_USER:
+        required: true
+      TEST_GITHUB_PASSWORD:
+        required: true
+      TEST_GITHUB_TOTP_SECRET:
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}
