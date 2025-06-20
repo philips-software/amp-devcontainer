@@ -14,6 +14,10 @@ on:
 permissions:
   contents: read
 
+env:
+  CONTAINER_FLAVOR: ${{ inputs.flavor }}
+  RUNNER: ${{ inputs.runner }}
+
 jobs:
   determine-container:
     runs-on: ${{ inputs.runner }}
@@ -29,7 +33,7 @@ jobs:
         with:
           path: ${{ runner.temp }}
           pattern: digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
-      - run: echo "container=$(printf 'ghcr.io/${{ github.repository }}-${{ inputs.flavor }}@sha256:%s ' *)" >> "$GITHUB_OUTPUT"
+      - run: echo "container=$(printf "ghcr.io/${{ github.repository }}-${CONTAINER_FLAVOR}@sha256:%s " *)" >> "$GITHUB_OUTPUT"
         working-directory: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
         id: set-container
   run-test:
@@ -50,7 +54,7 @@ jobs:
           key: xwin-cache-${{ inputs.runner }}
           restore-keys: |
             xwin-cache
-      - run: bats --formatter junit test/${{ inputs.flavor }}/integration-tests.bats | tee test-report-${{ inputs.flavor }}-${{ inputs.runner }}.xml
+      - run: bats --formatter junit "test/${CONTAINER_FLAVOR}/integration-tests.bats" | tee "test-report-${CONTAINER_FLAVOR}-${RUNNER}.xml"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:

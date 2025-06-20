@@ -15,16 +15,12 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: echo "$GITHUB_ACTION_PATH" >> "$GITHUB_PATH"
-      shell: bash
-      env:
-        GITHUB_ACTION_PATH: ${{ github.action_path }}
     - run: |
         apt-get update
         apt-get install --no-install-recommends -y jq
       shell: bash
     - run: |
-        update-apt-packages.sh ${INPUT_FILE}
+        ${GITHUB_ACTION_PATH}/update-apt-packages.sh ${INPUT_FILE}
         echo "updated-dependencies=$(cat updated-packages.json)" >> "${GITHUB_OUTPUT}"
         rm updated-packages.json
       id: update-extensions

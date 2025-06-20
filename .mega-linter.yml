@@ -24,3 +24,4 @@ FILTER_REGEX_EXCLUDE: (CHANGELOG.md|package-lock.json)
 # dynamically based upon context (e.g. installed extensions)
 # hence the exclusion
 JSON_V8R_FILTER_REGEX_EXCLUDE: (\.vscode)
+REPOSITORY_TRIVY_ARGUMENTS: --ignorefile .github/linters/.trivyignore.yml

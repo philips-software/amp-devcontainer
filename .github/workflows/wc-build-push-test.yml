@@ -3,6 +3,11 @@ name: Build, Push & Test
 
 on:
   workflow_call:
+    inputs:
+      enable-cache:
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -22,6 +27,7 @@ jobs:
       pull-requests: write
     with:
       flavor: ${{ matrix.flavor }}
+      enable-cache: ${{ inputs.enable-cache }}
 
   dependency-review:
     runs-on: ubuntu-latest
