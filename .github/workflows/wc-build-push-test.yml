@@ -13,7 +13,6 @@ jobs:
       matrix:
         flavor: [cpp, rust]
     uses: ./.github/workflows/wc-build-push.yml
-    secrets: inherit
     permissions:
       actions: read
       attestations: write
@@ -50,7 +49,6 @@ jobs:
         runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
-    secrets: inherit
     with:
       flavor: ${{ matrix.flavor }}
       runner: ${{ matrix.runner }}
@@ -61,7 +59,11 @@ jobs:
         flavor: [cpp]
     needs: build-push
     uses: ./.github/workflows/wc-acceptance-test.yml
-    secrets: inherit
+    secrets:
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
+      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
+      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     with:
       flavor: ${{ matrix.flavor }}
 

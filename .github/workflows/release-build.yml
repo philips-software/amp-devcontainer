@@ -17,7 +17,11 @@ permissions: {}
 jobs:
   build-push-test:
     uses: ./.github/workflows/wc-build-push-test.yml
-    secrets: inherit
+    secrets:
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
+      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
+      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     permissions:
       actions: read
       attestations: write
