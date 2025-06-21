@@ -15,11 +15,10 @@ HEALTHCHECK NONE
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install the base system with all tool dependencies
-COPY .devcontainer/cpp/apt-requirements-base.json /tmp/apt-requirements-base.json
 # hadolint ignore=DL3008
-RUN apt-get update && apt-get install -y --no-install-recommends jq \
+RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
+ apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
- && rm /tmp/apt-requirements-base.json \
  && rm -rf /var/lib/apt/lists/*
 
 # Include the Cisco Umbrella PKI Root
@@ -27,21 +26,20 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
  && update-ca-certificates
 
 # Install some tools via pip to get more recent versions
-COPY .devcontainer/cpp/requirements.txt /tmp/requirements.txt
-RUN python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt \
- && rm -rf /tmp/requirements.txt
+RUN  --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
+ python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt
 
 # Set default environment options for CMake and ccache
-ENV CCACHE_DIR=/cache/.ccache
-ENV CMAKE_EXPORT_COMPILE_COMMANDS="On"
-ENV CMAKE_GENERATOR="Ninja"
-ENV CONAN_HOME=/opt/conan
-ENV CPM_SOURCE_CACHE=/cache/.cpm-cache
+ENV CCACHE_DIR=/cache/.ccache \
+    CMAKE_EXPORT_COMPILE_COMMANDS="On" \
+    CMAKE_GENERATOR="Ninja" \
+    CONAN_HOME=/opt/conan \
+    CPM_SOURCE_CACHE=/cache/.cpm-cache
 
 # Install clang toolchain and mull mutation testing framework
-COPY .devcontainer/cpp/apt-requirements-clang.json /tmp/apt-requirements-clang.json
 # hadolint ignore=SC1091
-RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
+RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
+ wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
  && wget -qO - https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg \
  && UBUNTU_CODENAME=$(. /etc/os-release; echo "${UBUNTU_CODENAME/*, /}") \
  && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
@@ -49,7 +47,6 @@ RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /us
  && echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences \
  && apt-get update \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends \
- && rm /tmp/apt-requirements* \
  && rm -rf /var/lib/apt/lists/*
 ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 
