@@ -15,7 +15,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
  apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
- && rm /tmp/apt-requirements-base.json \
  && rm -rf /var/lib/apt/lists/*
 
 # Include the Cisco Umbrella PKI Root

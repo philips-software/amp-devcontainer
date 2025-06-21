@@ -19,7 +19,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
  apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
- && rm /tmp/apt-requirements-base.json \
  && rm -rf /var/lib/apt/lists/*
 
 # Include the Cisco Umbrella PKI Root
@@ -28,8 +27,7 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
 
 # Install some tools via pip to get more recent versions
 RUN  --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
- python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt \
- && rm -rf /tmp/requirements.txt
+ python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt
 
 # Set default environment options for CMake and ccache
 ENV CCACHE_DIR=/cache/.ccache
@@ -49,7 +47,6 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,targe
  && echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences \
  && apt-get update \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends \
- && rm /tmp/apt-requirements* \
  && rm -rf /var/lib/apt/lists/*
 ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 
