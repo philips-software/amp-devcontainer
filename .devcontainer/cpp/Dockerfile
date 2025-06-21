@@ -30,11 +30,11 @@ RUN  --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/req
  python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt
 
 # Set default environment options for CMake and ccache
-ENV CCACHE_DIR=/cache/.ccache
-ENV CMAKE_EXPORT_COMPILE_COMMANDS="On"
-ENV CMAKE_GENERATOR="Ninja"
-ENV CONAN_HOME=/opt/conan
-ENV CPM_SOURCE_CACHE=/cache/.cpm-cache
+ENV CCACHE_DIR=/cache/.ccache \
+    CMAKE_EXPORT_COMPILE_COMMANDS="On" \
+    CMAKE_GENERATOR="Ninja" \
+    CONAN_HOME=/opt/conan \
+    CPM_SOURCE_CACHE=/cache/.cpm-cache
 
 # Install clang toolchain and mull mutation testing framework
 # hadolint ignore=SC1091
