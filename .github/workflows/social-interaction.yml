@@ -19,6 +19,7 @@ jobs:
     steps:
       - uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
         with:
+          disable-sudo-and-containers: true
           egress-policy: audit
       - uses: actions/first-interaction@34f15e814fe48ac9312ccf29db4e74fa767cbab7 # v1.3.0
         continue-on-error: true
