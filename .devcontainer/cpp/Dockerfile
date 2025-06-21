@@ -4,7 +4,6 @@ ARG BATS_VERSION=1.11.0
 ARG CCACHE_VERSION=4.11
 ARG CLANG_VERSION=18
 ARG CPM_VERSION=0.40.2
-ARG DOCKER_VERSION=27.3.1
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.22
 ARG XWIN_VERSION=0.6.5
 
@@ -32,11 +31,11 @@ RUN python3 -m pip install --break-system-packages --require-hashes --no-cache-d
  && rm -rf /tmp/requirements.txt
 
 # Set default environment options for CMake and ccache
-ENV CCACHE_DIR=/cache/.ccache
-ENV CMAKE_EXPORT_COMPILE_COMMANDS="On"
-ENV CMAKE_GENERATOR="Ninja"
-ENV CONAN_HOME=/opt/conan
-ENV CPM_SOURCE_CACHE=/cache/.cpm-cache
+ENV CCACHE_DIR=/cache/.ccache \
+    CMAKE_EXPORT_COMPILE_COMMANDS="On" \
+    CMAKE_GENERATOR="Ninja" \
+    CONAN_HOME=/opt/conan \
+    CPM_SOURCE_CACHE=/cache/.cpm-cache
 
 # Install clang toolchain and mull mutation testing framework
 COPY .devcontainer/cpp/apt-requirements-clang.json /tmp/apt-requirements-clang.json
@@ -57,11 +56,6 @@ ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 RUN mkdir /opt/gcc-arm-none-eabi \
  && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
 ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
-
-# Install docker-cli for Docker-from-Docker tools
-RUN wget -qO - "https://download.docker.com/linux/static/stable/$(uname -m)/docker-${DOCKER_VERSION}.tgz" | tar xz -C /tmp \
- && mv /tmp/docker/docker /usr/local/bin/ \
- && rm -rf /tmp/docker
 
 # Install bats
 RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
