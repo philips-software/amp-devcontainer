@@ -25,3 +25,7 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
+  document-generation:
+    uses: ./.github/workflows/wc-document-generation.yml
+    permissions:
+      contents: read
