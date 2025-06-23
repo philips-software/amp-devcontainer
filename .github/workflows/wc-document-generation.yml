@@ -3,10 +3,6 @@ name: Document Generation
 
 on:
   workflow_call:
-    inputs:
-      flavor:
-        required: true
-        type: string
 
 permissions:
   contents: read

@@ -88,3 +88,8 @@ jobs:
       - uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
         with:
           files: test-report-*.xml
+
+  generate-documents:
+    uses: ./.github/workflows/wc-document-generation.yml
+    permissions:
+      contents: read
