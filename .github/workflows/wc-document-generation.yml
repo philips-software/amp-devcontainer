@@ -21,3 +21,7 @@ jobs:
       - run: |
           set -Eeuo pipefail
           python -m pip install gherkin-official https://sbdl.dev/sbdl-package.tar.gz
+      - run: |
+          set -Eeuo pipefail
+          python docs/support/gherkin-to-csv.py test/cpp/features/*.feature
+          python -m csv-to-sbdl --identifier 0 --description 1 --skipheader rules.csv
