@@ -7,9 +7,6 @@
   "remoteEnv": {
     "CONTAINER_FLAVOR": "rust"
   },
-  "mounts": [
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
-  ],
   "customizations": {
     "vscode": {
       "settings": {
