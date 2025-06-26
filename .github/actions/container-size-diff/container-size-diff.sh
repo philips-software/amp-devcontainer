@@ -8,7 +8,7 @@ TO_CONTAINER=${2:?}
 format_size() {
     local SIZE=${1:?}
 
-    numfmt --to iec --format '%.2f' -- "${size}"
+    numfmt --to iec --format '%.2f' -- "${SIZE}"
 }
 
 get_sizes_from_manifest() {
