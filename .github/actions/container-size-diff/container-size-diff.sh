@@ -5,6 +5,12 @@ set -Eeuo pipefail
 FROM_CONTAINER=${1:?}
 TO_CONTAINER=${2:?}
 
+format_size() {
+    local SIZE=${1:?}
+
+    numfmt --to iec --format '%.2f' -- "${SIZE}"
+}
+
 get_sizes_from_manifest() {
     local CONTAINER=${1:?}
     declare -Ag ${2:?}
@@ -60,5 +66,5 @@ do
         ICON="🔄"
     fi
 
-    echo "| ${PLATFORM} | $(numfmt --to iec --format '%.2f' ${FROM_SIZE}) | $(numfmt --to iec --format '%.2f' ${TO_SIZE}) | $(numfmt --to iec --format '%.2f' ${DELTA}) (${PERCENT_CHANGE}%) | ${ICON} |"
+    echo "| ${PLATFORM} | $(format_size ${FROM_SIZE}) | $(format_size ${TO_SIZE}) | $(format_size ${DELTA}) (${PERCENT_CHANGE}%) | ${ICON} |"
 done

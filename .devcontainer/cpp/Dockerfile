@@ -84,6 +84,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    --mount=type=cache,target=/var/log,sharing=locked \
+    --mount=type=cache,target=/tmp,sharing=locked,mode=1777 \
     --mount=from=downloader,target=/dl \
     --mount=from=extractor,target=/src \
  apt-get update && apt-get install -y --no-install-recommends jq \
@@ -120,6 +122,8 @@ RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERS
 # Install include-what-you-use (iwyu) from source
 # hadolint ignore=DL3008
 RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
  apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev \
  && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
  && CC=clang CXX=clang++ cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
@@ -127,12 +131,12 @@ RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
  && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev \
  && apt-get autoremove -y \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+ && apt-get clean
 
 # Update all tool alternatives to the correct version
 # and patch root's bashrc to include bash-completion
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 10 \
+RUN --mount=type=cache,target=/var/log,sharing=locked \
+ update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 10 \
                         --slave /usr/bin/g++ g++ /usr/bin/g++-14 \
                         --slave /usr/bin/gcov gcov /usr/bin/gcov-14 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 10 \
