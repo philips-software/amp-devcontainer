@@ -33,8 +33,10 @@ jobs:
         with:
           path: ${{ runner.temp }}
           pattern: digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
-      - run: echo "container=$(printf "ghcr.io/${{ github.repository }}-${CONTAINER_FLAVOR}@sha256:%s " *)" >> "$GITHUB_OUTPUT"
+      - run: echo "container=$(printf "ghcr.io/${GH_REPO}-${CONTAINER_FLAVOR}@sha256:%s " *)" >> "$GITHUB_OUTPUT"
         working-directory: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
+        env:
+          GH_REPO: ${{ github.repository }}
         id: set-container
   run-test:
     needs: determine-container
