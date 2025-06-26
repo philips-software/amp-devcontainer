@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
       - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ env.REGISTRY }}
@@ -110,7 +110,7 @@ jobs:
           path: ${{ runner.temp }}/digests
           pattern: digests-${{ inputs.flavor }}-*
           merge-multiple: true
-      - uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
       - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ env.REGISTRY }}
@@ -167,7 +167,7 @@ jobs:
         with:
           from-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:edge
           to-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
-      - uses: marocchino/sticky-pull-request-comment@67d0dec7b07ed060a405f9b2a64b8ab319fdd7db # v2.9.2
+      - uses: marocchino/sticky-pull-request-comment@d2ad0de260ae8b0235ce059e63f2949ba9e05943 # v2.9.3
         with:
           header: container-size-diff-${{ inputs.flavor }}
           message: |
