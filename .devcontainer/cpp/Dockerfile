@@ -92,7 +92,8 @@ RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
 
 # Update all tool alternatives to the correct version
 # and patch root's bashrc to include bash-completion
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 10 \
+RUN --mount=type=cache,target=/var/log,sharing=locked \
+ update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 10 \
                         --slave /usr/bin/g++ g++ /usr/bin/g++-14 \
                         --slave /usr/bin/gcov gcov /usr/bin/gcov-14 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 10 \

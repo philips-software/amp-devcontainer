@@ -44,7 +44,8 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 
 # Update all tool alternatives to the correct version
 # and patch root's bashrc to include bash-completion
-RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20 \
+RUN --mount=type=cache,target=/var/log,sharing=locked \
+ update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20 \
  && cp /etc/skel/.bashrc /root/.bashrc
 
 # Install additional rust tools
