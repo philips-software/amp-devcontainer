@@ -17,7 +17,11 @@ permissions: {}
 jobs:
   build-push-test:
     uses: ./.github/workflows/wc-build-push-test.yml
-    secrets: inherit
+    secrets:
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
+      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
+      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     permissions:
       actions: read
       attestations: write
@@ -31,6 +35,8 @@ jobs:
       enable-cache: false
   apply-release-notes-template:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
         with:
@@ -54,6 +60,8 @@ jobs:
       matrix:
         flavor: [cpp, rust]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: [build-push-test, apply-release-notes-template]
     env:
       CONTAINER_FLAVOR: ${{ matrix.flavor }}

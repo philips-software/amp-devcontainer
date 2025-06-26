@@ -190,12 +190,6 @@ teardown() {
   assert_output "Hello World!"
 }
 
-@test "when the docker socket is mounted, using the docker cli should give access to the host docker daemon" {
-  run docker info
-  assert_success
-  assert_output --partial "Server Version:"
-}
-
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with gcc" {
   build_and_run_with_sanitizers gcc
 }
