@@ -11,19 +11,21 @@ HEALTHCHECK NONE
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install the base system with all tool dependencies
-COPY .devcontainer/rust/apt-requirements-base.json /tmp/apt-requirements-base.json
 # hadolint ignore=DL3008
-RUN apt-get update && apt-get install -y --no-install-recommends jq \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
- && rm /tmp/apt-requirements-base.json \
- && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    --mount=type=cache,target=/var/log,sharing=locked \
+ apt-get update && apt-get install -y --no-install-recommends jq \
+ && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends
 
 # Include the Cisco Umbrella PKI Root
 RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
  && update-ca-certificates
 
 # Install rust
-ENV CARGO_HOME=/usr/local/cargo \
+ENV BINSTALL_DISABLE_TELEMETRY=true \
+    CARGO_HOME=/usr/local/cargo \
     RUSTUP_HOME=/usr/local/rustup \
     PATH=/usr/local/cargo/bin:"$PATH"
 RUN rustup set profile minimal \
@@ -42,10 +44,10 @@ RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
 
 # Update all tool alternatives to the correct version
 # and patch root's bashrc to include bash-completion
-RUN update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20 \
+RUN --mount=type=cache,target=/var/log,sharing=locked \
+ update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20 \
  && cp /etc/skel/.bashrc /root/.bashrc
 
-ENV BINSTALL_DISABLE_TELEMETRY=true
 # Install additional rust tools
 RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
  && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@25.0.0 flip-link@0.1.10 \
