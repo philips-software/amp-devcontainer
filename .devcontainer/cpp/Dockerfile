@@ -27,8 +27,8 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
  && update-ca-certificates
 
 # Install some tools via pip to get more recent versions
-RUN  --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
- python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt
+RUN --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
+ python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt
 
 # Set default environment options for CMake and ccache
 ENV CCACHE_DIR=/cache/.ccache \
