@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
         with:
-          disable-sudo-and-containers: true
+          disable-sudo: true
           egress-policy: audit
       - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
