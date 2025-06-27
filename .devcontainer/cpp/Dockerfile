@@ -13,29 +13,31 @@ HEALTHCHECK NONE
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Install the base system with all tool dependencies
-# hadolint ignore=DL3008
-RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
-    --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=cache,target=/var/log,sharing=locked \
- apt-get update && apt-get install -y --no-install-recommends jq \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends
-
-# Include the Cisco Umbrella PKI Root
-RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
- && update-ca-certificates
-
-# Install some tools via pip to get more recent versions
-RUN --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
- python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt
-
-# Set default environment options for CMake and ccache
+# Set default environment options
 ENV CCACHE_DIR=/cache/.ccache \
     CMAKE_EXPORT_COMPILE_COMMANDS="On" \
     CMAKE_GENERATOR="Ninja" \
     CONAN_HOME=/opt/conan \
-    CPM_SOURCE_CACHE=/cache/.cpm-cache
+    CPM_SOURCE_CACHE=/cache/.cpm-cache \
+    PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
+    PYTHONPYCACHEPREFIX=/cache/python
+
+# Install the base system with all tool dependencies
+# hadolint ignore=DL3008
+RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
+    --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    --mount=type=cache,target=/var/log,sharing=locked \
+ apt-get update && apt-get install -y --no-install-recommends jq \
+ && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
+    xargs apt-get install -y --no-install-recommends \
+ # Include the Cisco Umbrella PKI Root
+ && wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
+ && update-ca-certificates \
+ # Install some tools via pip to get more recent versions
+ && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt \
+ && find /usr/local -depth -type d \( -name test -o -name tests -o -name __pycache__ \) -exec rm -rf '{}' +
 
 # Install clang toolchain and mull mutation testing framework
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
@@ -51,12 +53,10 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,targe
  && echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences \
  && apt-get update \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends
-ENV PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin"
 
 # Install arm-gcc toolchain
 RUN mkdir /opt/gcc-arm-none-eabi \
  && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
-ENV PATH="$PATH:/opt/gcc-arm-none-eabi/bin"
 
 # Install bats
 RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
@@ -71,19 +71,19 @@ RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VER
 
 # Compile and install additional clang tools; often necessary as binary arm64 builds are lacking, or packages are out-of-date
 # Install ccache from source for a recent version
-RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
+RUN --mount=type=cache,target=/tmp,sharing=locked,mode=1777 \
+ wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
  && CC=clang CXX=clang++ cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=Off -DENABLE_DOCUMENTATION=Off -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
  && cmake --build /tmp/ccache-${CCACHE_VERSION}/build --target install \
  && rm -rf /tmp/ccache-${CCACHE_VERSION}
 
 # Install include-what-you-use (iwyu) from source
 # hadolint ignore=DL3008
-RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
-    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
  apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev \
  && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
- && CC=clang CXX=clang++ cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
+ && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
  && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
  && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev \
