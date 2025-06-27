@@ -37,7 +37,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
  && update-ca-certificates \
  # Install some tools via pip to get more recent versions
  && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt \
- && find /usr/local -depth -type d \( -name test -o -name tests -o -name __pycache__ \) -exec rm -rf '{}' +
+ && rm -rf /cache/python/*
 
 # Install clang toolchain and mull mutation testing framework
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
