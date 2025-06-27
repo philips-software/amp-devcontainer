@@ -69,12 +69,13 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Set default environment options for CMake, ccache, and CPM
 # and update the PATH to include the toolchain binaries
-ENV CMAKE_GENERATOR="Ninja" \
+ENV CCACHE_DIR=/cache/.ccache \
     CMAKE_EXPORT_COMPILE_COMMANDS="On" \
-    CCACHE_DIR=/cache/.ccache \
+    CMAKE_GENERATOR="Ninja" \
     CONAN_HOME=/opt/conan \
-    CPM_SOURCE_CACHE=/cache/.cpm-cache \
-    PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin"
+    CPM_SOURCE_CACHE=/cache/.cpm \
+    PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
+    PYTHONPYCACHEPREFIX=/cache/.python
 
 # Install the base system with all tool dependencies
 # Some tools are installed via pip to get more recent versions
@@ -82,10 +83,10 @@ ENV CMAKE_GENERATOR="Ninja" \
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
+    --mount=type=cache,target=/cache,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
-    --mount=type=cache,target=/tmp,sharing=locked,mode=1777 \
     --mount=from=downloader,target=/dl \
     --mount=from=extractor,target=/src \
  apt-get update && apt-get install -y --no-install-recommends jq \
@@ -93,7 +94,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     xargs apt-get install -y --no-install-recommends \
  && cp /dl/cisco-umbrella.crt /usr/local/share/ca-certificates/cisco-umbrella.crt \
  && update-ca-certificates \
- && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt \
+ && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt \
  # Copy and install tools from the extractor stage
  && bash /src/bats-core/install.sh /usr/local \
  && cp -r /dl/bats-support /usr/local/bats-support \
@@ -114,19 +115,20 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
 
 # Compile and install additional clang tools; often necessary as binary arm64 builds are lacking, or packages are out-of-date
 # Install ccache from source for a recent version
-RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
+RUN --mount=type=cache,target=/cache,sharing=locked \
+ wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
  && CC=clang CXX=clang++ cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=Off -DENABLE_DOCUMENTATION=Off -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
  && cmake --build /tmp/ccache-${CCACHE_VERSION}/build --target install \
  && rm -rf /tmp/ccache-${CCACHE_VERSION}
 
 # Install include-what-you-use (iwyu) from source
 # hadolint ignore=DL3008
-RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
+RUN --mount=type=cache,target=/cache,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
  apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev \
  && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
- && CC=clang CXX=clang++ cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
+ && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
  && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
  && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev \
@@ -151,6 +153,7 @@ RUN --mount=type=cache,target=/var/log,sharing=locked \
 # Set up package managers CPM and Conan
 # - Install CPM.cmake to the CMake module path
 # - Configure a default profile for Conan and set the CMake generator to Ninja
-RUN wget -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake \
+RUN --mount=type=cache,target=/cache,sharing=locked \
+ wget -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake \
  && conan profile detect \
  && echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
