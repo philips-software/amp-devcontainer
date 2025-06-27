@@ -1,0 +1,7 @@
+{
+  "bash-completion": "1:2.11-8",
+  "ca-certificates": "20240203",
+  "git": "1:2.43.0-1ubuntu7.2",
+  "gnupg2": "2.4.4-2ubuntu17.2",
+  "wget": "1.21.4-1ubuntu4.1"
+}

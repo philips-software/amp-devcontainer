@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: ["cpp", "rust"]
+        flavor: [cpp, gherkin, rust]
     # Using our own container is required since we need all package sources
     # set-up correctly.
     container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: ["cpp", "rust"]
+        flavor: [cpp, gherkin, rust]
     permissions:
       contents: write
       pull-requests: write

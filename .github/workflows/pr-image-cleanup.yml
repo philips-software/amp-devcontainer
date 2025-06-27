@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: ["cpp", "rust"]
+        flavor: [cpp, gherkin, rust]
     permissions:
       packages: write
     steps:
