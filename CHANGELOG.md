@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.2.0](https://github.com/philips-software/amp-devcontainer/compare/v6.1.0...v6.2.0) (2025-06-27)
+
+
+### Features
+
+* Remove docker cli from amp-devcontainer-cpp ([#832](https://github.com/philips-software/amp-devcontainer/issues/832)) ([eaa1c4e](https://github.com/philips-software/amp-devcontainer/commit/eaa1c4ea0750cfa9f3b7c8b6ae783e12faf3f4c6))
+* Update rust to 1.87.0 ([#834](https://github.com/philips-software/amp-devcontainer/issues/834)) ([b7ed2c4](https://github.com/philips-software/amp-devcontainer/commit/b7ed2c4b7a4a1b03e67c490bf8487dd6abb6d30f))
+
+
+### Chores
+
+* **deps, cpp:** Update python3-pip ([#844](https://github.com/philips-software/amp-devcontainer/issues/844)) ([2366d49](https://github.com/philips-software/amp-devcontainer/commit/2366d49ef0cdfd35356871dcf1f89652c53e21f8))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#836](https://github.com/philips-software/amp-devcontainer/issues/836)) ([96acf72](https://github.com/philips-software/amp-devcontainer/commit/96acf72b9247ddea1ab2a08bc16d2ccae3574c86))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#843](https://github.com/philips-software/amp-devcontainer/issues/843)) ([f56ee65](https://github.com/philips-software/amp-devcontainer/commit/f56ee652f99efc96d6066fef9ca21bc0a88db878))
+* Image build improvements ([#833](https://github.com/philips-software/amp-devcontainer/issues/833)) ([62a2660](https://github.com/philips-software/amp-devcontainer/commit/62a2660e8995a9fda8793c4937bd1de7c727e584))
+* Remove python cache artifacts in the images ([#842](https://github.com/philips-software/amp-devcontainer/issues/842)) ([e21c90e](https://github.com/philips-software/amp-devcontainer/commit/e21c90e997a603fb32ef9e0663c884bfebca4c51))
+
 ## [6.1.0](https://github.com/philips-software/amp-devcontainer/compare/v6.0.2...v6.1.0) (2025-06-19)
 
 
