@@ -6,7 +6,7 @@
   "git": "1:2.43.0-1ubuntu7.2",
   "gnupg2": "2.4.4-2ubuntu17.2",
   "ninja-build": "1.11.1-2",
-  "python3-pip": "24.0+dfsg-1ubuntu1.1",
+  "python3-pip": "24.0+dfsg-1ubuntu1.2",
   "udev": "255.4-1ubuntu8.8",
   "unzip": "6.0-28ubuntu4.1",
   "wget": "1.21.4-1ubuntu4.1",
