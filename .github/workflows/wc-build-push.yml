@@ -170,7 +170,7 @@ jobs:
           TO_CONTAINER: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: container-diff
+          name: container-diff-${{ inputs.flavor }}
           path: container-diff.json
           retention-days: 10
       - uses: ./.github/actions/container-size-diff
