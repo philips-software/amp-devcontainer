@@ -30,7 +30,7 @@ This repository contains [devcontainers](https://docs.github.com/en/codespaces/s
 
 - **Batteries Included** 🔋: Pre-configured tools for local development and continuous integration.
 - **Multi-platform Support** ⚙️: Compatible with x64 and arm64 hardware on Windows, Linux, and macOS.
-- **Image Flavors** 🍨: Dedicated containers for C++ and Rust development.
+- **Image Flavors** 🍨: Dedicated containers for C++, Gherkin and Rust development.
 - **IDE Integration** 💻: Fully compatible with GitHub Codespaces and VS Code.
 - **Semantic Versioning** 🔢: Clear versioning strategy for container images.
 - **Secure** 🔒: Emphasis on supply-chain security and compatible with Dependabot.
@@ -51,9 +51,10 @@ This repository is under active development; see [pulse](https://github.com/phil
 The following devcontainers are published towards the [GitHub Container Registry](https://ghcr.io/):
 
 - [amp-devcontainer-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-cpp); the C++ container
+- [amp-devcontainer-gherkin](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-gherkin); the Gherkin container
 - [amp-devcontainer-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-rust); the Rust container
 
-Both containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
+All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
 
 A summary of the included tools can be found below. For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/philips-software/amp-devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/philips-software/amp-devcontainer/releases), or the SBOM attached to the image.
 
@@ -64,6 +65,10 @@ The amp-devcontainer-cpp includes support for host- and cross-compilation using 
 Next to the compilers there is support for package management (using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) and [Conan](https://conan.io/)) code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
 
 The default build system is set up to use CMake, Ninja and CCache.
+
+#### amp-devcontainer-gherkin
+
+The amp-devcontainer-cpp built from this repository contains tools for authoring Gherkin feature files.
 
 #### amp-devcontainer-rust
 
@@ -132,6 +137,12 @@ The attestations can be checked with the following command, verifying that the i
 gh attestation verify --repo philips-software/amp-devcontainer oci://ghcr.io/philips-software/amp-devcontainer-cpp
 ```
 
+> amp-devcontainer-gherkin
+
+```sh
+gh attestation verify --repo philips-software/amp-devcontainer oci://ghcr.io/philips-software/amp-devcontainer-gherkin
+```
+
 > amp-devcontainer-rust
 
 ```sh
@@ -146,23 +157,11 @@ The resulting containers can be used in a `.devcontainer.json` file or in a `.de
 > While the following examples use the `latest` tag, it is recommended to pin to a specific version. Or better yet, a specific SHA.
 > See the [releases](https://github.com/philips-software/amp-devcontainer/releases) for the SHA corresponding to a specific release.
 
-#### amp-devcontainer-cpp
-
 > .devcontainer/devcontainer.json or .devcontainer.json
 
 ```json
 {
-    "image": "ghcr.io/philips-software/amp-devcontainer-cpp:latest"
-}
-```
-
-#### amp-devcontainer-rust
-
-> .devcontainer/devcontainer.json or .devcontainer.json
-
-```json
-{
-    "image": "ghcr.io/philips-software/amp-devcontainer-rust:latest"
+    "image": "ghcr.io/philips-software/amp-devcontainer-<flavor>:latest"
 }
 ```
 
