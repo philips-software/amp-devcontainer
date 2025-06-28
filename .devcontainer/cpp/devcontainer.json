@@ -6,7 +6,7 @@
   "forwardPorts": [6080],
   "remoteEnv": {
     "CONTAINER_FLAVOR": "cpp",
-    "NODE_EXTRA_CA_CERTS": "/usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt"
+    "NODE_EXTRA_CA_CERTS": "/usr/local/share/ca-certificates/cisco-umbrella.crt"
   },
   "features": {
     "ghcr.io/devcontainers/features/desktop-lite:1": {},

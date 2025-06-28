@@ -1,11 +1,65 @@
+# syntax=docker/dockerfile:1
+
+ARG BATS_VERSION=1.12.0
+ARG DOCKER_VERSION=28.2.2
+ARG XWIN_VERSION=0.6.5
+
+FROM scratch AS downloader-amd64
+ARG DOCKER_VERSION
+ARG XWIN_VERSION
+ADD --checksum=sha256:53dc06dc3f775282ddff93b2d0974bbe6480761018c61e7a797342a9c7f14e23 \
+ https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz /docker.tgz
+ADD --checksum=sha256:62a63b981fe391a9cbad7ef51b17e49aeaa3e7b0d029b36ca1e9c3b2a9b78823 \
+ https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz /arm-gnu-toolchain.tar.xz
+ADD --checksum=sha256:9fd53950b064d067f42428a69453b927656cae68dbd7f8d3f86dcb81c80dd22d \
+ https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
+
+FROM scratch AS downloader-arm64
+ARG DOCKER_VERSION
+ARG XWIN_VERSION
+ADD --checksum=sha256:c9506628d1845c69230df3d87e2eedd7980caf8bd966f5e6a5d7a2364de42497 \
+ https://download.docker.com/linux/static/stable/aarch64/docker-${DOCKER_VERSION}.tgz /docker.tgz
+ADD --checksum=sha256:87330bab085dd8749d4ed0ad633674b9dc48b237b61069e3b481abd364d0a684 \
+ https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-aarch64-arm-none-eabi.tar.xz /arm-gnu-toolchain.tar.xz
+ADD --checksum=sha256:5e131007fad7c5f30d2f41090b49937fb8f16a787e5a95b4b3140e88d174dab2 \
+ https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
+
+FROM downloader-$TARGETARCH AS downloader
+ARG BATS_VERSION
+ADD --checksum=sha256:ce6eee4130298f79b0e0f09a89f93c1bc711cd68e7e3182d37c8e96c5227e2f0 \
+ https://apt.llvm.org/llvm-snapshot.gpg.key /llvm.gpg.key
+ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323fefcf1 \
+ https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key /mull.gpg.key
+ADD --checksum=sha256:e36b020436228262731e3319ed013d84fcd7c4bd97a1b34dee33d170e9ae6bab \
+ https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz /bats-core.tar.gz
+ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd306e85fb \
+ https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem /cisco-umbrella.crt
+ADD https://github.com/bats-core/bats-support#v0.3.0 /
+ADD https://github.com/bats-core/bats-assert#v2.1.0 /
+
+FROM ubuntu:24.04@sha256:b59d21599a2b151e23eea5f6602f4af4d7d31c4e236d22bf0b62b86d2e386b8f AS extractor
+
+ARG XWIN_VERSION
+
+WORKDIR /
+
+# hadolint ignore=DL3008
+RUN --mount=from=downloader,target=/dl \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+ apt-get update && apt-get install -y --no-install-recommends xz-utils \
+ && tar xzf /dl/bats-core.tar.gz && mv bats-core-*/ bats-core \
+ && tar xzf /dl/docker.tgz \
+ && tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin" \
+ && tar xJf /dl/arm-gnu-toolchain.tar.xz --exclude='*arm-none-eabi-gdb*' --exclude='share' \
+ && mv arm-gnu-toolchain-*/ gcc-arm-none-eabi
+
 FROM ubuntu:24.04@sha256:b59d21599a2b151e23eea5f6602f4af4d7d31c4e236d22bf0b62b86d2e386b8f
 
-ARG BATS_VERSION=1.11.0
 ARG CCACHE_VERSION=4.11
 ARG CLANG_VERSION=18
 ARG CPM_VERSION=0.40.2
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.22
-ARG XWIN_VERSION=0.6.5
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -13,7 +67,8 @@ HEALTHCHECK NONE
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Set default environment options
+# Set default environment options for CMake, ccache, and CPM
+# and update the PATH to include the toolchain binaries
 ENV CCACHE_DIR=/cache/.ccache \
     CMAKE_EXPORT_COMPILE_COMMANDS="On" \
     CMAKE_GENERATOR="Ninja" \
@@ -23,51 +78,40 @@ ENV CCACHE_DIR=/cache/.ccache \
     PYTHONPYCACHEPREFIX=/cache/.python
 
 # Install the base system with all tool dependencies
+# Some tools are installed via pip to get more recent versions
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
+    --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
     --mount=type=cache,target=/cache,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
+    --mount=from=downloader,target=/dl \
+    --mount=from=extractor,target=/src \
  apt-get update && apt-get install -y --no-install-recommends jq \
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
     xargs apt-get install -y --no-install-recommends \
- # Include the Cisco Umbrella PKI Root
- && wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
+ && cp /dl/cisco-umbrella.crt /usr/local/share/ca-certificates/cisco-umbrella.crt \
  && update-ca-certificates \
- # Install some tools via pip to get more recent versions
- && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt
-
-# Install clang toolchain and mull mutation testing framework
-RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
-    --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=cache,target=/var/log,sharing=locked \
-    --mount=type=cache,target=/tmp,sharing=locked,mode=1777 \
- wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
- && wget -qO - https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg \
+ && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt \
+ # Copy and install tools from the extractor stage
+ && bash /src/bats-core/install.sh /usr/local \
+ && cp -r /dl/bats-support /usr/local/bats-support \
+ && cp -r /dl/bats-assert /usr/local/bats-assert \
+ && cp /src/docker/docker /usr/local/bin \
+ && cp /src/xwin /usr/local/bin/xwin \
+ && cp -r /src/gcc-arm-none-eabi /opt/gcc-arm-none-eabi \
+ # Install clang toolchain and mull mutation testing framework
+ && cat /dl/llvm.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
+ && cat /dl/mull.gpg.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg \
  && UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2) \
  && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
  && echo "deb [signed-by=/usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/mull-project/mull-stable/deb/ubuntu ${UBUNTU_CODENAME} main" | tee /etc/apt/sources.list.d/mull-project-mull-stable.list > /dev/null \
  && echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences \
  && apt-get update \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends
-
-# Install arm-gcc toolchain
-RUN mkdir /opt/gcc-arm-none-eabi \
- && wget -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
-
-# Install bats
-RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
- && wget -qO - https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz | tar xz -C "${batstmp}" \
- && bash "${batstmp}/bats-core-${BATS_VERSION}/install.sh" /usr/local \
- && rm -rf "${batstmp}" \
- && git -C /usr/local clone -b v0.3.0 https://github.com/bats-core/bats-support.git \
- && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
-
-# Install xwin
-RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
+ && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
+    xargs apt-get install -y --no-install-recommends
 
 # Compile and install additional clang tools; often necessary as binary arm64 builds are lacking, or packages are out-of-date
 # Install ccache from source for a recent version
