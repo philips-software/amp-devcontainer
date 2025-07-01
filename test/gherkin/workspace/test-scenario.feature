@@ -52,8 +52,8 @@ Feature: Shopping Cart Functionality
       And I have proceeded to the checkout page
       When I enter valid shipping information
       And I enter valid payment details
-        | Card Type | Card Number       | Expiry Date | CVV |
-        | Visa      | 4111111111111111  | 12/25       | 123 |
+        | Card Type | Card Number      | Expiry Date | CVV |
+        | Visa      | 4111111111111111 | 12/25       | 123 |
       And I confirm the order
       Then I should see an order confirmation
       And I should receive an email receipt
