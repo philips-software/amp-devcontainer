@@ -4,7 +4,7 @@
   "devDependencies": {
     "@playwright/test": "^1.53.1",
     "@types/node": "^24.0.7",
-    "dotenv": "^16.5.0",
+    "dotenv": "^17.0.0",
     "nodemon": "^3.1.10",
     "otpauth": "^9.4.0",
     "playwright-bdd": "^8.3.1"
