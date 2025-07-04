@@ -47,9 +47,9 @@ jobs:
 
           ## Setting this to not fail the workflow while deleting cache keys.
           set +e
-          for cacheKey in $(gh actions-cache list -R "$GH_REPO" -B "$BRANCH" | cut -f 1)
+          for cacheKey in $(gh actions-cache list -R "${GH_REPO}" -B "${BRANCH}" | cut -f 1)
           do
-              gh actions-cache delete "$cacheKey" -R "$GH_REPO" -B "$BRANCH" --confirm
+              gh actions-cache delete "${cacheKey}" -R "${GH_REPO}" -B "${BRANCH}" --confirm
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
