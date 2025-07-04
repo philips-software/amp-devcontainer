@@ -77,16 +77,19 @@ jobs:
         id: inspect-manifest
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect "${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}:${REF_NAME}" --format '{{json .}}')
+          output=$(docker buildx imagetools inspect "${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}:${REF_NAME}" --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
+        env:
+          GH_REPO: ${{ github.repository }}
       - name: Upload provenance to release
         run: |
           set -Eeuo pipefail
           FORMATTED_DIGEST=${DIGEST//:/_}
-          gh attestation verify --repo ${{ github.repository }} "oci://${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
+          gh attestation verify --repo "${GH_REPO}" "oci://${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
           gh release upload "${REF_NAME}" ./*.intoto.jsonl
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           REPOSITORY_NAME: ${{ github.event.repository.name }}
