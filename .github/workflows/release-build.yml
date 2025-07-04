@@ -59,7 +59,7 @@ jobs:
   update-release-notes:
     strategy:
       matrix:
-        flavor: [cpp, rust]
+        flavor: [cpp, gherkin, rust]
     runs-on: ubuntu-latest
     permissions:
       contents: write
