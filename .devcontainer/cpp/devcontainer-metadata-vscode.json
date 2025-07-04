@@ -5,11 +5,11 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "llvm-vs-code-extensions.vscode-clangd@0.1.33",
+        "llvm-vs-code-extensions.vscode-clangd@0.2.0",
         "marus25.cortex-debug@1.12.1",
         "mhutchie.git-graph@1.30.0",
         "ms-vscode.cmake-tools@1.20.53",
-        "ms-vscode.cpptools@1.25.3",
+        "ms-vscode.cpptools@1.26.3",
         "ms-vsliveshare.vsliveshare@1.0.5948",
         "sonarsource.sonarlint-vscode@4.16.0"
       ],
