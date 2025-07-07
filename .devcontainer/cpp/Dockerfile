@@ -36,9 +36,10 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
  # Include the Cisco Umbrella PKI Root
  && wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
  && update-ca-certificates \
- # Install some tools via pip to get more recent versions
+ # Install some tools via pip to get more recent versions, clean up afterwards
  && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt \
- && find / -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
+ && find / -regex '^.*\(__pycache__\|\.py[co]\)$' -delete \
+ && rm -rf $(pip cache dir)
 
 # Install clang toolchain and mull mutation testing framework
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
