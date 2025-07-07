@@ -12,8 +12,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Install the base system with all tool dependencies
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/gherkin/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
-    --mount=type=bind,source=.devcontainer/gherkin/package.json,target=/tmp/package.json \
-    --mount=type=bind,source=.devcontainer/gherkin/package-lock.json,target=/tmp/package-lock.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
@@ -26,7 +24,7 @@ RUN --mount=type=bind,source=.devcontainer/gherkin/apt-requirements-base.json,ta
  && wget -qO - https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource-keyring.gpg \
  && echo "deb [signed-by=/usr/share/keyrings/nodesource-keyring.gpg] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list > /dev/null \
  && apt-get update && apt-get install -y --no-install-recommends nodejs \
- && npm install -g gplint \
+ && npm install -g gplint@2.3.0 \
  && cp /etc/skel/.bashrc /root/.bashrc
 
 # Install bats
