@@ -192,7 +192,14 @@ This project uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.htm
 
 ### Build & Test
 
-The containers can be built and tested locally by importing this repository in VS Code with the [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) plug-in installed. As a prerequisite an OCI compatible container engine needs to be installed on the host system. Alternatively a GitHub Codespace can be started.
+<!-- markdownlint-disable -->
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/philips-software/amp-devcontainer)
+<!-- markdownlint enable -->
+
+If you already have VS Code and a OCI compatible container engine installed, you can click the badge above or
+[here](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/philips-software/amp-devcontainer)
+to get started. Clicking these links will cause VS Code to automatically install the Dev Containers extension if needed,
+clone the source code into a container volume, and spin up a dev container for use. Alternatively a GitHub Codespace can be started.
 
 #### Running the Integration Tests
 
