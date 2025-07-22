@@ -54,7 +54,7 @@ jobs:
           BODY=$(echo "$CURRENT_NOTES" | sed "0,/^## /d")
           gh release edit "${REF_NAME}" --notes "${HEADER}${TEMPLATE}${BODY}"
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
           REF_NAME: ${{ github.ref_name }}
   update-release-notes:
     strategy:
@@ -102,4 +102,5 @@ jobs:
           gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
