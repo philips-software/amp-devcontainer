@@ -19,8 +19,9 @@ jobs:
     permissions:
       packages: write
     steps:
-      - uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
+          disable-sudo: true
           egress-policy: audit
       - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
@@ -39,20 +40,20 @@ jobs:
       # actions: write permission is required to delete the cache
       actions: write
     steps:
-      - uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
+          disable-sudo-and-containers: true
           egress-policy: audit
       - run: |
           gh extension install actions/gh-actions-cache
 
-          REPO=${{ github.repository }}
-          BRANCH=refs/pull/${{ github.event.pull_request.number }}/merge
-
           ## Setting this to not fail the workflow while deleting cache keys.
           set +e
-          for cacheKey in $(gh actions-cache list -R $REPO -B $BRANCH | cut -f 1)
+          for cacheKey in $(gh actions-cache list -R "${GH_REPO}" -B "${BRANCH}" | cut -f 1)
           do
-              gh actions-cache delete "$cacheKey" -R $REPO -B $BRANCH --confirm
+              gh actions-cache delete "${cacheKey}" -R "${GH_REPO}" -B "${BRANCH}" --confirm
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge

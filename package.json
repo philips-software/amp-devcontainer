@@ -2,9 +2,9 @@
   "name": "amp-devcontainer-tests",
   "version": "1.0.0",
   "devDependencies": {
-    "@playwright/test": "^1.53.1",
-    "@types/node": "^24.0.3",
-    "dotenv": "^16.5.0",
+    "@playwright/test": "^1.54.1",
+    "@types/node": "^24.0.15",
+    "dotenv": "^17.2.0",
     "nodemon": "^3.1.10",
     "otpauth": "^9.4.0",
     "playwright-bdd": "^8.3.1"

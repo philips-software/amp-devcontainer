@@ -13,7 +13,7 @@ export const test = base.extend<{ codespacePage: CodespacePage }, { authenticati
     codespacePage: async ({ page }, use) => {
         const codespacePage = new CodespacePage(page);
         await codespacePage.goto();
-        await codespacePage.areExtensionsActive(['SonarQube', 'CMake', 'Live Share', 'GitHub']);
+        await codespacePage.areExtensionsActive(['SonarQube Setup', 'CMake', 'Live Share', 'GitHub']);
 
         await use(codespacePage);
 

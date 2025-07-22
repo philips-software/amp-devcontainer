@@ -28,13 +28,14 @@ jobs:
     permissions:
       packages: write
     steps:
-      - uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
+          disable-sudo: true
           egress-policy: audit
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
       - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ env.REGISTRY }}
@@ -73,10 +74,11 @@ jobs:
       - name: Export digest
         run: |
           set -Eeuo pipefail
-          mkdir -p ${{ runner.temp }}/digests
-          touch "${{ runner.temp }}/digests/${DIGEST#sha256:}"
+          mkdir -p "${RUNNER_TEMP}/digests"
+          touch "${RUNNER_TEMP}/digests/${DIGEST#sha256:}"
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          RUNNER_TEMP: ${{ runner.temp }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: digests-${{ inputs.flavor }}-${{ steps.devcontainer-arch.outputs.arch }}
@@ -97,8 +99,9 @@ jobs:
       packages: write
       pull-requests: write
     steps:
-      - uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
+          disable-sudo: true
           egress-policy: audit
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -108,7 +111,7 @@ jobs:
           path: ${{ runner.temp }}/digests
           pattern: digests-${{ inputs.flavor }}-*
           merge-multiple: true
-      - uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
       - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ env.REGISTRY }}
@@ -135,7 +138,7 @@ jobs:
           import json
           import subprocess
 
-          CONTAINER = f"{os.getenv('REGISTRY')}/${{ github.repository }}-{os.getenv('CONTAINER_FLAVOR')}"
+          CONTAINER = f"{os.getenv('REGISTRY')}/{os.getenv('GH_REPO')}-{os.getenv('CONTAINER_FLAVOR')}"
           METADATA = json.loads(os.getenv('METADATA_JSON'))
 
           digests = [f for f in os.listdir('.') if f.startswith('sha256:') or len(f) == 64]
@@ -150,27 +153,42 @@ jobs:
           subprocess.run(command, check=True)
         env:
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
+          GH_REPO: ${{ github.repository }}
         shell: python
         working-directory: ${{ runner.temp }}/digests
       - name: Inspect manifest and extract digest
         id: inspect-manifest
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect "${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}:${CONTAINER_VERSION}" --format '{{json .}}')
+          output=$(docker buildx imagetools inspect "${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}:${CONTAINER_VERSION}" --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
         env:
           CONTAINER_VERSION: ${{ steps.metadata.outputs.version }}
+          GH_REPO: ${{ github.repository }}
+      - run: |
+          set -Eeuo pipefail
+          wget -O diffoci https://github.com/reproducible-containers/diffoci/releases/download/v0.1.7/diffoci-v0.1.7.linux-amd64
+          chmod +x diffoci
+          ./diffoci diff --semantic --report-file=container-diff.json "${FROM_CONTAINER}" "${TO_CONTAINER}" || true
+        env:
+          FROM_CONTAINER: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:edge
+          TO_CONTAINER: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: container-diff-${{ inputs.flavor }}
+          path: container-diff.json
+          retention-days: 10
       - uses: ./.github/actions/container-size-diff
         id: container-size-diff
         with:
           from-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:edge
           to-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
-      - uses: marocchino/sticky-pull-request-comment@67d0dec7b07ed060a405f9b2a64b8ab319fdd7db # v2.9.2
+      - uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2.9.4
         with:
           header: container-size-diff-${{ inputs.flavor }}
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
-      - uses: anchore/sbom-action@9246b90769f852b3a8921f330c59e0b3f439d6e9 # v0.20.1
+      - uses: anchore/sbom-action@cee1b8e05ae5b2593a75e197229729eabaa9f8ec # v0.20.2
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
@@ -181,7 +199,8 @@ jobs:
           show-summary: false
           push-to-registry: true
       - name: Verify attestation
-        run: gh attestation verify --repo ${{ github.repository }} "oci://${REGISTRY}/${{ github.repository }}-${CONTAINER_FLAVOR}@${DIGEST}"
+        run: gh attestation verify --repo "${GH_REPO}" "oci://${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}@${DIGEST}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
