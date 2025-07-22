@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.2.1](https://github.com/philips-software/amp-devcontainer/compare/v6.2.0...v6.2.1) (2025-07-22)
+
+
+### Chores
+
+* **deps, cpp:** Update udev ([#868](https://github.com/philips-software/amp-devcontainer/issues/868)) ([a2f9dd4](https://github.com/philips-software/amp-devcontainer/commit/a2f9dd4357b0756a515ef79599c73c8cc493d995))
+* **deps, rust:** Update udev ([#867](https://github.com/philips-software/amp-devcontainer/issues/867)) ([02ea9b8](https://github.com/philips-software/amp-devcontainer/commit/02ea9b88bd26d36fc9d05a51c02d430c7b0068c6))
+* **deps:** Bump ubuntu from `440dcf6` to `a08e551` in amp-devcontainer-cpp ([#871](https://github.com/philips-software/amp-devcontainer/issues/871)) ([eca4047](https://github.com/philips-software/amp-devcontainer/commit/eca4047fc4ad953348e8099197b6983335c84a70))
+* **deps:** Bump ubuntu from `440dcf6` to `a08e551` in amp-devcontainer-rust ([#872](https://github.com/philips-software/amp-devcontainer/issues/872)) ([650b3b3](https://github.com/philips-software/amp-devcontainer/commit/650b3b3092d410026b8e70194d2f7fd1053b744f))
+* **deps:** Bump ubuntu in /.devcontainer/cpp ([eca4047](https://github.com/philips-software/amp-devcontainer/commit/eca4047fc4ad953348e8099197b6983335c84a70))
+* **deps:** Bump ubuntu in /.devcontainer/rust ([650b3b3](https://github.com/philips-software/amp-devcontainer/commit/650b3b3092d410026b8e70194d2f7fd1053b744f))
+
 ## [6.2.0](https://github.com/philips-software/amp-devcontainer/compare/v6.1.0...v6.2.0) (2025-07-17)
 
 
