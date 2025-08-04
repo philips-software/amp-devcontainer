@@ -41,7 +41,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
+      - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
         env:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         id: metadata
@@ -117,7 +117,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
+      - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
         id: metadata
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
@@ -188,7 +188,7 @@ jobs:
           header: container-size-diff-${{ inputs.flavor }}
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
-      - uses: anchore/sbom-action@cee1b8e05ae5b2593a75e197229729eabaa9f8ec # v0.20.2
+      - uses: anchore/sbom-action@7b36ad622f042cab6f59a75c2ac24ccb256e9b45 # v0.20.4
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
