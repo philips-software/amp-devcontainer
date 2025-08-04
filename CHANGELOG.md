@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.2.2](https://github.com/philips-software/amp-devcontainer/compare/v6.2.1...v6.2.2) (2025-08-04)
+
+
+### Chores
+
+* **deps, cpp:** Update sonarsource.sonarlint-vscode ([#876](https://github.com/philips-software/amp-devcontainer/issues/876)) ([c595078](https://github.com/philips-software/amp-devcontainer/commit/c59507805fd1926ec5e81dbf7fb097d986be0b6d))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#877](https://github.com/philips-software/amp-devcontainer/issues/877)) ([5c3b554](https://github.com/philips-software/amp-devcontainer/commit/5c3b554ac5b161b57f3224d45c141bcc29a61024))
+
 ## [6.2.1](https://github.com/philips-software/amp-devcontainer/compare/v6.2.0...v6.2.1) (2025-07-22)
 
 
