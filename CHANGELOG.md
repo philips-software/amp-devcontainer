@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.2.2](https://github.com/philips-software/amp-devcontainer/compare/v6.2.1...v6.2.2) (2025-08-20)
+
+
+### Chores
+
+* **deps, cpp:** Update ms-vsliveshare.vsliveshare, sonarsource.sonarlint-vscode ([#886](https://github.com/philips-software/amp-devcontainer/issues/886)) ([7f60b03](https://github.com/philips-software/amp-devcontainer/commit/7f60b0372e1a8e29963c3adfd36bf7ba52dfd7be))
+* **deps, cpp:** Update sonarsource.sonarlint-vscode ([#876](https://github.com/philips-software/amp-devcontainer/issues/876)) ([c595078](https://github.com/philips-software/amp-devcontainer/commit/c59507805fd1926ec5e81dbf7fb097d986be0b6d))
+* **deps, rust:** Update ms-vsliveshare.vsliveshare, rust-lang.rust-analyzer ([#882](https://github.com/philips-software/amp-devcontainer/issues/882)) ([3c4b6e3](https://github.com/philips-software/amp-devcontainer/commit/3c4b6e32b5be7af2a93b092e80c32890b561b103))
+* **deps, rust:** Update rust-lang.rust-analyzer ([#877](https://github.com/philips-software/amp-devcontainer/issues/877)) ([5c3b554](https://github.com/philips-software/amp-devcontainer/commit/5c3b554ac5b161b57f3224d45c141bcc29a61024))
+* **deps:** Bump conan from 2.18.1 to 2.19.1 in /.devcontainer ([#883](https://github.com/philips-software/amp-devcontainer/issues/883)) ([9c221de](https://github.com/philips-software/amp-devcontainer/commit/9c221dec53b0a692061c084971d46e5b0ead78f0))
+
 ## [6.2.1](https://github.com/philips-software/amp-devcontainer/compare/v6.2.0...v6.2.1) (2025-07-22)
 
 
