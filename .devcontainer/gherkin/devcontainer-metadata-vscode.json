@@ -1,0 +1,14 @@
+{
+  "remoteEnv": {
+    "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "mhutchie.git-graph@1.30.0",
+        "ms-vsliveshare.vsliveshare@1.0.5948",
+        "usernamehw.errorlens@3.26.0"
+      ]
+    }
+  }
+}
