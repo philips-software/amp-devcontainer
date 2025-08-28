@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.2.3](https://github.com/philips-software/amp-devcontainer/compare/v6.2.2...v6.2.3) (2025-08-28)
+
+
+### Chores
+
+* **deps, cpp:** Update sonarsource.sonarlint-vscode ([#888](https://github.com/philips-software/amp-devcontainer/issues/888)) ([f2c25fa](https://github.com/philips-software/amp-devcontainer/commit/f2c25fae680c71ee8833b913ccd913e588fdeb3c))
+* **deps:** Bump cmake from 4.0.3 to 4.1.0 in /.devcontainer ([#889](https://github.com/philips-software/amp-devcontainer/issues/889)) ([2a1298b](https://github.com/philips-software/amp-devcontainer/commit/2a1298b6f87d3a91745acabe96dcac851c1aadbf))
+* **deps:** Bump ubuntu from `a08e551` to `7c06e91` in /.devcontainer/cpp ([#896](https://github.com/philips-software/amp-devcontainer/issues/896)) ([bb1b168](https://github.com/philips-software/amp-devcontainer/commit/bb1b168d6baaeff767cf9856f15d32b0bd303474))
+* **deps:** Bump ubuntu from `a08e551` to `7c06e91` in /.devcontainer/rust ([#890](https://github.com/philips-software/amp-devcontainer/issues/890)) ([2e82966](https://github.com/philips-software/amp-devcontainer/commit/2e82966ee6a6ceca0d30a8a012925fd9b284adc7))
+* **deps:** Bump ubuntu in /.devcontainer/cpp ([bb1b168](https://github.com/philips-software/amp-devcontainer/commit/bb1b168d6baaeff767cf9856f15d32b0bd303474))
+* **deps:** Bump ubuntu in /.devcontainer/rust ([2e82966](https://github.com/philips-software/amp-devcontainer/commit/2e82966ee6a6ceca0d30a8a012925fd9b284adc7))
+
 ## [6.2.2](https://github.com/philips-software/amp-devcontainer/compare/v6.2.1...v6.2.2) (2025-08-20)
 
 
