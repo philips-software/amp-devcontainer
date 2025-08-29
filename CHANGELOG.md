@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.2.4](https://github.com/philips-software/amp-devcontainer/compare/v6.2.3...v6.2.4) (2025-08-29)
+
+
+### Chores
+
+* Add bats test runner to run tests ([#899](https://github.com/philips-software/amp-devcontainer/issues/899)) ([f942de0](https://github.com/philips-software/amp-devcontainer/commit/f942de03afb69d5e22eff32f87d14d058abc6729))
+* Include devcontainer.json files in automatic vscode extension update ([#900](https://github.com/philips-software/amp-devcontainer/issues/900)) ([9dd566a](https://github.com/philips-software/amp-devcontainer/commit/9dd566a05fe7272b0fa16bc468ae413410eedf45))
+
 ## [6.2.3](https://github.com/philips-software/amp-devcontainer/compare/v6.2.2...v6.2.3) (2025-08-28)
 
 
