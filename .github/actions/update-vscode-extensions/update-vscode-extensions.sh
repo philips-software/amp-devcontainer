@@ -47,8 +47,13 @@ for EXTENSION in $(echo $JSON | jq -r '.customizations.vscode.extensions | flatt
     then
         GITHUB_URL=$(echo $LATEST_NON_PRERELEASE_VERSION_JSON | jq -r '.properties | map(select(.key == "Microsoft.VisualStudio.Services.Links.GitHub"))[] | .value')
 
-        RELEASE_DETAILS=$(get_github_releasenotes $GITHUB_URL $CURRENT_VERSION | prevent_github_backlinks | prevent_github_at_mentions)
-        UPDATE_DETAILS_MARKDOWN=$(printf "Updates \`%s\` from %s to %s\n<details>\n<summary>Release notes</summary>\n<blockquote>\n\n%s\n</blockquote>\n</details>\n\n%s" $NAME $CURRENT_VERSION $LATEST_NON_PRERELEASE_VERSION "$RELEASE_DETAILS" "$UPDATE_DETAILS_MARKDOWN")
+        if [[ -n "$GITHUB_URL" && "$GITHUB_URL" != "null" ]]; then
+            RELEASE_DETAILS=$(get_github_releasenotes $GITHUB_URL $CURRENT_VERSION | prevent_github_backlinks | prevent_github_at_mentions)
+            UPDATE_DETAILS_MARKDOWN=$(printf "Updates \`%s\` from %s to %s\n<details>\n<summary>Release notes</summary>\n<blockquote>\n\n%s\n</blockquote>\n</details>\n\n%s" $NAME $CURRENT_VERSION $LATEST_NON_PRERELEASE_VERSION "$RELEASE_DETAILS" "$UPDATE_DETAILS_MARKDOWN")
+        else
+            UPDATE_DETAILS_MARKDOWN=$(printf "Updates \`%s\` from %s to %s\n\n%s" $NAME $CURRENT_VERSION $LATEST_NON_PRERELEASE_VERSION "$UPDATE_DETAILS_MARKDOWN")
+        fi
+
         UPDATED_EXTENSIONS_JSON=$(echo $UPDATED_EXTENSIONS_JSON | jq -c '. += ["'$NAME'"]')
     fi
 
