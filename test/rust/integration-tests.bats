@@ -99,7 +99,7 @@ EOF
 
   run cargo cov -- report --instr-profile=default.profdata --object $(find target/debug/deps -name "test-*" -executable)
   assert_success
-  assert_output --partial "77.78%"
+  assert_output --partial "88.24%"
 
   popd
 }
