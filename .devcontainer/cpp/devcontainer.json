@@ -3,7 +3,9 @@
     "dockerfile": "Dockerfile",
     "context": "../.."
   },
-  "forwardPorts": [6080],
+  "forwardPorts": [
+    6080
+  ],
   "remoteEnv": {
     "CONTAINER_FLAVOR": "cpp",
     "NODE_EXTRA_CA_CERTS": "/usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt"
@@ -17,7 +19,9 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "cucumberautocomplete.steps": ["test/cpp/features/steps/*.steps.ts"],
+        "cucumberautocomplete.steps": [
+          "test/cpp/features/steps/*.steps.ts"
+        ],
         "cucumberautocomplete.strictGherkinCompletion": false,
         "cucumberautocomplete.strictGherkinValidation": false,
         "cucumberautocomplete.smartSnippets": true,
@@ -27,18 +31,18 @@
       },
       "extensions": [
         "alexkrechik.cucumberautocomplete@3.0.5",
-        "github.copilot@1.277.0",
-        "github.vscode-github-actions@0.27.1",
-        "github.vscode-pull-request-github@0.106.0",
+        "github.copilot@1.364.0",
+        "github.vscode-github-actions@0.27.2",
+        "github.vscode-pull-request-github@0.116.2",
         "jetmartin.bats@0.1.10",
         "kherring.bats-test-runner@0.1.3",
         "mhutchie.git-graph@1.30.0",
-        "ms-azuretools.vscode-docker@1.29.1",
-        "ms-playwright.playwright@1.1.13",
-        "ms-vscode.cmake-tools@1.20.53",
-        "ms-vscode.cpptools@1.23.6",
-        "sonarsource.sonarlint-vscode@4.17.0",
-        "usernamehw.errorlens@3.24.0"
+        "ms-azuretools.vscode-docker@2.0.0",
+        "ms-playwright.playwright@1.1.15",
+        "ms-vscode.cmake-tools@1.21.36",
+        "ms-vscode.cpptools@1.26.3",
+        "sonarsource.sonarlint-vscode@4.29.0",
+        "usernamehw.errorlens@3.26.0"
       ]
     }
   }
