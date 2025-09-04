@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.3.0](https://github.com/philips-software/amp-devcontainer/compare/v6.2.3...v6.3.0) (2025-09-04)
+
+
+### Features
+
+* Update rust and related dependencies ([#901](https://github.com/philips-software/amp-devcontainer/issues/901)) ([751c5a3](https://github.com/philips-software/amp-devcontainer/commit/751c5a3805faf8efdc58ad088c9a2d351ef0c649))
+
+
+### Bug Fixes
+
+* Exclude release details when no github url is found ([#903](https://github.com/philips-software/amp-devcontainer/issues/903)) ([813ac63](https://github.com/philips-software/amp-devcontainer/commit/813ac63e04235adfab402180deb5dc29793a66e8))
+
+
+### Chores
+
+* Add bats test runner to run tests ([#899](https://github.com/philips-software/amp-devcontainer/issues/899)) ([f942de0](https://github.com/philips-software/amp-devcontainer/commit/f942de03afb69d5e22eff32f87d14d058abc6729))
+* **deps, cpp:** Update github.copilot, github.vscode-github-actions, github.vscode-pull-request-github, ms-azuretools.vscode-docker, ms-playwright.playwright, ms-vscode.cmake-tools, ms-vscode.cpptools, sonarsource.sonarlint-vscode, usernamehw.errorlens in devcontainer.json ([#905](https://github.com/philips-software/amp-devcontainer/issues/905)) ([bd9d2eb](https://github.com/philips-software/amp-devcontainer/commit/bd9d2eb14273bdebf21075b5a42dcd897962aa4f))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata-vscode.json ([#904](https://github.com/philips-software/amp-devcontainer/issues/904)) ([842c9ec](https://github.com/philips-software/amp-devcontainer/commit/842c9ecba0115ea31a6785e88a65b78dc83ce418))
+* Include devcontainer.json files in automatic vscode extension update ([#900](https://github.com/philips-software/amp-devcontainer/issues/900)) ([9dd566a](https://github.com/philips-software/amp-devcontainer/commit/9dd566a05fe7272b0fa16bc468ae413410eedf45))
+
 ## [6.2.3](https://github.com/philips-software/amp-devcontainer/compare/v6.2.2...v6.2.3) (2025-08-28)
 
 
