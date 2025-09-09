@@ -24,14 +24,14 @@ jobs:
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
           egress-policy: audit
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
       - uses: ./.github/actions/update-apt-packages
         id: update-packages
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements-*.json
-      - uses: actions/create-github-app-token@0f859bf9e69e887678d5bbfbee594437cb440ffe # v2.1.0
+      - uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
         id: token
         with:
           app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
@@ -49,6 +49,7 @@ jobs:
     strategy:
       matrix:
         flavor: ["cpp", "rust"]
+        file: ["devcontainer-metadata-vscode.json", "devcontainer.json"]
     permissions:
       contents: write
       pull-requests: write
@@ -56,28 +57,28 @@ jobs:
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
           egress-policy: audit
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
       - uses: ./.github/actions/update-vscode-extensions
         id: update-extensions
         with:
-          input-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata-vscode.json
-      - uses: actions/create-github-app-token@0f859bf9e69e887678d5bbfbee594437cb440ffe # v2.1.0
+          input-file: .devcontainer/${{ matrix.flavor }}/${{ matrix.file }}
+      - uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
         id: token
         with:
           app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
       - uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
-          commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
-          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions
+          commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
+          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions-${{ matrix.file }}
           body: |
             > [!NOTE]
             > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates.
 
             ${{ steps.update-extensions.outputs.markdown-summary }}
-          title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
+          title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
           labels: dependencies,vscode-extensions
           token: ${{ steps.token.outputs.token }}
           sign-commits: true
