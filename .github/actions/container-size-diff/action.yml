@@ -101,7 +101,7 @@ runs:
               const change = current - previous;
 
               const percentage = previous
-                  ? `${change >= 0 ? "+" : "-"}${_.round(change / previous * 100, 2)}%`
+                  ? `${change >= 0 ? "+" : ""}${_.round(change / previous * 100, 2)}%`
                   : current ? "+∞" : "+0.00%";
 
               const icon = _.cond([
@@ -114,7 +114,7 @@ runs:
                   platform,
                   filesize(previous),
                   filesize(current),
-                  `${change >= 0 ? "+" : "-"}${filesize(Math.abs(change))} (${percentage})`,
+                  `${change >= 0 ? "+" : ""}${filesize(Math.abs(change))} (${percentage})`,
                   icon
               ];
           };
