@@ -10,6 +10,6 @@
 
 | Container             | Full identifier                                                                                                           |
 |-----------------------|---------------------------------------------------------------------------------------------------------------------------|
-| amp-devcontainer-cpp  | ghcr.io/philips-software/amp-devcontainer-cpp:{{ amp-devcontainer-cpp-version }}@sha256:{{ amp-devcontainer-cpp-sha }}    |
-| amp-devcontainer-rust | ghcr.io/philips-software/amp-devcontainer-rust:{{ amp-devcontainer-rust-version }}@sha256:{{ amp-devcontainer-rust-sha }} |
+| amp-devcontainer-cpp  | ghcr.io/philips-software/amp-devcontainer-cpp:{{ amp-devcontainer-cpp-version }}@{{ amp-devcontainer-cpp-sha }}           |
+| amp-devcontainer-rust | ghcr.io/philips-software/amp-devcontainer-rust:{{ amp-devcontainer-rust-version }}@{{ amp-devcontainer-rust-sha }}        |
 
