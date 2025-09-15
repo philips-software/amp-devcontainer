@@ -1,0 +1,26 @@
+---
+name: Cleanup Images
+
+on:
+  schedule:
+    - cron: "30 1 * * *"
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  delete-images:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1.0.16
+        with:
+          dry-run: true
+          delete-orphaned-images: true
+          packages: amp-devcontainer-cpp, amp-devcontainer-rust
