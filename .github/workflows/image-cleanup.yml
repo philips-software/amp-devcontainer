@@ -23,4 +23,4 @@ jobs:
         with:
           dry-run: true
           delete-orphaned-images: true
-          packages: amp-devcontainer-cpp, amp-devcontainer-rust
+          packages: amp-devcontainer-cpp,amp-devcontainer-rust
