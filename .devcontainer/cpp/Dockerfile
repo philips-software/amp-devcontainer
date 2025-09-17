@@ -1,13 +1,20 @@
 # syntax=docker/dockerfile:1
 
-ARG BATS_VERSION=1.12.0
-
 FROM ubuntu:24.04@sha256:9cbed754112939e914291337b5e554b07ad7c392491dba6daf25eef1332a22e8 AS extractor
 
-ARG BATS_VERSION
+ARG BATS_CORE_VERSION=1.12.0
+ARG BATS_SUPPORT_VERSION=0.3.0
+ARG BATS_ASSERT_VERSION=2.1.0
+
 ADD --checksum=sha256:e36b020436228262731e3319ed013d84fcd7c4bd97a1b34dee33d170e9ae6bab \
- https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz /bats-core.tar.gz
-RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core
+ https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_CORE_VERSION}.tar.gz /bats-core.tar.gz
+ADD --checksum=sha256:7815237aafeb42ddcc1b8c698fc5808026d33317d8701d5ec2396e9634e2918f \
+ https://github.com/bats-core/bats-support/archive/refs/tags/v${BATS_SUPPORT_VERSION}.tar.gz /bats-support.tar.gz
+ADD --checksum=sha256:98ca3b685f8b8993e48ec057565e6e2abcc541034ed5b0e81f191505682037fd \
+ https://github.com/bats-core/bats-assert/archive/refs/tags/v2.1.0.tar.gz /bats-assert.tar.gz
+RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
+ && tar xzf /bats-support.tar.gz && mv bats-support-*/ bats-support \
+ && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert
 
 FROM ubuntu:24.04@sha256:9cbed754112939e914291337b5e554b07ad7c392491dba6daf25eef1332a22e8
 
@@ -73,8 +80,8 @@ RUN mkdir /opt/gcc-arm-none-eabi \
 # Install bats
 RUN --mount=from=extractor,target=/src \
  bash /src/bats-core/install.sh /usr/local \
- && git -C /usr/local clone -b v0.3.0 https://github.com/bats-core/bats-support.git \
- && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
+ && cp -r /src/bats-support /usr/local/bats-support \
+ && cp -r /src/bats-assert /usr/local/bats-assert
 
 # Install xwin
 RUN wget --no-hsts -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
