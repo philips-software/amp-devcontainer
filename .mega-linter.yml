@@ -25,3 +25,9 @@ FILTER_REGEX_EXCLUDE: (CHANGELOG.md|package-lock.json)
 # hence the exclusion
 JSON_V8R_FILTER_REGEX_EXCLUDE: (\.vscode)
 REPOSITORY_TRIVY_ARGUMENTS: --ignorefile .github/linters/.trivyignore.yml
+# The version of hadolint in megalinter does not yet
+# understand the --checksum argument to the ADD instruction
+# This is fixed in hadolint (https://github.com/hadolint/hadolint/issues/985),
+# but needs to land in megalinter. Remove this when a new
+# megalinter is released
+DOCKERFILE_HADOLINT_DISABLE_ERRORS_IF_LESS_THAN: 1
