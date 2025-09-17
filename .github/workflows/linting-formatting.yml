@@ -38,7 +38,7 @@ jobs:
           persona: pedantic
       # flavors/dotnet is the smallest flavor of MegaLinter that contains the linters
       # we are interested in.
-      - uses: oxsecurity/megalinter/flavors/dotnet@e08c2b05e3dbc40af4c23f41172ef1e068a7d651 # v8.8.0
+      - uses: oxsecurity/megalinter/flavors/dotnet@3d0aae012832ef33ac721abef5132aeb8e703eba # main
         env:
           APPLY_FIXES: all
           VALIDATE_ALL_CODEBASE: true
