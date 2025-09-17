@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 ARG BATS_VERSION=1.12.0
 ARG CCACHE_VERSION=4.11
 ARG CLANG_VERSION=18
@@ -5,12 +7,12 @@ ARG CPM_VERSION=0.40.2
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.22
 ARG XWIN_VERSION=0.6.5
 
-FROM ubuntu:24.04@sha256:9cbed754112939e914291337b5e554b07ad7c392491dba6daf25eef1332a22e8 as extractor
+FROM ubuntu:24.04@sha256:9cbed754112939e914291337b5e554b07ad7c392491dba6daf25eef1332a22e8 AS extractor
 
 ARG BATS_VERSION
 ADD --checksum=sha256:e36b020436228262731e3319ed013d84fcd7c4bd97a1b34dee33d170e9ae6bab \
  https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz /bats-core.tar.gz
-RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
+RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core
 
 FROM ubuntu:24.04@sha256:9cbed754112939e914291337b5e554b07ad7c392491dba6daf25eef1332a22e8
 
