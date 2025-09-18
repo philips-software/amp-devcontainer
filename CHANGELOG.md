@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.4.0](https://github.com/philips-software/amp-devcontainer/compare/v6.3.0...v6.4.0) (2025-09-18)
+
+
+### Features
+
+* Implement better clean up strategy ([#926](https://github.com/philips-software/amp-devcontainer/issues/926)) ([616126f](https://github.com/philips-software/amp-devcontainer/commit/616126f197d814be43c31f6b7bdce42cf16bf4ee))
+
+
+### Bug Fixes
+
+* Container size diff merge issues ([#930](https://github.com/philips-software/amp-devcontainer/issues/930)) ([5d03602](https://github.com/philips-software/amp-devcontainer/commit/5d03602a1295b13c4109b7d51df17d3a9fb8259e))
+* Remove duplicate sha256: in release notes ([#922](https://github.com/philips-software/amp-devcontainer/issues/922)) ([1e66947](https://github.com/philips-software/amp-devcontainer/commit/1e669473c513a2aa4722ee2ff144ad3510eb7ddd))
+
+
+### Chores
+
+* **deps, cpp:** Update ccache to 4.12 ([#927](https://github.com/philips-software/amp-devcontainer/issues/927)) ([1123f2c](https://github.com/philips-software/amp-devcontainer/commit/1123f2c04b9830b184b997c86d6a57d1b85ffcdb))
+* **deps, cpp:** Update github.copilot, github.vscode-pull-request-github, ms-vscode.cpptools in devcontainer.json ([#920](https://github.com/philips-software/amp-devcontainer/issues/920)) ([9eb7f01](https://github.com/philips-software/amp-devcontainer/commit/9eb7f0137e5cd666eb2a18b88466ff4cc3808222))
+* **deps, cpp:** Update ms-vscode.cpptools in devcontainer-metadata-vscode.json ([#919](https://github.com/philips-software/amp-devcontainer/issues/919)) ([4d54b1e](https://github.com/philips-software/amp-devcontainer/commit/4d54b1e2df598a9c113da3d080991c12a08e25c5))
+* **deps, cpp:** Update xwin to 0.6.7 ([#928](https://github.com/philips-software/amp-devcontainer/issues/928)) ([d027ad2](https://github.com/philips-software/amp-devcontainer/commit/d027ad2fa8b69c635ccbfc4ea75621be1f5e90be))
+* Manually update devcontainer.json extensions for rust ([#925](https://github.com/philips-software/amp-devcontainer/issues/925)) ([deb97bf](https://github.com/philips-software/amp-devcontainer/commit/deb97bff90e1ce71e7f234f789e733a290ee24b4))
+
 ## [6.3.0](https://github.com/philips-software/amp-devcontainer/compare/v6.2.3...v6.3.0) (2025-09-09)
 
 
