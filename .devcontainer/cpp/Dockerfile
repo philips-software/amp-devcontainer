@@ -1,6 +1,24 @@
+# syntax=docker/dockerfile:1
+
+FROM ubuntu:24.04@sha256:9cbed754112939e914291337b5e554b07ad7c392491dba6daf25eef1332a22e8 AS extractor
+
+ARG BATS_CORE_VERSION=1.12.0
+ARG BATS_SUPPORT_VERSION=0.3.0
+ARG BATS_ASSERT_VERSION=2.1.0
+
+ADD --checksum=sha256:e36b020436228262731e3319ed013d84fcd7c4bd97a1b34dee33d170e9ae6bab \
+ https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_CORE_VERSION}.tar.gz /bats-core.tar.gz
+ADD --checksum=sha256:7815237aafeb42ddcc1b8c698fc5808026d33317d8701d5ec2396e9634e2918f \
+ https://github.com/bats-core/bats-support/archive/refs/tags/v${BATS_SUPPORT_VERSION}.tar.gz /bats-support.tar.gz
+ADD --checksum=sha256:98ca3b685f8b8993e48ec057565e6e2abcc541034ed5b0e81f191505682037fd \
+ https://github.com/bats-core/bats-assert/archive/refs/tags/v2.1.0.tar.gz /bats-assert.tar.gz
+
+RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
+ && tar xzf /bats-support.tar.gz && mv bats-support-*/ bats-support \
+ && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert
+
 FROM ubuntu:24.04@sha256:9cbed754112939e914291337b5e554b07ad7c392491dba6daf25eef1332a22e8
 
-ARG BATS_VERSION=1.11.0
 ARG CCACHE_VERSION=4.12
 ARG CLANG_VERSION=18
 ARG CPM_VERSION=0.40.2
@@ -46,7 +64,6 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,targe
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
-    --mount=type=cache,target=/tmp,sharing=locked,mode=1777 \
  wget --no-hsts -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
  && wget --no-hsts -qO - https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg \
  && UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2) \
@@ -61,12 +78,10 @@ RUN mkdir /opt/gcc-arm-none-eabi \
  && wget --no-hsts -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
 
 # Install bats
-RUN batstmp="$(mktemp -d /tmp/bats-core-${BATS_VERSION}.XXXX)" \
- && wget --no-hsts -qO - https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz | tar xz -C "${batstmp}" \
- && bash "${batstmp}/bats-core-${BATS_VERSION}/install.sh" /usr/local \
- && rm -rf "${batstmp}" \
- && git -C /usr/local clone -b v0.3.0 https://github.com/bats-core/bats-support.git \
- && git -C /usr/local clone -b v2.1.0 https://github.com/bats-core/bats-assert.git
+RUN --mount=from=extractor,target=/src \
+ bash /src/bats-core/install.sh /usr/local \
+ && cp -r /src/bats-support /usr/local/bats-support \
+ && cp -r /src/bats-assert /usr/local/bats-assert
 
 # Install xwin and ccache
 RUN wget --no-hsts -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin" \
