@@ -12,6 +12,7 @@ ADD --checksum=sha256:7815237aafeb42ddcc1b8c698fc5808026d33317d8701d5ec2396e9634
  https://github.com/bats-core/bats-support/archive/refs/tags/v${BATS_SUPPORT_VERSION}.tar.gz /bats-support.tar.gz
 ADD --checksum=sha256:98ca3b685f8b8993e48ec057565e6e2abcc541034ed5b0e81f191505682037fd \
  https://github.com/bats-core/bats-assert/archive/refs/tags/v2.1.0.tar.gz /bats-assert.tar.gz
+
 RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
  && tar xzf /bats-support.tar.gz && mv bats-support-*/ bats-support \
  && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert
@@ -63,7 +64,6 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,targe
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
-    --mount=type=cache,target=/tmp,sharing=locked,mode=1777 \
  wget --no-hsts -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
  && wget --no-hsts -qO - https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg \
  && UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2) \
