@@ -134,8 +134,3 @@ runs:
           ${markdownTable(rows, { align: ["l", "c", "c", "c", "c"] })}`;
 
           core.setOutput("markdown", output);
-
-              output += `| ${platform} | ${formatBytes(fromSize)} | ${formatBytes(toSize)} | ${sign}${formatBytes(Math.abs(delta))} (${percentChange}%) | ${icon} |\n`;
-          }
-
-          core.setOutput('markdown', output);
