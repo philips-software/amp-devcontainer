@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.4.1](https://github.com/philips-software/amp-devcontainer/compare/v6.4.0...v6.4.1) (2025-09-18)
+
+
+### Chores
+
+* Add hash checks for bats components ([#929](https://github.com/philips-software/amp-devcontainer/issues/929)) ([2bf5403](https://github.com/philips-software/amp-devcontainer/commit/2bf54036ef8d42e4fc266fe624f13771331812b0))
+
 ## [6.4.0](https://github.com/philips-software/amp-devcontainer/compare/v6.3.0...v6.4.0) (2025-09-18)
 
 
