@@ -19,11 +19,11 @@ RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
 
 FROM ubuntu:24.04@sha256:9cbed754112939e914291337b5e554b07ad7c392491dba6daf25eef1332a22e8
 
-ARG CCACHE_VERSION=4.11
+ARG CCACHE_VERSION=4.12
 ARG CLANG_VERSION=18
 ARG CPM_VERSION=0.40.2
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.22
-ARG XWIN_VERSION=0.6.5
+ARG XWIN_VERSION=0.6.7
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -83,16 +83,9 @@ RUN --mount=from=extractor,target=/src \
  && cp -r /src/bats-support /usr/local/bats-support \
  && cp -r /src/bats-assert /usr/local/bats-assert
 
-# Install xwin
-RUN wget --no-hsts -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
-
-# Compile and install additional clang tools; often necessary as binary arm64 builds are lacking, or packages are out-of-date
-# Install ccache from source for a recent version
-RUN --mount=type=cache,target=/cache,sharing=locked \
- wget --no-hsts -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
- && CC=clang CXX=clang++ cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=Off -DENABLE_DOCUMENTATION=Off -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
- && cmake --build /tmp/ccache-${CCACHE_VERSION}/build --target install \
- && rm -rf /tmp/ccache-${CCACHE_VERSION}
+# Install xwin and ccache
+RUN wget --no-hsts -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin" \
+ && wget --no-hsts -qO - "https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-$(uname -m).tar.xz" | tar -xJ -C /usr/local/bin --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)/ccache"
 
 # Install include-what-you-use (iwyu) from source
 # hadolint ignore=DL3008
