@@ -12,7 +12,7 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/desktop-lite:": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/github-cli:": {},
     "ghcr.io/devcontainers/features/node:1": {}
   },
   "postCreateCommand": "npm install && npx playwright install --with-deps",
