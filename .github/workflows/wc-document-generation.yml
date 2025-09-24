@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  generate-requirements:
+  generate-documents:
     runs-on: ubuntu-latest
     steps:
       - uses: step-security/harden-runner@002fdce3c6a235733a90a27c80493a3241e56863 # v2.12.1
@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -Eeuo pipefail
-          sudo apt-get install --update --no-install-recommends -y pandoc plantuml texlive texlive-fonts-recommended
+          sudo apt-get install --update --no-install-recommends -y lmodern pandoc plantuml texlive texlive-fonts-recommended
           python -m pip install gherkin-official pytm sbdl
       - name: Generate requirements document
         run: |
