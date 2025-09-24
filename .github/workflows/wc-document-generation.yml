@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -Eeuo pipefail
-          sudo apt-get install --update --no-install-recommends -y pandoc plantuml texlive texlive-fonts-recommended
+          apt-get install --update --no-install-recommends -y pandoc plantuml texlive texlive-fonts-recommended
           python -m pip install gherkin-official pytm sbdl
       - name: Generate requirements document
         run: |
