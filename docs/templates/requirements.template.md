@@ -1,0 +1,45 @@
+# amp-devcontainer requirement specification
+
+## Introduction
+
+### Purpose
+
+This document describes the software system requirements for amp-devcontainer.
+
+### Definitions of key words
+
+The key words *MUST*, *MUST NOT*, *REQUIRED*, *SHALL*, *SHALL NOT*, *SHOULD*, *SHOULD NOT*, *RECOMMENDED*, *MAY*, and *OPTIONAL* in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
+
+### Abstract
+
+amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored towards modern, embedded, software development.
+
+The containers may be used both for local development and continuous integration (ci).
+
+### Terminology and Abbreviations
+
+| Terminology and Abbreviations | Description/Definition                                                                                                                 |
+|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| ARM                           | A family of RISC architectures for computer processors and micro controllers, formerly an acronym for Advanced RISC Machines and originally Acorn RISC Machine |
+| Continuous Integration (ci)   | The practice of continuously merging developers work to a shared code-base; ideally including automation for build, test and deployment |
+| ELF                           | Executable and Linkable Format, formerly named Extensible Linking Format |
+| RISC                          | Reduced Instruction Set Computer |
+
+## Requirements
+
+{%- macro reencode(text) -%}
+{{ text.encode('utf-8').decode('unicode_escape') }}
+{%- endmacro -%}
+
+{%- macro sbdl_id_to_header(text) -%}
+{{ text.replace('_', ' ') }}
+{%- endmacro -%}
+
+{% for req_id, requirement in sbdl.items() %}
+{% if requirement.type == 'requirement' %}
+### {{ reencode(sbdl_id_to_header(req_id)) }}
+
+{{ reencode(requirement.description) }}
+
+{% endif %}
+{% endfor %}
