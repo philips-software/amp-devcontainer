@@ -25,9 +25,8 @@ jobs:
       - name: Generate requirements document
         run: |
           set -Eeuo pipefail
-          python docs/support/gherkin-to-csv.py test/cpp/features/*.feature
-          python -m csv-to-sbdl --identifier 0 --description 1 --skipheader rules.csv
-          sbdl -m template-fill --template docs/templates/requirements.template.md output.sbdl > requirements.md
+          python docs/support/gherkin-to-sbdl.py test/cpp/features/*.feature
+          sbdl -m template-fill --template docs/templates/requirements.md.j2 output.sbdl > requirements.md
       - uses: docker://pandoc/extra:3.7.0@sha256:a703d335fa237f8fc3303329d87e2555dca5187930da38bfa9010fa4e690933a
         with:
           args: --template eisvogel --output requirements.pdf requirements.md
