@@ -26,12 +26,12 @@ jobs:
         run: |
           set -Eeuo pipefail
           python docs/support/gherkin-to-csv.py test/cpp/features/*.feature
-          python -m csv-to-sbdl --identifier 0 --description 1 --skipheader rules.csv -o - | sbdl -m template-fill --template docs/templates/requirements.template.md output.sbdl > requirements.md
+          python -m csv-to-sbdl --identifier 0 --description 1 --skipheader rules.csv
+          sbdl -m template-fill --template docs/templates/requirements.template.md output.sbdl > requirements.md
       - uses: docker://pandoc/latex:3.7@sha256:ea5a6702bd47aea68dc1da18ff7e9891a76097d10ae88ea03d343113114dcbbe
         with:
           args: --output requirements.pdf requirements.md
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always()
         with:
           name: documents
           path: requirements.pdf
