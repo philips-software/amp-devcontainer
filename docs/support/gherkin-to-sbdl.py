@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import List, Dict
 from gherkin.parser import Parser
 from gherkin.token_scanner import TokenScanner
+import sbdl
 
 @dataclass
 class SBDLRequirement:
@@ -16,16 +17,21 @@ class SBDLRequirement:
     parent: str = ""
 
 def make_sbdl_identifier(name: str) -> str:
-    """Convert a name to a valid SBDL identifier."""
-    # Replace spaces and special characters with underscores
-    identifier = name.replace(" ", "_").replace("-", "_").replace("®", "_")
-    # Remove or replace other special characters
-    identifier = "".join(c if c.isalnum() or c == "_" else "_" for c in identifier)
+    """Convert a name to a valid SBDL identifier using SBDL's built-in functions."""
+    # Replace spaces and dashes with underscores first, then use SBDL's sanitization
+    identifier = name.replace(" ", "_").replace("-", "_")
+    
+    # Use SBDL's built-in identifier sanitization
+    identifier = sbdl.SBDL_Parser.sanitize_identifier(identifier)
+    
+    # Additional cleanup for readability
     # Remove multiple consecutive underscores
     while "__" in identifier:
         identifier = identifier.replace("__", "_")
+    
     # Remove leading/trailing underscores
     identifier = identifier.strip("_")
+    
     return identifier
 
 def clean_description_text(text: str) -> str:
@@ -75,10 +81,6 @@ def extract_requirements_from_feature(file_path: str) -> Dict[str, List[SBDLRequ
                 return features
             
             feature_id = make_sbdl_identifier(feature_name)
-            print(f"Extracted Feature: {feature_name}")
-            print(f"Feature ID: {feature_id}")
-            print(f"Description: {feature_description}\n")
-            
             # Create feature requirement
             feature_requirement = SBDLRequirement(
                 identifier=feature_id,
@@ -99,10 +101,6 @@ def extract_requirements_from_feature(file_path: str) -> Dict[str, List[SBDLRequ
                             continue
                             
                         rule_id = make_sbdl_identifier(rule_name)
-                        print(f"  Extracted Rule: {rule_name}")
-                        print(f"  Rule ID: {rule_id}")
-                        print(f"  Description: {rule_description}\n")
-                        
                         rule_requirement = SBDLRequirement(
                             identifier=rule_id,
                             description=rule_description,
@@ -121,25 +119,38 @@ def extract_requirements_from_feature(file_path: str) -> Dict[str, List[SBDLRequ
         return {}
 
 def write_sbdl_output(all_features: Dict[str, Dict], output_file: str):
-    """Write SBDL format output."""
-    with open(output_file, 'w', encoding='utf-8') as f:
+    """Write SBDL format output using SBDL Python interface."""
+    # Get SBDL syntax tokens and types
+    tokens = sbdl.SBDL_Parser.Tokens
+    types = sbdl.SBDL_Parser.Types
+    attrs = sbdl.SBDL_Parser.Attributes
+    
+    # Open output file using SBDL's file handler
+    with sbdl.open_output_file(output_file) as f:
+        # Write SBDL file header
         f.write("#!sbdl\n")
         
         for feature_id, feature_data in all_features.items():
             feature_req = feature_data['feature']
             rules = feature_data['rules']
             
-            # Write feature requirement
-            f.write(f"{feature_req.identifier} is requirement {{ ")
-            f.write(f'description is "{feature_req.description.replace(chr(10), "\\n")}" ')
-            f.write("}\n")
+            # Write feature requirement using proper SBDL syntax
+            escaped_desc = sbdl.SBDL_Parser.sanitize(feature_req.description)
+            f.write(f"{feature_req.identifier} {tokens.declaration} {types.requirement} ")
+            f.write(f"{tokens.declaration_group_delimeters[0]} ")
+            f.write(f"{attrs.description}{tokens.declaration_attribute_assign}")
+            f.write(f"{tokens.declaration_attribute_delimeter}{escaped_desc}{tokens.declaration_attribute_delimeter} ")
+            f.write(f"{tokens.declaration_group_delimeters[1]}\n")
             
             # Write child rule requirements
             for rule in rules:
-                f.write(f"{rule.identifier} is requirement {{ ")
-                f.write(f'description is "{rule.description.replace(chr(10), "\\n")}" ')
-                f.write(f'parent is {rule.parent} ')
-                f.write("}\n")
+                escaped_desc = sbdl.SBDL_Parser.sanitize(rule.description)
+                f.write(f"{rule.identifier} {tokens.declaration} {types.requirement} ")
+                f.write(f"{tokens.declaration_group_delimeters[0]} ")
+                f.write(f"{attrs.description}{tokens.declaration_attribute_assign}")
+                f.write(f"{tokens.declaration_attribute_delimeter}{escaped_desc}{tokens.declaration_attribute_delimeter} ")
+                f.write(f"{attrs.parent}{tokens.declaration_attribute_assign}{rule.parent} ")
+                f.write(f"{tokens.declaration_group_delimeters[1]}\n")
 
 def main():
     parser = argparse.ArgumentParser(description='Extract requirements from Gherkin feature files and generate SBDL')

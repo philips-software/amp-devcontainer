@@ -35,11 +35,22 @@ The containers may be used both for local development and continuous integration
 {{ text.replace('_', ' ') }}
 {%- endmacro -%}
 
-{% for req_id, requirement in sbdl.items() %}
-{% if requirement.type == 'requirement' %}
+{%- for req_id, requirement in sbdl.items() %}
+{%- if requirement.type == 'requirement' and 'parent' not in requirement %}
+
 ### {{ reencode(sbdl_id_to_header(req_id)) }}
 
 {{ reencode(requirement.description) }}
 
-{% endif %}
-{% endfor %}
+{%- if 'child' in requirement %}
+{%- for child in requirement.child %}
+{%- set child_req = sbdl[child.identifier] %}
+
+#### {{ reencode(sbdl_id_to_header(child.identifier)) }}
+
+{{ reencode(child_req.description) }}
+
+{%- endfor %}
+{%- endif %}
+{%- endif %}
+{%- endfor %}
