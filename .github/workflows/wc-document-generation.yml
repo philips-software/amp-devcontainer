@@ -21,7 +21,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           sudo apt-get update && sudo apt-get install --no-install-recommends -y plantuml
-          python -m pip install gherkin-official sbdl
+          python -m pip install gherkin-official==35.1.0 sbdl==1.16.4
       - name: Generate requirements document
         run: |
           set -Eeuo pipefail
