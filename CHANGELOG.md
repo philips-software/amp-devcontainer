@@ -4,6 +4,60 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.4.1](https://github.com/philips-software/amp-devcontainer/compare/v6.4.0...v6.4.1) (2025-09-18)
+
+
+### Chores
+
+* Add hash checks for bats components ([#929](https://github.com/philips-software/amp-devcontainer/issues/929)) ([2bf5403](https://github.com/philips-software/amp-devcontainer/commit/2bf54036ef8d42e4fc266fe624f13771331812b0))
+
+## [6.4.0](https://github.com/philips-software/amp-devcontainer/compare/v6.3.0...v6.4.0) (2025-09-18)
+
+
+### Features
+
+* Implement better clean up strategy ([#926](https://github.com/philips-software/amp-devcontainer/issues/926)) ([616126f](https://github.com/philips-software/amp-devcontainer/commit/616126f197d814be43c31f6b7bdce42cf16bf4ee))
+
+
+### Bug Fixes
+
+* Container size diff merge issues ([#930](https://github.com/philips-software/amp-devcontainer/issues/930)) ([5d03602](https://github.com/philips-software/amp-devcontainer/commit/5d03602a1295b13c4109b7d51df17d3a9fb8259e))
+* Remove duplicate sha256: in release notes ([#922](https://github.com/philips-software/amp-devcontainer/issues/922)) ([1e66947](https://github.com/philips-software/amp-devcontainer/commit/1e669473c513a2aa4722ee2ff144ad3510eb7ddd))
+
+
+### Chores
+
+* **deps, cpp:** Update ccache to 4.12 ([#927](https://github.com/philips-software/amp-devcontainer/issues/927)) ([1123f2c](https://github.com/philips-software/amp-devcontainer/commit/1123f2c04b9830b184b997c86d6a57d1b85ffcdb))
+* **deps, cpp:** Update github.copilot, github.vscode-pull-request-github, ms-vscode.cpptools in devcontainer.json ([#920](https://github.com/philips-software/amp-devcontainer/issues/920)) ([9eb7f01](https://github.com/philips-software/amp-devcontainer/commit/9eb7f0137e5cd666eb2a18b88466ff4cc3808222))
+* **deps, cpp:** Update ms-vscode.cpptools in devcontainer-metadata-vscode.json ([#919](https://github.com/philips-software/amp-devcontainer/issues/919)) ([4d54b1e](https://github.com/philips-software/amp-devcontainer/commit/4d54b1e2df598a9c113da3d080991c12a08e25c5))
+* **deps, cpp:** Update xwin to 0.6.7 ([#928](https://github.com/philips-software/amp-devcontainer/issues/928)) ([d027ad2](https://github.com/philips-software/amp-devcontainer/commit/d027ad2fa8b69c635ccbfc4ea75621be1f5e90be))
+* Manually update devcontainer.json extensions for rust ([#925](https://github.com/philips-software/amp-devcontainer/issues/925)) ([deb97bf](https://github.com/philips-software/amp-devcontainer/commit/deb97bff90e1ce71e7f234f789e733a290ee24b4))
+
+## [6.3.0](https://github.com/philips-software/amp-devcontainer/compare/v6.2.3...v6.3.0) (2025-09-09)
+
+
+### Features
+
+* Update rust and related dependencies ([#901](https://github.com/philips-software/amp-devcontainer/issues/901)) ([751c5a3](https://github.com/philips-software/amp-devcontainer/commit/751c5a3805faf8efdc58ad088c9a2d351ef0c649))
+
+
+### Bug Fixes
+
+* Exclude release details when no github url is found ([#903](https://github.com/philips-software/amp-devcontainer/issues/903)) ([813ac63](https://github.com/philips-software/amp-devcontainer/commit/813ac63e04235adfab402180deb5dc29793a66e8))
+
+
+### Chores
+
+* Add bats test runner to run tests ([#899](https://github.com/philips-software/amp-devcontainer/issues/899)) ([f942de0](https://github.com/philips-software/amp-devcontainer/commit/f942de03afb69d5e22eff32f87d14d058abc6729))
+* **deps, cpp:** Update github.copilot, github.vscode-github-actions, github.vscode-pull-request-github, ms-azuretools.vscode-docker, ms-playwright.playwright, ms-vscode.cmake-tools, ms-vscode.cpptools, sonarsource.sonarlint-vscode, usernamehw.errorlens in devcontainer.json ([#905](https://github.com/philips-software/amp-devcontainer/issues/905)) ([bd9d2eb](https://github.com/philips-software/amp-devcontainer/commit/bd9d2eb14273bdebf21075b5a42dcd897962aa4f))
+* **deps, cpp:** Update sonarsource.sonarlint-vscode in devcontainer-metadata-vscode.json ([#910](https://github.com/philips-software/amp-devcontainer/issues/910)) ([aef7507](https://github.com/philips-software/amp-devcontainer/commit/aef7507e2d14dd7d1e15a99604672d26e9c43785))
+* **deps, cpp:** Update sonarsource.sonarlint-vscode in devcontainer.json ([#909](https://github.com/philips-software/amp-devcontainer/issues/909)) ([05e51c5](https://github.com/philips-software/amp-devcontainer/commit/05e51c5a41db63c586bab9e0013cfbcb7ec5262e))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata-vscode.json ([#904](https://github.com/philips-software/amp-devcontainer/issues/904)) ([842c9ec](https://github.com/philips-software/amp-devcontainer/commit/842c9ecba0115ea31a6785e88a65b78dc83ce418))
+* **deps:** Bump conan from 2.19.1 to 2.20.1 in /.devcontainer ([#911](https://github.com/philips-software/amp-devcontainer/issues/911)) ([7790a51](https://github.com/philips-software/amp-devcontainer/commit/7790a5160ae100c94ef6c09ef4064e8ac2658bec))
+* **deps:** Bump ubuntu from `7c06e91` to `9cbed75` in /.devcontainer/cpp ([#912](https://github.com/philips-software/amp-devcontainer/issues/912)) ([9b4977c](https://github.com/philips-software/amp-devcontainer/commit/9b4977cf249266ef380b6c323a872a3b8ac52bdc))
+* **deps:** Bump ubuntu from `7c06e91` to `9cbed75` in /.devcontainer/rust ([#917](https://github.com/philips-software/amp-devcontainer/issues/917)) ([d128c87](https://github.com/philips-software/amp-devcontainer/commit/d128c875f4717c23b693ae2a62a5b66768d881e7))
+* Include devcontainer.json files in automatic vscode extension update ([#900](https://github.com/philips-software/amp-devcontainer/issues/900)) ([9dd566a](https://github.com/philips-software/amp-devcontainer/commit/9dd566a05fe7272b0fa16bc468ae413410eedf45))
+
 ## [6.2.3](https://github.com/philips-software/amp-devcontainer/compare/v6.2.2...v6.2.3) (2025-08-28)
 
 

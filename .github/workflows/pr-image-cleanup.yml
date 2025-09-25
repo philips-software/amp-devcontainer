@@ -7,40 +7,27 @@ on:
 
 permissions: {}
 
-env:
-  REGISTRY: ghcr.io
-
 jobs:
   delete-images:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        flavor: ["cpp", "rust"]
     permissions:
       packages: write
     steps:
-      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+      - uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1.0.16
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: bots-house/ghcr-delete-image-action@3827559c68cb4dcdf54d813ea9853be6d468d3a4 # v1.1.0
-        with:
-          owner: ${{ github.repository_owner }}
-          name: ${{ github.event.repository.name }}-${{ matrix.flavor }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: pr-${{ github.event.pull_request.number }}
+          delete-tags: pr-${{ github.event.pull_request.number }}
+          packages: amp-devcontainer,amp-devcontainer-cpp,amp-devcontainer-rust
   cleanup-cache:
     runs-on: ubuntu-latest
     permissions:
       # actions: write permission is required to delete the cache
       actions: write
     steps:
-      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit

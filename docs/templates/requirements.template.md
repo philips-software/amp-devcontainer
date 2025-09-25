@@ -18,12 +18,12 @@ The containers may be used both for local development and continuous integration
 
 ### Terminology and Abbreviations
 
-| Terminology and Abbreviations | Description/Definition                                                                                                                 |
-|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| Terminology and Abbreviations | Description/Definition                                                                                                                                         |
+|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ARM                           | A family of RISC architectures for computer processors and micro controllers, formerly an acronym for Advanced RISC Machines and originally Acorn RISC Machine |
-| Continuous Integration (ci)   | The practice of continuously merging developers work to a shared code-base; ideally including automation for build, test and deployment |
-| ELF                           | Executable and Linkable Format, formerly named Extensible Linking Format |
-| RISC                          | Reduced Instruction Set Computer |
+| Continuous Integration (ci)   | The practice of continuously merging developers work to a shared code-base; ideally including automation for build, test and deployment                        |
+| ELF                           | Executable and Linkable Format, formerly named Extensible Linking Format                                                                                       |
+| RISC                          | Reduced Instruction Set Computer                                                                                                                               |
 
 ## Requirements
 
