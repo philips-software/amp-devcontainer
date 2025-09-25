@@ -21,11 +21,11 @@ class Rule:
 
 def extract_rules_from_feature(file_path):
     """Parse a Gherkin feature file and extract the rules."""
-    with open(file_path, 'r', encoding='utf-8') as file:
-        content = file.read()
-
-    parser = Parser()
     try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+
+        parser = Parser()
         feature_document = parser.parse(TokenScanner(content))
         rules = []
 
