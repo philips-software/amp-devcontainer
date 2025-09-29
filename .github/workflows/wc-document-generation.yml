@@ -22,16 +22,16 @@ jobs:
           set -Eeuo pipefail
           sudo apt-get update && sudo apt-get install --no-install-recommends -y plantuml
           python -m pip install gherkin-official==35.1.0 sbdl==1.16.4
-      - name: Generate requirements document
+      - name: Generate SRS document
         run: |
           set -Eeuo pipefail
           python docs/support/gherkin-to-sbdl.py test/cpp/features/*.feature
-          sbdl -m template-fill --template docs/templates/requirements.md.j2 output.sbdl > requirements.md
+          sbdl -m template-fill --template docs/templates/software-requirements-specification.md.j2 output.sbdl > software-requirements-specification.md
       - uses: docker://pandoc/extra:3.7.0@sha256:a703d335fa237f8fc3303329d87e2555dca5187930da38bfa9010fa4e690933a
         with:
-          args: --template eisvogel --listings --output requirements.pdf requirements.md
+          args: --template eisvogel --listings --output software-requirements-specification.pdf software-requirements-specification.md
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: documents
-          path: requirements.pdf
+          path: software-requirements-specification.pdf
           retention-days: 2

@@ -20,7 +20,7 @@ Feature: Security
     This helps mitigate several classes of [supply chain threats](https://slsa.dev/spec/v1.0/threats).
 
   Rule: Software Bill of Materials (SBOM)
-    amp-devcontainer *SHALL* provide a Software Bill of Materials (SBOM) for its released container images.
+    amp-devcontainer *SHOULD* provide a Software Bill of Materials (SBOM) for its released container images.
 
     Providing a Software Bill of Materials (SBOM) enables consumers to identify and manage security risks associated with the software components included in the container images.
     It helps identify known vulnerabilities, license compliance issues, and potential supply chain risks.
