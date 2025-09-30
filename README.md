@@ -29,7 +29,7 @@ This repository contains [devcontainers](https://docs.github.com/en/codespaces/s
 ### Key Features
 
 - **Batteries Included** 🔋: Pre-configured tools for local development and continuous integration.
-- **Developer Experience** 👩‍💻: Minimal set-up time and shift-left where possible.
+- **Developer Experience** 👩‍💻: Minimal set-up time and maximal shift-left.
 - **Multi-platform Support** ⚙️: Compatible with x64 and arm64 hardware on Windows, Linux, and macOS.
 - **Image Flavors** 🍨: Dedicated containers for C++ and Rust development.
 - **IDE Integration** 💻: Fully compatible with GitHub Codespaces and VS Code.
@@ -55,7 +55,7 @@ The following devcontainers are published towards the [GitHub Container Registry
 - [amp-devcontainer-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-cpp); the C++ container
 - [amp-devcontainer-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-rust); the Rust container
 
-Both containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
+All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
 
 A summary of the included tools can be found below.
 For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/philips-software/amp-devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/philips-software/amp-devcontainer/releases), or the SBOM attached to the image.
@@ -108,11 +108,17 @@ Only the GitHub Action workflow is allowed to create a release, and the resultin
 ### Visual Studio Code
 
 All containers can be used in Visual Studio Code or GitHub Codespaces without any additional configuration.
-All included tools are set-up and necessary plug-ins will be installed at container start.
+All included tools are preconfigured and necessary plug-ins will be installed at container start.
 This behavior is implemented by appending devcontainer metadata to an image label according to these [specifications](https://containers.dev/implementors/reference/#labels).
 It is possible to override, amend or change the options following this [merge logic](https://containers.dev/implementors/spec/#merge-logic).
 
 ## Usage
+
+This chapter describes how to use amp-devcontainer for two common use-cases, and details how to verify the signature of the container images.
+
+> [!IMPORTANT]
+> While the following examples use the `latest` tag, it is recommended to pin to a specific version using vX.Y.Z. Or better yet, a specific SHA.
+> See the 🔖 Packages section on the  [releases](https://github.com/philips-software/amp-devcontainer/releases) page for the unambiguous identifier corresponding to a specific release.
 
 ### Verify image signature
 
@@ -143,12 +149,6 @@ gh attestation verify --repo philips-software/amp-devcontainer oci://ghcr.io/phi
 ### Local development
 
 The resulting containers can be used in a `.devcontainer.json` file or in a `.devcontainer` folder.
-
-> [!IMPORTANT]
-> While the following example use the `latest` tag, it is recommended to pin to a specific version. Or better yet, a specific SHA.
-> See the [releases](https://github.com/philips-software/amp-devcontainer/releases) for the SHA corresponding to a specific release.
-
-#### amp-devcontainer-<🍨 flavor>
 
 > .devcontainer/devcontainer.json or .devcontainer.json
 
