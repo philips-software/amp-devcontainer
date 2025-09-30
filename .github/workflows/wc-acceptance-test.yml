@@ -88,7 +88,7 @@ jobs:
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
           GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
           GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
-          PLAYWRIGHT_JUNIT_OUTPUT_NAME: test-report-acceptance-${{ inputs.flavor }}.xml
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: ${{ github.workspace }}/test-report-acceptance-${{ inputs.flavor }}.xml
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
