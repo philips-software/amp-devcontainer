@@ -2,7 +2,7 @@
   "name": "amp-devcontainer-tests",
   "version": "1.0.0",
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
+    "@playwright/test": "^1.55.1",
     "@types/node": "^24.5.2",
     "dotenv": "^17.2.2",
     "nodemon": "^3.1.10",
