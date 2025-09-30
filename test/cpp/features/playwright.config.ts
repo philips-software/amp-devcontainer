@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { defineBddConfig } from 'playwright-bdd;
+import { defineBddConfig } from 'playwright-bdd';
 import path from 'path';
 
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '..', '.env') });
