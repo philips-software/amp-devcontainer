@@ -121,6 +121,7 @@ jobs:
           # Generate Docker tags based on the following events/attributes
           tags: |
             type=edge
+            type=raw,value=queue,enable=${{ github.event_name == 'merge_group' }}
             type=ref,event=pr
             type=semver,pattern={{raw}}
             type=semver,pattern={{version}}
