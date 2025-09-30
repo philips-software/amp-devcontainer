@@ -29,6 +29,7 @@ This repository contains [devcontainers](https://docs.github.com/en/codespaces/s
 ### Key Features
 
 - **Batteries Included** 🔋: Pre-configured tools for local development and continuous integration.
+- **Developer Experience** 👩‍💻: Minimal set-up time and maximal shift-left.
 - **Multi-platform Support** ⚙️: Compatible with x64 and arm64 hardware on Windows, Linux, and macOS.
 - **Image Flavors** 🍨: Dedicated containers for C++ and Rust development.
 - **IDE Integration** 💻: Fully compatible with GitHub Codespaces and VS Code.
@@ -38,7 +39,8 @@ This repository contains [devcontainers](https://docs.github.com/en/codespaces/s
 
 The containers try to be as "batteries included" as possible without being overly opinionated, and are usable for both local development and continuous integration.
 
-All containers are multi-platform and can be used on x64 (x86-64) and arm64 hardware on an operating system that supports an [OCI](https://opencontainers.org/) compatible container engine. This includes Windows, Linux, and macOS on both Intel and Apple silicon.
+All containers are multi-platform and can be used on x64 (x86-64) and arm64 hardware on an operating system that supports an [OCI](https://opencontainers.org/) compatible container engine.
+This includes Windows, Linux, and macOS on both Intel and Apple silicon.
 
 ## State
 
@@ -53,9 +55,10 @@ The following devcontainers are published towards the [GitHub Container Registry
 - [amp-devcontainer-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-cpp); the C++ container
 - [amp-devcontainer-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-rust); the Rust container
 
-Both containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
+All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
 
-A summary of the included tools can be found below. For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/philips-software/amp-devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/philips-software/amp-devcontainer/releases), or the SBOM attached to the image.
+A summary of the included tools can be found below.
+For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/philips-software/amp-devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/philips-software/amp-devcontainer/releases), or the SBOM attached to the image.
 
 #### amp-devcontainer-cpp
 
@@ -75,7 +78,11 @@ For embedded development and flashing and debugging [probe-rs](https://probe.rs/
 
 ### Versioning
 
-The amp-devcontainer repository follows a [semantic versioning](https://semver.org/spec/v2.0.0.html) strategy for its container images. This ensures clear communication of updates and compatibility. The versioning format used is `<major>.<minor>.<patch>`. Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<minor>.<patch>` and `v<major>.<minor>.<patch>`. The latest build on the default branch is tagged with `edge` and pull request builds are tagged with `pr-<number>`.
+The amp-devcontainer repository follows a [semantic versioning](https://semver.org/spec/v2.0.0.html) strategy for its container images.
+This ensures clear communication of updates and compatibility.
+The versioning format used is `<major>.<minor>.<patch>`.
+Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<minor>.<patch>` and `v<major>.<minor>.<patch>`.
+The latest build on the default branch is tagged with `edge` and pull request builds are tagged with `pr-<number>`.
 
 | Branch       | Tag                        |
 |--------------|----------------------------|
@@ -86,19 +93,32 @@ The amp-devcontainer repository follows a [semantic versioning](https://semver.o
 |              | `<major>.<minor>`          |
 |              | `<major>`                  |
 
-Released containers will never be cleaned-up, pull request builds are cleaned up when the pull request is merged, and edge builds may be cleaned up after being stale for a while.
+Released containers will never be cleaned-up, pull request builds are cleaned up when the pull request is closed, and edge builds will be cleaned up shortly after a new edge version has been published.
 
-The release notes always contain an overview of the corresponding image versions that include the full SHA next to the version number. This makes it possible for humans to easily see what version is used while still pinning to an exact version. This is the recommended way to refer to an image.
+The release notes always contain an overview of the corresponding image versions that include the full SHA next to the version number.
+This makes it possible for humans to easily see what version is used while still pinning to an exact version.
+This is the recommended way to refer to an image.
 
-All container images are included in a release. This might change in the future when the need arises to have separate releases per container.
+All container images are included in a release.
+This might change in the future when the need arises to have separate releases per container.
 
-This versioning strategy is implemented as GitHub Actions workflows, ensuring consistency and security across releases. Only the GitHub Action workflow is allowed to create a release, and the resulting images are [signed](#verify-image-signature).
+This versioning strategy is implemented as GitHub Actions workflows, ensuring consistency and security across releases.
+Only the GitHub Action workflow is allowed to create a release, and the resulting images are [signed](#verify-image-signature).
 
 ### Visual Studio Code
 
-Both containers can be used in Visual Studio Code or GitHub Codespaces without any additional configuration. All included tools are set-up and necessary plug-ins will be installed at container start. This behavior is implemented by appending devcontainer metadata to an image label according to these [specifications](https://containers.dev/implementors/reference/#labels). It is possible to override, amend or change the options following this [merge logic](https://containers.dev/implementors/spec/#merge-logic).
+All containers can be used in Visual Studio Code or GitHub Codespaces without any additional configuration.
+All included tools are preconfigured and necessary plug-ins will be installed at container start.
+This behavior is implemented by appending devcontainer metadata to an image label according to these [specifications](https://containers.dev/implementors/reference/#labels).
+It is possible to override, amend or change the options following this [merge logic](https://containers.dev/implementors/spec/#merge-logic).
 
 ## Usage
+
+This chapter describes how to use amp-devcontainer for two common use-cases, and details how to verify the signature of the container images.
+
+> [!IMPORTANT]
+> While the following examples use the `latest` tag, it is recommended to pin to a specific version using vX.Y.Z. Or better yet, a specific SHA.
+> See the 🔖 Packages section on the  [releases](https://github.com/philips-software/amp-devcontainer/releases) page for the unambiguous identifier corresponding to a specific release.
 
 ### Verify image signature
 
@@ -108,16 +128,10 @@ The container images are signed with [SigStore](https://www.sigstore.dev/) [Cosi
 
 The signature can be [verified](https://docs.sigstore.dev/cosign/verifying/verify/) with the following command (using Docker), verifying that the image is actually signed by the GitHub CI system:
 
-> amp-devcontainer-cpp
+> amp-devcontainer-<🍨 flavor>
 
 ```sh
-docker run --rm gcr.io/projectsigstore/cosign verify ghcr.io/philips-software/amp-devcontainer-cpp --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/philips-software/amp-devcontainer
-```
-
-> amp-devcontainer-rust
-
-```sh
-docker run --rm gcr.io/projectsigstore/cosign verify ghcr.io/philips-software/amp-devcontainer-rust --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/philips-software/amp-devcontainer
+docker run --rm gcr.io/projectsigstore/cosign verify ghcr.io/philips-software/amp-devcontainer-<🍨 flavor> --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/philips-software/amp-devcontainer
 ```
 
 </details>
@@ -126,43 +140,21 @@ The container images are signed using the [attest-build-provenance](https://gith
 
 The attestations can be checked with the following command, verifying that the image is actually built by the GitHub CI system:
 
-> amp-devcontainer-cpp
+> amp-devcontainer-<🍨 flavor>
 
 ```sh
-gh attestation verify --repo philips-software/amp-devcontainer oci://ghcr.io/philips-software/amp-devcontainer-cpp
-```
-
-> amp-devcontainer-rust
-
-```sh
-gh attestation verify --repo philips-software/amp-devcontainer oci://ghcr.io/philips-software/amp-devcontainer-rust
+gh attestation verify --repo philips-software/amp-devcontainer oci://ghcr.io/philips-software/amp-devcontainer-<🍨 flavor>
 ```
 
 ### Local development
 
 The resulting containers can be used in a `.devcontainer.json` file or in a `.devcontainer` folder.
 
-> [!NOTE]
-> While the following examples use the `latest` tag, it is recommended to pin to a specific version. Or better yet, a specific SHA.
-> See the [releases](https://github.com/philips-software/amp-devcontainer/releases) for the SHA corresponding to a specific release.
-
-#### amp-devcontainer-cpp
-
 > .devcontainer/devcontainer.json or .devcontainer.json
 
 ```json
 {
-    "image": "ghcr.io/philips-software/amp-devcontainer-cpp:latest"
-}
-```
-
-#### amp-devcontainer-rust
-
-> .devcontainer/devcontainer.json or .devcontainer.json
-
-```json
-{
-    "image": "ghcr.io/philips-software/amp-devcontainer-rust:latest"
+    "image": "ghcr.io/philips-software/amp-devcontainer-<🍨 flavor>:latest"
 }
 ```
 
@@ -174,7 +166,7 @@ The resulting containers can be used in a GitHub workflow by using the [`contain
 jobs:
   container-job:
     runs-on: ubuntu-latest
-    container: ghcr.io/philips-software/amp-devcontainer-cpp:latest
+    container: ghcr.io/philips-software/amp-devcontainer-<🍨 flavor>:latest
 ```
 
 ## Community
