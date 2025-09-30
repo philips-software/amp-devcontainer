@@ -56,7 +56,7 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: 20
+          node-version: 24.8.0
       - run: npm ci
       - run: npx playwright install --with-deps
       - name: Wait for Codespace to be active
@@ -88,11 +88,13 @@ jobs:
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
           GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
           GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: ${{ github.workspace }}/test-report-acceptance-${{ inputs.flavor }}.xml
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
-          name: playwright-artifacts
+          name: test-results-acceptance-${{ inputs.flavor }}
           path: |
+            test-report-*.xml
             test-results/
           retention-days: 10
       - run: |
