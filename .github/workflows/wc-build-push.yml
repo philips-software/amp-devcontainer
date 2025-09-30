@@ -7,10 +7,6 @@ on:
       flavor:
         required: true
         type: string
-      enable-cache:
-        required: false
-        type: boolean
-        default: true
 
 permissions:
   contents: read
@@ -69,8 +65,6 @@ jobs:
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
           outputs: type=image,push-by-digest=true,name-canonical=true
-          cache-to: ${{ inputs.enable-cache && format('type=gha,mode=max,scope={0}-{1}-{2}', github.repository, inputs.flavor, matrix.runner) || '' }}
-          cache-from: ${{ inputs.enable-cache && format('type=gha,scope={0}-{1}-{2}', github.repository, inputs.flavor, matrix.runner) || '' }}
       - name: Export digest
         run: |
           set -Eeuo pipefail

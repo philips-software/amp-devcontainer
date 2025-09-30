@@ -30,9 +30,6 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
-    with:
-      # Disable the cache for release builds
-      enable-cache: false
   apply-release-notes-template:
     runs-on: ubuntu-latest
     permissions:
