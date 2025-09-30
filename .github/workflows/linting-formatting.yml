@@ -2,6 +2,7 @@
 name: Linting & Formatting
 
 on:
+  merge_group:
   pull_request:
     types: [opened, synchronize, reopened]
   push:
