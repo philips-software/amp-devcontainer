@@ -118,10 +118,12 @@ jobs:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
-          # Generate Docker tags based on the following events/attributes
+          # Generate Docker tags based on the following events/attributes.
+          # To prevent unnecessary image builds we simulate the `type=edge` tag
+          # with `type=raw,value=edge,enable=...` which only enables the tag
+          # for a `merge_group` event, this removes the need to build on `push`.
           tags: |
-            type=edge
-            type=raw,value=queue,enable=${{ github.event_name == 'merge_group' }}
+            type=raw,value=edge,enable=${{ github.event_name == 'merge_group' }}
             type=ref,event=pr
             type=semver,pattern={{raw}}
             type=semver,pattern={{version}}
