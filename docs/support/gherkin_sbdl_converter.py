@@ -4,6 +4,7 @@
 from dataclasses import dataclass
 from typing import List, Dict, Optional
 from textwrap import dedent
+import sys
 
 from gherkin.parser import Parser
 from gherkin.token_scanner import TokenScanner
