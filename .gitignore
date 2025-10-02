@@ -11,5 +11,6 @@ test-results/
 .env
 *.profdata
 *.profraw
+*.pyc
 **/playwright/.auth/user.json
 CMakeUserPresets.json
