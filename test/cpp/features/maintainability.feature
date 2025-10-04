@@ -1,7 +1,7 @@
 Feature: Maintainability
 
-  As a software craftsperson
-  to ensure that I have access to a stable and reliable development environment
+  As a software craftsperson,
+  to ensure that I have access to a stable and reliable development environment,
   I want my development environment to be maintainable over time.
 
   Rule: Tool and dependency updates

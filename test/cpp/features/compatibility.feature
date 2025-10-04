@@ -1,8 +1,8 @@
 Feature: Compatibility
 
-  As a software craftsperson
-  to ensure that my development environment works well with a variety of tools and systems
-  I want my development environment to be compatible with commonly used tools and systems
+  As a software craftsperson,
+  to ensure that my development environment works well with a variety of tools and systems,
+  I want my development environment to be compatible with commonly used tools and systems.
 
   Rule: Open Container Initiative (OCI) Image Specification
     amp-devcontainer images *SHALL* be compatible with the [OCI image specification](https://github.com/opencontainers/image-spec/blob/main/spec.md)

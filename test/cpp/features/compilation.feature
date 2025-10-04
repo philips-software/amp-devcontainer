@@ -1,8 +1,8 @@
 Feature: Compilation
 
-  As a software developer
-  to generate a working product, when using compiled languages
-  source code needs to be compiled into working software
+  As a software developer,
+  to generate a working product, when using compiled languages,
+  source code needs to be compiled into working software.
 
   Rule: Compile for container host architecture and operating system
     amp-devcontainer *SHALL* be able to compile valid source code into a working executable targeting the container host architecture and operating system.

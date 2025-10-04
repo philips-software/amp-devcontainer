@@ -1,8 +1,8 @@
 Feature: Static and dynamic analysis
 
-  As a software craftsperson
-  to maintain consistent, high-quality and bug-free code
-  I want my source code to be statically and dynamically analyzed
+  As a software craftsperson,
+  to maintain consistent, high-quality and bug-free code,
+  I want my source code to be statically and dynamically analyzed.
 
   Rule: Code formatting
     amp-devcontainer *MAY* provide code formatting tools for the primary programming language(s) used within the container.

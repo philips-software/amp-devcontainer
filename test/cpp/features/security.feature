@@ -1,8 +1,8 @@
 Feature: Security
 
-  As a security engineer and security conscious developer
-  to have control over the security posture of my development environment
-  I want to have controls in place to identify and mitigate supply-chain vulnerabilities
+  As a security engineer and security conscious developer,
+  to have control over the security posture of my development environment,
+  I want to have controls in place to identify and mitigate supply-chain vulnerabilities.
 
   Rule: Build provenance
     amp-devcontainer *SHALL* include build provenance as specified in [SLSA v1.0 Build L3](https://slsa.dev/spec/v1.0/levels).
