@@ -37,6 +37,7 @@ class SBDLElement:
         return sbdl.SBDL_Parser.sanitize_identifier(
             name.replace(" ", "_").replace("-", "_")
         ).strip("_")
+
 class GherkinConverter:
     """Converts Gherkin files to SBDL using configurable hierarchy mappings."""
 
