@@ -17,7 +17,8 @@ DISABLE_LINTERS:
 SARIF_REPORTER: true
 PRINT_ALPACA: false
 SHOW_SKIPPED_LINTERS: false
-SPELL_LYCHEE_FILE_EXTENSIONS: [".feature", ".json", ".md", ".md.j2", ".txt", ".yaml", ".yml"]
+SPELL_LYCHEE_FILE_EXTENSIONS:
+  [".feature", ".json", ".md", ".md.j2", ".txt", ".yaml", ".yml"]
 FILTER_REGEX_EXCLUDE: (CHANGELOG.md|package-lock.json)
 # tasks.json is wrongfully matched against another schema,
 # and schemas for .vscode/[tasks.json|launch.json] are built
