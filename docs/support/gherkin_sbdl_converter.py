@@ -34,12 +34,9 @@ class SBDLElement:
             self.metadata = {}
 
     def _make_sbdl_identifier(self, name: str) -> str:
-        identifier = name.replace(" ", "_").replace("-", "_")
-        identifier = sbdl.SBDL_Parser.sanitize_identifier(identifier)
-        identifier = identifier.strip("_")
-
-        return identifier
-
+        return sbdl.SBDL_Parser.sanitize_identifier(
+            name.replace(" ", "_").replace("-", "_")
+        ).strip("_")
 class GherkinConverter:
     """Converts Gherkin files to SBDL using configurable hierarchy mappings."""
 
