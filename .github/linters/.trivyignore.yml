@@ -6,10 +6,10 @@ vulnerabilities:
   - id: CVE-2025-50181
     paths:
       - ".devcontainer/cpp/requirements.txt"
-    expired_at: 2025-10-01
+    expired_at: 2025-11-01
     statement: This vulnerable dependency comes in via the Conan package, work is in-progress on supporting a non-vulnerable version (https://github.com/conan-io/conan/issues/13948)
   - id: CVE-2025-50182
     paths:
       - ".devcontainer/cpp/requirements.txt"
-    expired_at: 2025-10-01
+    expired_at: 2025-11-01
     statement: This vulnerable dependency comes in via the Conan package, work is in-progress on supporting a non-vulnerable version (https://github.com/conan-io/conan/issues/13948)

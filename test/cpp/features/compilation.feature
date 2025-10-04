@@ -1,8 +1,8 @@
 Feature: Compilation
 
-  As a software developer
-  To generate a working product
-  Source code needs to be compiled into working software
+  As a software developer,
+  to generate a working product, when using compiled languages,
+  source code needs to be compiled into working software.
 
   Rule: Compile for container host architecture and operating system
     amp-devcontainer *SHALL* be able to compile valid source code into a working executable targeting the container host architecture and operating system.
@@ -22,14 +22,14 @@ Feature: Compilation
       Then the output should contain "Build finished with exit code 0"
 
   Rule: Compile for ARM Cortex target architecture
-    amp-devcontainer *SHALL* be able to compile valid source-code into a working ELF executable targeting the ARM Cortex architecture.
+    amp-devcontainer *SHOULD* be able to compile valid source-code into a working ELF executable targeting the ARM Cortex architecture.
 
     Compiling valid source-code into working ELF executables, able to run on the ARM Cortex architecture,
     is a primary function for amp-devcontainer. It enables building firmware for micro-controllers based
     on the ARM Cortex architecture.
 
   Rule: Compile for Microsoft® Windows operating system
-    amp-devcontainer *SHALL* be able to compile valid source-code into a working executable targeting the Microsoft® Windows operating system.
+    amp-devcontainer *SHOULD* be able to compile valid source-code into a working executable targeting the Microsoft® Windows operating system.
 
     Compiling valid source-code into working executables, able to run on the Microsoft® Windows operating system, can be necessary in several scenarios e.g.
 
@@ -37,7 +37,7 @@ Feature: Compilation
     - Executables needs to be deployed outside of container context to a host running the Microsoft® Windows operating system
 
   Rule: Compilation cache
-    amp-devcontainer *SHOULD* be able to cache the results of a compilation to speed-up subsequent compilations.
+    amp-devcontainer *MAY* be able to cache the results of a compilation to speed-up subsequent compilations.
 
     Maintaining a compilation cache can be useful in both local and ci development scenarios. A compilation cache can provide benefits like:
 
