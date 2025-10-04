@@ -1,5 +1,4 @@
 ---
-
 misconfigurations:
   - id: AVD-DS-0002
     statement: We allow root access in our container that we use for development purposes (https://avd.aquasec.com/misconfig/dockerfile/general/avd-ds-0002/)
