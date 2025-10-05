@@ -1,0 +1,71 @@
+---
+title: "Software requirements specification for amp-devcontainer"
+author: ["@rjaegers"]
+colorlinks: true
+date: "October-2025"
+keywords: [Software, Requirements, SRS, amp-devcontainer]
+lang: "en"
+titlepage: true
+titlepage-color: "0B5ED7"
+titlepage-text-color: "FFFFFF"
+titlepage-rule-color: "FFFFFF"
+titlepage-rule-height: 2
+toc: true
+toc-own-page: true
+...
+
+# Introduction
+
+## Purpose
+
+This document describes the software system requirements for amp-devcontainer.
+
+## Definitions of key words
+
+The key words *MUST*, *MUST NOT*, *REQUIRED*, *SHALL*, *SHALL NOT*, *SHOULD*, *SHOULD NOT*, *RECOMMENDED*, *MAY*, and *OPTIONAL* in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
+
+## Abstract
+
+amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored towards modern, embedded, software development.
+
+The containers may be used both for local development and continuous integration (ci).
+
+## Terminology and Abbreviations
+
+| Term                        | Description/Definition                                                                                                                                         |
+|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ARM                         | A family of RISC architectures for computer processors and micro controllers, formerly an acronym for Advanced RISC Machines and originally Acorn RISC Machine |
+| Continuous Delivery (cd)    | Extends ci by automating the release of validated code, extending test automation to ensure that code is production-ready                                      |
+| Continuous Integration (ci) | The practice of continuously integrating developers' work to a shared code-base; including automation for build and test                                       |
+| ELF                         | Executable and Linkable Format, formerly named Extensible Linking Format                                                                                       |
+| RISC                        | Reduced Instruction Set Computer                                                                                                                               |
+
+# Requirements
+
+{%- macro reencode(text) -%}
+{{ text.encode('utf-8').decode('unicode_escape') }}
+{%- endmacro -%}
+
+{%- macro sbdl_id_to_header(text) -%}
+{{ text.replace('_', ' ') }}
+{%- endmacro -%}
+
+{%- for req_id, requirement in sbdl.items() %}
+{%- if requirement.type == 'requirement' and 'parent' not in requirement %}
+
+## {{ reencode(sbdl_id_to_header(req_id)) }}
+
+{{ reencode(requirement.description) }}
+
+{%- if 'child' in requirement %}
+{%- for child in requirement.child %}
+{%- set child_req = sbdl[child.identifier] %}
+
+### {{ reencode(sbdl_id_to_header(child.identifier)) }}
+
+{{ reencode(child_req.description) }}
+
+{%- endfor %}
+{%- endif %}
+{%- endif %}
+{%- endfor %}

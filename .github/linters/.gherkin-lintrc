@@ -7,7 +7,7 @@
   "no-duplicate-tags": "on",
   "no-empty-background": "on",
   "no-empty-file": "on",
-  "no-files-without-scenarios": "on",
+  "no-files-without-scenarios": "off",
   "no-multiple-empty-lines": "on",
   "no-partially-commented-tag-lines": "on",
   "no-scenario-outlines-without-examples": "on",
