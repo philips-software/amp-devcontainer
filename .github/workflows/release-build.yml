@@ -33,6 +33,9 @@ jobs:
   apply-release-notes-template:
     runs-on: ubuntu-latest
     permissions:
+      # `contents: write` is needed to modify a release.
+      # Please note that this is an overly broad scope, but GitHub does not
+      # currently provide a more fine-grained permission for release modification.
       contents: write
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
@@ -59,6 +62,9 @@ jobs:
         flavor: [cpp, rust]
     runs-on: ubuntu-latest
     permissions:
+      # `contents: write` is needed to modify a release.
+      # Please note that this is an overly broad scope, but GitHub does not
+      # currently provide a more fine-grained permission for release modification.
       contents: write
     needs: [build-push-test, apply-release-notes-template]
     env:
@@ -90,16 +96,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           REPOSITORY_NAME: ${{ github.event.repository.name }}
-      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
-        with:
-          pattern: documents
-      - name: Upload documents to release
-        run: |
-          set -Eeuo pipefail
-          gh release upload "${REF_NAME}" ./*.pdf
-        env:
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
       - name: Update package details in release
         run: |
           set -Eeuo pipefail
@@ -109,5 +105,24 @@ jobs:
           gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+  upload-documents:
+    runs-on: ubuntu-latest
+    permissions:
+      # `contents: write` is needed to modify a release.
+      # Please note that this is an overly broad scope, but GitHub does not
+      # currently provide a more fine-grained permission for release modification.
+      contents: write
+    needs: [build-push-test]
+    steps:
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          pattern: documents
+      - name: Upload documents to release
+        run: |
+          set -Eeuo pipefail
+          gh release upload "${REF_NAME}" ./*.pdf
+        env:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
