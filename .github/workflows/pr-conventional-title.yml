@@ -42,7 +42,15 @@ jobs:
           set -Eeuo pipefail
 
           MARKER="<!-- pr-title-lint-error -->"
-          BODY_HEADER="Hey there and thank you for opening this pull request! 👋🏼\n\nWe require pull request titles to follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) and it looks like your proposed title needs to be adjusted.\n\n:warning: Details\n\n${{ steps.pr-title.outputs.error_message }}"
+          read -r -d '' BODY_HEADER <<'EOF'
+Hey there and thank you for opening this pull request! 👋🏼
+
+We require pull request titles to follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) and it looks like your proposed title needs to be adjusted.
+
+:warning: Details
+
+${{ steps.pr-title.outputs.error_message }}
+EOF
           FULL_BODY="$MARKER\n\n$BODY_HEADER"
           EXISTING_ID=$(gh api repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments --jq \
             ".[] | select(.body|contains(\"$MARKER\")) | .id" | head -n1 || true)
