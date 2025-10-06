@@ -22,8 +22,8 @@ jobs:
     permissions:
       contents: read
       actions: read
-      pull-requests: write
-      security-events: write
+      pull-requests: write # is needed by oxsecurity/megalinter and reviewdog/action-suggester to post PR comments
+      security-events: write # is needed by oxsecurity/megalinter for uploading sarif files
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:

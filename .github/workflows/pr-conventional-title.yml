@@ -14,8 +14,7 @@ jobs:
   validate-pr-title:
     runs-on: ubuntu-latest
     permissions:
-      # We need `pull-requests: write` to be able to post comments on PRs
-      pull-requests: write
+      pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments on PRs
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:

@@ -9,14 +9,15 @@ on:
   push:
     branches: [main]
 
-permissions: read-all
+permissions: {}
 
 jobs:
   ossf-scorecard:
     runs-on: ubuntu-latest
     permissions:
-      security-events: write
-      id-token: write
+      contents: read
+      security-events: write # is needed by github/codeql-action/upload-sarif to upload sarif files
+      id-token: write # is needed by ossf/scorecard-action to authenticate with OIDC
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
