@@ -75,7 +75,8 @@ RUN groupadd --gid 1000 code \
  && chown -R code:code /home/code
 
 # Ensure the code user has access to cargo and rustup
-RUN chmod -R a+rX /usr/local/cargo /usr/local/rustup
+RUN chmod -R a+rX /usr/local/cargo /usr/local/rustup \
+ && chown -R code:code /usr/local/cargo /usr/local/rustup
 
 # Set the default user
 USER code

@@ -130,18 +130,15 @@ RUN --mount=type=cache,target=/cache,sharing=locked \
  && conan profile detect \
  && echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
 
-# Create cache directories with appropriate permissions for the code user
-RUN mkdir -p /cache/.ccache /cache/.cpm /cache/.python \
- && chown -R code:code /cache \
- && chmod -R 755 /cache
+# Create cache directories and conan directory with appropriate permissions for the code user
+RUN mkdir -p /cache/.ccache /cache/.cpm /cache/.python /opt/conan \
+ && chown -R code:code /cache /opt/conan \
+ && chmod -R 755 /cache /opt/conan
 
 # Set up conan for the code user
 USER code
 RUN conan profile detect \
  && echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
-
-# Switch back to root temporarily for any remaining setup
-USER root
 
 # Set the default user
 USER code
