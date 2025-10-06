@@ -1,3 +1,4 @@
+---
 name: 'Sticky PR Comment'
 description: 'Creates, updates or deletes a PR comment identified by a hidden marker'
 branding:
