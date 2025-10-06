@@ -67,3 +67,15 @@ RUN --mount=type=cache,target=/var/log,sharing=locked \
 # Install additional rust tools
 RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
  && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@25.3.1 flip-link@0.1.10 probe-rs-tools@0.29.1
+
+# Create the 'code' user
+RUN groupadd --gid 1000 code \
+ && useradd --uid 1000 --gid code --shell /bin/bash --create-home code \
+ && cp /etc/skel/.bashrc /home/code/.bashrc \
+ && chown -R code:code /home/code
+
+# Ensure the code user has access to cargo and rustup
+RUN chmod -R a+rX /usr/local/cargo /usr/local/rustup
+
+# Set the default user
+USER code

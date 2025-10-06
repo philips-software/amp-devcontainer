@@ -3,6 +3,7 @@
     "dockerfile": "Dockerfile",
     "context": "../.."
   },
+  "remoteUser": "code",
   "privileged": true,
   "remoteEnv": {
     "CONTAINER_FLAVOR": "rust"

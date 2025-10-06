@@ -3,6 +3,7 @@
     "dockerfile": "Dockerfile",
     "context": "../.."
   },
+  "remoteUser": "code",
   "forwardPorts": [
     6080
   ],
