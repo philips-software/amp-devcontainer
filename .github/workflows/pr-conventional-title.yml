@@ -14,6 +14,8 @@ jobs:
   validate-pr-title:
     runs-on: ubuntu-latest
     permissions:
+      # We need `contents: read` to be able to use the local GitHub Action
+      contents: read
       # We need `pull-requests: write` to be able to post comments on PRs
       pull-requests: write
     steps:
@@ -33,6 +35,9 @@ jobs:
             doesn't start with an uppercase character.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/sticky-pr-comment
         if: always() && steps.pr-title.outputs.error_message != null
         with:
