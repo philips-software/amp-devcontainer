@@ -57,7 +57,7 @@ runs:
         set -Eeuo pipefail
 
         MARKER_COMMENT="<!-- ${MARKER} -->"
-        FULL_BODY="${MARKER_COMMENT}\n${BODY}"
+        FULL_BODY=$(printf "%s\n%s" "${MARKER_COMMENT}" "${BODY}")
         EXISTING_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --jq ".[] | select(.body|contains(\"${MARKER_COMMENT}\")) | .id" | head -n1 || true)
 
         if [ -n "${EXISTING_ID}" ]; then
