@@ -43,24 +43,24 @@ jobs:
 
           MARKER="<!-- pr-title-lint-error -->"
           read -r -d '' BODY_HEADER <<'EOF'
-Hey there and thank you for opening this pull request! 👋🏼
+          Hey there and thank you for opening this pull request! 👋🏼
 
-We require pull request titles to follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) and it looks like your proposed title needs to be adjusted.
+          We require pull request titles to follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) and it looks like your proposed title needs to be adjusted.
 
-:warning: Details
+          :warning: Details
 
-${{ steps.pr-title.outputs.error_message }}
-EOF
+          ${{ steps.pr-title.outputs.error_message }}
+          EOF
           FULL_BODY="$MARKER\n\n$BODY_HEADER"
-          EXISTING_ID=$(gh api repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments --jq \
+          EXISTING_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --jq \
             ".[] | select(.body|contains(\"$MARKER\")) | .id" | head -n1 || true)
 
           if [ -n "${EXISTING_ID}" ]; then
             echo "Updating existing sticky comment (${EXISTING_ID})"
-            gh api repos/${GITHUB_REPOSITORY}/issues/comments/${EXISTING_ID} -X PATCH -f body="${FULL_BODY}"
+            gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${EXISTING_ID}" -X PATCH -f body="${FULL_BODY}"
           else
             echo "Creating new sticky comment"
-            gh api repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments -f body="${FULL_BODY}"
+            gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -f body="${FULL_BODY}"
           fi
       - name: Remove PR comment
         if: steps.pr-title.outputs.error_message == null
@@ -71,7 +71,7 @@ EOF
           set -Eeuo pipefail
 
           MARKER="<!-- pr-title-lint-error -->"
-          IDS=$(gh api repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments --jq \
+          IDS=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --jq \
             ".[] | select(.body|contains(\"$MARKER\")) | .id" || true)
 
           if [ -z "${IDS}" ]; then
@@ -81,5 +81,5 @@ EOF
 
           for id in $IDS; do
             echo "Deleting sticky comment $id"
-            gh api repos/${GITHUB_REPOSITORY}/issues/comments/${id} -X DELETE
+            gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" -X DELETE
           done
