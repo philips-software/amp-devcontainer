@@ -11,8 +11,7 @@ on:
         required: true
         type: string
 
-permissions:
-  contents: read
+permissions: {}
 
 env:
   CONTAINER_FLAVOR: ${{ inputs.flavor }}
@@ -42,6 +41,8 @@ jobs:
   run-test:
     needs: determine-container
     runs-on: ${{ inputs.runner }}
+    permissions:
+      contents: read
     container: ${{ needs.determine-container.outputs.container }}
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
