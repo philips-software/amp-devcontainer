@@ -33,53 +33,22 @@ jobs:
             doesn't start with an uppercase character.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Add a PR comment with semantic title suggestions
+      - uses: ./.github/actions/sticky-pr-comment
         if: always() && steps.pr-title.outputs.error_message != null
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          set -Eeuo pipefail
+        with:
+          pr-number: ${{ github.event.pull_request.number }}
+          marker: pr-title-lint-error
+          body: |
+            Hey there and thank you for opening this pull request! 👋🏼
 
-          MARKER="<!-- pr-title-lint-error -->"
-          read -r -d '' BODY_HEADER <<'EOF'
-          Hey there and thank you for opening this pull request! 👋🏼
+            We require pull request titles to follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) and it looks like your proposed title needs to be adjusted.
 
-          We require pull request titles to follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) and it looks like your proposed title needs to be adjusted.
+            :warning: Details
 
-          :warning: Details
-
-          ${{ steps.pr-title.outputs.error_message }}
-          EOF
-          FULL_BODY="$MARKER\n\n$BODY_HEADER"
-          EXISTING_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --jq \
-            ".[] | select(.body|contains(\"$MARKER\")) | .id" | head -n1 || true)
-
-          if [ -n "${EXISTING_ID}" ]; then
-            echo "Updating existing sticky comment (${EXISTING_ID})"
-            gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${EXISTING_ID}" -X PATCH -f body="${FULL_BODY}"
-          else
-            echo "Creating new sticky comment"
-            gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -f body="${FULL_BODY}"
-          fi
-      - name: Remove PR comment
+            ${{ steps.pr-title.outputs.error_message }}
+      - uses: ./.github/actions/sticky-pr-comment
         if: steps.pr-title.outputs.error_message == null
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          set -Eeuo pipefail
-
-          MARKER="<!-- pr-title-lint-error -->"
-          IDS=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --jq \
-            ".[] | select(.body|contains(\"$MARKER\")) | .id" || true)
-
-          if [ -z "${IDS}" ]; then
-            echo "No sticky comment to remove."
-            exit 0
-          fi
-
-          for id in $IDS; do
-            echo "Deleting sticky comment $id"
-            gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" -X DELETE
-          done
+        with:
+          pr-number: ${{ github.event.pull_request.number }}
+          marker: pr-title-lint-error
+          mode: delete
