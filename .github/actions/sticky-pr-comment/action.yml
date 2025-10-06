@@ -50,15 +50,15 @@ runs:
         GH_TOKEN: ${{ github.token }}
         PR_NUMBER: ${{ inputs.pr-number }}
         MARKER: ${{ inputs.marker }}
+        BODY: ${{ inputs.body }}
       shell: bash
       run: |
         set -Eeuo pipefail
 
         MARKER_COMMENT="<!-- ${MARKER} -->"
-        FULL_BODY="${MARKER_COMMENT}\n${{ inputs.body }}"
-        EXISTING_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --jq \
-          ".[] | select(.body|contains(\"${MARKER_COMMENT}\")) | .id" | head -n1 || true)
-  
+        FULL_BODY="${MARKER_COMMENT}\n${BODY}"
+        EXISTING_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --jq ".[] | select(.body|contains(\"${MARKER_COMMENT}\")) | .id" | head -n1 || true)
+
         if [ -n "${EXISTING_ID}" ]; then
           echo "Updating existing sticky comment (${EXISTING_ID})"
           gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${EXISTING_ID}" -X PATCH -f body="${FULL_BODY}"
@@ -84,7 +84,7 @@ runs:
           exit 0;
         fi
 
-        for id in $FOUND_IDS; do
+        for id in ${FOUND_IDS}; do
           echo "Deleting sticky comment $id"
           gh api "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" -X DELETE
         done
