@@ -11,10 +11,10 @@ jobs:
   add-pr-report:
     permissions:
       contents: read
-      checks: read
-      pull-requests: write
-      repository-projects: read
-      actions: read
+      checks: read # is needed by philips-software/pull-request-report-action to fetch check run information
+      pull-requests: write # is needed by philips-software/pull-request-report-action to post the report as a comment on the PR
+      repository-projects: read # is needed by philips-software/pull-request-report-action to fetch project information
+      actions: read # is needed by philips-software/pull-request-report-action to fetch workflow run information
     runs-on: ubuntu-latest
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
