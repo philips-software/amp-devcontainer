@@ -12,6 +12,19 @@ on:
         required: false
         type: string
         default: "ghcr.io"
+      build-matrix:
+        description: >-
+          JSON object passed to fromJson to become the build matrix. Example:
+          {"runner": ["ubuntu-latest", "ubuntu-24.04-arm"]}
+          Must include at least a key 'runner' listing GitHub runner labels.
+        required: false
+        type: string
+        default: '{"runner": ["ubuntu-latest", "ubuntu-24.04-arm"]}'
+      merge-runner:
+        description: "Runner label for the merge-image job"
+        required: false
+        type: string
+        default: ubuntu-latest
     secrets:
       DOCKER_USERNAME:
         description: "User name for Docker login, if not provided the GitHub actor will be used"
@@ -30,8 +43,7 @@ env:
 jobs:
   build-push:
     strategy:
-      matrix:
-        runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
+      matrix: ${{ fromJson(inputs.build-matrix) }}
     runs-on: ${{ matrix.runner }}
     permissions:
       packages: write
@@ -96,7 +108,7 @@ jobs:
           retention-days: 1
 
   merge-image:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.merge-runner }}
     needs: build-push
     permissions:
       actions: read
