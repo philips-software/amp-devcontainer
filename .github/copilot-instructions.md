@@ -24,3 +24,30 @@ The folder structure of amp-devcontainer is described below, adhere to the exist
 - `/.devcontainer/[flavor]-test`: Contains a devcontainer.json file for testing the container flavor.
 - `/.github`: Contains the GitHub workflows for CI/CD, linter configuration, issue templates and re-usable actions.
 - `/test/[flavor]`: Contains [Bats](https://bats-core.readthedocs.io/en/stable/) integration- and Playwright verification tests for the containers.
+
+## Conventional Commits
+
+This repository uses [conventional commit](https://www.conventionalcommits.org/) style for pull request titles and commit messages. Always follow this format:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+Common types used in this repository:
+- `feat:` for new features
+- `fix:` for bug fixes
+- `chore:` for maintenance tasks, dependency updates, etc.
+- `docs:` for documentation changes
+- `ci:` for CI/CD related changes
+
+Examples:
+- `feat: add non-root user support to devcontainers`
+- `fix: resolve permission issues in rust container`
+- `chore(deps): update ubuntu base image to latest`
+- `docs: update README with security best practices`
+
+Always use conventional commit style for pull request titles.

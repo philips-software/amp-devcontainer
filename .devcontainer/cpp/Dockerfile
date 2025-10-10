@@ -116,6 +116,15 @@ RUN --mount=type=cache,target=/var/log,sharing=locked \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
  && cp /etc/skel/.bashrc /root/.bashrc
 
+# Create the 'code' user
+# First remove the existing ubuntu user and group that use UID/GID 1000
+RUN userdel -r ubuntu 2>/dev/null || true \
+ && groupdel ubuntu 2>/dev/null || true \
+ && groupadd --gid 1000 code \
+ && useradd --uid 1000 --gid code --shell /bin/bash --create-home code \
+ && cp /etc/skel/.bashrc /home/code/.bashrc \
+ && chown -R code:code /home/code
+
 # Set up package managers CPM and Conan
 # - Install CPM.cmake to the CMake module path
 # - Configure a default profile for Conan and set the CMake generator to Ninja
@@ -123,3 +132,16 @@ RUN --mount=type=cache,target=/cache,sharing=locked \
  wget --no-hsts -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake \
  && conan profile detect \
  && echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
+
+# Create cache directories and conan directory with appropriate permissions for the code user
+RUN mkdir -p /cache/.ccache /cache/.cpm /cache/.python /opt/conan \
+ && chown -R code:code /cache /opt/conan \
+ && chmod -R 755 /cache /opt/conan
+
+# Set up conan for the code user
+USER code
+RUN conan profile detect \
+ && echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
+
+# Set the default user
+USER code
