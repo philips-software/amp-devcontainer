@@ -29,11 +29,13 @@ on:
         required: false
         type: string
         default: '{"runner": ["ubuntu-latest", "ubuntu-24.04-arm"]}'
-      default-runner:
-        description: "Runner label for the non-build jobs"
+      default-runner-labels:
+        description: >-
+          String or JSON array of runner labels for non-build jobs.
+          Example: '["self-hosted", "linux", "x86_64"]' or 'ubuntu-latest'.
         required: false
         type: string
-        default: ubuntu-latest
+        default: "ubuntu-latest"
     secrets:
       DOCKER_REGISTRY_USERNAME:
         description: "User name for Docker login, if not provided the GitHub actor will be used"
@@ -50,7 +52,7 @@ jobs:
     with:
       image-name: ${{ inputs.image-name }}
       registry: ${{ inputs.registry }}
-      runner-labels: ${{ inputs.default-runner }}
+      runner-labels: ${{ inputs.default-runner-labels }}
 
   build-push:
     strategy:
@@ -121,7 +123,7 @@ jobs:
           retention-days: 1
 
   merge-image:
-    runs-on: ${{ inputs.default-runner }}
+    runs-on: ${{ fromJson(inputs.default-runner-labels) }}
     needs:
       - build-push
       - sanitize-image-name

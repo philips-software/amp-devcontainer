@@ -10,14 +10,12 @@ on:
         type: string
       registry:
         description: "Container registry to push the image to, e.g. ghcr.io"
-        required: false
+        required: true
         type: string
-        default: "ghcr.io"
       runner-labels:
         description: "Runner to use for the job, will be passed to `runs-on`"
-        required: false
+        required: true
         type: string
-        default: "ubuntu-latest"
     outputs:
       image-basename:
         description: "The sanitized base name of the image (without registry or tag)"
@@ -33,7 +31,7 @@ permissions: {}
 
 jobs:
   sanitize-inputs:
-    runs-on: ${{ inputs.runner-labels }}
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
     outputs:
       image-basename: ${{ steps.sanitize-image-name.outputs.sanitized-basename }}
       image-name: ${{ steps.sanitize-image-name.outputs.sanitized-image-name }}

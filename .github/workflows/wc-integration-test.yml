@@ -36,7 +36,7 @@ jobs:
       runner-labels: ${{ inputs.runner-labels }}
 
   determine-container:
-    runs-on: ${{ inputs.runner-labels }}
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
     needs: sanitize-image-name
     outputs:
       container: ${{ steps.set-container.outputs.container }}
@@ -63,7 +63,7 @@ jobs:
     needs:
       - determine-container
       - sanitize-image-name
-    runs-on: ${{ inputs.runner-labels }}
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
     container:
       image: ${{ needs.determine-container.outputs.container }}
       credentials:
