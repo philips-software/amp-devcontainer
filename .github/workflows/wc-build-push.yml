@@ -255,7 +255,7 @@ jobs:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: ./.github/actions/container-size-diff
+      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@ab0940b1e92f3ccee257d5984166c63c8cfe6a9d # v6.5.0
         id: container-size-diff
         with:
           from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge

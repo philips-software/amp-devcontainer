@@ -65,7 +65,7 @@ jobs:
       - sanitize-image-name
     runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     container:
-      image: ${{ needs.determine-container.outputs.container }}
+      image: ${{ needs.determine-container.outputs.container }} # zizmor: ignore[unpinned-images] This image is actually pinned by sha256 digest
       credentials:
         username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
         password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}

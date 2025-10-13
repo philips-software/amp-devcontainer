@@ -49,7 +49,7 @@ jobs:
     strategy:
       matrix:
         flavor: ["cpp", "rust"]
-        file: ["devcontainer-metadata-vscode.json", "devcontainer.json"]
+        file: ["devcontainer-metadata.json", "devcontainer.json"]
     permissions:
       contents: write
       pull-requests: write
