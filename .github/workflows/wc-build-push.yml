@@ -32,10 +32,10 @@ on:
       default-runner-labels:
         description: >-
           String or JSON array of runner labels for non-build jobs.
-          Example: '["self-hosted", "linux", "x86_64"]' or 'ubuntu-latest'.
+          Example: ["self-hosted", "linux", "x86_64"] or ubuntu-latest.
         required: false
         type: string
-        default: "ubuntu-latest"
+        default: ubuntu-latest
     secrets:
       DOCKER_REGISTRY_USERNAME:
         description: "User name for Docker login, if not provided the GitHub actor will be used"
