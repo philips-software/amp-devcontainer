@@ -89,7 +89,7 @@ jobs:
         id: metadata
         with:
           images: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
-      - name: Generate image LABEL for devcontainer.metadata
+      - name: Generate image label for devcontainer.metadata
         run: |
           set -Eeuo pipefail
 
@@ -100,7 +100,7 @@ jobs:
           fi
 
           # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
-          echo "metadata=devcontainer.metadata\=$(jq -cj '[.]' "${DEVCONTAINER_METADATA}" | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
+          echo "metadata=devcontainer.metadata=$(jq -cj '[.]' "${DEVCONTAINER_METADATA}" | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
         env:
           DEVCONTAINER_METADATA: ${{ inputs.devcontainer-metadata }}
         id: devcontainer-metadata
