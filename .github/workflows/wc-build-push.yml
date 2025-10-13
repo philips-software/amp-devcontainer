@@ -225,14 +225,12 @@ jobs:
         working-directory: ${{ runner.temp }}/digests
       - name: Inspect manifest and extract digest
         id: inspect-manifest
-        env:
-          FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect "${FULLY_QUALIFIED_IMAGE_NAME}:${CONTAINER_VERSION}" --format '{{json .}}')
+          output=$(docker buildx imagetools inspect "${CONTAINER}" --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
         env:
-          CONTAINER_VERSION: ${{ steps.metadata.outputs.version }}
+          CONTAINER: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - run: |
           set -Eeuo pipefail
           wget -O diffoci https://github.com/reproducible-containers/diffoci/releases/download/v0.1.7/diffoci-v0.1.7.linux-amd64
