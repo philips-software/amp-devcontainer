@@ -126,3 +126,4 @@ jobs:
         env:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
+          REF_NAME: ${{ github.ref_name }}
