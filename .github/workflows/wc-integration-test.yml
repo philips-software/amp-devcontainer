@@ -19,6 +19,11 @@ on:
         required: false
         type: string
         default: "ghcr.io"
+    secrets:
+      DOCKER_REGISTRY_USERNAME:
+        required: false
+      DOCKER_REGISTRY_PASSWORD:
+        required: false
 
 permissions: {}
 
@@ -59,7 +64,11 @@ jobs:
       - determine-container
       - sanitize-image-name
     runs-on: ${{ inputs.runner-labels }}
-    container: ${{ needs.determine-container.outputs.container }}
+    container:
+      image: ${{ needs.determine-container.outputs.container }}
+      credentials:
+        username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
     permissions:
       contents: read
     steps:
