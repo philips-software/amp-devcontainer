@@ -195,27 +195,44 @@ jobs:
             type=semver,pattern={{major}}
       - name: Create manifest list and push
         run: |
-          import os
-          import json
-          import subprocess
+          set -Eeuo pipefail
 
-          CONTAINER = f"{os.getenv('FULLY_QUALIFIED_IMAGE_NAME')}"
-          METADATA = json.loads(os.getenv('METADATA_JSON'))
+          CMD=(docker buildx imagetools create)
 
-          digests = [f for f in os.listdir('.') if f.startswith('sha256:') or len(f) == 64]
+          # Build tag and annotation lists from metadata action output
+          mapfile -t TAGS < <(jq -r '.tags[]? // empty' <<<"${METADATA_JSON}") || true
+          mapfile -t ANNOTATIONS < <(jq -r '.annotations[]? // empty' <<<"${METADATA_JSON}") || true
 
-          command = ['docker', 'buildx', 'imagetools', 'create',
-              *[annotation for annotation in METADATA.get('annotations', []) for annotation in ('--annotation', annotation)],
-              *[tag for tag in METADATA.get('tags', []) for tag in ('--tag', tag)],
-              *[f"{CONTAINER}@sha256:{digest}" for digest in digests]
-          ]
+          for ann in "${ANNOTATIONS[@]:-}"; do
+            [ -n "${ann}" ] && CMD+=( --annotation "${ann}" )
+          done
+          for tag in "${TAGS[@]:-}"; do
+            [ -n "${tag}" ] && CMD+=( --tag "${tag}" )
+          done
 
-          print(' '.join(command))
-          subprocess.run(command, check=True)
+          # Each file in the working directory represents a digest (either named sha256:<hash> or the 64-char digest itself)
+          for f in *; do
+            [ -f "$f" ] || continue
+            digest=""
+            if [[ "$f" == sha256:* ]]; then
+              digest="${f#sha256:}"
+            elif [[ ${#f} -eq 64 && "$f" =~ ^[a-f0-9]{64}$ ]]; then
+              digest="$f"
+            else
+              continue
+            fi
+            CMD+=( "${CONTAINER}@sha256:${digest}" )
+          done
+
+          echo "Creating manifest list with command:" >&2
+          printf ' %q' "${CMD[@]}" >&2; echo >&2
+
+          # Execute the command
+          "${CMD[@]}"
         env:
-          FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+          CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
-        shell: python
+        shell: bash
         working-directory: ${{ runner.temp }}/digests
       - name: Inspect manifest and extract digest
         id: inspect-manifest
