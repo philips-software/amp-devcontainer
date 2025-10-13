@@ -14,7 +14,7 @@ permissions: {}
 
 jobs:
   dependency-review:
-    runs-on: ${{ inputs.runner-labels }}
+    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     permissions:
       contents: read
       pull-requests: write

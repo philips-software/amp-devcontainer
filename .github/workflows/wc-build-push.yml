@@ -29,13 +29,13 @@ on:
         required: false
         type: string
         default: '{"runner": ["ubuntu-latest", "ubuntu-24.04-arm"]}'
-      default-runner-labels:
+      runner-labels:
         description: >-
           Single runner label OR JSON array of runner labels for non-build jobs.
           Examples:
             ubuntu-latest
-            ["ubuntu-latest"]
-            ["self-hosted", "linux", "x86_64"]
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
           Provide a valid JSON array (starting with '[') to use multiple labels; any other value is treated as a single label string.
         required: false
         type: string
@@ -45,7 +45,7 @@ on:
         description: "User name for Docker login, if not provided the GitHub actor will be used"
         required: false
       DOCKER_REGISTRY_PASSWORD:
-        description: "Password or token for Docker login, if not provided the GITHUB_TOKEN will be used"
+        description: "Password or token for Docker login, if not provided the GitHub token will be used"
         required: false
 
 permissions: {}
@@ -56,7 +56,7 @@ jobs:
     with:
       image-name: ${{ inputs.image-name }}
       registry: ${{ inputs.registry }}
-      runner-labels: ${{ inputs.default-runner-labels }}
+      runner-labels: ${{ inputs.runner-labels }}
 
   build-push:
     strategy:
@@ -78,7 +78,7 @@ jobs:
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         env:
           USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-          PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
+          PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
         with:
           registry: ${{ inputs.registry }}
           username: ${{ env.USERNAME }}
@@ -140,7 +140,7 @@ jobs:
   merge-image:
     # Support either a plain single label (e.g. ubuntu-latest) OR a JSON array of labels.
     # If the input starts & ends with brackets we attempt JSON parsing; otherwise we pass the raw string.
-    runs-on: ${{ (startsWith(inputs.default-runner-labels, '[') && endsWith(inputs.default-runner-labels, ']')) && fromJson(inputs.default-runner-labels) || inputs.default-runner-labels }}
+    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     needs:
       - build-push
       - sanitize-image-name
@@ -170,7 +170,7 @@ jobs:
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         env:
           USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-          PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
+          PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
         with:
           registry: ${{ inputs.registry }}
           username: ${{ env.USERNAME }}
