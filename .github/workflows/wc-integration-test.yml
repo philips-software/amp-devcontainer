@@ -4,10 +4,7 @@ name: Integration Test
 on:
   workflow_call:
     inputs:
-      fully-qualified-image-name:
-        required: false
-        type: string
-      image-basename:
+      image-name:
         required: true
         type: string
       test-file:
@@ -17,12 +14,25 @@ on:
         description: "Runner to use for the job, will be passed to `runs-on`"
         required: true
         type: string
+      registry:
+        description: "Docker registry to push built containers to, DOCKER_USERNAME and DOCKER_PASSWORD secrets must be set if not using GitHub Container Registry"
+        required: false
+        type: string
+        default: "ghcr.io"
 
 permissions: {}
 
 jobs:
+  sanitize-image-name:
+    uses: ./.github/workflows/wc-sanitize-image-name.yml
+    with:
+      image-name: ${{ inputs.image-name }}
+      registry: ${{ inputs.registry }}
+      runner-labels: ${{ inputs.runner-labels }}
+
   determine-container:
     runs-on: ${{ inputs.runner-labels }}
+    needs: sanitize-image-name
     outputs:
       container: ${{ steps.set-container.outputs.container }}
       runner-arch: ${{ steps.runner-arch.outputs.arch }}
@@ -35,17 +45,19 @@ jobs:
         id: runner-arch
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
-          path: ${{ runner.temp }}/digests-${{ inputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
-          pattern: digests-${{ inputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
+          path: ${{ runner.temp }}/digests-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
+          pattern: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
       - run: echo "container=$(printf "${FULLY_QUALIFIED_IMAGE_NAME}@sha256:%s " *)" >> "$GITHUB_OUTPUT"
-        working-directory: ${{ runner.temp }}/digests-${{ inputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
+        working-directory: ${{ runner.temp }}/digests-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
         env:
-          FULLY_QUALIFIED_IMAGE_NAME: ${{ inputs.fully-qualified-image-name }}
+          FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           GH_REPO: ${{ github.repository }}
         id: set-container
 
   run-test:
-    needs: determine-container
+    needs:
+      - determine-container
+      - sanitize-image-name
     runs-on: ${{ inputs.runner-labels }}
     container: ${{ needs.determine-container.outputs.container }}
     permissions:
@@ -66,11 +78,11 @@ jobs:
             xwin-cache-${{ needs.determine-container.outputs.runner-arch }}
       - run: bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-${RUNNER_ARCH}.xml"
         env:
-          IMAGE_BASENAME: ${{ inputs.image-basename }}
+          IMAGE_BASENAME: ${{ needs.sanitize-image-name.outputs.image-basename }}
           TEST_FILE: ${{ inputs.test-file }}
           RUNNER_ARCH: ${{ needs.determine-container.outputs.runner-arch }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
-          name: test-results-integration-${{ inputs.image-basename }}-${{ needs.determine-container.outputs.runner-arch }}
+          name: test-results-integration-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ needs.determine-container.outputs.runner-arch }}
           path: test-report-*.xml

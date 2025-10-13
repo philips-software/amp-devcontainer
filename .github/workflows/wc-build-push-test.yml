@@ -42,8 +42,7 @@ jobs:
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
     with:
-      fully-qualified-image-name: ${{ needs.build-push.outputs.fully-qualified-image-name }}
-      image-basename: ${{ needs.build-push.outputs.image-basename }}
+      image-name: ${{ github.repository }}-${{ matrix.flavor }}
       test-file: test/${{ matrix.flavor }}/integration.bats
       runner-labels: ${{ matrix.runner }}
 
