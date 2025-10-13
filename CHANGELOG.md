@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.5.1](https://github.com/philips-software/amp-devcontainer/compare/v6.5.0...v6.5.1) (2025-10-13)
+
+
+### Chores
+
+* **deps, cpp:** Update github.vscode-pull-request-github, ms-playwright.playwright in devcontainer.json ([#970](https://github.com/philips-software/amp-devcontainer/issues/970)) ([3b85249](https://github.com/philips-software/amp-devcontainer/commit/3b85249054430f5e901d012ebb104be7b1b5f35a))
+* **deps, rust:** Update github.vscode-pull-request-github in devcontainer.json ([#971](https://github.com/philips-software/amp-devcontainer/issues/971)) ([39c4332](https://github.com/philips-software/amp-devcontainer/commit/39c4332843b535c6fcc83adee5e6182f637fb977))
+* **deps:** Bump conan from 2.20.1 to 2.21.0 in /.devcontainer ([#962](https://github.com/philips-software/amp-devcontainer/issues/962)) ([fc2ed55](https://github.com/philips-software/amp-devcontainer/commit/fc2ed553ac2567fae1a8e5129679fffd687aaf62))
+* **deps:** Bump ubuntu from `353675e` to `728785b` in /.devcontainer/cpp ([#964](https://github.com/philips-software/amp-devcontainer/issues/964)) ([8053df4](https://github.com/philips-software/amp-devcontainer/commit/8053df4397e711af3babb93c10cfd2b9758949d4))
+* **deps:** Bump ubuntu from `353675e` to `728785b` in /.devcontainer/rust ([#965](https://github.com/philips-software/amp-devcontainer/issues/965)) ([b67d2bc](https://github.com/philips-software/amp-devcontainer/commit/b67d2bc482e21c81cff9287d3d7c733ccdecec43))
+* **deps:** Bump ubuntu in /.devcontainer/cpp ([8053df4](https://github.com/philips-software/amp-devcontainer/commit/8053df4397e711af3babb93c10cfd2b9758949d4))
+* **deps:** Bump ubuntu in /.devcontainer/rust ([b67d2bc](https://github.com/philips-software/amp-devcontainer/commit/b67d2bc482e21c81cff9287d3d7c733ccdecec43))
+* **deps:** Update udev to 255.4-1ubuntu8.11 ([#969](https://github.com/philips-software/amp-devcontainer/issues/969)) ([e430762](https://github.com/philips-software/amp-devcontainer/commit/e43076218b2964473534aea40a45916ed51a170e))
+
 ## [6.5.0](https://github.com/philips-software/amp-devcontainer/compare/v6.4.1...v6.5.0) (2025-10-05)
 
 
