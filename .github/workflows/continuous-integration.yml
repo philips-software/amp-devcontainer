@@ -28,3 +28,11 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
+
+  dependency-review:
+    uses: ./.github/workflows/wc-dependency-review.yml
+    with:
+      runner-labels: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write

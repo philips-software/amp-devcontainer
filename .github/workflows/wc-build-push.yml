@@ -34,6 +34,16 @@ on:
         required: false
         type: string
         default: ubuntu-latest
+    outputs:
+      image-basename:
+        description: "The sanitized base name of the image (without registry or tag)"
+        value: ${{ jobs.sanitize-inputs.outputs.image-basename }}
+      image-name:
+        description: "The sanitized name of the image (without registry or tag)"
+        value: ${{ jobs.sanitize-inputs.outputs.image-name }}
+      fully-qualified-image-name:
+        description: "The fully qualified name of the image including registry (but without tag)"
+        value: ${{ jobs.sanitize-inputs.outputs.fully-qualified-image-name }}
     secrets:
       DOCKER_USERNAME:
         description: "User name for Docker login, if not provided the GitHub actor will be used"
@@ -48,9 +58,9 @@ jobs:
   sanitize-inputs:
     runs-on: ${{ inputs.default-runner }}
     outputs:
+      image-basename: ${{ steps.sanitize-image-name.outputs.sanitized-basename }}
       image-name: ${{ steps.sanitize-image-name.outputs.sanitized-image-name }}
       fully-qualified-image-name: ${{ inputs.registry }}/${{ steps.sanitize-image-name.outputs.sanitized-image-name }}
-      image-basename: ${{ steps.sanitize-image-name.outputs.sanitized-basename }}
     steps:
       - name: Sanitize image name
         id: sanitize-image-name

@@ -34,26 +34,6 @@ jobs:
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
 
-  dependency-review:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    needs: build-push
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
-        with:
-          disable-sudo-and-containers: true
-          egress-policy: audit
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          persist-credentials: false
-      - uses: actions/dependency-review-action@56339e523c0409420f6c2c9a2f4292bbb3c07dd3 # v4.8.0
-        with:
-          comment-summary-in-pr: on-failure
-          fail-on-severity: critical
-
   integration-test:
     strategy:
       matrix:
@@ -62,8 +42,10 @@ jobs:
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
     with:
-      flavor: ${{ matrix.flavor }}
-      runner: ${{ matrix.runner }}
+      fully-qualified-image-name: ${{ needs.build-push.outputs.fully-qualified-image-name }}
+      image-basename: ${{ needs.build-push.outputs.image-basename }}
+      test-file: test/${{ matrix.flavor }}/integration.bats
+      runner-labels: ${{ matrix.runner }}
 
   acceptance-test:
     strategy:
