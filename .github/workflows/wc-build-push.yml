@@ -148,7 +148,9 @@ jobs:
 
   merge-image:
     runs-on: ${{ inputs.default-runner }}
-    needs: build-push
+    needs:
+      - build-push
+      - sanitize-inputs
     permissions:
       actions: read
       attestations: write
@@ -240,7 +242,7 @@ jobs:
           TO_CONTAINER: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: container-diff-${{ needs.sanitize-inputs.outputs.image-basedname }}
+          name: container-diff-${{ needs.sanitize-inputs.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
       - uses: ./.github/actions/container-size-diff
@@ -264,8 +266,9 @@ jobs:
           show-summary: false
           push-to-registry: true
       - name: Verify attestation
-        run: gh attestation verify --repo "${GH_REPO}" "oci://${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}@${DIGEST}"
+        run: gh attestation verify --repo "${GH_REPO}" "oci://${FULLY_QUALIFIED_IMAGE_NAME}@${DIGEST}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
