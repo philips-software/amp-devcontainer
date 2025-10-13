@@ -93,7 +93,7 @@ jobs:
         run: |
           set -Eeuo pipefail
 
-          if ([ -z "${DEVCONTAINER_METADATA:-}" ] || [ ! -f "${DEVCONTAINER_METADATA}" ]); then
+          if [ -z "${DEVCONTAINER_METADATA:-}" ] || [ ! -f "${DEVCONTAINER_METADATA}" ]; then
             echo "devcontainer-metadata input not set or file does not exist, skipping devcontainer.metadata label"
             echo "metadata=" >> "$GITHUB_OUTPUT"
             exit 0
