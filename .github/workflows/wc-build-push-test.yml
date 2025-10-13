@@ -34,6 +34,13 @@ jobs:
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
 
+  dependency-review:
+    needs: build-push
+    uses: ./.github/workflows/wc-dependency-review.yml
+    permissions:
+      contents: read
+      pull-requests: write
+
   integration-test:
     strategy:
       matrix:
@@ -43,7 +50,7 @@ jobs:
     uses: ./.github/workflows/wc-integration-test.yml
     with:
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
-      test-file: test/${{ matrix.flavor }}/integration.bats
+      test-file: test/${{ matrix.flavor }}/integration-tests.bats
       runner-labels: ${{ matrix.runner }}
 
   acceptance-test:
