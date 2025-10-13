@@ -89,9 +89,20 @@ jobs:
         id: metadata
         with:
           images: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
-      # Generate image LABEL for devcontainer.metadata
-      # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
-      - run: echo "metadata=$(jq -cj '[.]' ".devcontainer/${CONTAINER_FLAVOR}/devcontainer-metadata-vscode.json" | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
+      - name: Generate image LABEL for devcontainer.metadata
+        run: |
+          set -Eeuo pipefail
+
+          if ([ -z "${DEVCONTAINER_METADATA:-}" ] || [ ! -f "${DEVCONTAINER_METADATA}" ]); then
+            echo "devcontainer-metadata input not set or file does not exist, skipping devcontainer.metadata label"
+            echo "metadata=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
+          echo "metadata=devcontainer.metadata\=$(jq -cj '[.]' "${DEVCONTAINER_METADATA}" | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
+        env:
+          DEVCONTAINER_METADATA: ${{ inputs.devcontainer-metadata }}
         id: devcontainer-metadata
       - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
         id: devcontainer-epoch
@@ -107,7 +118,7 @@ jobs:
           tags: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           labels: |
             ${{ steps.metadata.outputs.labels }}
-            devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
+            ${{ steps.devcontainer-metadata.outputs.metadata }}
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
           outputs: type=image,push-by-digest=true,name-canonical=true
