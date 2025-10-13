@@ -30,7 +30,8 @@ jobs:
       packages: write
       pull-requests: write
     with:
-      flavor: ${{ matrix.flavor }}
+      dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
+      image-name: ${{ github.repository }}-${{ matrix.flavor }}
 
   dependency-review:
     runs-on: ubuntu-latest
