@@ -17,7 +17,7 @@ on:
         required: false
         type: string
       registry:
-        description: "Docker registry to push built containers to, DOCKER_USERNAME and DOCKER_PASSWORD secrets must be set if not using GitHub Container Registry"
+        description: "Docker registry to push built containers to, DOCKER_REGISTRY_USERNAME and DOCKER_REGISTRY_PASSWORD secrets must be set if not using GitHub Container Registry"
         required: false
         type: string
         default: "ghcr.io"
@@ -35,10 +35,10 @@ on:
         type: string
         default: ubuntu-latest
     secrets:
-      DOCKER_USERNAME:
+      DOCKER_REGISTRY_USERNAME:
         description: "User name for Docker login, if not provided the GitHub actor will be used"
         required: false
-      DOCKER_PASSWORD:
+      DOCKER_REGISTRY_PASSWORD:
         description: "Password or token for Docker login, if not provided the GITHUB_TOKEN will be used"
         required: false
 
@@ -71,8 +71,8 @@ jobs:
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         env:
-          USERNAME: ${{ secrets.DOCKER_USERNAME || github.actor }}
-          PASSWORD: ${{ secrets.DOCKER_PASSWORD || secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+          PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
         with:
           registry: ${{ inputs.registry }}
           username: ${{ env.USERNAME }}
@@ -150,8 +150,8 @@ jobs:
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         env:
-          USERNAME: ${{ secrets.DOCKER_USERNAME || github.actor }}
-          PASSWORD: ${{ secrets.DOCKER_PASSWORD || secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+          PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
         with:
           registry: ${{ inputs.registry }}
           username: ${{ env.USERNAME }}

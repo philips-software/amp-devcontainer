@@ -15,7 +15,7 @@ on:
         required: true
         type: string
       registry:
-        description: "Docker registry to push built containers to, DOCKER_USERNAME and DOCKER_PASSWORD secrets must be set if not using GitHub Container Registry"
+        description: "Docker registry to push built containers to, DOCKER_REGISTRY_USERNAME and DOCKER_REGISTRY_PASSWORD secrets must be set if not using GitHub Container Registry"
         required: false
         type: string
         default: "ghcr.io"
