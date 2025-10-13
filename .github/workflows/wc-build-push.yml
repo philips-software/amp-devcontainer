@@ -199,8 +199,6 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
       - name: Create manifest list and push
-        env:
-          FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}
         run: |
           import os
           import json
@@ -220,6 +218,7 @@ jobs:
           print(' '.join(command))
           subprocess.run(command, check=True)
         env:
+          FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
         shell: python
         working-directory: ${{ runner.temp }}/digests
