@@ -13,7 +13,10 @@ on:
         required: true
         type: string
       runner-labels:
-        description: "Runner to use for the job, will be passed to `runs-on`"
+        description: >-
+          Runner selection for this job. Accepts either a single label (e.g. ubuntu-latest)
+          or a JSON array of labels (e.g. ["self-hosted", "linux", "x86_64"]).
+          If the value begins with '[' it will be parsed as JSON.
         required: true
         type: string
     outputs:
@@ -31,7 +34,8 @@ permissions: {}
 
 jobs:
   sanitize-inputs:
-    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    # Allow either raw single label or JSON array of labels
+    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     outputs:
       image-basename: ${{ steps.sanitize-image-name.outputs.sanitized-basename }}
       image-name: ${{ steps.sanitize-image-name.outputs.sanitized-image-name }}
