@@ -5,18 +5,12 @@ on:
   workflow_call:
     inputs:
       image-name:
-        description: "Name of the Docker image to build, without registry or tag. E.g. 'my-image' or 'my-org/my-image'"
         required: true
         type: string
       registry:
-        description: "Container registry to push the image to, e.g. ghcr.io"
         required: true
         type: string
       runner-labels:
-        description: >-
-          Runner selection for this job. Accepts either a single label (e.g. ubuntu-latest)
-          or a JSON array of labels (e.g. ["self-hosted", "linux", "x86_64"]).
-          If the value begins with '[' it will be parsed as JSON.
         required: true
         type: string
     outputs:
@@ -34,7 +28,6 @@ permissions: {}
 
 jobs:
   sanitize-inputs:
-    # Allow either raw single label or JSON array of labels
     runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     outputs:
       image-basename: ${{ steps.sanitize-image-name.outputs.sanitized-basename }}

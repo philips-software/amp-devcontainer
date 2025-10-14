@@ -3,6 +3,46 @@ name: Build, Push & Test
 
 on:
   workflow_call:
+    inputs:
+      dockerfile:
+        description: "Path to the Dockerfile to build"
+        required: true
+        type: string
+      image-name:
+        description: "Name of the Docker image to build, without registry or tag. E.g. 'my-image' or 'my-org/my-image'"
+        required: true
+        type: string
+      devcontainer-metadata-file:
+        description: "Path to a JSON file containing devcontainer metadata to add as a label to the built image"
+        required: false
+        type: string
+      registry:
+        description: "Docker registry to push built containers to, DOCKER_REGISTRY_USERNAME and DOCKER_REGISTRY_PASSWORD secrets must be set if not using GitHub Container Registry"
+        required: false
+        type: string
+        default: "ghcr.io"
+      build-test-runner-labels:
+        description: >-
+          JSON object passed to fromJson to become the build matrix. Example:
+          '["ubuntu-latest", "ubuntu-24.04-arm"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest", "ubuntu-24.04-arm"]'
+      runner-labels:
+        description: >-
+          Single runner label OR JSON array of runner labels for non-build jobs.
+          Examples:
+            ubuntu-latest
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+          Provide a valid JSON array (starting with '[') to use multiple labels; any other value is treated as a single label string.
+        required: false
+        type: string
+        default: ubuntu-latest
+      integration-test-file:
+        description: "Path to the BATS test file to run for integration tests"
+        required: false
+        type: string
     secrets:
       TEST_GITHUB_TOKEN:
         required: true
@@ -12,15 +52,17 @@ on:
         required: true
       TEST_GITHUB_TOTP_SECRET:
         required: true
+      DOCKER_REGISTRY_USERNAME:
+        description: "User name for Docker login, if not provided the GitHub actor will be used"
+        required: false
+      DOCKER_REGISTRY_PASSWORD:
+        description: "Password or token for Docker login, if not provided the GitHub token will be used"
+        required: false
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   build-push:
-    strategy:
-      matrix:
-        flavor: [cpp, rust]
     uses: ./.github/workflows/wc-build-push.yml
     permissions:
       actions: read
@@ -29,50 +71,34 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
+    secrets:
+      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
     with:
-      devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
-      dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
-      image-name: ${{ github.repository }}-${{ matrix.flavor }}
-
-  dependency-review:
-    needs: build-push
-    uses: ./.github/workflows/wc-dependency-review.yml
-    permissions:
-      contents: read
-      pull-requests: write
+      dockerfile: ${{ inputs.dockerfile }}
+      registry: ${{ inputs.registry }}
+      image-name: ${{ inputs.image-name }}
+      devcontainer-metadata-file: ${{ inputs.devcontainer-metadata-file }}
+      runner-labels: ${{ inputs.runner-labels }}
+      build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
 
   integration-test:
     strategy:
       matrix:
-        flavor: [cpp, rust]
-        runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
+        runner: ${{ (startsWith(inputs.build-test-runner-labels, '[') && endsWith(inputs.build-test-runner-labels, ']')) && fromJson(inputs.build-test-runner-labels) || inputs.build-test-runner-labels }}
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
     with:
-      image-name: ${{ github.repository }}-${{ matrix.flavor }}
-      test-file: test/${{ matrix.flavor }}/integration-tests.bats
+      image-name: ${{ inputs.image-name }}
+      test-file: ${{ inputs.integration-test-file }}
       runner-labels: ${{ matrix.runner }}
-
-  acceptance-test:
-    strategy:
-      matrix:
-        flavor: [cpp]
-    needs: build-push
-    uses: ./.github/workflows/wc-acceptance-test.yml
-    secrets:
-      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
-      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
-      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
-      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
-    with:
-      flavor: ${{ matrix.flavor }}
 
   publish-test-results:
     runs-on: ubuntu-latest
     permissions:
       checks: write
       pull-requests: write
-    needs: [acceptance-test, integration-test]
+    needs: [integration-test]
     if: ${{ !cancelled() }}
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
@@ -86,8 +112,3 @@ jobs:
       - uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
         with:
           files: test-report-*.xml
-
-  generate-documents:
-    uses: ./.github/workflows/wc-document-generation.yml
-    permissions:
-      contents: read

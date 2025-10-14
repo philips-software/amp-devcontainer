@@ -1,3 +1,13 @@
+# This is a lower-level re-usable workflow that builds and pushes
+# a multi-architecture devcontainer image to a container registry.
+#
+# It is intended to be called by a higher-level workflow that provides
+# the necessary inputs and secrets. To prevent duplication, the inputs
+# and secrets don't contain any defaults or descriptions and all of them
+# are required.
+#
+# See the top-level workflow `wc-build-push-test.yml` for an example.
+
 ---
 name: Build & Push
 
@@ -5,48 +15,28 @@ on:
   workflow_call:
     inputs:
       dockerfile:
-        description: "Path to the Dockerfile to build"
         required: true
         type: string
       image-name:
-        description: "Name of the Docker image to build, without registry or tag. E.g. 'my-image' or 'my-org/my-image'"
         required: true
         type: string
       devcontainer-metadata-file:
-        description: "Path to a JSON file containing devcontainer metadata to add as a label to the built image"
-        required: false
+        required: true
         type: string
       registry:
-        description: "Docker registry to push built containers to, DOCKER_REGISTRY_USERNAME and DOCKER_REGISTRY_PASSWORD secrets must be set if not using GitHub Container Registry"
-        required: false
+        required: true
         type: string
-        default: "ghcr.io"
-      build-matrix:
-        description: >-
-          JSON object passed to fromJson to become the build matrix. Example:
-          {"runner": ["ubuntu-latest", "ubuntu-24.04-arm"]}
-          Must include at least a key 'runner' listing GitHub runner labels.
-        required: false
+      build-test-runner-labels:
+        required: true
         type: string
-        default: '{"runner": ["ubuntu-latest", "ubuntu-24.04-arm"]}'
       runner-labels:
-        description: >-
-          Single runner label OR JSON array of runner labels for non-build jobs.
-          Examples:
-            ubuntu-latest
-            '["ubuntu-latest"]'
-            '["self-hosted", "linux", "x86_64"]'
-          Provide a valid JSON array (starting with '[') to use multiple labels; any other value is treated as a single label string.
-        required: false
+        required: true
         type: string
-        default: ubuntu-latest
     secrets:
       DOCKER_REGISTRY_USERNAME:
-        description: "User name for Docker login, if not provided the GitHub actor will be used"
-        required: false
+        required: true
       DOCKER_REGISTRY_PASSWORD:
-        description: "Password or token for Docker login, if not provided the GitHub token will be used"
-        required: false
+        required: true
 
 permissions: {}
 
@@ -60,7 +50,8 @@ jobs:
 
   build-push:
     strategy:
-      matrix: ${{ fromJson(inputs.build-matrix) }}
+      matrix:
+        runner: ${{ (startsWith(inputs.build-test-runner-labels, '[') && endsWith(inputs.build-test-runner-labels, ']')) && fromJson(inputs.build-test-runner-labels) || inputs.build-test-runner-labels }}
     runs-on: ${{ matrix.runner }}
     needs: sanitize-image-name
     permissions:
@@ -78,13 +69,10 @@ jobs:
         with:
           cache-binary: false
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-        env:
-          USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-          PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
         with:
           registry: ${{ inputs.registry }}
-          username: ${{ env.USERNAME }}
-          password: ${{ env.PASSWORD }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
       - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
         env:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
@@ -171,13 +159,10 @@ jobs:
         with:
           cache-binary: false
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-        env:
-          USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-          PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
         with:
           registry: ${{ inputs.registry }}
-          username: ${{ env.USERNAME }}
-          password: ${{ env.PASSWORD }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
       - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
         id: metadata
         env:
