@@ -30,7 +30,7 @@ jobs:
       packages: write
       pull-requests: write
     with:
-      devcontainer-metadata: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
+      devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
 
