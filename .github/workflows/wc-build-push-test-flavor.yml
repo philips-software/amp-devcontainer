@@ -53,6 +53,8 @@ jobs:
         runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
+    permissions:
+      contents: read
     with:
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
       test-file: test/${{ matrix.flavor }}/integration-tests.bats
@@ -64,6 +66,8 @@ jobs:
         flavor: [cpp]
     needs: build-push
     uses: ./.github/workflows/wc-acceptance-test.yml
+    permissions:
+      contents: read
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
       TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
