@@ -28,10 +28,16 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
+    secrets:
+      DOCKER_REGISTRY_USERNAME: ${{ github.actor }}
+      DOCKER_REGISTRY_PASSWORD: ${{ github.token }}
     with:
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
+      registry: ghcr.io
+      runner-labels: ubuntu-latest
+      build-test-runner-labels: '["ubuntu-latest", "ubuntu-24.04-arm"]'
 
   dependency-review:
     needs: build-push
