@@ -91,7 +91,7 @@ jobs:
           TEST_FILE: ${{ inputs.test-file }}
           RUNNER_ARCH: ${{ needs.determine-container.outputs.runner-arch }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always()
+        if: !cancelled()
         with:
           name: test-results-integration-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ needs.determine-container.outputs.runner-arch }}
           path: test-report-*.xml

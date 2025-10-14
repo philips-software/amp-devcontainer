@@ -120,7 +120,7 @@ jobs:
           tags: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           labels: |
             ${{ steps.metadata.outputs.labels }}
-            ${{ steps.devcontainer-metadata.outputs.metadata }}
+            ${{ steps.devcontainer-metadata.outputs.label }}
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
           outputs: type=image,push-by-digest=true,name-canonical=true
