@@ -41,7 +41,7 @@ jobs:
       test-devcontainer-file: ${{ matrix.flavor == 'cpp' && '.devcontainer/cpp-test/devcontainer.json' || '' }}
 
   dependency-review:
-    name: 🔍 Dependencies 
+    name: 🔍 Dependency Review
     needs: build-push-test
     uses: ./.github/workflows/wc-dependency-review.yml
     permissions:

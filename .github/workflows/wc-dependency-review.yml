@@ -14,7 +14,7 @@ permissions: {}
 
 jobs:
   dependency-review:
-    name: 🔍 Dependency Review
+    name: 🔍
     runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     permissions:
       contents: read

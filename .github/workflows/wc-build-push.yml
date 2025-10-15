@@ -49,7 +49,7 @@ permissions: {}
 
 jobs:
   sanitize-image-name:
-    name: 🧼 Sanitize Image Name
+    name: 🧼
     uses: ./.github/workflows/wc-sanitize-image-name.yml
     with:
       image-name: ${{ inputs.image-name }}
@@ -57,7 +57,7 @@ jobs:
       runner-labels: ${{ inputs.runner-labels }}
 
   build-push:
-    name: 🛠️ Build → Push (${ { matrix.runner }})
+    name: 🛠️ (${{ matrix.runner }})
     strategy:
       matrix:
         runner: ${{ (startsWith(inputs.build-test-runner-labels, '[') && endsWith(inputs.build-test-runner-labels, ']')) && fromJson(inputs.build-test-runner-labels) || inputs.build-test-runner-labels }}
@@ -136,7 +136,7 @@ jobs:
           retention-days: 1
 
   merge-image:
-    name: 🔗 Merge Image & Publish Digest
+    name: 🔗 Merge Image
     # Support either a plain single label (e.g. ubuntu-latest) OR a JSON array of labels.
     # If the input starts & ends with brackets we attempt JSON parsing; otherwise we pass the raw string.
     runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
