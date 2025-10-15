@@ -13,7 +13,7 @@ concurrency:
 permissions: {}
 
 jobs:
-  build-push-test-flavors:
+  build-push-test:
     name: Build, Push and Test (🍨 ${{ matrix.flavor }})
     strategy:
       matrix:
@@ -41,18 +41,20 @@ jobs:
       test-devcontainer-file: ${{ matrix.flavor == 'cpp' && '.devcontainer/cpp-test/devcontainer.json' || '' }}
 
   dependency-review:
-    needs: build-push-test-flavors
+    name: Review Dependencies
+    needs: build-push-test
     uses: ./.github/workflows/wc-dependency-review.yml
     permissions:
       contents: read
       pull-requests: write
 
   publish-test-results:
+    name: Publish Test Results
     runs-on: ubuntu-latest
     permissions:
       checks: write
       pull-requests: write
-    needs: build-push-test-flavors
+    needs: build-push-test
     if: ${{ !cancelled() }}
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
@@ -68,6 +70,7 @@ jobs:
           files: test-report-*.xml
 
   generate-documents:
+    name: Generate Documents
     uses: ./.github/workflows/wc-document-generation.yml
     permissions:
       contents: read

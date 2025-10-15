@@ -16,18 +16,18 @@ on:
     outputs:
       image-basename:
         description: "The sanitized base name of the image (without registry or tag)"
-        value: ${{ jobs.sanitize-inputs.outputs.image-basename }}
+        value: ${{ jobs.sanitize.outputs.image-basename }}
       image-name:
         description: "The sanitized name of the image (without registry or tag)"
-        value: ${{ jobs.sanitize-inputs.outputs.image-name }}
+        value: ${{ jobs.sanitize.outputs.image-name }}
       fully-qualified-image-name:
         description: "The fully qualified name of the image including registry (but without tag)"
-        value: ${{ jobs.sanitize-inputs.outputs.fully-qualified-image-name }}
+        value: ${{ jobs.sanitize.outputs.fully-qualified-image-name }}
 
 permissions: {}
 
 jobs:
-  sanitize-inputs:
+  sanitize:
     runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     outputs:
       image-basename: ${{ steps.sanitize-image-name.outputs.sanitized-basename }}
