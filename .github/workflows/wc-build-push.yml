@@ -32,6 +32,13 @@ on:
       runner-labels:
         required: true
         type: string
+    outputs:
+      fully-qualified-image-name:
+        value: ${{ jobs.sanitize-image-name.outputs.fully-qualified-image-name }}
+      image-basename:
+        value: ${{ jobs.sanitize-image-name.outputs.image-basename }}
+      digest:
+        value: ${{ jobs.merge-image.outputs.digest }}
     secrets:
       DOCKER_REGISTRY_USERNAME:
         required: true
@@ -142,6 +149,8 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
+    outputs:
+      digest: ${{ steps.inspect-manifest.outputs.digest }}
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:

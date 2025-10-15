@@ -43,6 +43,14 @@ on:
         description: "Path to the BATS test file to run for integration tests"
         required: false
         type: string
+      test-devcontainer-file:
+        description: "Path to the devcontainer.json file to use for acceptance tests"
+        required: false
+        type: string
+      acceptance-test-path:
+        description: "Path to the Playwright acceptance tests (directory that contains playwright.config.ts)"
+        required: false
+        type: string
     secrets:
       TEST_GITHUB_TOKEN:
         required: false
@@ -92,6 +100,24 @@ jobs:
     permissions:
       contents: read
     with:
-      image-name: ${{ inputs.image-name }}
+      fully-qualified-image-name: ${{ needs.build-push.outputs.fully-qualified-image-name }}
+      image-basename: ${{ needs.build-push.outputs.image-basename }}
+      image-digest: ${{ needs.build-push.outputs.digest }}
       test-file: ${{ inputs.integration-test-file }}
       runner-labels: ${{ matrix.runner }}
+
+  acceptance-test:
+    if: ${{ inputs.test-devcontainer-file && inputs.acceptance-test-path }}
+    needs: build-push
+    uses: ./.github/workflows/wc-acceptance-test.yml
+    permissions:
+      contents: read
+    secrets:
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
+      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
+      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
+    with:
+      image-basename: ${{ needs.build-push.outputs.image-basename }}
+      devcontainer-file: ${{ inputs.test-devcontainer-file }}
+      acceptance-test-path: ${{ inputs.acceptance-test-path }}

@@ -37,6 +37,8 @@ jobs:
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
+      acceptance-test-path: ${{ matrix.flavor == 'cpp' && 'test/cpp/features' || '' }}
+      test-devcontainer-file: ${{ matrix.flavor == 'cpp' && '.devcontainer/cpp-test/devcontainer.json' || '' }}
 
   dependency-review:
     needs: build-push-test-flavors

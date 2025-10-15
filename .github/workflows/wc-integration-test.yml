@@ -4,7 +4,13 @@ name: Integration Test
 on:
   workflow_call:
     inputs:
-      image-name:
+      fully-qualified-image-name:
+        required: true
+        type: string
+      image-basename:
+        required: true
+        type: string
+      image-digest:
         required: true
         type: string
       test-file:
@@ -28,44 +34,10 @@ on:
 permissions: {}
 
 jobs:
-  sanitize-image-name:
-    uses: ./.github/workflows/wc-sanitize-image-name.yml
-    with:
-      image-name: ${{ inputs.image-name }}
-      registry: ${{ inputs.registry }}
-      runner-labels: ${{ inputs.runner-labels }}
-
-  determine-container:
-    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
-    needs: sanitize-image-name
-    outputs:
-      container: ${{ steps.set-container.outputs.container }}
-      runner-arch: ${{ steps.runner-arch.outputs.arch }}
-    steps:
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
-        with:
-          disable-sudo: true
-          egress-policy: audit
-      - run: echo "arch=${RUNNER_ARCH@L}" >> "$GITHUB_OUTPUT"
-        id: runner-arch
-      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
-        with:
-          path: ${{ runner.temp }}/digests-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
-          pattern: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
-      - run: echo "container=$(printf "${FULLY_QUALIFIED_IMAGE_NAME}@sha256:%s " *)" >> "$GITHUB_OUTPUT"
-        working-directory: ${{ runner.temp }}/digests-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
-        env:
-          FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
-          GH_REPO: ${{ github.repository }}
-        id: set-container
-
   run-test:
-    needs:
-      - determine-container
-      - sanitize-image-name
     runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     container:
-      image: ${{ needs.determine-container.outputs.container }} # zizmor: ignore[unpinned-images] This image is actually pinned by sha256 digest
+      image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
       credentials:
         username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
         password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
@@ -82,16 +54,16 @@ jobs:
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: test/cpp/.xwin-cache
-          key: xwin-cache-${{ needs.determine-container.outputs.runner-arch }}
+          key: xwin-cache-${{ runner.arch }}
           restore-keys: |
-            xwin-cache-${{ needs.determine-container.outputs.runner-arch }}
+            xwin-cache-${{ runner.arch }}
       - run: bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-${RUNNER_ARCH}.xml"
         env:
-          IMAGE_BASENAME: ${{ needs.sanitize-image-name.outputs.image-basename }}
+          IMAGE_BASENAME: ${{ inputs.image-basename }}
           TEST_FILE: ${{ inputs.test-file }}
-          RUNNER_ARCH: ${{ needs.determine-container.outputs.runner-arch }}
+          RUNNER_ARCH: ${{ runner.arch }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: ${{ !cancelled() }}
         with:
-          name: test-results-integration-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ needs.determine-container.outputs.runner-arch }}
+          name: test-results-integration-${{ inputs.image-basename }}-${{ runner.arch }}
           path: test-report-*.xml
