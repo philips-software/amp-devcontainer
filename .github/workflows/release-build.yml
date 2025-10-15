@@ -42,6 +42,7 @@ jobs:
       acceptance-test-path: ${{ matrix.flavor == 'cpp' && 'test/cpp/features' || '' }}
       test-devcontainer-file: ${{ matrix.flavor == 'cpp' && '.devcontainer/cpp-test/devcontainer.json' || '' }}
   apply-release-notes-template:
+    name: 📝 Apply Release Template
     runs-on: ubuntu-latest
     permissions:
       # `contents: write` is needed to modify a release.
@@ -68,6 +69,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REF_NAME: ${{ github.ref_name }}
   update-release-notes:
+    name: Update Release Notes (🍨 ${{ matrix.flavor }})
     strategy:
       matrix:
         flavor: [cpp, rust]
@@ -119,6 +121,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
   upload-documents:
+    name: 📄 Upload Documents
     runs-on: ubuntu-latest
     permissions:
       # `contents: write` is needed to modify a release.

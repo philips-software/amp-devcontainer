@@ -12,6 +12,7 @@ permissions: {}
 
 jobs:
   validate-pr-title:
+    name: ✅ Validate PR Title
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write

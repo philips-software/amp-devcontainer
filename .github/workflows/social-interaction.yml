@@ -11,6 +11,7 @@ permissions: {}
 
 jobs:
   greeting:
+    name: 👋 First Interaction Greeting
     runs-on: ubuntu-latest
     permissions:
       issues: write

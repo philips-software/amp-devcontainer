@@ -13,6 +13,7 @@ permissions: read-all
 
 jobs:
   ossf-scorecard:
+    name: 🛡️ OpenSSF Scorecard
     runs-on: ubuntu-latest
     permissions:
       security-events: write

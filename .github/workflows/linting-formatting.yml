@@ -19,6 +19,7 @@ permissions:
 
 jobs:
   linter:
+    name: 🧹 Lint & Format
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -10,6 +10,7 @@ permissions: {}
 
 jobs:
   update-apt-dependencies:
+    name: Update APT Dependencies (🍨 ${{ matrix.flavor }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -45,6 +46,7 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           sign-commits: true
   update-vscode-extensions:
+    name: Update VS Code Extensions (🍨 ${{ matrix.flavor }}, ${{ matrix.file }})
     runs-on: ubuntu-latest
     strategy:
       matrix:

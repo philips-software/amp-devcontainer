@@ -28,6 +28,7 @@ permissions: {}
 
 jobs:
   sanitize:
+    name: 🧼 Sanitize Image Name
     runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     outputs:
       image-basename: ${{ steps.sanitize-image-name.outputs.sanitized-basename }}

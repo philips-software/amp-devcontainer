@@ -9,7 +9,8 @@ on:
 permissions: {}
 
 jobs:
-  delete-images:
+  cleanup-images:
+    name: 🧹 Clean Images
     runs-on: ubuntu-latest
     permissions:
       # dataaxiom/ghcr-cleanup-action needs packages write permission

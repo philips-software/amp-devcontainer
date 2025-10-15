@@ -8,6 +8,7 @@ permissions: {}
 
 jobs:
   generate-documents:
+    name: 📄 Generate Documents
     runs-on: ubuntu-latest
     permissions:
       contents: read
