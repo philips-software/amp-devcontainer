@@ -1,5 +1,5 @@
 ---
-name: 🧪 CI
+name: CI
 
 on:
   merge_group:
@@ -49,7 +49,7 @@ jobs:
       pull-requests: write
 
   publish-test-results:
-    name: 📊 Test Results
+    name: 📊 Publish Test Results
     runs-on: ubuntu-latest
     permissions:
       checks: write

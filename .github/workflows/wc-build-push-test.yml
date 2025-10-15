@@ -71,7 +71,7 @@ permissions: {}
 
 jobs:
   build-push:
-    name: 🛠️
+    name: 1. 🛠️
     uses: ./.github/workflows/wc-build-push.yml
     permissions:
       actions: read
@@ -92,7 +92,7 @@ jobs:
       build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
 
   integration-test:
-    name: 🧪
+    name: 2. 🧪
     if: ${{ inputs.integration-test-file }}
     strategy:
       matrix:
@@ -109,7 +109,7 @@ jobs:
       runner-labels: ${{ matrix.runner }}
 
   acceptance-test:
-    name: 🧪
+    name: 3. 🧪
     if: ${{ inputs.test-devcontainer-file && inputs.acceptance-test-path }}
     needs: build-push
     uses: ./.github/workflows/wc-acceptance-test.yml
