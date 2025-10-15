@@ -45,13 +45,13 @@ on:
         type: string
     secrets:
       TEST_GITHUB_TOKEN:
-        required: true
+        required: false
       TEST_GITHUB_USER:
-        required: true
+        required: false
       TEST_GITHUB_PASSWORD:
-        required: true
+        required: false
       TEST_GITHUB_TOTP_SECRET:
-        required: true
+        required: false
       DOCKER_REGISTRY_USERNAME:
         description: "User name for Docker login, if not provided the GitHub actor will be used"
         required: false
