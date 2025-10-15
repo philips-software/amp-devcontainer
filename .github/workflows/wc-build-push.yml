@@ -190,6 +190,7 @@ jobs:
             annotations+=(--annotation "$line")
           done
 
+          # shellcheck disable=SC2046
           docker buildx imagetools create \
             "${annotations[@]}" \
             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${METADATA_JSON}") \
