@@ -16,7 +16,11 @@ permissions: {}
 
 jobs:
   build-push-test:
-    uses: ./.github/workflows/wc-build-push-test-flavor.yml
+    name: Build, Push and Test (🍨 ${{ matrix.flavor }})
+    strategy:
+      matrix:
+        flavor: [cpp, rust]
+    uses: ./.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
       TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
@@ -30,6 +34,13 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
+    with:
+      devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
+      dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
+      image-name: ${{ github.repository }}-${{ matrix.flavor }}
+      integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
+      acceptance-test-path: ${{ matrix.flavor == 'cpp' && 'test/cpp/features' || '' }}
+      test-devcontainer-file: ${{ matrix.flavor == 'cpp' && '.devcontainer/cpp-test/devcontainer.json' || '' }}
   apply-release-notes-template:
     runs-on: ubuntu-latest
     permissions:
