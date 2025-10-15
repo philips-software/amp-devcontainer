@@ -89,6 +89,8 @@ jobs:
         runner: ${{ (startsWith(inputs.build-test-runner-labels, '[') && endsWith(inputs.build-test-runner-labels, ']')) && fromJson(inputs.build-test-runner-labels) || inputs.build-test-runner-labels }}
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
+    permissions:
+      contents: read
     with:
       image-name: ${{ inputs.image-name }}
       test-file: ${{ inputs.integration-test-file }}
