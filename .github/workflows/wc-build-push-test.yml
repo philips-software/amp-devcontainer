@@ -72,8 +72,8 @@ jobs:
       packages: write
       pull-requests: write
     secrets:
-      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
+      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     with:
       dockerfile: ${{ inputs.dockerfile }}
       registry: ${{ inputs.registry }}
@@ -83,6 +83,7 @@ jobs:
       build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
 
   integration-test:
+    if: ${{ inputs.integration-test-file }}
     strategy:
       matrix:
         runner: ${{ (startsWith(inputs.build-test-runner-labels, '[') && endsWith(inputs.build-test-runner-labels, ']')) && fromJson(inputs.build-test-runner-labels) || inputs.build-test-runner-labels }}
@@ -92,23 +93,3 @@ jobs:
       image-name: ${{ inputs.image-name }}
       test-file: ${{ inputs.integration-test-file }}
       runner-labels: ${{ matrix.runner }}
-
-  publish-test-results:
-    runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      pull-requests: write
-    needs: [integration-test]
-    if: ${{ !cancelled() }}
-    steps:
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
-        with:
-          disable-sudo: true
-          egress-policy: audit
-      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
-        with:
-          merge-multiple: true
-          pattern: test-results-*
-      - uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
-        with:
-          files: test-report-*.xml

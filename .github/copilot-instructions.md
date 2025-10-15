@@ -24,3 +24,10 @@ The folder structure of amp-devcontainer is described below, adhere to the exist
 - `/.devcontainer/[flavor]-test`: Contains a devcontainer.json file for testing the container flavor.
 - `/.github`: Contains the GitHub workflows for CI/CD, linter configuration, issue templates and re-usable actions.
 - `/test/[flavor]`: Contains [Bats](https://bats-core.readthedocs.io/en/stable/) integration- and Playwright verification tests for the containers.
+
+## File Specific Instructions
+
+When reviewing GitHub Action workflows, ensure that:
+
+- Workflows that have a workflow_call trigger have the file name prefixed with `wc-`.
+- For all re-usable workflows, only the top-level workflow has defaults and descriptions for inputs to avoid duplication. Top-level workflows are not called themselves by other workflows with workflow_call.

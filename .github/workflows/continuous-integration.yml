@@ -13,8 +13,12 @@ concurrency:
 permissions: {}
 
 jobs:
-  build-push-test:
-    uses: ./.github/workflows/wc-build-push-test-flavor.yml
+  build-push-test-flavors:
+    name: Build, Push and Test (🍨 ${{ matrix.flavor }})
+    strategy:
+      matrix:
+        flavor: [cpp, rust]
+    uses: ./.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
       TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
@@ -28,3 +32,40 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
+    with:
+      devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
+      dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
+      image-name: ${{ github.repository }}-${{ matrix.flavor }}
+      integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
+
+  dependency-review:
+    needs: build-push-test-flavors
+    uses: ./.github/workflows/wc-dependency-review.yml
+    permissions:
+      contents: read
+      pull-requests: write
+
+  publish-test-results:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
+    needs: build-push-test-flavors
+    if: ${{ !cancelled() }}
+    steps:
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          merge-multiple: true
+          pattern: test-results-*
+      - uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
+        with:
+          files: test-report-*.xml
+
+  generate-documents:
+    uses: ./.github/workflows/wc-document-generation.yml
+    permissions:
+      contents: read
