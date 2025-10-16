@@ -9,26 +9,47 @@ on:
         required: true
         type: string
       image-name:
-        description: "Name of the Docker image to build, without registry or tag. E.g. 'my-image' or 'my-org/my-image'"
+        description: >-
+          Name of the Docker image to build, without registry or tag.
+
+          Examples:
+            'my-image'
+            'my-org/my-image'
         required: true
         type: string
       devcontainer-metadata-file:
-        description: "Path to a JSON file containing devcontainer metadata to add as a label to the built image"
+        description: >-
+          Path to a JSON file containing devcontainer metadata to add as a label to the built image.
+
+          Examples:
+            '.devcontainer/devcontainer-metadata.json'
+            '.devcontainer/<flavor>/devcontainer-metadata.json'
         required: false
         type: string
       registry:
-        description: "Docker registry to push built containers to, DOCKER_REGISTRY_USERNAME and DOCKER_REGISTRY_PASSWORD secrets must be set if not using GitHub Container Registry"
+        description: >-
+          Docker registry to push built containers to.
+          `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` secrets must be set if not using GitHub Container Registry (ghcr.io).
         required: false
         type: string
         default: "ghcr.io"
       build-test-runner-labels:
-        description: 'JSON array used for build matrix (e.g. ["ubuntu-latest", "ubuntu-24.04-arm"]). Must be valid JSON.'
+        description: >-
+          JSON array used to select multi-architecture runners for build and test jobs.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["ubuntu-latest", "ubuntu-24.04-arm"]'
+            '[["self-hosted", "linux", "x86_64"], ["self-hosted", "linux", "arm64"]]'
         required: false
         type: string
         default: '["ubuntu-latest", "ubuntu-24.04-arm"]'
       runner-labels:
         description: >-
-          JSON array of runner labels for non-build jobs.
+          JSON array used to select the default linux runner for non-build jobs.
+          Must be valid JSON.
+
           Examples:
             '["ubuntu-latest"]'
             '["self-hosted", "linux", "x86_64"]'
@@ -94,12 +115,16 @@ jobs:
     uses: ./.github/workflows/wc-integration-test.yml
     permissions:
       contents: read
+    secrets:
+      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     with:
+      build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
       fully-qualified-image-name: ${{ needs.build-push.outputs.fully-qualified-image-name }}
       image-basename: ${{ needs.build-push.outputs.image-basename }}
       image-digest: ${{ needs.build-push.outputs.digest }}
+      registry: ${{ inputs.registry }}
       test-file: ${{ inputs.integration-test-file }}
-      build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
 
   acceptance-test:
     name: 🏗️
