@@ -57,7 +57,7 @@ jobs:
       runner-labels: ${{ inputs.runner-labels }}
 
   build-push:
-    name: Build (${{ matrix.runner }})
+    name: Build (${{ toJson(matrix.runner) }})
     strategy:
       matrix:
         runner: ${{ fromJson(inputs.build-test-runner-labels) }}

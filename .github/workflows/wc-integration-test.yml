@@ -34,7 +34,7 @@ permissions: {}
 
 jobs:
   run-test:
-    name: 🧪 Integration Test (${{ matrix.runner }})
+    name: Integration Test (${{ toJson(matrix.runner) }})
     strategy:
       matrix:
         runner: ${{ fromJson(inputs.build-test-runner-labels) }}
