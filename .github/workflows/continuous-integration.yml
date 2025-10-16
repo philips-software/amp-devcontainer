@@ -14,7 +14,7 @@ permissions: {}
 
 jobs:
   build-push-test:
-    name: 🛠️ Build → Push → Test (🍨 ${{ matrix.flavor }})
+    name: Build → Push → Test (🍨 ${{ matrix.flavor }})
     strategy:
       matrix:
         flavor: [cpp, rust]

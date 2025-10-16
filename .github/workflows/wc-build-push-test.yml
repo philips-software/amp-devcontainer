@@ -22,23 +22,19 @@ on:
         type: string
         default: "ghcr.io"
       build-test-runner-labels:
-        description: >-
-          JSON object passed to fromJson to become the build matrix. Example:
-          '["ubuntu-latest", "ubuntu-24.04-arm"]'
+        description: 'JSON array used for build matrix (e.g. ["ubuntu-latest", "ubuntu-24.04-arm"]). Must be valid JSON.'
         required: false
         type: string
         default: '["ubuntu-latest", "ubuntu-24.04-arm"]'
       runner-labels:
         description: >-
-          Single runner label OR JSON array of runner labels for non-build jobs.
+          JSON array of runner labels for non-build jobs.
           Examples:
-            ubuntu-latest
             '["ubuntu-latest"]'
             '["self-hosted", "linux", "x86_64"]'
-          Provide a valid JSON array (starting with '[') to use multiple labels; any other value is treated as a single label string.
         required: false
         type: string
-        default: ubuntu-latest
+        default: '["ubuntu-latest"]'
       integration-test-file:
         description: "Path to the BATS test file to run for integration tests"
         required: false
@@ -96,7 +92,7 @@ jobs:
     if: ${{ inputs.integration-test-file }}
     strategy:
       matrix:
-        runner: ${{ (startsWith(inputs.build-test-runner-labels, '[') && endsWith(inputs.build-test-runner-labels, ']')) && fromJson(inputs.build-test-runner-labels) || inputs.build-test-runner-labels }}
+        runner: ${{ fromJson(inputs.build-test-runner-labels) }}
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
     permissions:

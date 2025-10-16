@@ -17,7 +17,6 @@ on:
         required: true
         type: string
       runner-labels:
-        description: "Runner to use for the job, will be passed to `runs-on`"
         required: true
         type: string
       registry:
@@ -36,7 +35,7 @@ permissions: {}
 jobs:
   run-test:
     name: 🧪 Integration Test
-    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
     container:
       image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
       credentials:
