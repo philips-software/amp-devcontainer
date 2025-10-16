@@ -16,27 +16,27 @@ on:
       test-file:
         required: true
         type: string
-      runner-labels:
-        description: "Runner to use for the job, will be passed to `runs-on`"
+      build-test-runner-labels:
         required: true
         type: string
       registry:
-        description: "Docker registry to push built containers to, DOCKER_REGISTRY_USERNAME and DOCKER_REGISTRY_PASSWORD secrets must be set if not using GitHub Container Registry"
-        required: false
+        required: true
         type: string
-        default: "ghcr.io"
     secrets:
       DOCKER_REGISTRY_USERNAME:
-        required: false
+        required: true
       DOCKER_REGISTRY_PASSWORD:
-        required: false
+        required: true
 
 permissions: {}
 
 jobs:
   run-test:
-    name: 🧪 Integration Test
-    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
+    name: Integration Test (${{ (startsWith(matrix.runner, '[') && endsWith(matrix.runner, ']')) && join(matrix.runner, ', ') || matrix.runner }})
+    strategy:
+      matrix:
+        runner: ${{ fromJson(inputs.build-test-runner-labels) }}
+    runs-on: ${{ matrix.runner }}
     container:
       image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
       credentials:

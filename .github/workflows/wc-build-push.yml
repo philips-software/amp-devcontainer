@@ -57,10 +57,10 @@ jobs:
       runner-labels: ${{ inputs.runner-labels }}
 
   build-push:
-    name: ${{ matrix.runner }}
+    name: Build (${{ (startsWith(matrix.runner, '[') && endsWith(matrix.runner, ']')) && join(matrix.runner, ', ') || matrix.runner }})
     strategy:
       matrix:
-        runner: ${{ (startsWith(inputs.build-test-runner-labels, '[') && endsWith(inputs.build-test-runner-labels, ']')) && fromJson(inputs.build-test-runner-labels) || inputs.build-test-runner-labels }}
+        runner: ${{ fromJson(inputs.build-test-runner-labels) }}
     runs-on: ${{ matrix.runner }}
     needs: sanitize-image-name
     permissions:
@@ -137,9 +137,7 @@ jobs:
 
   merge-image:
     name: 🔗 Merge Image
-    # Support either a plain single label (e.g. ubuntu-latest) OR a JSON array of labels.
-    # If the input starts & ends with brackets we attempt JSON parsing; otherwise we pass the raw string.
-    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
     needs:
       - build-push
       - sanitize-image-name
@@ -159,9 +157,6 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          persist-credentials: false
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           path: ${{ runner.temp }}/digests

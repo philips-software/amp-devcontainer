@@ -5,17 +5,23 @@ on:
   workflow_call:
     inputs:
       runner-labels:
-        description: "Runner to use for the job, will be passed to `runs-on`"
+        description: >-
+          JSON array used to select the action runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
         required: false
         type: string
-        default: ubuntu-latest
+        default: '["ubuntu-latest"]'
 
 permissions: {}
 
 jobs:
   dependency-review:
     name: Review
-    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
     permissions:
       contents: read
       pull-requests: write
