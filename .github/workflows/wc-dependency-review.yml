@@ -5,7 +5,13 @@ on:
   workflow_call:
     inputs:
       runner-labels:
-        description: "JSON array of runner labels (default [\"ubuntu-latest\"]). Must be valid JSON."
+        description: >-
+          JSON array used to select the action runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
         required: false
         type: string
         default: '["ubuntu-latest"]'
