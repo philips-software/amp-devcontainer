@@ -35,7 +35,7 @@ permissions: {}
 jobs:
   run-test:
     name: 🧪 Integration Test
-    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     container:
       image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
       credentials:
