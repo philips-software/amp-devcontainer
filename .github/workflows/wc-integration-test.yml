@@ -32,7 +32,7 @@ permissions: {}
 
 jobs:
   run-test:
-    name: Integration Test (${{ (startsWith(toJson(matrix.runner), '[') && endsWith(toJson(matrix.runner), ']')) && join(fromJson(matrix.runner), ', ') || matrix.runner }})
+    name: Integration Test (${{ (startsWith(matrix.runner, '[') && endsWith(matrix.runner, ']')) && join(matrix.runner, ', ') || matrix.runner }})
     strategy:
       matrix:
         runner: ${{ fromJson(inputs.build-test-runner-labels) }}

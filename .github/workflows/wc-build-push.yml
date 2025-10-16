@@ -57,7 +57,7 @@ jobs:
       runner-labels: ${{ inputs.runner-labels }}
 
   build-push:
-    name: Build (${{ (startsWith(toJson(matrix.runner), '[') && endsWith(toJson(matrix.runner), ']')) && join(fromJson(matrix.runner), ', ') || matrix.runner }})
+    name: Build (${{ (startsWith(matrix.runner, '[') && endsWith(matrix.runner, ']')) && join(matrix.runner, ', ') || matrix.runner }})
     strategy:
       matrix:
         runner: ${{ fromJson(inputs.build-test-runner-labels) }}
