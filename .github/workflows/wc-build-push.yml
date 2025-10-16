@@ -34,11 +34,13 @@ on:
         type: string
     outputs:
       fully-qualified-image-name:
-        value: ${{ jobs.sanitize-image-name.outputs.fully-qualified-image-name }}
+        value: ${{ jobs.sanitize-inputs.outputs.fully-qualified-image-name }}
       image-basename:
-        value: ${{ jobs.sanitize-image-name.outputs.image-basename }}
+        value: ${{ jobs.sanitize-inputs.outputs.image-basename }}
       digest:
         value: ${{ jobs.merge-image.outputs.digest }}
+      runner-arch:
+        value: ${{ jobs.sanitize-inputs.outputs.runner-arch }}
     secrets:
       DOCKER_REGISTRY_USERNAME:
         required: true
@@ -48,21 +50,21 @@ on:
 permissions: {}
 
 jobs:
-  sanitize-image-name:
+  sanitize-inputs:
     name: 🧼
-    uses: ./.github/workflows/wc-sanitize-image-name.yml
+    uses: ./.github/workflows/wc-sanitize-inputs.yml
     with:
       image-name: ${{ inputs.image-name }}
       registry: ${{ inputs.registry }}
       runner-labels: ${{ inputs.runner-labels }}
 
   build-push:
-    name: ${{ matrix.runner }}
+    name: Build (${{ needs.sanitize-inputs.outputs.runner-arch }})
     strategy:
       matrix:
         runner: ${{ (startsWith(inputs.build-test-runner-labels, '[') && endsWith(inputs.build-test-runner-labels, ']')) && fromJson(inputs.build-test-runner-labels) || inputs.build-test-runner-labels }}
     runs-on: ${{ matrix.runner }}
-    needs: sanitize-image-name
+    needs: sanitize-inputs
     permissions:
       contents: read
       packages: write
@@ -87,7 +89,7 @@ jobs:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         id: metadata
         with:
-          images: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+          images: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}
       - name: Generate image label for devcontainer.metadata
         run: |
           set -Eeuo pipefail
@@ -105,8 +107,6 @@ jobs:
         id: devcontainer-metadata
       - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
         id: devcontainer-epoch
-      - run: echo "arch=$(echo "${RUNNER_ARCH}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
-        id: devcontainer-arch
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         id: build-and-push
         env:
@@ -114,7 +114,7 @@ jobs:
         with:
           file: ${{ inputs.dockerfile }}
           push: true
-          tags: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+          tags: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}
           labels: |
             ${{ steps.metadata.outputs.labels }}
             ${{ steps.devcontainer-metadata.outputs.label }}
@@ -130,19 +130,17 @@ jobs:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ steps.devcontainer-arch.outputs.arch }}
+          name: digests-${{ needs.sanitize-inputs.outputs.image-basename }}-${{ needs.sanitize-inputs.outputs.runner-arch }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
 
   merge-image:
     name: 🔗 Merge Image
-    # Support either a plain single label (e.g. ubuntu-latest) OR a JSON array of labels.
-    # If the input starts & ends with brackets we attempt JSON parsing; otherwise we pass the raw string.
     runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     needs:
       - build-push
-      - sanitize-image-name
+      - sanitize-inputs
     permissions:
       actions: read
       attestations: write
@@ -159,13 +157,10 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          persist-credentials: false
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           path: ${{ runner.temp }}/digests
-          pattern: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-*
+          pattern: digests-${{ needs.sanitize-inputs.outputs.image-basename }}-*
           merge-multiple: true
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
         with:
@@ -180,7 +175,7 @@ jobs:
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
         with:
-          images: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+          images: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}
           # Generate Docker tags based on the following events/attributes.
           # To prevent unnecessary image builds we simulate the `type=edge` tag
           # with `type=raw,value=edge,enable=...` which only enables the tag
@@ -208,7 +203,7 @@ jobs:
             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${METADATA_JSON}") \
             $(printf "${CONTAINER}@sha256:%s " *)
         env:
-          CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+          CONTAINER: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
         shell: bash
         working-directory: ${{ runner.temp }}/digests
@@ -219,37 +214,37 @@ jobs:
           output=$(docker buildx imagetools inspect "${CONTAINER}" --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
         env:
-          CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
+          CONTAINER: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - run: |
           set -Eeuo pipefail
           wget -O diffoci https://github.com/reproducible-containers/diffoci/releases/download/v0.1.7/diffoci-v0.1.7.linux-amd64
           chmod +x diffoci
           ./diffoci diff --semantic --report-file=container-diff.json "${FROM_CONTAINER}" "${TO_CONTAINER}" || true
         env:
-          FROM_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
-          TO_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
+          FROM_CONTAINER: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}:edge
+          TO_CONTAINER: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
+          name: container-diff-${{ needs.sanitize-inputs.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
       - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@ab0940b1e92f3ccee257d5984166c63c8cfe6a9d # v6.5.0
         id: container-size-diff
         with:
-          from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
-          to-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
+          from-container: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}:edge
+          to-container: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2.9.4
         with:
-          header: container-size-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
+          header: container-size-diff-${{ needs.sanitize-inputs.outputs.image-basename }}
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
       - uses: anchore/sbom-action@f8bdd1d8ac5e901a77a92f111440fdb1b593736b # v0.20.6
         with:
-          image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
+          image: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
       - uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
         with:
-          subject-name: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+          subject-name: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}
           subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
           show-summary: false
           push-to-registry: true
@@ -257,6 +252,6 @@ jobs:
         run: gh attestation verify --repo "${GH_REPO}" "oci://${FULLY_QUALIFIED_IMAGE_NAME}@${DIGEST}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
-          FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+          FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-inputs.outputs.fully-qualified-image-name }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}

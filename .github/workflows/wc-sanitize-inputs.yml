@@ -1,5 +1,5 @@
 ---
-name: Sanitize Image Name
+name: Sanitize Inputs
 
 on:
   workflow_call:
@@ -15,31 +15,38 @@ on:
         type: string
     outputs:
       image-basename:
-        description: "The sanitized base name of the image (without registry or tag)"
+        description: "The sanitized base name of the image"
         value: ${{ jobs.sanitize.outputs.image-basename }}
       image-name:
-        description: "The sanitized name of the image (without registry or tag)"
+        description: "The sanitized name of the image"
         value: ${{ jobs.sanitize.outputs.image-name }}
       fully-qualified-image-name:
-        description: "The fully qualified name of the image including registry (but without tag)"
+        description: "The fully qualified name of the image including registry"
         value: ${{ jobs.sanitize.outputs.fully-qualified-image-name }}
+      runner-arch:
+        description: "The architecture of the runner executing the job"
+        value: ${{ jobs.sanitize.outputs.runner-arch }}
 
 permissions: {}
 
 jobs:
   sanitize:
-    name: Sanitize Image Name
+    name: Sanitize Inputs
     runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     outputs:
       image-basename: ${{ steps.sanitize-image-name.outputs.sanitized-basename }}
       image-name: ${{ steps.sanitize-image-name.outputs.sanitized-image-name }}
       fully-qualified-image-name: ${{ inputs.registry }}/${{ steps.sanitize-image-name.outputs.sanitized-image-name }}
+      runner-arch: ${{ steps.runner-arch.outputs.arch }}
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
           disable-sudo-and-containers: true
           allowed-endpoints: >
             api.github.com:443
+      - name: Sanitize runner architecture
+        id: runner-arch
+        run: echo "arch=$(echo "${RUNNER_ARCH}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
       - name: Sanitize image name
         id: sanitize-image-name
         env:

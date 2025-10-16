@@ -20,6 +20,10 @@ on:
         description: "Runner to use for the job, will be passed to `runs-on`"
         required: true
         type: string
+      runner-arch:
+        description: "Architecture of the runner executing the job, only used for job naming and test report files"
+        required: true
+        type: string
       registry:
         description: "Docker registry to push built containers to, DOCKER_REGISTRY_USERNAME and DOCKER_REGISTRY_PASSWORD secrets must be set if not using GitHub Container Registry"
         required: false
@@ -35,7 +39,7 @@ permissions: {}
 
 jobs:
   run-test:
-    name: 🧪 Integration Test
+    name: 🧪 Integration Test (${{ inputs.runner-arch }})
     runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
     container:
       image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
@@ -52,15 +56,13 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
-      - run: echo "arch=$(echo "${RUNNER_ARCH}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
-        id: runner-arch
-      - run: bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-${RUNNER_ARCH}.xml"
+      - run: bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-${RUNNER_ARCHITECTURE}.xml"
         env:
           IMAGE_BASENAME: ${{ inputs.image-basename }}
           TEST_FILE: ${{ inputs.test-file }}
-          RUNNER_ARCH: ${{ steps.runner-arch.outputs.arch }}
+          RUNNER_ARCHITECTURE: ${{ inputs.runner-arch }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: ${{ !cancelled() }}
         with:
-          name: test-results-integration-${{ inputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
+          name: test-results-integration-${{ inputs.image-basename }}-${{ inputs.runner-arch }}
           path: test-report-*.xml
