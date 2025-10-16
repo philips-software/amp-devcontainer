@@ -16,7 +16,7 @@ on:
       test-file:
         required: true
         type: string
-      runner-labels:
+      build-test-runner-labels:
         required: true
         type: string
       registry:
@@ -34,8 +34,11 @@ permissions: {}
 
 jobs:
   run-test:
-    name: 🧪 Integration Test
-    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
+    name: 🧪 Integration Test (${{ matrix.runner }})
+    strategy:
+      matrix:
+        runner: ${{ fromJson(inputs.build-test-runner-labels) }}
+    runs-on: ${{ matrix.runner }}
     container:
       image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
       credentials:

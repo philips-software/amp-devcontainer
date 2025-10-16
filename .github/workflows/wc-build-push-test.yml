@@ -90,9 +90,6 @@ jobs:
   integration-test:
     name: 🧪
     if: ${{ inputs.integration-test-file }}
-    strategy:
-      matrix:
-        runner: ${{ fromJson(inputs.build-test-runner-labels) }}
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
     permissions:
@@ -102,7 +99,7 @@ jobs:
       image-basename: ${{ needs.build-push.outputs.image-basename }}
       image-digest: ${{ needs.build-push.outputs.digest }}
       test-file: ${{ inputs.integration-test-file }}
-      runner-labels: ${{ matrix.runner }}
+      build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
 
   acceptance-test:
     name: 🏗️
