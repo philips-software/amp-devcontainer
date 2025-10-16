@@ -9,6 +9,7 @@ permissions: {}
 
 jobs:
   close-issues:
+    name: ♻️ Close Stale Issues & PRs
     runs-on: ubuntu-latest
     permissions:
       issues: write

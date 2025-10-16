@@ -10,6 +10,7 @@ permissions: {}
 
 jobs:
   update-apt-dependencies:
+    name: Update APT Dependencies (🍨 ${{ matrix.flavor }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -45,11 +46,12 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           sign-commits: true
   update-vscode-extensions:
+    name: Update VS Code Extensions (🍨 ${{ matrix.flavor }}, ${{ matrix.file }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
         flavor: ["cpp", "rust"]
-        file: ["devcontainer-metadata-vscode.json", "devcontainer.json"]
+        file: ["devcontainer-metadata.json", "devcontainer.json"]
     permissions:
       contents: write
       pull-requests: write

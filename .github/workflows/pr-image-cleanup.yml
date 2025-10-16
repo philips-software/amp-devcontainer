@@ -9,6 +9,7 @@ permissions: {}
 
 jobs:
   delete-images:
+    name: 🗑️ Delete PR Images
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -22,6 +23,7 @@ jobs:
           delete-tags: pr-${{ github.event.pull_request.number }}
           packages: amp-devcontainer,amp-devcontainer-cpp,amp-devcontainer-rust
   cleanup-cache:
+    name: 🧹 Cleanup Cache
     runs-on: ubuntu-latest
     permissions:
       # actions: write permission is required to delete the cache

@@ -3,24 +3,75 @@ name: Build, Push & Test
 
 on:
   workflow_call:
+    inputs:
+      dockerfile:
+        description: "Path to the Dockerfile to build"
+        required: true
+        type: string
+      image-name:
+        description: "Name of the Docker image to build, without registry or tag. E.g. 'my-image' or 'my-org/my-image'"
+        required: true
+        type: string
+      devcontainer-metadata-file:
+        description: "Path to a JSON file containing devcontainer metadata to add as a label to the built image"
+        required: false
+        type: string
+      registry:
+        description: "Docker registry to push built containers to, DOCKER_REGISTRY_USERNAME and DOCKER_REGISTRY_PASSWORD secrets must be set if not using GitHub Container Registry"
+        required: false
+        type: string
+        default: "ghcr.io"
+      build-test-runner-labels:
+        description: >-
+          JSON object passed to fromJson to become the build matrix. Example:
+          '["ubuntu-latest", "ubuntu-24.04-arm"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest", "ubuntu-24.04-arm"]'
+      runner-labels:
+        description: >-
+          Single runner label OR JSON array of runner labels for non-build jobs.
+          Examples:
+            ubuntu-latest
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+          Provide a valid JSON array (starting with '[') to use multiple labels; any other value is treated as a single label string.
+        required: false
+        type: string
+        default: ubuntu-latest
+      integration-test-file:
+        description: "Path to the BATS test file to run for integration tests"
+        required: false
+        type: string
+      test-devcontainer-file:
+        description: "Path to the devcontainer.json file to use for acceptance tests"
+        required: false
+        type: string
+      acceptance-test-path:
+        description: "Path to the Playwright acceptance tests (directory that contains playwright.config.ts)"
+        required: false
+        type: string
     secrets:
       TEST_GITHUB_TOKEN:
-        required: true
+        required: false
       TEST_GITHUB_USER:
-        required: true
+        required: false
       TEST_GITHUB_PASSWORD:
-        required: true
+        required: false
       TEST_GITHUB_TOTP_SECRET:
-        required: true
+        required: false
+      DOCKER_REGISTRY_USERNAME:
+        description: "User name for Docker login, if not provided the GitHub actor will be used"
+        required: false
+      DOCKER_REGISTRY_PASSWORD:
+        description: "Password or token for Docker login, if not provided the GitHub token will be used"
+        required: false
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   build-push:
-    strategy:
-      matrix:
-        flavor: [cpp, rust]
+    name: 🛠️
     uses: ./.github/workflows/wc-build-push.yml
     permissions:
       actions: read
@@ -29,75 +80,47 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
+    secrets:
+      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     with:
-      flavor: ${{ matrix.flavor }}
-
-  dependency-review:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    needs: build-push
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
-        with:
-          disable-sudo-and-containers: true
-          egress-policy: audit
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          persist-credentials: false
-      - uses: actions/dependency-review-action@40c09b7dc99638e5ddb0bfd91c1673effc064d8a # v4.8.1
-        with:
-          comment-summary-in-pr: on-failure
-          fail-on-severity: critical
+      dockerfile: ${{ inputs.dockerfile }}
+      registry: ${{ inputs.registry }}
+      image-name: ${{ inputs.image-name }}
+      devcontainer-metadata-file: ${{ inputs.devcontainer-metadata-file }}
+      runner-labels: ${{ inputs.runner-labels }}
+      build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
 
   integration-test:
+    name: 🧪
+    if: ${{ inputs.integration-test-file }}
     strategy:
       matrix:
-        flavor: [cpp, rust]
-        runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
+        runner: ${{ (startsWith(inputs.build-test-runner-labels, '[') && endsWith(inputs.build-test-runner-labels, ']')) && fromJson(inputs.build-test-runner-labels) || inputs.build-test-runner-labels }}
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
+    permissions:
+      contents: read
     with:
-      flavor: ${{ matrix.flavor }}
-      runner: ${{ matrix.runner }}
+      fully-qualified-image-name: ${{ needs.build-push.outputs.fully-qualified-image-name }}
+      image-basename: ${{ needs.build-push.outputs.image-basename }}
+      image-digest: ${{ needs.build-push.outputs.digest }}
+      test-file: ${{ inputs.integration-test-file }}
+      runner-labels: ${{ matrix.runner }}
 
   acceptance-test:
-    strategy:
-      matrix:
-        flavor: [cpp]
+    name: 🏗️
+    if: ${{ inputs.test-devcontainer-file && inputs.acceptance-test-path }}
     needs: build-push
     uses: ./.github/workflows/wc-acceptance-test.yml
+    permissions:
+      contents: read
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
       TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
       TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     with:
-      flavor: ${{ matrix.flavor }}
-
-  publish-test-results:
-    runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      pull-requests: write
-    needs: [acceptance-test, integration-test]
-    if: always()
-    steps:
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
-        with:
-          disable-sudo: true
-          egress-policy: audit
-      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
-        with:
-          merge-multiple: true
-          pattern: test-results-*
-      - uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
-        with:
-          files: test-report-*.xml
-
-  generate-documents:
-    uses: ./.github/workflows/wc-document-generation.yml
-    permissions:
-      contents: read
+      image-basename: ${{ needs.build-push.outputs.image-basename }}
+      devcontainer-file: ${{ inputs.test-devcontainer-file }}
+      acceptance-test-path: ${{ inputs.acceptance-test-path }}

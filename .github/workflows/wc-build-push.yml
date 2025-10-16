@@ -1,27 +1,70 @@
+# This is a lower-level re-usable workflow that builds and pushes
+# a multi-architecture devcontainer image to a container registry.
+#
+# It is intended to be called by a higher-level workflow that provides
+# the necessary inputs and secrets. To prevent duplication, the inputs
+# and secrets don't contain any defaults or descriptions and all of them
+# are required.
+#
+# See the top-level workflow `wc-build-push-test.yml` for an example.
+
 ---
 name: Build & Push
 
 on:
   workflow_call:
     inputs:
-      flavor:
+      dockerfile:
         required: true
         type: string
+      image-name:
+        required: true
+        type: string
+      devcontainer-metadata-file:
+        required: true
+        type: string
+      registry:
+        required: true
+        type: string
+      build-test-runner-labels:
+        required: true
+        type: string
+      runner-labels:
+        required: true
+        type: string
+    outputs:
+      fully-qualified-image-name:
+        value: ${{ jobs.sanitize-image-name.outputs.fully-qualified-image-name }}
+      image-basename:
+        value: ${{ jobs.sanitize-image-name.outputs.image-basename }}
+      digest:
+        value: ${{ jobs.merge-image.outputs.digest }}
+    secrets:
+      DOCKER_REGISTRY_USERNAME:
+        required: true
+      DOCKER_REGISTRY_PASSWORD:
+        required: true
 
-permissions:
-  contents: read
-
-env:
-  CONTAINER_FLAVOR: ${{ inputs.flavor }}
-  REGISTRY: ghcr.io
+permissions: {}
 
 jobs:
+  sanitize-image-name:
+    name: 🧼
+    uses: ./.github/workflows/wc-sanitize-image-name.yml
+    with:
+      image-name: ${{ inputs.image-name }}
+      registry: ${{ inputs.registry }}
+      runner-labels: ${{ inputs.runner-labels }}
+
   build-push:
+    name: ${{ matrix.runner }}
     strategy:
       matrix:
-        runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
+        runner: ${{ (startsWith(inputs.build-test-runner-labels, '[') && endsWith(inputs.build-test-runner-labels, ']')) && fromJson(inputs.build-test-runner-labels) || inputs.build-test-runner-labels }}
     runs-on: ${{ matrix.runner }}
+    needs: sanitize-image-name
     permissions:
+      contents: read
       packages: write
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
@@ -32,36 +75,49 @@ jobs:
         with:
           persist-credentials: false
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+        with:
+          cache-binary: false
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ inputs.registry }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
       - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
         env:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         id: metadata
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
-      # Generate image LABEL for devcontainer.metadata
-      # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
-      - run: echo "metadata=$(jq -cj '[.]' ".devcontainer/${CONTAINER_FLAVOR}/devcontainer-metadata-vscode.json" | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
+          images: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+      - name: Generate image label for devcontainer.metadata
+        run: |
+          set -Eeuo pipefail
+
+          if [ -z "${DEVCONTAINER_METADATA_FILE:-}" ] || [ ! -f "${DEVCONTAINER_METADATA_FILE}" ]; then
+            echo "devcontainer-metadata-file input not set or file does not exist, skipping devcontainer.metadata label"
+            echo "label=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
+          echo "label=devcontainer.metadata=$(jq -cj '[.]' "${DEVCONTAINER_METADATA_FILE}" | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
+        env:
+          DEVCONTAINER_METADATA_FILE: ${{ inputs.devcontainer-metadata-file }}
         id: devcontainer-metadata
       - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
         id: devcontainer-epoch
-      - run: echo "arch=${RUNNER_ARCH@L}" >> "$GITHUB_OUTPUT"
+      - run: echo "arch=$(echo "${RUNNER_ARCH}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
         id: devcontainer-arch
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         id: build-and-push
         env:
           SOURCE_DATE_EPOCH: ${{ steps.devcontainer-epoch.outputs.git-commit-epoch }}
         with:
-          file: .devcontainer/${{ inputs.flavor }}/Dockerfile
+          file: ${{ inputs.dockerfile }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
+          tags: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           labels: |
             ${{ steps.metadata.outputs.labels }}
-            devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
+            ${{ steps.devcontainer-metadata.outputs.label }}
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
           outputs: type=image,push-by-digest=true,name-canonical=true
@@ -72,17 +128,21 @@ jobs:
           touch "${RUNNER_TEMP}/digests/${DIGEST#sha256:}"
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
-          RUNNER_TEMP: ${{ runner.temp }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: digests-${{ inputs.flavor }}-${{ steps.devcontainer-arch.outputs.arch }}
+          name: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ steps.devcontainer-arch.outputs.arch }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
 
   merge-image:
-    runs-on: ubuntu-latest
-    needs: build-push
+    name: 🔗 Merge Image
+    # Support either a plain single label (e.g. ubuntu-latest) OR a JSON array of labels.
+    # If the input starts & ends with brackets we attempt JSON parsing; otherwise we pass the raw string.
+    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
+    needs:
+      - build-push
+      - sanitize-image-name
     permissions:
       actions: read
       attestations: write
@@ -92,6 +152,8 @@ jobs:
       id-token: write
       packages: write
       pull-requests: write
+    outputs:
+      digest: ${{ steps.inspect-manifest.outputs.digest }}
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
@@ -103,21 +165,22 @@ jobs:
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           path: ${{ runner.temp }}/digests
-          pattern: digests-${{ inputs.flavor }}-*
+          pattern: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-*
           merge-multiple: true
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+        with:
+          cache-binary: false
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ inputs.registry }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
       - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
         id: metadata
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
-          DOCKER_METADATA_SET_OUTPUT_ENV: false
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
+          images: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           # Generate Docker tags based on the following events/attributes.
           # To prevent unnecessary image builds we simulate the `type=edge` tag
           # with `type=raw,value=edge,enable=...` which only enables the tag
@@ -131,73 +194,69 @@ jobs:
             type=semver,pattern={{major}}
       - name: Create manifest list and push
         run: |
-          import os
-          import json
-          import subprocess
+          set -Eeuo pipefail
 
-          CONTAINER = f"{os.getenv('REGISTRY')}/{os.getenv('GH_REPO')}-{os.getenv('CONTAINER_FLAVOR')}"
-          METADATA = json.loads(os.getenv('METADATA_JSON'))
+          readarray -t lines <<< "$DOCKER_METADATA_OUTPUT_ANNOTATIONS"
+          annotations=()
+          for line in "${lines[@]}"; do
+            annotations+=(--annotation "$line")
+          done
 
-          digests = [f for f in os.listdir('.') if f.startswith('sha256:') or len(f) == 64]
-
-          command = ['docker', 'buildx', 'imagetools', 'create',
-              *[annotation for annotation in METADATA.get('annotations', []) for annotation in ('--annotation', annotation)],
-              *[tag for tag in METADATA.get('tags', []) for tag in ('--tag', tag)],
-              *[f"{CONTAINER}@sha256:{digest}" for digest in digests]
-          ]
-
-          print(' '.join(command))
-          subprocess.run(command, check=True)
+          # shellcheck disable=SC2046
+          docker buildx imagetools create \
+            "${annotations[@]}" \
+            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${METADATA_JSON}") \
+            $(printf "${CONTAINER}@sha256:%s " *)
         env:
+          CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
-          GH_REPO: ${{ github.repository }}
-        shell: python
+        shell: bash
         working-directory: ${{ runner.temp }}/digests
       - name: Inspect manifest and extract digest
         id: inspect-manifest
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect "${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}:${CONTAINER_VERSION}" --format '{{json .}}')
+          output=$(docker buildx imagetools inspect "${CONTAINER}" --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
         env:
-          CONTAINER_VERSION: ${{ steps.metadata.outputs.version }}
-          GH_REPO: ${{ github.repository }}
+          CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - run: |
           set -Eeuo pipefail
           wget -O diffoci https://github.com/reproducible-containers/diffoci/releases/download/v0.1.7/diffoci-v0.1.7.linux-amd64
           chmod +x diffoci
           ./diffoci diff --semantic --report-file=container-diff.json "${FROM_CONTAINER}" "${TO_CONTAINER}" || true
         env:
-          FROM_CONTAINER: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:edge
-          TO_CONTAINER: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
+          FROM_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
+          TO_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: container-diff-${{ inputs.flavor }}
+          name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: ./.github/actions/container-size-diff
+      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@ab0940b1e92f3ccee257d5984166c63c8cfe6a9d # v6.5.0
         id: container-size-diff
         with:
-          from-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:edge
-          to-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
+          from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
+          to-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2.9.4
         with:
-          header: container-size-diff-${{ inputs.flavor }}
+          header: container-size-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
       - uses: anchore/sbom-action@f8bdd1d8ac5e901a77a92f111440fdb1b593736b # v0.20.6
         with:
-          image: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
+          image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
       - uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
+          subject-name: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
           show-summary: false
           push-to-registry: true
       - name: Verify attestation
-        run: gh attestation verify --repo "${GH_REPO}" "oci://${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}@${DIGEST}"
+        run: gh attestation verify --repo "${GH_REPO}" "oci://${FULLY_QUALIFIED_IMAGE_NAME}@${DIGEST}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}

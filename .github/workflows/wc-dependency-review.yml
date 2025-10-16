@@ -1,0 +1,33 @@
+---
+name: Dependency Review
+
+on:
+  workflow_call:
+    inputs:
+      runner-labels:
+        description: "Runner to use for the job, will be passed to `runs-on`"
+        required: false
+        type: string
+        default: ubuntu-latest
+
+permissions: {}
+
+jobs:
+  dependency-review:
+    name: Review
+    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@40c09b7dc99638e5ddb0bfd91c1673effc064d8a # v4.8.1
+        with:
+          comment-summary-in-pr: on-failure
+          fail-on-severity: critical

@@ -4,45 +4,46 @@ name: Integration Test
 on:
   workflow_call:
     inputs:
-      flavor:
+      fully-qualified-image-name:
         required: true
         type: string
-      runner:
+      image-basename:
         required: true
         type: string
+      image-digest:
+        required: true
+        type: string
+      test-file:
+        required: true
+        type: string
+      runner-labels:
+        description: "Runner to use for the job, will be passed to `runs-on`"
+        required: true
+        type: string
+      registry:
+        description: "Docker registry to push built containers to, DOCKER_REGISTRY_USERNAME and DOCKER_REGISTRY_PASSWORD secrets must be set if not using GitHub Container Registry"
+        required: false
+        type: string
+        default: "ghcr.io"
+    secrets:
+      DOCKER_REGISTRY_USERNAME:
+        required: false
+      DOCKER_REGISTRY_PASSWORD:
+        required: false
 
-permissions:
-  contents: read
-
-env:
-  CONTAINER_FLAVOR: ${{ inputs.flavor }}
-  RUNNER: ${{ inputs.runner }}
+permissions: {}
 
 jobs:
-  determine-container:
-    runs-on: ${{ inputs.runner }}
-    outputs:
-      container: ${{ steps.set-container.outputs.container }}
-    steps:
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
-        with:
-          disable-sudo: true
-          egress-policy: audit
-      - run: echo "arch=${RUNNER_ARCH@L}" >> "$GITHUB_OUTPUT"
-        id: runner-arch
-      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
-        with:
-          path: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
-          pattern: digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
-      - run: echo "container=$(printf "ghcr.io/${GH_REPO}-${CONTAINER_FLAVOR}@sha256:%s " *)" >> "$GITHUB_OUTPUT"
-        working-directory: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
-        env:
-          GH_REPO: ${{ github.repository }}
-        id: set-container
   run-test:
-    needs: determine-container
-    runs-on: ${{ inputs.runner }}
-    container: ${{ needs.determine-container.outputs.container }}
+    name: 🧪 Integration Test
+    runs-on: ${{ (startsWith(inputs.runner-labels, '[') && endsWith(inputs.runner-labels, ']')) && fromJson(inputs.runner-labels) || inputs.runner-labels }}
+    container:
+      image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
+      credentials:
+        username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
+    permissions:
+      contents: read
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
@@ -51,16 +52,15 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        if: inputs.flavor == 'cpp'
-        with:
-          path: test/cpp/.xwin-cache
-          key: xwin-cache-${{ inputs.runner }}
-          restore-keys: |
-            xwin-cache
-      - run: bats --formatter junit "test/${CONTAINER_FLAVOR}/integration-tests.bats" | tee "test-report-${CONTAINER_FLAVOR}-${RUNNER}.xml"
+      - run: echo "arch=$(echo "${RUNNER_ARCH}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+        id: runner-arch
+      - run: bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-${RUNNER_ARCH}.xml"
+        env:
+          IMAGE_BASENAME: ${{ inputs.image-basename }}
+          TEST_FILE: ${{ inputs.test-file }}
+          RUNNER_ARCH: ${{ steps.runner-arch.outputs.arch }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always()
+        if: ${{ !cancelled() }}
         with:
-          name: test-results-integration-${{ inputs.flavor }}-${{ inputs.runner }}
+          name: test-results-integration-${{ inputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
           path: test-report-*.xml
