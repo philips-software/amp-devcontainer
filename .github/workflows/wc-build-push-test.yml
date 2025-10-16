@@ -107,6 +107,7 @@ jobs:
       image-digest: ${{ needs.build-push.outputs.digest }}
       test-file: ${{ inputs.integration-test-file }}
       runner-labels: ${{ matrix.runner }}
+      runner-arch: ${{ needs.build-push.outputs.runner-arch }}
 
   acceptance-test:
     name: 🏗️
