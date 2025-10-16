@@ -52,7 +52,7 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
-      - run: echo "arch=${RUNNER_ARCH@L}" >> "$GITHUB_OUTPUT"
+      - run: echo "arch=$(tr '[:upper:]' '[:lower:]' <<< '${RUNNER_ARCH}')" >> "$GITHUB_OUTPUT"
         id: runner-arch
       - run: bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-${RUNNER_ARCH}.xml"
         env:

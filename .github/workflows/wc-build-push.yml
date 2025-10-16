@@ -105,7 +105,7 @@ jobs:
         id: devcontainer-metadata
       - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
         id: devcontainer-epoch
-      - run: echo "arch=${RUNNER_ARCH@L}" >> "$GITHUB_OUTPUT"
+      - run: echo "arch=$(tr '[:upper:]' '[:lower:]' <<< '${RUNNER_ARCH}')" >> "$GITHUB_OUTPUT"
         id: devcontainer-arch
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         id: build-and-push
