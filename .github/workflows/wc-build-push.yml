@@ -249,7 +249,7 @@ jobs:
           show-summary: false
           push-to-registry: true
       - name: Verify attestation
-        run: gh attestation verify --repo "${GH_REPO}" "oci://${FULLY_QUALIFIED_IMAGE_NAME}@${DIGEST}"
+        run: gh attestation verify --repo "${GH_REPO}" --signer-workflow philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml "oci://${FULLY_QUALIFIED_IMAGE_NAME}@${DIGEST}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
