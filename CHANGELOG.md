@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.5.2](https://github.com/philips-software/amp-devcontainer/compare/v6.5.1...v6.5.2) (2025-10-22)
+
+
+### Bug Fixes
+
+* Attestation verification for repos that re-use amp-devcontainer workflows ([#987](https://github.com/philips-software/amp-devcontainer/issues/987)) ([ebfb69d](https://github.com/philips-software/amp-devcontainer/commit/ebfb69d3abb33f2d2d2184a379b611c6ff42919a))
+* Enable attestation verification to pass for repos that use amp-devcontainer workflows ([ebfb69d](https://github.com/philips-software/amp-devcontainer/commit/ebfb69d3abb33f2d2d2184a379b611c6ff42919a))
+
+
+### Chores
+
+* **deps, cpp:** Update github.vscode-pull-request-github, ms-vscode.cpptools, sonarsource.sonarlint-vscode in devcontainer.json ([#982](https://github.com/philips-software/amp-devcontainer/issues/982)) ([dc7b2d2](https://github.com/philips-software/amp-devcontainer/commit/dc7b2d26ee3d0368b313c3ded0deb6f6d71abfe2))
+* **deps, cpp:** Update ms-vscode.cpptools, sonarsource.sonarlint-vscode in devcontainer-metadata.json ([#983](https://github.com/philips-software/amp-devcontainer/issues/983)) ([3ef1da2](https://github.com/philips-software/amp-devcontainer/commit/3ef1da20d0c291c3fda166f3da86f3448b222fc0))
+* **deps, rust:** Update github.vscode-pull-request-github, sonarsource.sonarlint-vscode in devcontainer.json ([#981](https://github.com/philips-software/amp-devcontainer/issues/981)) ([c9efa53](https://github.com/philips-software/amp-devcontainer/commit/c9efa53b8434d800a8c7415dde9509670e9896a2))
+* **deps:** Bump ubuntu from `728785b` to `66460d5` in /.devcontainer/cpp ([#977](https://github.com/philips-software/amp-devcontainer/issues/977)) ([3817eb2](https://github.com/philips-software/amp-devcontainer/commit/3817eb292aef09e97644a0aefe19b82977748419))
+* **deps:** Bump ubuntu from `728785b` to `66460d5` in /.devcontainer/rust ([#976](https://github.com/philips-software/amp-devcontainer/issues/976)) ([bd12176](https://github.com/philips-software/amp-devcontainer/commit/bd1217631a22d5cc144b340bfc3ab07e0bf24040))
+* **deps:** Bump ubuntu in /.devcontainer/cpp ([3817eb2](https://github.com/philips-software/amp-devcontainer/commit/3817eb292aef09e97644a0aefe19b82977748419))
+* **deps:** Bump ubuntu in /.devcontainer/rust ([bd12176](https://github.com/philips-software/amp-devcontainer/commit/bd1217631a22d5cc144b340bfc3ab07e0bf24040))
+* Refactor re-usable workflows to enable re-use in derived repositories ([#968](https://github.com/philips-software/amp-devcontainer/issues/968)) ([4c4130c](https://github.com/philips-software/amp-devcontainer/commit/4c4130c009334e5638d8f2768b761409851c3aa8))
+
 ## [6.5.1](https://github.com/philips-software/amp-devcontainer/compare/v6.5.0...v6.5.1) (2025-10-13)
 
 
