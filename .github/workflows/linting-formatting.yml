@@ -18,6 +18,7 @@ permissions: {}
 
 jobs:
   linter:
+    name: 🧹 Lint & Format
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -38,12 +39,12 @@ jobs:
           persona: pedantic
       # flavors/dotnet is the smallest flavor of MegaLinter that contains the linters
       # we are interested in.
-      - uses: oxsecurity/megalinter/flavors/dotnet@0dcbedd66ea456ba2d54fd350affaa15df8a0da3 # v9.0.1
+      - uses: oxsecurity/megalinter/flavors/dotnet@62c799d895af9bcbca5eacfebca29d527f125a57 # v9.1.0
         env:
           APPLY_FIXES: all
           VALIDATE_ALL_CODEBASE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: github/codeql-action/upload-sarif@64d10c13136e1c5bce3e5fbde8d4906eeaafc885 # v3.30.6
+      - uses: github/codeql-action/upload-sarif@16140ae1a102900babc80a33c44059580f687047 # v4.30.9
         if: success() || failure()
         with:
           sarif_file: megalinter-reports/megalinter-report.sarif

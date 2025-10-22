@@ -4,7 +4,13 @@ name: Acceptance Test
 on:
   workflow_call:
     inputs:
-      flavor:
+      image-basename:
+        required: true
+        type: string
+      devcontainer-file:
+        required: true
+        type: string
+      acceptance-test-path:
         required: true
         type: string
     secrets:
@@ -26,11 +32,12 @@ permissions:
 
 jobs:
   test:
+    name: Acceptance Test
     runs-on: ubuntu-latest
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
-          # Playwright requires root privileges to install browsers
+          disable-sudo: false # Playwright requires root privileges to install browsers
           egress-policy: audit
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -49,13 +56,13 @@ jobs:
             gh secret set -a codespaces IMAGE_VERSION --body "edge"
           fi
 
-          echo CODESPACE_NAME="$(gh codespace create -R "${GITHUB_REPOSITORY}" -b "${HEAD_REF}" -m basicLinux32gb --devcontainer-path ".devcontainer/${CONTAINER_FLAVOR}-test/devcontainer.json" --idle-timeout 10m --retention-period 1h)" >> "$GITHUB_ENV"
+          echo CODESPACE_NAME="$(gh codespace create -R "${GITHUB_REPOSITORY}" -b "${HEAD_REF}" -m basicLinux32gb --devcontainer-path "${DEVCONTAINER_FILE}" --idle-timeout 10m --retention-period 1h)" >> "$GITHUB_ENV"
         env:
-          CONTAINER_FLAVOR: ${{ inputs.flavor }}
+          DEVCONTAINER_FILE: ${{ inputs.devcontainer-file }}
           EVENT_NAME: ${{ github.event_name }}
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: 24.8.0
       - run: npm ci
@@ -83,17 +90,17 @@ jobs:
           done
         env:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
-      - run: cd "test/${CONTAINER_FLAVOR}/features" && npm test
+      - run: cd "${ACCEPTANCE_TEST_PATH}" && npm test
         env:
-          CONTAINER_FLAVOR: ${{ inputs.flavor }}
+          ACCEPTANCE_TEST_PATH: ${{ inputs.acceptance-test-path }}
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
           GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
           GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
-          PLAYWRIGHT_JUNIT_OUTPUT_NAME: ${{ github.workspace }}/test-report-acceptance-${{ inputs.flavor }}.xml
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: ${{ github.workspace }}/test-report-acceptance-${{ inputs.image-basename }}.xml
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always()
+        if: ${{ !cancelled() }}
         with:
-          name: test-results-acceptance-${{ inputs.flavor }}
+          name: test-results-acceptance-${{ inputs.image-basename }}
           path: |
             test-report-*.xml
             test-results/
