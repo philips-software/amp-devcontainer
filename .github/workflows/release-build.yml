@@ -124,10 +124,9 @@ jobs:
     name: 📄 Upload Documents
     runs-on: ubuntu-latest
     permissions:
-      # `contents: write` is needed to modify a release.
       # Please note that this is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
-      contents: write
+      contents: write # is needed to modify a release
     needs: [build-push-test]
     steps:
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0

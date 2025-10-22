@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      actions: read
+      actions: read # is needed by zizmorcore/zizmor-action
       pull-requests: write # is needed by oxsecurity/megalinter and reviewdog/action-suggester to post PR comments
       security-events: write # is needed by oxsecurity/megalinter for uploading sarif files
     steps:
