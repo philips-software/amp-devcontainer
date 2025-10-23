@@ -102,7 +102,7 @@ RUN --mount=type=cache,target=/cache,sharing=locked \
  && apt-get clean
 
 # Update all tool alternatives to the correct version
-# and patch root's bashrc to include bash-completion
+# and rename the default 'ubuntu' user to 'code'
 RUN --mount=type=cache,target=/var/log,sharing=locked \
  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 10 \
                         --slave /usr/bin/g++ g++ /usr/bin/g++-14 \
@@ -114,7 +114,10 @@ RUN --mount=type=cache,target=/var/log,sharing=locked \
                         --slave /usr/bin/mull-reporter mull-reporter /usr/bin/mull-reporter-${CLANG_VERSION} \
                         --slave /usr/lib/mull-ir-frontend mull-ir-frontend /usr/lib/mull-ir-frontend-${CLANG_VERSION} \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
- && cp /etc/skel/.bashrc /root/.bashrc
+ && usermod -m -d /home/code -l code ubuntu \
+ && groupmod -n code ubuntu
+
+USER code
 
 # Set up package managers CPM and Conan
 # - Install CPM.cmake to the CMake module path
