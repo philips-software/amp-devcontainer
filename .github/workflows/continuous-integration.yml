@@ -27,7 +27,6 @@ jobs:
     permissions:
       actions: read
       attestations: write
-      checks: write
       contents: write
       id-token: write
       packages: write
@@ -46,14 +45,14 @@ jobs:
     uses: ./.github/workflows/wc-dependency-review.yml
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: write # is needed by actions/dependency-review-action to write PR summaries
 
   publish-test-results:
     name: 📊 Publish Test Results
     runs-on: ubuntu-latest
     permissions:
       checks: write
-      pull-requests: write
+      pull-requests: write # is needed by EnricoMi/publish-unit-test-result-action to annotate PRs
     needs: build-push-test
     if: ${{ !cancelled() }}
     steps:
