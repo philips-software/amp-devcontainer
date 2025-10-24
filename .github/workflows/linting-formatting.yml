@@ -14,8 +14,7 @@ concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   linter:
@@ -23,9 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      actions: read
-      pull-requests: write
-      security-events: write
+      actions: read # is needed by zizmorcore/zizmor-action
+      pull-requests: write # is needed by oxsecurity/megalinter and reviewdog/action-suggester to post PR comments
+      security-events: write # is needed by oxsecurity/megalinter for uploading sarif files
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
@@ -55,6 +54,6 @@ jobs:
           name: Linter Report
           path: |
             megalinter-reports
-      - uses: reviewdog/action-suggester@aa38384ceb608d00f84b4690cacc83a5aba307ff # v1.19.0
+      - uses: reviewdog/action-suggester@aa38384ceb608d00f84b4690cacc83a5aba307ff # v1.24.0
         with:
           tool_name: MegaLinter

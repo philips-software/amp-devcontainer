@@ -19,8 +19,8 @@ jobs:
     # set-up correctly.
     container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # is needed by peter-evans/create-pull-request to create branches and push commits
+      pull-requests: write # is needed by peter-evans/create-pull-request to create a PR
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
@@ -53,8 +53,8 @@ jobs:
         flavor: ["cpp", "rust"]
         file: ["devcontainer-metadata.json", "devcontainer.json"]
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # is needed by peter-evans/create-pull-request to create branches and push commits
+      pull-requests: write # is needed by peter-evans/create-pull-request to create a PR
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
