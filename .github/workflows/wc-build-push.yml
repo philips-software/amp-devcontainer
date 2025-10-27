@@ -65,7 +65,7 @@ jobs:
     needs: sanitize-image-name
     permissions:
       contents: read
-      packages: write
+      packages: write # is needed by docker/build-push-action to push images when using GitHub Container Registry
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
@@ -142,14 +142,12 @@ jobs:
       - build-push
       - sanitize-image-name
     permissions:
-      actions: read
-      attestations: write
-      # dependency-submission needs contents write permission.
-      contents: write
-      # attest-build-provenance needs id-token write permission.
-      id-token: write
-      packages: write
-      pull-requests: write
+      actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      attestations: write # is needed by actions/attest-build-provenance to push attestations
+      contents: write # is needed by anchore/sbom-action for artifact uploads
+      id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
+      packages: write # is needed to push image manifest when using GitHub Container Registry
+      pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     outputs:
       digest: ${{ steps.inspect-manifest.outputs.digest }}
     steps:

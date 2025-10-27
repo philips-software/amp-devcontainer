@@ -12,8 +12,8 @@ jobs:
     name: ♻️ Close Stale Issues & PRs
     runs-on: ubuntu-latest
     permissions:
-      issues: write
-      pull-requests: write
+      issues: write # is needed by actions/stale to close/comment on issues
+      pull-requests: write # is needed by actions/stale to close/comment on PRs
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:

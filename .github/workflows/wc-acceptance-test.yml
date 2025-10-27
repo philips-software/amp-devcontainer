@@ -48,19 +48,22 @@ jobs:
         run: |
           set -Eeuo pipefail
 
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            gh secret set -a codespaces IMAGE_VERSION --body "pr-${{ github.event.pull_request.number }}"
-          elif [[ "${{ github.event_name }}" == "push" && "${{ startsWith(github.ref, 'refs/tags/') }}" == "true" ]]; then
+          if [[ "${EVENT_NAME}" == "pull_request" ]]; then
+            gh secret set -a codespaces IMAGE_VERSION --body "pr-${PR_NUMBER}"
+          elif [[ "${EVENT_NAME}" == "push" && "${REF_STARTS_WITH_TAG}" == "true" ]]; then
             gh secret set -a codespaces IMAGE_VERSION --body "${GITHUB_REF#refs/tags/}"
           else
             gh secret set -a codespaces IMAGE_VERSION --body "edge"
           fi
 
-          echo CODESPACE_NAME="$(gh codespace create -R "${{ github.repository }}" -b "$HEAD_REF" -m basicLinux32gb --devcontainer-path "${DEVCONTAINER_FILE}" --idle-timeout 10m --retention-period 1h)" >> "$GITHUB_ENV"
+          echo CODESPACE_NAME="$(gh codespace create -R "${GITHUB_REPOSITORY}" -b "${HEAD_REF}" -m basicLinux32gb --devcontainer-path "${DEVCONTAINER_FILE}" --idle-timeout 10m --retention-period 1h)" >> "$GITHUB_ENV"
         env:
+          REF_STARTS_WITH_TAG: ${{ startsWith(github.ref, 'refs/tags/') }}
           DEVCONTAINER_FILE: ${{ inputs.devcontainer-file }}
+          EVENT_NAME: ${{ github.event_name }}
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
       - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: 24.8.0
