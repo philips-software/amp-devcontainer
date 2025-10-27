@@ -27,13 +27,12 @@ jobs:
       TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     permissions:
-      actions: read
-      attestations: write
-      checks: write
-      contents: write
-      id-token: write
-      packages: write
-      pull-requests: write
+      actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      attestations: write # is needed by actions/attest-build-provenance to push attestations
+      contents: write # is needed by anchore/sbom-action for artifact uploads
+      id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
+      packages: write # is needed to push image manifest when using GitHub Container Registry
+      pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     with:
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
@@ -45,10 +44,9 @@ jobs:
     name: 📝 Apply Release Template
     runs-on: ubuntu-latest
     permissions:
-      # `contents: write` is needed to modify a release.
       # Please note that this is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
-      contents: write
+      contents: write # is needed to modify a release
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
@@ -75,10 +73,9 @@ jobs:
         flavor: [cpp, rust]
     runs-on: ubuntu-latest
     permissions:
-      # `contents: write` is needed to modify a release.
       # Please note that this is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
-      contents: write
+      contents: write # is needed to modify a release
     needs: [build-push-test, apply-release-notes-template]
     env:
       CONTAINER_FLAVOR: ${{ matrix.flavor }}
