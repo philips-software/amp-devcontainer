@@ -65,7 +65,7 @@ jobs:
     needs: sanitize-image-name
     permissions:
       contents: read
-      packages: write
+      packages: write # is needed by docker/build-push-action to push images when using GitHub Container Registry
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
@@ -128,7 +128,7 @@ jobs:
           touch "${RUNNER_TEMP}/digests/${DIGEST#sha256:}"
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ steps.devcontainer-arch.outputs.arch }}
           path: ${{ runner.temp }}/digests/*
@@ -142,14 +142,12 @@ jobs:
       - build-push
       - sanitize-image-name
     permissions:
-      actions: read
-      attestations: write
-      # dependency-submission needs contents write permission.
-      contents: write
-      # attest-build-provenance needs id-token write permission.
-      id-token: write
-      packages: write
-      pull-requests: write
+      actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      attestations: write # is needed by actions/attest-build-provenance to push attestations
+      contents: write # is needed by anchore/sbom-action for artifact uploads
+      id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
+      packages: write # is needed to push image manifest when using GitHub Container Registry
+      pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     outputs:
       digest: ${{ steps.inspect-manifest.outputs.digest }}
     steps:
@@ -157,7 +155,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-*
@@ -223,12 +221,12 @@ jobs:
         env:
           FROM_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
           TO_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@e827c80e4d8dad6284c9c1719491af7383e47ca9 # v6.5.1
+      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@c95553700f0bc0441f25acb4268840fbd6e2733c # v6.5.2
         id: container-size-diff
         with:
           from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
@@ -238,7 +236,7 @@ jobs:
           header: container-size-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
-      - uses: anchore/sbom-action@aa0e114b2e19480f157109b9922bda359bd98b90 # v0.20.8
+      - uses: anchore/sbom-action@8e94d75ddd33f69f691467e42275782e4bfefe84 # v0.20.9
         with:
           image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true

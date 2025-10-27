@@ -12,7 +12,7 @@ jobs:
     name: Comment on released PRs
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
