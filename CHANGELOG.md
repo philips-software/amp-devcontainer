@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.5.3](https://github.com/philips-software/amp-devcontainer/compare/v6.5.2...v6.5.3) (2025-10-27)
+
+
+### Chores
+
+* **deps, cpp:** Update github.copilot in devcontainer.json ([#990](https://github.com/philips-software/amp-devcontainer/issues/990)) ([7a54af1](https://github.com/philips-software/amp-devcontainer/commit/7a54af1dfd0e89d0f2866ff5b60f395b4a38a799))
+* **deps, cpp:** Update mull-18 ([#992](https://github.com/philips-software/amp-devcontainer/issues/992)) ([e02094b](https://github.com/philips-software/amp-devcontainer/commit/e02094bf8c8c85edcea8ce30925320394263968c))
+* **deps, rust:** Update github.copilot in devcontainer.json ([#991](https://github.com/philips-software/amp-devcontainer/issues/991)) ([2ca0f68](https://github.com/philips-software/amp-devcontainer/commit/2ca0f68fb9dbd65dd0b0cd8762b9290ffbcff637))
+* **deps:** Bump cmake from 4.1.0 to 4.1.2 in /.devcontainer ([#994](https://github.com/philips-software/amp-devcontainer/issues/994)) ([da18df5](https://github.com/philips-software/amp-devcontainer/commit/da18df5c1df6ef4f85830be64dc54ce6ccce5df2))
+
 ## [6.5.2](https://github.com/philips-software/amp-devcontainer/compare/v6.5.1...v6.5.2) (2025-10-22)
 
 
