@@ -273,21 +273,7 @@ function get_expected_semver_for() {
 }
 
 function install_win_sdk() {
-  # Installing the Windows SDK/CRT takes a long time.
-  # When still valid, use the installation from cache.
-
-  xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-hash list
-  local HASH_LIST_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-hash/dl/manifest*.json | awk '{ print $1 }')
-  local HASH_CACHED_MANIFEST=
-
-  if [[ -d ${BATS_TEST_DIRNAME}/.xwin-cache/dl ]]; then
-    HASH_CACHED_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-cache/dl/manifest*.json | awk '{ print $1 }')
-  fi
-
-  if [[ $HASH_LIST_MANIFEST != $HASH_CACHED_MANIFEST ]]; then
-    xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
-  fi
-
+  xwin --http-retry 2 --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
   ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
 }
 
