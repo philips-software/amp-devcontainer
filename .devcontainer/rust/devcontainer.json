@@ -15,7 +15,7 @@
         "files.trimTrailingWhitespace": true
       },
       "extensions": [
-        "github.copilot@1.372.0",
+        "github.copilot@1.388.0",
         "github.vscode-github-actions@0.28.0",
         "github.vscode-pull-request-github@0.120.1",
         "jetmartin.bats@0.1.10",

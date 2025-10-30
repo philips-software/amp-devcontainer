@@ -91,12 +91,12 @@ jobs:
     name: 🛠️
     uses: ./.github/workflows/wc-build-push.yml
     permissions:
-      actions: read
-      attestations: write
-      contents: write
-      id-token: write
-      packages: write
-      pull-requests: write
+      actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      attestations: write # is needed by actions/attest-build-provenance to push attestations
+      contents: write # is needed by anchore/sbom-action for artifact uploads
+      id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
+      packages: write # is needed to push image manifest when using GitHub Container Registry
+      pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     secrets:
       DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
       DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
