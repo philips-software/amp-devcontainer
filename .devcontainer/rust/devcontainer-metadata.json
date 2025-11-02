@@ -7,7 +7,7 @@
       "extensions": [
         "mhutchie.git-graph@1.30.0",
         "ms-vsliveshare.vsliveshare@1.0.5959",
-        "rust-lang.rust-analyzer@0.3.2593",
+        "rust-lang.rust-analyzer@0.3.2660",
         "tamasfe.even-better-toml@0.21.2",
         "usernamehw.errorlens@3.26.0"
       ]
