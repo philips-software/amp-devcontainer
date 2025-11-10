@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "devDependencies": {
     "@playwright/test": "^1.56.1",
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.10.0",
     "dotenv": "^17.2.3",
     "nodemon": "^3.1.10",
     "otpauth": "^9.4.1",
