@@ -1,0 +1,15 @@
+{
+  "id": "cpp-template",
+  "version": "6.5.3",
+  "name": "amp-devcontainer-cpp",
+  "description": "A modern, batteries-included software development environment for C++",
+  "documentationURL": "https://github.com/philips-software/amp-devcontainer/blob/main/README.md",
+  "licenseURL": "https://github.com/philips-software/amp-devcontainer/blob/main/LICENSE",
+  "publisher": "philips-software",
+  "optionalPaths": [
+    ".github/dependabot.yml"
+  ],
+  "platforms": [
+    "Any"
+  ]
+}

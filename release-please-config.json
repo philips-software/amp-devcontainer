@@ -24,5 +24,12 @@
       "release-type": "simple"
     }
   },
-  "plugins": ["sentence-case"]
+  "plugins": ["sentence-case"],
+  "extra-files": [
+    {
+      "type": "json",
+      "path": ".devcontainer/cpp-template/devcontainer-template.json",
+      "jsonpath": "$.version"
+    }
+  ]
 }
