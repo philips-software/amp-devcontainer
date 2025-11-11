@@ -6,10 +6,6 @@
   "documentationURL": "https://github.com/philips-software/amp-devcontainer/blob/main/README.md",
   "licenseURL": "https://github.com/philips-software/amp-devcontainer/blob/main/LICENSE",
   "publisher": "philips-software",
-  "optionalPaths": [
-    ".github/dependabot.yml"
-  ],
-  "platforms": [
-    "Any"
-  ]
+  "optionalPaths": [".github/dependabot.yml"],
+  "platforms": ["Any"]
 }
