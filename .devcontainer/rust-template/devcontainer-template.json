@@ -1,8 +1,8 @@
 {
-  "id": "cpp-template",
+  "id": "rust-template",
   "version": "6.5.3",
-  "name": "amp-devcontainer-cpp",
-  "description": "A modern, batteries-included software development environment for C++",
+  "name": "amp-devcontainer-rust",
+  "description": "A modern, batteries-included software development environment for Rust",
   "documentationURL": "https://github.com/philips-software/amp-devcontainer/blob/main/README.md",
   "licenseURL": "https://github.com/philips-software/amp-devcontainer/blob/main/LICENSE",
   "publisher": "philips-software",

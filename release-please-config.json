@@ -30,6 +30,21 @@
       "type": "json",
       "path": ".devcontainer/cpp-template/devcontainer-template.json",
       "jsonpath": "$.version"
+    },
+    {
+      "type": "json",
+      "path": ".devcontainer/cpp-template/devcontainer-template.json",
+      "jsonpath": "$.options.imageVersion.default"
+    },
+    {
+      "type": "json",
+      "path": ".devcontainer/rust-template/devcontainer-template.json",
+      "jsonpath": "$.version"
+    },
+    {
+      "type": "json",
+      "path": ".devcontainer/rust-template/devcontainer-template.json",
+      "jsonpath": "$.options.imageVersion.default"
     }
   ]
 }
