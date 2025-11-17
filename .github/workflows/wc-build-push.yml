@@ -67,7 +67,7 @@ jobs:
       contents: read
       packages: write # is needed by docker/build-push-action to push images when using GitHub Container Registry
     steps:
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+      - uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
         with:
           disable-sudo: true
           egress-policy: audit
@@ -82,7 +82,7 @@ jobs:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
-      - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
+      - uses: docker/metadata-action@318604b99e75e41977312d83839a89be02ca4893 # v5.9.0
         env:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         id: metadata
@@ -151,7 +151,7 @@ jobs:
     outputs:
       digest: ${{ steps.inspect-manifest.outputs.digest }}
     steps:
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+      - uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
         with:
           disable-sudo: true
           egress-policy: audit
@@ -168,7 +168,7 @@ jobs:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
-      - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
+      - uses: docker/metadata-action@318604b99e75e41977312d83839a89be02ca4893 # v5.9.0
         id: metadata
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
