@@ -19,8 +19,8 @@ RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
 
 FROM ubuntu:24.04@sha256:66460d557b25769b102175144d538d88219c077c678a49af4afca6fbfc1b5252
 
-ARG CARGO_BINSTALL_VERSION=1.15.1
-ARG RUST_VERSION=1.89.0
+ARG CARGO_BINSTALL_VERSION=1.15.11
+ARG RUST_VERSION=1.91.1
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -66,4 +66,4 @@ RUN --mount=type=cache,target=/var/log,sharing=locked \
 
 # Install additional rust tools
 RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
- && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@25.3.1 flip-link@0.1.10 probe-rs-tools@0.29.1
+ && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@25.3.1 flip-link@0.1.12 probe-rs-tools@0.30.0
