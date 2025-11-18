@@ -45,6 +45,7 @@ jobs:
           labels: dependencies,apt
           token: ${{ steps.token.outputs.token }}
           sign-commits: true
+
   update-vscode-extensions:
     name: Update VS Code Extensions (🍨 ${{ matrix.flavor }}, ${{ matrix.file }})
     runs-on: ubuntu-latest
