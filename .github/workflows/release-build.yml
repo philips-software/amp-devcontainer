@@ -2,10 +2,8 @@
 name: Release Build
 
 on:
-  push:
-    # This workflow should only run on tags, it will trigger when release-please
-    # kicks-off the release process.
-    tags: ["v*.*.*"]
+  release:
+    types: [published]
   workflow_dispatch:
 
 concurrency:
@@ -40,6 +38,7 @@ jobs:
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
       acceptance-test-path: ${{ matrix.flavor == 'cpp' && 'test/cpp/features' || '' }}
       test-devcontainer-file: ${{ matrix.flavor == 'cpp' && '.devcontainer/cpp-test/devcontainer.json' || '' }}
+
   apply-release-notes-template:
     name: 📝 Apply Release Template
     runs-on: ubuntu-latest
@@ -66,6 +65,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REF_NAME: ${{ github.ref_name }}
+
   update-release-notes:
     name: Update Release Notes (🍨 ${{ matrix.flavor }})
     strategy:
@@ -117,11 +117,37 @@ jobs:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
+
+  publish-devcontainer-templates:
+    name: 📝 Publish templates
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write # is needed by devcontainers/action to write templates as OCI artifacts
+    steps:
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - uses: devcontainers/action@1082abd5d2bf3a11abccba70eef98df068277772 # v1.4.3
+        with:
+          disable-repo-tagging: true
+          publish-templates: true
+          base-path-to-templates: .devcontainer
+
   generate-documents:
     name: 📄 Documentation
     uses: ./.github/workflows/wc-document-generation.yml
     permissions:
       contents: read
+
   upload-documents:
     name: 📄 Upload Documents
     runs-on: ubuntu-latest
@@ -131,6 +157,10 @@ jobs:
       contents: write # is needed to modify a release
     needs: [generate-documents]
     steps:
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo: true
+          egress-policy: audit
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           pattern: documents
@@ -142,3 +172,17 @@ jobs:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           REF_NAME: ${{ github.ref_name }}
+
+  comment-released-prs:
+    name: Comment on released PRs
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
+    steps:
+      - uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - uses: rdlf0/comment-released-prs-action@a81897eaea04a5faa8779d28607826ddb033321a # v3.1.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
