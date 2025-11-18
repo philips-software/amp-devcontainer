@@ -73,8 +73,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: write # is needed by devcontainers/action to write templates as OCI artifacts
-      contents: write # is needed by devcontainers/action to update README.md
-      pull-requests: write # is needed by devcontainers/action to create PRs with changes to README.md
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
