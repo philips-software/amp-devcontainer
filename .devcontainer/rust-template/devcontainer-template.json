@@ -1,6 +1,6 @@
 {
   "id": "rust-template",
-  "version": "6.5.3",
+  "version": "6.6.0",
   "name": "amp-devcontainer-rust",
   "description": "A modern, batteries-included software development environment for Rust",
   "documentationURL": "https://github.com/philips-software/amp-devcontainer/blob/main/README.md",
@@ -10,7 +10,7 @@
     "imageVersion": {
       "type": "string",
       "description": "amp-devcontainer version",
-      "default": "6.5.3"
+      "default": "6.6.0"
     }
   },
   "optionalPaths": [
