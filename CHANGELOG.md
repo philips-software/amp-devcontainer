@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.6.1](https://github.com/philips-software/amp-devcontainer/compare/v6.6.0...v6.6.1) (2025-11-25)
+
+
+### Bug Fixes
+
+* **cpp:** Pre-create .amp directory to allow clangd to find it ([#1025](https://github.com/philips-software/amp-devcontainer/issues/1025)) ([533d040](https://github.com/philips-software/amp-devcontainer/commit/533d040239c8c9d6996a4c066ff106c96e9cf272))
+
+
+### Chores
+
+* **deps, cpp:** Update github.vscode-github-actions, github.vscode-pull-request-github, ms-playwright.playwright in devcontainer.json ([#1017](https://github.com/philips-software/amp-devcontainer/issues/1017)) ([63d431a](https://github.com/philips-software/amp-devcontainer/commit/63d431ae43751978c8a8ca062c47058f8256d89b))
+* **deps, rust:** Update github.vscode-github-actions, github.vscode-pull-request-github, rust-lang.rust-analyzer in devcontainer.json ([#1019](https://github.com/philips-software/amp-devcontainer/issues/1019)) ([4ae17ec](https://github.com/philips-software/amp-devcontainer/commit/4ae17ec540ed3c2d982debbed490961291a0c2e1))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1018](https://github.com/philips-software/amp-devcontainer/issues/1018)) ([652ab13](https://github.com/philips-software/amp-devcontainer/commit/652ab132aa4c5dbff041b6d6ce586a88b39eea72))
+* **deps:** Bump ubuntu from `66460d5` to `c35e29c` in /.devcontainer/cpp ([#1023](https://github.com/philips-software/amp-devcontainer/issues/1023)) ([e5cabe2](https://github.com/philips-software/amp-devcontainer/commit/e5cabe2fbcf4fa61d1413b02b309e10e3a1088f7))
+* **deps:** Bump ubuntu from `66460d5` to `c35e29c` in /.devcontainer/rust ([#1024](https://github.com/philips-software/amp-devcontainer/issues/1024)) ([964d3e3](https://github.com/philips-software/amp-devcontainer/commit/964d3e33b5ca6d68adde8b030c0081634058c151))
+* **deps:** Bump ubuntu in /.devcontainer/cpp ([e5cabe2](https://github.com/philips-software/amp-devcontainer/commit/e5cabe2fbcf4fa61d1413b02b309e10e3a1088f7))
+* **deps:** Bump ubuntu in /.devcontainer/rust ([964d3e3](https://github.com/philips-software/amp-devcontainer/commit/964d3e33b5ca6d68adde8b030c0081634058c151))
+
 ## [6.6.0](https://github.com/philips-software/amp-devcontainer/compare/v6.5.3...v6.6.0) (2025-11-18)
 
 
