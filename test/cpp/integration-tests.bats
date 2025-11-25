@@ -178,6 +178,12 @@ teardown() {
   assert_output --partial "All checks completed, 0 errors"
 }
 
+@test "clangd should start with a specified compile commands path" {
+  run timeout 1s clangd --compile-commands-dir=/root/.amp
+  assert_success
+  refute_output --partial "Path specified by --compile-commands-dir does not exist. The argument will be ignored."
+}
+
 @test "using lld as an alternative linker should result in working host executable" {
   cmake --preset gcc
   cmake --build --preset gcc-lld
