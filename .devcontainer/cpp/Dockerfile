@@ -114,6 +114,7 @@ RUN --mount=type=cache,target=/var/log,sharing=locked \
                         --slave /usr/bin/mull-reporter mull-reporter /usr/bin/mull-reporter-${CLANG_VERSION} \
                         --slave /usr/lib/mull-ir-frontend mull-ir-frontend /usr/lib/mull-ir-frontend-${CLANG_VERSION} \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
+ && mkdir /root/.amp \
  && cp /etc/skel/.bashrc /root/.bashrc
 
 # Set up package managers CPM and Conan
