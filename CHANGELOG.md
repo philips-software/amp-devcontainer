@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.6.2](https://github.com/philips-software/amp-devcontainer/compare/v6.6.1...v6.6.2) (2025-12-04)
+
+
+### Chores
+
+* **deps, cpp:** Update sonarsource.sonarlint-vscode in devcontainer.json ([#1027](https://github.com/philips-software/amp-devcontainer/issues/1027)) ([104e4f7](https://github.com/philips-software/amp-devcontainer/commit/104e4f7a5d8a7242592c72341c32da41dcdb674e))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1029](https://github.com/philips-software/amp-devcontainer/issues/1029)) ([e99a865](https://github.com/philips-software/amp-devcontainer/commit/e99a865845fdd889027bd4ae131f46666a75f589))
+* **deps, rust:** Update rust-lang.rust-analyzer, sonarsource.sonarlint-vscode in devcontainer.json ([#1028](https://github.com/philips-software/amp-devcontainer/issues/1028)) ([d44ea74](https://github.com/philips-software/amp-devcontainer/commit/d44ea7468da953499c3e0b28c9268364c0042060))
+* **deps:** Bump cmake from 4.1.2 to 4.2.0 in /.devcontainer ([#1032](https://github.com/philips-software/amp-devcontainer/issues/1032)) ([dc98f44](https://github.com/philips-software/amp-devcontainer/commit/dc98f4498c6e0b1f2276f247e3b481378053b493))
+
 ## [6.6.1](https://github.com/philips-software/amp-devcontainer/compare/v6.6.0...v6.6.1) (2025-11-25)
 
 
