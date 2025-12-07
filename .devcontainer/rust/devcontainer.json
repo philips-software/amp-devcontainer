@@ -21,7 +21,7 @@
         "kherring.bats-test-runner@0.1.3",
         "mhutchie.git-graph@1.30.0",
         "ms-azuretools.vscode-docker@2.0.0",
-        "rust-lang.rust-analyzer@0.3.2693",
+        "rust-lang.rust-analyzer@0.3.2702",
         "sonarsource.sonarlint-vscode@4.36.0",
         "tamasfe.even-better-toml@0.21.2",
         "usernamehw.errorlens@3.26.0"
