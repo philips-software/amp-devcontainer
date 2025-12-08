@@ -82,7 +82,7 @@ jobs:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
-      - uses: docker/metadata-action@318604b99e75e41977312d83839a89be02ca4893 # v5.9.0
+      - uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         env:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         id: metadata
@@ -168,7 +168,7 @@ jobs:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
-      - uses: docker/metadata-action@318604b99e75e41977312d83839a89be02ca4893 # v5.9.0
+      - uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         id: metadata
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
@@ -226,7 +226,7 @@ jobs:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@2a3ac81de046cc18b0895acbd42afcf911ddee44 # v6.5.3
+      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@0d202a6464e5071f396b8c0b95d49542cb2405fa # v6.6.1
         id: container-size-diff
         with:
           from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
