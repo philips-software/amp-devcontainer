@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.6.3](https://github.com/philips-software/amp-devcontainer/compare/v6.6.2...v6.6.3) (2025-12-22)
+
+
+### Chores
+
+* **deps, cpp:** Update github.vscode-pull-request-github in devcontainer.json ([#1050](https://github.com/philips-software/amp-devcontainer/issues/1050)) ([e85df3f](https://github.com/philips-software/amp-devcontainer/commit/e85df3fd60f75033f42f8c29ffe8b9bd15e45a82))
+* **deps, rust:** Update github.vscode-pull-request-github, rust-lang.rust-analyzer in devcontainer.json ([#1052](https://github.com/philips-software/amp-devcontainer/issues/1052)) ([ca727bf](https://github.com/philips-software/amp-devcontainer/commit/ca727bf829d2f20dd788ffef2464b18535d313aa))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1051](https://github.com/philips-software/amp-devcontainer/issues/1051)) ([d221c43](https://github.com/philips-software/amp-devcontainer/commit/d221c437188ac8a068bfb912b4903f15b5bd3ea5))
+
 ## [6.6.2](https://github.com/philips-software/amp-devcontainer/compare/v6.6.1...v6.6.2) (2025-12-17)
 
 
