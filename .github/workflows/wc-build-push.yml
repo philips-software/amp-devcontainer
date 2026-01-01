@@ -74,7 +74,7 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
         with:
           cache-binary: false
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
@@ -160,7 +160,7 @@ jobs:
           path: ${{ runner.temp }}/digests
           pattern: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-*
           merge-multiple: true
-      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
         with:
           cache-binary: false
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
@@ -226,7 +226,7 @@ jobs:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@0d202a6464e5071f396b8c0b95d49542cb2405fa # v6.6.1
+      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@03a6ec02581d659aa155a8127b9ecac229560d1d # v6.6.2
         id: container-size-diff
         with:
           from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
@@ -240,7 +240,7 @@ jobs:
         with:
           image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
-      - uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+      - uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
         with:
           subject-name: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
