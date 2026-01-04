@@ -41,7 +41,7 @@
         "ms-playwright.playwright@1.1.17",
         "ms-vscode.cmake-tools@1.21.36",
         "ms-vscode.cpptools@1.29.3",
-        "sonarsource.sonarlint-vscode@4.37.0",
+        "sonarsource.sonarlint-vscode@4.38.1",
         "usernamehw.errorlens@3.26.0"
       ]
     }
