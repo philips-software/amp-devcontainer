@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.6.4](https://github.com/philips-software/amp-devcontainer/compare/v6.6.3...v6.6.4) (2026-01-08)
+
+
+### Chores
+
+* **deps:** Update gnupg2, xsltproc and urllib3 ([#1075](https://github.com/philips-software/amp-devcontainer/issues/1075)) ([5b69a35](https://github.com/philips-software/amp-devcontainer/commit/5b69a352297cd0ddce5edd5d13bb2ff8d4fa4586))
+
 ## [6.6.3](https://github.com/philips-software/amp-devcontainer/compare/v6.6.2...v6.6.3) (2026-01-05)
 
 
