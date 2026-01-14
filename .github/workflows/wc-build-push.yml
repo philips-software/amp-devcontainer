@@ -14,31 +14,36 @@ name: Build & Push
 on:
   workflow_call:
     inputs:
+      build-args:
+        required: false
+        type: string
+      build-test-runner-labels:
+        required: true
+        type: string
+      devcontainer-metadata-file:
+        required: true
+        type: string
       dockerfile:
         required: true
         type: string
       image-name:
         required: true
         type: string
-      devcontainer-metadata-file:
-        required: true
-        type: string
       registry:
-        required: true
-        type: string
-      build-test-runner-labels:
         required: true
         type: string
       runner-labels:
         required: true
         type: string
     outputs:
+      digest:
+        value: ${{ jobs.merge-image.outputs.digest }}
       fully-qualified-image-name:
         value: ${{ jobs.sanitize-image-name.outputs.fully-qualified-image-name }}
       image-basename:
         value: ${{ jobs.sanitize-image-name.outputs.image-basename }}
-      digest:
-        value: ${{ jobs.merge-image.outputs.digest }}
+      version:
+        value: ${{ jobs.merge-image.outputs.version }}
     secrets:
       DOCKER_REGISTRY_USERNAME:
         required: true
@@ -112,6 +117,7 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: ${{ steps.devcontainer-epoch.outputs.git-commit-epoch }}
         with:
+          build-args: ${{ inputs.build-args }}
           file: ${{ inputs.dockerfile }}
           push: true
           tags: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
@@ -150,6 +156,7 @@ jobs:
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     outputs:
       digest: ${{ steps.inspect-manifest.outputs.digest }}
+      version: ${{ steps.metadata.outputs.version }}
     steps:
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:

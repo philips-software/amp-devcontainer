@@ -13,8 +13,24 @@ concurrency:
 permissions: {}
 
 jobs:
+  build-push-base:
+    name: Build → Push (🍨 base)
+    uses: ./.github/workflows/wc-build-push-test.yml
+    permissions:
+      actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      attestations: write # is needed by actions/attest-build-provenance to push attestations
+      contents: write # is needed by anchore/sbom-action for artifact uploads
+      id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
+      packages: write # is needed to push image manifest when using GitHub Container Registry
+      pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
+    with:
+      devcontainer-metadata-file: .devcontainer/base/devcontainer-metadata.json
+      dockerfile: .devcontainer/base/Dockerfile
+      image-name: ${{ github.repository }}-base
+
   build-push-test:
     name: Build → Push → Test (🍨 ${{ matrix.flavor }})
+    needs: build-push-base
     strategy:
       matrix:
         flavor: [cpp, rust]
@@ -32,6 +48,10 @@ jobs:
       packages: write # is needed to push image manifest when using GitHub Container Registry
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     with:
+      build-args: |
+        AMP_DEVCONTAINER_VERSION=${{ needs.build-push-base.outputs.version }}
+        BASE_IMAGE=${{ needs.build-push-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-base.outputs.digest }}
+        BASE_VERSION=${{ needs.build-push-base.outputs.version }}
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
