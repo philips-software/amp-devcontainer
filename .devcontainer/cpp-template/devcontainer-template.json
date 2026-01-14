@@ -1,6 +1,6 @@
 {
   "id": "cpp-template",
-  "version": "6.6.3",
+  "version": "6.6.4",
   "name": "amp-devcontainer-cpp",
   "description": "A modern, batteries-included software development environment for C++",
   "documentationURL": "https://github.com/philips-software/amp-devcontainer/blob/main/README.md",
@@ -10,7 +10,7 @@
     "imageVersion": {
       "type": "string",
       "description": "amp-devcontainer version",
-      "default": "6.6.3"
+      "default": "6.6.4"
     }
   },
   "optionalPaths": [

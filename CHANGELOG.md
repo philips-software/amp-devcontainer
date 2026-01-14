@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.6.4](https://github.com/philips-software/amp-devcontainer/compare/v6.6.3...v6.6.4) (2026-01-14)
+
+
+### Chores
+
+* **deps, cpp:** Update github.vscode-github-actions, sonarsource.sonarlint-vscode in devcontainer.json ([#1071](https://github.com/philips-software/amp-devcontainer/issues/1071)) ([46e8d00](https://github.com/philips-software/amp-devcontainer/commit/46e8d00ff01cbf9b99101162a6232ef590bab84b))
+* **deps, cpp:** Update sonarsource.sonarlint-vscode in devcontainer-metadata.json ([#1072](https://github.com/philips-software/amp-devcontainer/issues/1072)) ([e051e62](https://github.com/philips-software/amp-devcontainer/commit/e051e624adbc1f0fcdfb7d393a09d45cdf8a9b74))
+* **deps, rust:** Update github.vscode-github-actions, rust-lang.rust-analyzer, sonarsource.sonarlint-vscode in devcontainer.json ([#1073](https://github.com/philips-software/amp-devcontainer/issues/1073)) ([47f5a36](https://github.com/philips-software/amp-devcontainer/commit/47f5a36100bda0d078b8a0892ee4400c6b78a53d))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1074](https://github.com/philips-software/amp-devcontainer/issues/1074)) ([3d455dc](https://github.com/philips-software/amp-devcontainer/commit/3d455dc375a8aea64e8ffce0feb107e7b0e5c531))
+* **deps:** Update gnupg2, xsltproc and urllib3 ([#1075](https://github.com/philips-software/amp-devcontainer/issues/1075)) ([5b69a35](https://github.com/philips-software/amp-devcontainer/commit/5b69a352297cd0ddce5edd5d13bb2ff8d4fa4586))
+
 ## [6.6.3](https://github.com/philips-software/amp-devcontainer/compare/v6.6.2...v6.6.3) (2026-01-05)
 
 
