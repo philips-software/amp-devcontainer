@@ -1,7 +1,12 @@
 {
+  "initializeCommand": "docker build -f .devcontainer/base/Dockerfile -t amp-devcontainer-base:local .",
   "build": {
     "dockerfile": "Dockerfile",
-    "context": "../.."
+    "context": "../..",
+    "args": {
+      "AMP_DEVCONTAINER_VERSION": "local",
+      "BASE_IMAGE": "amp-devcontainer-base:local"
+    }
   },
   "privileged": true,
   "remoteEnv": {

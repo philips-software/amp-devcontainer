@@ -52,6 +52,7 @@ This repository is under active development; see [pulse](https://github.com/phil
 
 The following devcontainers are published towards the [GitHub Container Registry](https://ghcr.io/):
 
+- [amp-devcontainer-base](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-base); shared base image used by the other flavors
 - [amp-devcontainer-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-cpp); the C++ container
 - [amp-devcontainer-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-rust); the Rust container
 
@@ -59,6 +60,11 @@ All containers include a full [Visual Studio Code](https://code.visualstudio.com
 
 A summary of the included tools can be found below.
 For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/philips-software/amp-devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/philips-software/amp-devcontainer/releases), or the SBOM attached to the image.
+
+#### amp-devcontainer-base
+
+The amp-devcontainer-base image is a shared foundation used by the other flavors.
+It consolidates common tooling (e.g. certificates and test tooling) so that the C++ and Rust images can focus on language-specific features.
 
 #### amp-devcontainer-cpp
 
