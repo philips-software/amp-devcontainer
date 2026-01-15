@@ -75,6 +75,9 @@ RUN --mount=type=cache,target=/var/log,sharing=locked \
 # Install additional rust tools
 # Checksums verified against GitHub releases: https://github.com/cargo-bins/cargo-binstall/releases/tag/v1.15.11
 # This tool is specifically targeted by shai-hulud 2.0 attacks, so checksum verification is critical
+# VERIFICATION: Checksums obtained by downloading the release artifacts and computing sha256sum
+# x86_64: wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v1.15.11/cargo-binstall-x86_64-unknown-linux-gnu.tgz" | sha256sum
+# aarch64: wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v1.15.11/cargo-binstall-aarch64-unknown-linux-gnu.tgz" | sha256sum
 ARG CARGO_BINSTALL_X86_64_SHA256=c3755ef142c8f2013ead0a5a15a2d63f97947f3ac15334e044b3138272705a62
 ARG CARGO_BINSTALL_AARCH64_SHA256=5b5d4bd0996461554ebc9fb8f16776279146c42c75630c64b26a064a07a4e115
 RUN ARCH=$(uname -m) && \

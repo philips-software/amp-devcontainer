@@ -173,15 +173,17 @@
 1. **Pin to Specific Versions**
    ```json
    {
-     "image": "ghcr.io/philips-software/amp-devcontainer-cpp:v6.6.4@sha256:..."
+     "image": "ghcr.io/philips-software/amp-devcontainer-cpp:<version>@sha256:<digest>"
    }
    ```
+   Replace `<version>` and `<digest>` with values from the releases page.
 
 2. **Verify Container Signatures**
    ```bash
    gh attestation verify --repo philips-software/amp-devcontainer \
-     oci://ghcr.io/philips-software/amp-devcontainer-cpp:v6.6.4
+     oci://ghcr.io/philips-software/amp-devcontainer-cpp:<version>
    ```
+   Replace `<version>` with the specific version you're using.
 
 3. **Review SBOMs**
    - Download SBOM from GitHub releases

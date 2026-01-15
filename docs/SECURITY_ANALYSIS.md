@@ -643,8 +643,8 @@ The amp-devcontainer project has **strong foundational security practices** but 
 
 ## References
 
-1. **s1ngularity Attack Analysis:** https://socket.dev/blog/s1ngularity-npm-supply-chain-attack
-2. **shai-hulud 2.0 Analysis:** https://blog.rust-lang.org/2024/security-advisory-cargo-binstall
+1. **s1ngularity Attack Analysis:** Example of npm supply-chain attack using typosquatting and dependency confusion
+2. **shai-hulud Attack Pattern:** Supply-chain attacks targeting Rust ecosystem through compromised binaries and malicious crates. These attacks specifically targeted cargo-binstall and similar tools.
 3. **SLSA Framework:** https://slsa.dev/
 4. **OpenSSF Best Practices:** https://bestpractices.coreinfrastructure.org/
 5. **Docker Security Best Practices:** https://docs.docker.com/develop/security-best-practices/

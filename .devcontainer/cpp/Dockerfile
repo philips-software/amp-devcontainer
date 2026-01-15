@@ -99,6 +99,10 @@ RUN --mount=from=extractor,target=/src \
 # Checksums verified against GitHub releases
 # xwin: https://github.com/Jake-Shadle/xwin/releases/tag/0.6.7
 # ccache: https://github.com/ccache/ccache/releases/tag/v4.12
+# VERIFICATION: Checksums obtained by downloading the release artifacts and computing sha256sum
+# Examples:
+#   wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/0.6.7/xwin-0.6.7-x86_64-unknown-linux-musl.tar.gz" | sha256sum
+#   wget -qO - "https://github.com/ccache/ccache/releases/download/v4.12/ccache-4.12-linux-x86_64.tar.xz" | sha256sum
 ARG XWIN_X86_64_SHA256=0a2411665ba8cce7d841528566d2eedc7c88dccb12b087aac394811c61e6751b
 ARG XWIN_AARCH64_SHA256=33c6bc0d777df45229a0c9d84b51ae621238445fe6ac7ed6e95ecbaf598c5ff1
 ARG CCACHE_X86_64_SHA256=d77e140d0403175b93f979f0b0d36e821bf31728b282f4bfda939f65836bcabe
