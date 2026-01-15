@@ -52,7 +52,10 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
     xargs apt-get install -y --no-install-recommends \
  # Include the Cisco Umbrella PKI Root
- && wget --no-hsts -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
+ # Checksum verified against official Cisco PKI website: https://www.cisco.com/security/pki/
+ && wget --no-hsts -qO /tmp/cisco-root-ca.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
+ && echo "a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd306e85fb  /tmp/cisco-root-ca.crt" | sha256sum -c - \
+ && mv /tmp/cisco-root-ca.crt /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt \
  && update-ca-certificates \
  # Install some tools via pip to get more recent versions, clean up afterwards
  && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt \
@@ -60,6 +63,10 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
  && rm -rf "$(pip cache dir)"
 
 # Install clang toolchain and mull mutation testing framework
+# SECURITY NOTE: GPG keys are downloaded via HTTPS but fingerprints should be verified.
+# Expected LLVM GPG key fingerprint: 6084F3CF814B57C1CF12EFD515CF4D18AF4F7421
+# Expected Mull GPG key fingerprint: Should be verified from https://cloudsmith.io/~mull-project/repos/mull-stable/
+# TODO: Add GPG key fingerprint verification (see docs/SECURITY_ANALYSIS.md)
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -74,6 +81,11 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,targe
  && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends
 
 # Install arm-gcc toolchain
+# SECURITY NOTE: This download currently lacks checksum verification.
+# Official checksums should be obtained from: https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
+# The ARM website provides checksums in their release notes. This should be updated to verify checksums
+# before extraction to prevent supply-chain attacks. See docs/SECURITY_ANALYSIS.md for details.
+# TODO: Add checksum verification for ARM GCC toolchain downloads
 RUN mkdir /opt/gcc-arm-none-eabi \
  && wget --no-hsts -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
 
@@ -84,16 +96,43 @@ RUN --mount=from=extractor,target=/src \
  && cp -r /src/bats-assert /usr/local/bats-assert
 
 # Install xwin and ccache
-RUN wget --no-hsts -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin" \
- && wget --no-hsts -qO - "https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-$(uname -m).tar.xz" | tar -xJ -C /usr/local/bin --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)/ccache"
+# Checksums verified against GitHub releases
+# xwin: https://github.com/Jake-Shadle/xwin/releases/tag/0.6.7
+# ccache: https://github.com/ccache/ccache/releases/tag/v4.12
+ARG XWIN_X86_64_SHA256=0a2411665ba8cce7d841528566d2eedc7c88dccb12b087aac394811c61e6751b
+ARG XWIN_AARCH64_SHA256=33c6bc0d777df45229a0c9d84b51ae621238445fe6ac7ed6e95ecbaf598c5ff1
+ARG CCACHE_X86_64_SHA256=d77e140d0403175b93f979f0b0d36e821bf31728b282f4bfda939f65836bcabe
+ARG CCACHE_AARCH64_SHA256=378ed4b9f645f5aab691447e4ec45b4c68508a424ac37c9be7baa28ded385791
+RUN ARCH=$(uname -m) && \
+    # Install xwin
+    if [ "$ARCH" = "x86_64" ]; then XWIN_SHA256=$XWIN_X86_64_SHA256; \
+    elif [ "$ARCH" = "aarch64" ]; then XWIN_SHA256=$XWIN_AARCH64_SHA256; \
+    else echo "Unsupported architecture: $ARCH" && exit 1; fi && \
+    wget --no-hsts -qO /tmp/xwin.tar.gz "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-${ARCH}-unknown-linux-musl.tar.gz" && \
+    echo "${XWIN_SHA256}  /tmp/xwin.tar.gz" | sha256sum -c - && \
+    tar -xzv -C /usr/local/bin --strip-components=1 -f /tmp/xwin.tar.gz "xwin-${XWIN_VERSION}-${ARCH}-unknown-linux-musl/xwin" && \
+    rm /tmp/xwin.tar.gz && \
+    # Install ccache
+    if [ "$ARCH" = "x86_64" ]; then CCACHE_SHA256=$CCACHE_X86_64_SHA256; \
+    elif [ "$ARCH" = "aarch64" ]; then CCACHE_SHA256=$CCACHE_AARCH64_SHA256; \
+    else echo "Unsupported architecture: $ARCH" && exit 1; fi && \
+    wget --no-hsts -qO /tmp/ccache.tar.xz "https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-${ARCH}.tar.xz" && \
+    echo "${CCACHE_SHA256}  /tmp/ccache.tar.xz" | sha256sum -c - && \
+    tar -xJ -C /usr/local/bin --strip-components=1 -f /tmp/ccache.tar.xz "ccache-${CCACHE_VERSION}-linux-${ARCH}/ccache" && \
+    rm /tmp/ccache.tar.xz
 
 # Install include-what-you-use (iwyu) from source
+# Checksum verified against GitHub release: https://github.com/include-what-you-use/include-what-you-use/releases/tag/0.23
 # hadolint ignore=DL3008
+ARG INCLUDE_WHAT_YOU_USE_SHA256=16672743fdf781d7db313f48c7f4b34bc6517eddfd92d7db793790fe793a306c
 RUN --mount=type=cache,target=/cache,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
  apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev \
- && wget --no-hsts -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
+ && wget --no-hsts -qO /tmp/iwyu.tar.gz https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz \
+ && echo "${INCLUDE_WHAT_YOU_USE_SHA256}  /tmp/iwyu.tar.gz" | sha256sum -c - \
+ && tar xz -C /tmp -f /tmp/iwyu.tar.gz \
+ && rm /tmp/iwyu.tar.gz \
  && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
  && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
  && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
@@ -120,7 +159,12 @@ RUN --mount=type=cache,target=/var/log,sharing=locked \
 # Set up package managers CPM and Conan
 # - Install CPM.cmake to the CMake module path
 # - Configure a default profile for Conan and set the CMake generator to Ninja
+# Checksum verified against GitHub release: https://github.com/cpm-cmake/CPM.cmake/releases/tag/v0.40.2
+ARG CPM_SHA256=c8cdc32c03816538ce22781ed72964dc864b2a34a310d3b7104812a5ca2d835d
 RUN --mount=type=cache,target=/cache,sharing=locked \
- wget --no-hsts -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake \
+ wget --no-hsts -qO /tmp/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake \
+ && echo "${CPM_SHA256}  /tmp/CPM.cmake" | sha256sum -c - \
+ && cp /tmp/CPM.cmake /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ \
+ && rm /tmp/CPM.cmake \
  && conan profile detect \
  && echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
