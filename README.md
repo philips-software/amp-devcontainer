@@ -214,6 +214,10 @@ Test can now be run using the Test Explorer. The user interface is available on 
 If you find a vulnerability, please report it to us!
 See [security](.github/SECURITY.md) for more information.
 
+For details on our supply-chain security posture and resilience against attacks like s1ngularity and shai-hulud, see:
+- [Security Analysis Summary](docs/SECURITY_SUMMARY.md) - Quick overview of security measures
+- [Detailed Security Analysis](docs/SECURITY_ANALYSIS.md) - Comprehensive analysis and recommendations
+
 ## Licenses
 
 amp-devcontainer is licensed under the MIT license.
