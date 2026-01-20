@@ -14,7 +14,7 @@ permissions: {}
 
 jobs:
   build-push-base:
-    name: Build, Push (🍨 base)
+    name: Build → Push → Test (🍨 base)
     uses: ./.github/workflows/wc-build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
@@ -24,12 +24,11 @@ jobs:
       packages: write # is needed to push image manifest when using GitHub Container Registry
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     with:
-      devcontainer-metadata-file: .devcontainer/base/devcontainer-metadata.json
       dockerfile: .devcontainer/base/Dockerfile
       image-name: ${{ github.repository }}-base
 
-  build-push-test:
-    name: Build, Push and Test (🍨 ${{ matrix.flavor }})
+  build-push-flavors:
+    name: Build → Push → Test (🍨 ${{ matrix.flavor }})
     needs: build-push-base
     strategy:
       matrix:
@@ -94,7 +93,7 @@ jobs:
       # Please note that this is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
       contents: write # is needed to modify a release
-    needs: [build-push-base, build-push-test, apply-release-notes-template]
+    needs: [build-push-base, build-push-flavors, apply-release-notes-template]
     env:
       CONTAINER_FLAVOR: ${{ matrix.flavor }}
       REF_NAME: ${{ github.ref_name }}

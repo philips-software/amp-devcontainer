@@ -64,7 +64,7 @@ For the full list of all included tools and tool versions see the [Dependency Gr
 #### amp-devcontainer-base
 
 The amp-devcontainer-base image is a shared foundation used by the other flavors.
-It consolidates common tooling (e.g. certificates and test tooling) so that the C++ and Rust images can focus on language-specific features.
+It consolidates common tooling (e.g. certificates and test tooling) so that the flavor images can focus on language-specific features.
 
 #### amp-devcontainer-cpp
 
