@@ -1,22 +1,22 @@
 ---
-name: "Update VS Code Extensions"
-description: "Updates version-pinned VS Code Extensions in JSON files"
+name: Update VS Code Extensions
+description: Updates version-pinned VS Code Extensions in JSON files
 
 inputs:
   input-file:
-    description: "Input file in JSON format containing a list of version pinned VS Code Extensions under `customizations.vscode.extensions`"
+    description: Input file in JSON format containing a list of version pinned VS Code Extensions under `customizations.vscode.extensions`
     required: true
 
 outputs:
   updated-dependencies:
-    description: "JSON array with the names of the updated dependencies"
+    description: JSON array with the names of the updated dependencies
     value: ${{ steps.update-extensions.outputs.updated-dependencies }}
   markdown-summary:
-    description: "Markdown summary of update result"
+    description: Markdown summary of update result
     value: ${{ steps.update-extensions.outputs.markdown-summary }}
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - run: |
         sudo apt-get update

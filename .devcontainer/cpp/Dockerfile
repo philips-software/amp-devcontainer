@@ -1,23 +1,7 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:24.04@sha256:c35e29c9450151419d9448b0fd75374fec4fff364a27f176fb458d472dfc9e54 AS extractor
-
-ARG BATS_CORE_VERSION=1.12.0
-ARG BATS_SUPPORT_VERSION=0.3.0
-ARG BATS_ASSERT_VERSION=2.1.0
-
-ADD --checksum=sha256:e36b020436228262731e3319ed013d84fcd7c4bd97a1b34dee33d170e9ae6bab \
- https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_CORE_VERSION}.tar.gz /bats-core.tar.gz
-ADD --checksum=sha256:7815237aafeb42ddcc1b8c698fc5808026d33317d8701d5ec2396e9634e2918f \
- https://github.com/bats-core/bats-support/archive/refs/tags/v${BATS_SUPPORT_VERSION}.tar.gz /bats-support.tar.gz
-ADD --checksum=sha256:98ca3b685f8b8993e48ec057565e6e2abcc541034ed5b0e81f191505682037fd \
- https://github.com/bats-core/bats-assert/archive/refs/tags/v2.1.0.tar.gz /bats-assert.tar.gz
-
-RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
- && tar xzf /bats-support.tar.gz && mv bats-support-*/ bats-support \
- && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert
-
-FROM ubuntu:24.04@sha256:c35e29c9450151419d9448b0fd75374fec4fff364a27f176fb458d472dfc9e54
+ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
+FROM ${BASE_IMAGE}
 
 ARG CCACHE_VERSION=4.12
 ARG CLANG_VERSION=19
@@ -48,12 +32,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
- apt-get update && apt-get install -y --no-install-recommends jq \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
-    xargs apt-get install -y --no-install-recommends \
- # Include the Cisco Umbrella PKI Root
- && wget --no-hsts -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
- && update-ca-certificates \
+ apt-get update \
+ && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends \
  # Install some tools via pip to get more recent versions, clean up afterwards
  && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt \
  && find / -regex '^.*\(__pycache__\|\.py[co]\)$' -delete \
@@ -76,12 +56,6 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,targe
 # Install arm-gcc toolchain
 RUN mkdir /opt/gcc-arm-none-eabi \
  && wget --no-hsts -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
-
-# Install bats
-RUN --mount=from=extractor,target=/src \
- bash /src/bats-core/install.sh /usr/local \
- && cp -r /src/bats-support /usr/local/bats-support \
- && cp -r /src/bats-assert /usr/local/bats-assert
 
 # Install xwin and ccache
 RUN wget --no-hsts -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin" \

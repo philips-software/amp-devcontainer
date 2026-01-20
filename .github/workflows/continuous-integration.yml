@@ -13,8 +13,23 @@ concurrency:
 permissions: {}
 
 jobs:
-  build-push-test:
+  build-push-base:
+    name: Build → Push → Test (🍨 base)
+    uses: ./.github/workflows/wc-build-push-test.yml
+    permissions:
+      actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      attestations: write # is needed by actions/attest-build-provenance to push attestations
+      contents: write # is needed by anchore/sbom-action for artifact uploads
+      id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
+      packages: write # is needed to push image manifest when using GitHub Container Registry
+      pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
+    with:
+      dockerfile: .devcontainer/base/Dockerfile
+      image-name: ${{ github.repository }}-base
+
+  build-push-flavors:
     name: Build → Push → Test (🍨 ${{ matrix.flavor }})
+    needs: build-push-base
     strategy:
       matrix:
         flavor: [cpp, rust]
@@ -32,6 +47,8 @@ jobs:
       packages: write # is needed to push image manifest when using GitHub Container Registry
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     with:
+      build-args: |
+        BASE_IMAGE=${{ needs.build-push-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-base.outputs.digest }}
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
@@ -41,7 +58,7 @@ jobs:
 
   dependency-review:
     name: 🔍 Dependency Review
-    needs: build-push-test
+    needs: build-push-flavors
     uses: ./.github/workflows/wc-dependency-review.yml
     permissions:
       contents: read
@@ -53,7 +70,7 @@ jobs:
     permissions:
       checks: write # is needed by EnricoMi/publish-unit-test-result-action to add a check run with test results
       pull-requests: write # is needed by EnricoMi/publish-unit-test-result-action to annotate PRs
-    needs: build-push-test
+    needs: build-push-flavors
     if: ${{ !cancelled() }}
     steps:
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -66,6 +83,8 @@ jobs:
           pattern: test-results-*
       - uses: EnricoMi/publish-unit-test-result-action@27d65e188ec43221b20d26de30f4892fad91df2f # v2.22.0
         with:
+          action_fail: true
+          action_fail_on_inconclusive: true
           files: test-report-*.xml
 
   generate-documents:

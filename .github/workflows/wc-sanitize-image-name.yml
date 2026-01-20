@@ -15,13 +15,13 @@ on:
         type: string
     outputs:
       image-basename:
-        description: "The sanitized base name of the image (without registry or tag)"
+        description: The sanitized base name of the image (without registry or tag)
         value: ${{ jobs.sanitize.outputs.image-basename }}
       image-name:
-        description: "The sanitized name of the image (without registry or tag)"
+        description: The sanitized name of the image (without registry or tag)
         value: ${{ jobs.sanitize.outputs.image-name }}
       fully-qualified-image-name:
-        description: "The fully qualified name of the image including registry (but without tag)"
+        description: The fully qualified name of the image including registry (but without tag)
         value: ${{ jobs.sanitize.outputs.fully-qualified-image-name }}
 
 permissions: {}

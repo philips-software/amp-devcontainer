@@ -1,0 +1,9 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "../.."
+  },
+  "remoteEnv": {
+    "CONTAINER_FLAVOR": "base"
+  }
+}

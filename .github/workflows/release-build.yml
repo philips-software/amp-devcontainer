@@ -13,8 +13,23 @@ concurrency:
 permissions: {}
 
 jobs:
-  build-push-test:
-    name: Build, Push and Test (🍨 ${{ matrix.flavor }})
+  build-push-base:
+    name: Build → Push → Test (🍨 base)
+    uses: ./.github/workflows/wc-build-push-test.yml
+    permissions:
+      actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      attestations: write # is needed by actions/attest-build-provenance to push attestations
+      contents: write # is needed by anchore/sbom-action for artifact uploads
+      id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
+      packages: write # is needed to push image manifest when using GitHub Container Registry
+      pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
+    with:
+      dockerfile: .devcontainer/base/Dockerfile
+      image-name: ${{ github.repository }}-base
+
+  build-push-flavors:
+    name: Build → Push → Test (🍨 ${{ matrix.flavor }})
+    needs: build-push-base
     strategy:
       matrix:
         flavor: [cpp, rust]
@@ -32,6 +47,8 @@ jobs:
       packages: write # is needed to push image manifest when using GitHub Container Registry
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     with:
+      build-args: |
+        BASE_IMAGE=${{ needs.build-push-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-base.outputs.digest }}
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
@@ -70,13 +87,13 @@ jobs:
     name: Update Release Notes (🍨 ${{ matrix.flavor }})
     strategy:
       matrix:
-        flavor: [cpp, rust]
+        flavor: [base, cpp, rust]
     runs-on: ubuntu-latest
     permissions:
       # Please note that this is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
       contents: write # is needed to modify a release
-    needs: [build-push-test, apply-release-notes-template]
+    needs: [build-push-base, build-push-flavors, apply-release-notes-template]
     env:
       CONTAINER_FLAVOR: ${{ matrix.flavor }}
       REF_NAME: ${{ github.ref_name }}

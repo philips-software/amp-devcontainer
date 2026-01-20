@@ -4,35 +4,14 @@ name: Build, Push & Test
 on:
   workflow_call:
     inputs:
-      dockerfile:
-        description: "Path to the Dockerfile to build"
-        required: true
-        type: string
-      image-name:
-        description: >-
-          Name of the Docker image to build, without registry or tag.
-
-          Examples:
-            'my-image'
-            'my-org/my-image'
-        required: true
-        type: string
-      devcontainer-metadata-file:
-        description: >-
-          Path to a JSON file containing devcontainer metadata to add as a label to the built image.
-
-          Examples:
-            '.devcontainer/devcontainer-metadata.json'
-            '.devcontainer/<flavor>/devcontainer-metadata.json'
+      acceptance-test-path:
+        description: Path to the Playwright acceptance tests (directory that contains playwright.config.ts)
         required: false
         type: string
-      registry:
-        description: >-
-          Docker registry to push built containers to.
-          `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` secrets must be set if not using GitHub Container Registry (ghcr.io).
+      build-args:
+        description: Optional docker build args (newline-separated KEY=VALUE)
         required: false
         type: string
-        default: "ghcr.io"
       build-test-runner-labels:
         description: >-
           JSON array used to select multi-architecture runners for build and test jobs.
@@ -45,6 +24,39 @@ on:
         required: false
         type: string
         default: '["ubuntu-latest", "ubuntu-24.04-arm"]'
+      devcontainer-metadata-file:
+        description: >-
+          Path to a JSON file containing devcontainer metadata to add as a label to the built image.
+
+          Examples:
+            '.devcontainer/devcontainer-metadata.json'
+            '.devcontainer/<flavor>/devcontainer-metadata.json'
+        required: false
+        type: string
+      dockerfile:
+        description: Path to the Dockerfile to build
+        required: true
+        type: string
+      image-name:
+        description: >-
+          Name of the Docker image to build, without registry or tag.
+
+          Examples:
+            'my-image'
+            'my-org/my-image'
+        required: true
+        type: string
+      integration-test-file:
+        description: Path to the BATS test file to run for integration tests
+        required: false
+        type: string
+      registry:
+        description: >-
+          Docker registry to push built containers to.
+          `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` secrets must be set if not using GitHub Container Registry (ghcr.io).
+        required: false
+        type: string
+        default: "ghcr.io"
       runner-labels:
         description: >-
           JSON array used to select the default linux runner for non-build jobs.
@@ -56,32 +68,33 @@ on:
         required: false
         type: string
         default: '["ubuntu-latest"]'
-      integration-test-file:
-        description: "Path to the BATS test file to run for integration tests"
-        required: false
-        type: string
       test-devcontainer-file:
-        description: "Path to the devcontainer.json file to use for acceptance tests"
+        description: Path to the devcontainer.json file to use for acceptance tests
         required: false
         type: string
-      acceptance-test-path:
-        description: "Path to the Playwright acceptance tests (directory that contains playwright.config.ts)"
-        required: false
-        type: string
+    outputs:
+      digest:
+        value: ${{ jobs.build-push.outputs.digest }}
+      fully-qualified-image-name:
+        value: ${{ jobs.build-push.outputs.fully-qualified-image-name }}
+      image-basename:
+        value: ${{ jobs.build-push.outputs.image-basename }}
+      version:
+        value: ${{ jobs.build-push.outputs.version }}
     secrets:
-      TEST_GITHUB_TOKEN:
+      DOCKER_REGISTRY_PASSWORD:
+        description: Password or token for Docker login, if not provided the GitHub token will be used
         required: false
-      TEST_GITHUB_USER:
+      DOCKER_REGISTRY_USERNAME:
+        description: User name for Docker login, if not provided the GitHub actor will be used
         required: false
       TEST_GITHUB_PASSWORD:
         required: false
+      TEST_GITHUB_TOKEN:
+        required: false
       TEST_GITHUB_TOTP_SECRET:
         required: false
-      DOCKER_REGISTRY_USERNAME:
-        description: "User name for Docker login, if not provided the GitHub actor will be used"
-        required: false
-      DOCKER_REGISTRY_PASSWORD:
-        description: "Password or token for Docker login, if not provided the GitHub token will be used"
+      TEST_GITHUB_USER:
         required: false
 
 permissions: {}
@@ -101,6 +114,7 @@ jobs:
       DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
       DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     with:
+      build-args: ${{ inputs.build-args }}
       dockerfile: ${{ inputs.dockerfile }}
       registry: ${{ inputs.registry }}
       image-name: ${{ inputs.image-name }}

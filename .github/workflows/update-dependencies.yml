@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: ["cpp", "rust"]
+        flavor: ["base", "cpp", "rust"]
     # Using our own container is required since we need all package sources
     # set-up correctly.
     container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge
