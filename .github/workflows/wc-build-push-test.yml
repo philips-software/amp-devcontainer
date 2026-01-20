@@ -5,11 +5,11 @@ on:
   workflow_call:
     inputs:
       acceptance-test-path:
-        description: "Path to the Playwright acceptance tests (directory that contains playwright.config.ts)"
+        description: Path to the Playwright acceptance tests (directory that contains playwright.config.ts)
         required: false
         type: string
       build-args:
-        description: "Optional docker build args (newline-separated KEY=VALUE)"
+        description: Optional docker build args (newline-separated KEY=VALUE)
         required: false
         type: string
       build-test-runner-labels:
@@ -34,7 +34,7 @@ on:
         required: false
         type: string
       dockerfile:
-        description: "Path to the Dockerfile to build"
+        description: Path to the Dockerfile to build
         required: true
         type: string
       image-name:
@@ -47,7 +47,7 @@ on:
         required: true
         type: string
       integration-test-file:
-        description: "Path to the BATS test file to run for integration tests"
+        description: Path to the BATS test file to run for integration tests
         required: false
         type: string
       registry:
@@ -69,7 +69,7 @@ on:
         type: string
         default: '["ubuntu-latest"]'
       test-devcontainer-file:
-        description: "Path to the devcontainer.json file to use for acceptance tests"
+        description: Path to the devcontainer.json file to use for acceptance tests
         required: false
         type: string
     outputs:
@@ -83,10 +83,10 @@ on:
         value: ${{ jobs.build-push.outputs.version }}
     secrets:
       DOCKER_REGISTRY_PASSWORD:
-        description: "Password or token for Docker login, if not provided the GitHub token will be used"
+        description: Password or token for Docker login, if not provided the GitHub token will be used
         required: false
       DOCKER_REGISTRY_USERNAME:
-        description: "User name for Docker login, if not provided the GitHub actor will be used"
+        description: User name for Docker login, if not provided the GitHub actor will be used
         required: false
       TEST_GITHUB_PASSWORD:
         required: false

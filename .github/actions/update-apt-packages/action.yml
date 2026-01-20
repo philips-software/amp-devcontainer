@@ -1,19 +1,19 @@
 ---
-name: "Update apt packages"
-description: "Updates version-pinned apt packages in JSON files"
+name: Update apt packages
+description: Updates version-pinned apt packages in JSON files
 
 inputs:
   input-file:
-    description: "Input file(s) in JSON format containing a list of version pinned apt packages"
+    description: Input file(s) in JSON format containing a list of version pinned apt packages
     required: true
 
 outputs:
   updated-dependencies:
-    description: "JSON array with the names of the updated dependencies"
+    description: JSON array with the names of the updated dependencies
     value: ${{ steps.update-extensions.outputs.updated-dependencies }}
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - run: |
         apt-get update

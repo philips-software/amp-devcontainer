@@ -11,3 +11,5 @@ When writing GitHub Action workflows, ensure that:
 - All workflows and action definitions have a name that is descriptive and concise, using emoji where appropriate.
 - The sorting order for inputs, secrets, and outputs is alphabetical.
 - The sorting order of other keys is consistent across the repository.
+- Don't use quotes for strings unless necessary (e.g., to avoid special characters being misinterpreted).
+- Use multi-line syntax for longer strings (e.g., for `run` commands or descriptions).
