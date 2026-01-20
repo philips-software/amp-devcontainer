@@ -3,15 +3,11 @@
 ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 FROM ${BASE_IMAGE}
 
-ARG BASE_VERSION=unknown
-
 ARG CCACHE_VERSION=4.12
 ARG CLANG_VERSION=19
 ARG CPM_VERSION=0.40.2
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.23
 ARG XWIN_VERSION=0.6.7
-
-ARG AMP_DEVCONTAINER_VERSION=local
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -26,9 +22,7 @@ ENV CCACHE_DIR=/cache/.ccache \
     CONAN_HOME=/opt/conan \
     CPM_SOURCE_CACHE=/cache/.cpm \
     PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
-    PYTHONPYCACHEPREFIX=/cache/.python \
-    AMP_DEVCONTAINER_BASE_VERSION=${BASE_VERSION} \
-    AMP_DEVCONTAINER_VERSION=${AMP_DEVCONTAINER_VERSION}
+    PYTHONPYCACHEPREFIX=/cache/.python
 
 # Install the base system with all tool dependencies
 # hadolint ignore=DL3008

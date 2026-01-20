@@ -49,9 +49,7 @@ jobs:
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     with:
       build-args: |
-        AMP_DEVCONTAINER_VERSION=${{ needs.build-push-base.outputs.version }}
         BASE_IMAGE=${{ needs.build-push-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-base.outputs.digest }}
-        BASE_VERSION=${{ needs.build-push-base.outputs.version }}
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       image-name: ${{ github.repository }}-${{ matrix.flavor }}

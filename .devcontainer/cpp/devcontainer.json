@@ -4,7 +4,6 @@
     "dockerfile": "Dockerfile",
     "context": "../..",
     "args": {
-      "AMP_DEVCONTAINER_VERSION": "local",
       "BASE_IMAGE": "amp-devcontainer-base:local"
     }
   },

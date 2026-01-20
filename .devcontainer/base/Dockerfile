@@ -19,24 +19,20 @@ RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
 
 FROM ubuntu:24.04@sha256:c35e29c9450151419d9448b0fd75374fec4fff364a27f176fb458d472dfc9e54
 
-ARG AMP_DEVCONTAINER_VERSION=local
-
 ARG DEBIAN_FRONTEND=noninteractive
 
 HEALTHCHECK NONE
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-ENV AMP_DEVCONTAINER_VERSION=${AMP_DEVCONTAINER_VERSION}
-
 # Install the base system with all tool dependencies
 # hadolint ignore=DL3008
-RUN --mount=type=bind,source=.devcontainer/base/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
+RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
  apt-get update && apt-get install -y --no-install-recommends jq \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | xargs apt-get install -y --no-install-recommends
+ && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | xargs apt-get install -y --no-install-recommends
 
 # Include the Cisco Umbrella PKI Root
 RUN wget --no-hsts -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
