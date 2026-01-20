@@ -34,7 +34,7 @@ teardown() {
 
   for TOOL in clang clang++ clang-cl clang-format clang-tidy; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
-    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+    assert_equal_print "$EXPECTED_VERSION" "$INSTALLED_VERSION" "Tool '${TOOL}' version"
   done
 }
 
@@ -44,7 +44,7 @@ teardown() {
 
   for TOOL in cc gcc c++ g++ gcov; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
-    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+    assert_equal_print "$EXPECTED_VERSION" "$INSTALLED_VERSION" "Tool '${TOOL}' version"
   done
 }
 
@@ -52,7 +52,7 @@ teardown() {
 @test "host and embedded gcc toolchain versions should be the same major and minor version" {
   EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for g++ | cut -d. -f1,2)
   INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
-  assert_equal_print $EXPECTED_MAJOR_MINOR_VERSION $INSTALLED_MAJOR_MINOR_VERSION "Host and ARM GCC major and minor version"
+  assert_equal_print "$EXPECTED_MAJOR_MINOR_VERSION" "$INSTALLED_MAJOR_MINOR_VERSION" "Host and ARM GCC major and minor version"
 }
 
 # bats test_tags=Compatibility,Version,Tools
@@ -61,14 +61,14 @@ teardown() {
     EXPECTED_VERSION=$(get_expected_semver_for ${TOOL})
     INSTALLED_VERSION=$(${TOOL} --version | to_semver)
 
-    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+    assert_equal_print "$EXPECTED_VERSION" "$INSTALLED_VERSION" "Tool '${TOOL}' version"
   done
 
   for TOOL in cmake conan; do
     EXPECTED_VERSION=$(cat ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/requirements.in | grep ${TOOL} | to_semver)
     INSTALLED_VERSION=$(${TOOL} --version | to_semver)
 
-    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+    assert_equal_print "$EXPECTED_VERSION" "$INSTALLED_VERSION" "Tool '${TOOL}' version"
   done
 }
 
@@ -266,7 +266,7 @@ function to_semver() {
 function get_expected_version_for() {
   local TOOL=${1:?}
 
-  jq -sr ".[0] * .[1] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
+  jq -sr ".[0] * .[1] * .[2] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
     ${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements.json \
     ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-base.json \
     ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-clang.json
