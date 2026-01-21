@@ -6,6 +6,9 @@ ARG BATS_CORE_VERSION=1.12.0
 ARG BATS_SUPPORT_VERSION=0.3.0
 ARG BATS_ASSERT_VERSION=2.1.0
 
+ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd306e85fb \
+ https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem /cisco-umbrella-root.crt
+
 ADD --checksum=sha256:e36b020436228262731e3319ed013d84fcd7c4bd97a1b34dee33d170e9ae6bab \
  https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_CORE_VERSION}.tar.gz /bats-core.tar.gz
 ADD --checksum=sha256:7815237aafeb42ddcc1b8c698fc5808026d33317d8701d5ec2396e9634e2918f \
@@ -25,27 +28,29 @@ HEALTHCHECK NONE
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Install the base system with all tool dependencies
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
- apt-get update && apt-get install -y --no-install-recommends jq \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | xargs apt-get install -y --no-install-recommends
+    --mount=from=extractor,target=/src <<EOF
 
-# Include the Cisco Umbrella PKI Root
-RUN wget --no-hsts -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
- && update-ca-certificates
+   # Install the base system with all tool dependencies
+   apt-get update && apt-get install -y --no-install-recommends jq
+   jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | \
+      xargs apt-get install -y --no-install-recommends
 
-# Install bats
-RUN --mount=from=extractor,target=/src \
- bash /src/bats-core/install.sh /usr/local \
- && cp -r /src/bats-support /usr/local/bats-support \
- && cp -r /src/bats-assert /usr/local/bats-assert
+   # Include the Cisco Umbrella PKI Root Certificate
+   cp /src/cisco-umbrella-root.crt /usr/local/share/ca-certificates/
+   update-ca-certificates
 
-# Update all tool alternatives to the correct version
-# and patch root's bashrc to include bash-completion
-RUN --mount=type=cache,target=/var/log,sharing=locked \
- update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20 \
- && cp /etc/skel/.bashrc /root/.bashrc
+   # Install bats
+   bash /src/bats-core/install.sh /usr/local
+   cp -r /src/bats-support /usr/local/bats-support
+   cp -r /src/bats-assert /usr/local/bats-assert
+
+   # Update all tool alternatives to the correct version
+   # and patch root's bashrc to include bash-completion
+   update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20
+   cp /etc/skel/.bashrc /root/.bashrc
+EOF
