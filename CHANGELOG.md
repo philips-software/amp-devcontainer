@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.7.0](https://github.com/philips-software/amp-devcontainer/compare/v6.6.4...v6.7.0) (2026-01-20)
+
+
+### Features
+
+* Extract common base image ([#1078](https://github.com/philips-software/amp-devcontainer/issues/1078)) ([30b2726](https://github.com/philips-software/amp-devcontainer/commit/30b272633d3f05f22e8fbce516ba6e8fb19f27d1))
+
+
+### Chores
+
+* **deps, cpp:** Update github.vscode-pull-request-github in devcontainer.json ([#1081](https://github.com/philips-software/amp-devcontainer/issues/1081)) ([f5056e1](https://github.com/philips-software/amp-devcontainer/commit/f5056e1de6867f3ec08f1855e0237db149fe8dd5))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1080](https://github.com/philips-software/amp-devcontainer/issues/1080)) ([2299c97](https://github.com/philips-software/amp-devcontainer/commit/2299c97bd01a93d133b1ed459d1a965bdd91a5c2))
+* **deps:** Bump gcovr from 8.4 to 8.5 in /.devcontainer ([a3aa0b9](https://github.com/philips-software/amp-devcontainer/commit/a3aa0b95b006243f9c107a377761bf5548a01caf))
+* **deps:** Bump gcovr from 8.4 to 8.5 in amp-devcontainer-cpp ([#1082](https://github.com/philips-software/amp-devcontainer/issues/1082)) ([a3aa0b9](https://github.com/philips-software/amp-devcontainer/commit/a3aa0b95b006243f9c107a377761bf5548a01caf))
+
 ## [6.6.4](https://github.com/philips-software/amp-devcontainer/compare/v6.6.3...v6.6.4) (2026-01-14)
 
 
