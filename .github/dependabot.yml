@@ -19,6 +19,7 @@ updates:
     cooldown:
       default-days: 7
     directories:
+      - .devcontainer/base
       - .devcontainer/cpp
       - .devcontainer/rust
     schedule:
