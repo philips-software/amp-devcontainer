@@ -12,7 +12,7 @@
   ],
   "remoteEnv": {
     "CONTAINER_FLAVOR": "cpp",
-    "NODE_EXTRA_CA_CERTS": "/usr/local/share/ca-certificates/cisco-umbrella-root.crt"
+    "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt"
   },
   "features": {
     "ghcr.io/devcontainers/features/desktop-lite:": {},
