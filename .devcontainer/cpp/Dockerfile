@@ -1,5 +1,5 @@
-# hadolint global ignore=DL3006
 # syntax=docker/dockerfile:1
+# hadolint global ignore=DL3006
 
 ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 ARG XWIN_VERSION=0.7.0
