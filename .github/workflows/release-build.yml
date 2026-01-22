@@ -26,6 +26,7 @@ jobs:
     with:
       dockerfile: .devcontainer/base/Dockerfile
       image-name: ${{ github.repository }}-base
+      integration-test-file: test/base/integration-tests.bats
 
   build-push-flavors:
     name: Build → Push → Test (🍨 ${{ matrix.flavor }})

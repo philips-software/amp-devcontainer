@@ -121,6 +121,7 @@ jobs:
     with:
       build-args: ${{ inputs.build-args }}
       dockerfile: ${{ inputs.dockerfile }}
+      enable-edge-tag: ${{ inputs.enable-edge-tag }}
       registry: ${{ inputs.registry }}
       image-name: ${{ inputs.image-name }}
       devcontainer-metadata-file: ${{ inputs.devcontainer-metadata-file }}
