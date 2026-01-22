@@ -25,6 +25,7 @@ jobs:
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     with:
       dockerfile: .devcontainer/base/Dockerfile
+      enable-edge-tag: ${{ github.event_name == 'merge_group' }}
       image-name: ${{ github.repository }}-base
       integration-test-file: test/base/integration-tests.bats
 
@@ -52,6 +53,7 @@ jobs:
         BASE_IMAGE=${{ needs.build-push-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-base.outputs.digest }}
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
+      enable-edge-tag: ${{ github.event_name == 'merge_group' }}
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
       acceptance-test-path: ${{ matrix.flavor == 'cpp' && 'test/cpp/features' || '' }}
