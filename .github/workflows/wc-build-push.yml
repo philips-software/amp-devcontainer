@@ -26,6 +26,9 @@ on:
       dockerfile:
         required: true
         type: string
+      enable-edge-tag:
+        required: true
+        type: boolean
       image-name:
         required: true
         type: string
@@ -182,11 +185,8 @@ jobs:
         with:
           images: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           # Generate Docker tags based on the following events/attributes.
-          # To prevent unnecessary image builds we simulate the `type=edge` tag
-          # with `type=raw,value=edge,enable=...` which only enables the tag
-          # for a `merge_group` event, this removes the need to build on `push`.
           tags: |
-            type=raw,value=edge,enable=${{ github.event_name == 'merge_group' }}
+            type=raw,value=edge,enable=${{ inputs.enable-edge-tag }}
             type=ref,event=pr
             type=semver,pattern={{raw}}
             type=semver,pattern={{version}}
