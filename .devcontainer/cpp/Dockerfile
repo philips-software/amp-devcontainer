@@ -21,7 +21,7 @@ ADD --checksum=sha256:b85cd1e0c94f249338b02a6e54b380154a5af6b5dd754121b15722125a
 
 # Select downloader stage based on target architecture.
 # Linters don't recognize the TARGETARCH variable, so we ignore warnings here.
-# hadolint ignore=DL3006 trivy:ignore:AVD-DS-0001
+# trivy:ignore:AVD-DS-0001 hadolint ignore=DL3006
 FROM downloader-${TARGETARCH} AS downloader
 
 # Extractor stage using target architecture specific downloader
