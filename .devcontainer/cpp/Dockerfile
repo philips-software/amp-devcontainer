@@ -12,7 +12,7 @@ ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
 ADD --checksum=sha256:630c34ec94d451b200f5b14a6a25580d6a45bc80c394b7e0b93e33556eee5d32 \
- https://github.com/ccache/ccache/releases/download/v4.12.2/ccache-4.12.2-linux-x86_64.tar.xz /ccache.tar.xz
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz /ccache.tar.xz
 ADD --checksum=sha256:f1bffe5319728fca9cde5bb03fcb6c88cdf44922bd003fca8b4b9ce5b6f259d2 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
@@ -23,7 +23,7 @@ ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
 ADD --checksum=sha256:b01c270c245e41998ab777164aba085dbeb23ce515f4e2134a1fdddabf0bf6ad \
- https://github.com/ccache/ccache/releases/download/v4.12.2/ccache-4.12.2-linux-aarch64.tar.xz /ccache.tar.xz
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64.tar.xz /ccache.tar.xz
 ADD --checksum=sha256:b85cd1e0c94f249338b02a6e54b380154a5af6b5dd754121b15722125a67cf9f \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
