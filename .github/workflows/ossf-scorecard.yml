@@ -14,7 +14,7 @@ permissions: {}
 jobs:
   ossf-scorecard:
     name: 🛡️ OpenSSF Scorecard
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     permissions:
       contents: read
       security-events: write # is needed by github/codeql-action/upload-sarif to upload sarif files

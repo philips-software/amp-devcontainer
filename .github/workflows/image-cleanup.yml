@@ -11,7 +11,7 @@ permissions: {}
 jobs:
   cleanup-images:
     name: 🧹 Clean Images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     permissions:
       packages: write # is needed by dataaxiom/ghcr-cleanup-action to delete untagged and orphaned images
     steps:

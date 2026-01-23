@@ -9,7 +9,7 @@ permissions: {}
 jobs:
   generate-documents:
     name: Generate Documents
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     permissions:
       contents: read
     steps:

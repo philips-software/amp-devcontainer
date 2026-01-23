@@ -16,7 +16,7 @@ jobs:
       pull-requests: write # is needed by philips-software/pull-request-report-action to post the report as a comment on the PR
       repository-projects: read # is needed by philips-software/pull-request-report-action to fetch project information
       actions: read # is needed by philips-software/pull-request-report-action to fetch workflow run information
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:

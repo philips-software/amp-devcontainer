@@ -69,7 +69,7 @@ jobs:
 
   publish-test-results:
     name: 📊 Publish Test Results
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     permissions:
       checks: write # is needed by EnricoMi/publish-unit-test-result-action to add a check run with test results
       pull-requests: write # is needed by EnricoMi/publish-unit-test-result-action to annotate PRs

@@ -11,7 +11,7 @@ permissions: {}
 jobs:
   create-issue:
     name: Create tool version evaluation issue
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     permissions:
       contents: read # is needed to checkout the repository
       issues: write # is needed by gh cli to create/close/pin/unpin issues
