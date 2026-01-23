@@ -2,21 +2,28 @@
 # hadolint global ignore=DL3006
 
 ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
+ARG CCACHE_VERSION=4.12.2
 ARG XWIN_VERSION=0.7.0
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
 
+ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
+ADD --checksum=sha256:630c34ec94d451b200f5b14a6a25580d6a45bc80c394b7e0b93e33556eee5d32 \
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz /ccache.tar.xz
 ADD --checksum=sha256:f1bffe5319728fca9cde5bb03fcb6c88cdf44922bd003fca8b4b9ce5b6f259d2 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Downloader stage for ARM64 architecture
 FROM scratch AS downloader-arm64
 
+ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
+ADD --checksum=sha256:b01c270c245e41998ab777164aba085dbeb23ce515f4e2134a1fdddabf0bf6ad \
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64.tar.xz /ccache.tar.xz
 ADD --checksum=sha256:b85cd1e0c94f249338b02a6e54b380154a5af6b5dd754121b15722125a67cf9f \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
@@ -28,17 +35,19 @@ FROM downloader-${TARGETARCH} AS downloader
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
 
+ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
 WORKDIR /
 
-RUN --mount=from=downloader,target=/dl \
- tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
+RUN --mount=from=downloader,target=/dl <<EOF
+    tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)/ccache"
+    tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
+EOF
 
 # Final development container image
 FROM ${BASE_IMAGE}
 
-ARG CCACHE_VERSION=4.12
 ARG CLANG_VERSION=19
 ARG CPM_VERSION=0.40.2
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.23
@@ -58,6 +67,7 @@ ENV CCACHE_DIR=/cache/.ccache \
     PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
     PYTHONPYCACHEPREFIX=/cache/.python
 
+# Install the base system with all tool dependencies
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
@@ -77,7 +87,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     find / -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
     rm -rf "$(pip cache dir)"
 
-    # Install xwin
+    # Install ccache and xwin
+    cp /src/ccache /usr/local/bin/ccache
     cp /src/xwin /usr/local/bin/xwin
 EOF
 
@@ -98,9 +109,6 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,targe
 # Install arm-gcc toolchain
 RUN mkdir /opt/gcc-arm-none-eabi \
  && wget --no-hsts -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
-
-# Install ccache
-RUN wget --no-hsts -qO - "https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-$(uname -m).tar.xz" | tar -xJ -C /usr/local/bin --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)/ccache"
 
 # Install include-what-you-use (iwyu) from source
 # hadolint ignore=DL3008
