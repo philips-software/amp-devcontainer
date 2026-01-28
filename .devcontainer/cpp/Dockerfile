@@ -49,9 +49,7 @@ ARG XWIN_VERSION
 
 WORKDIR /
 
-RUN --mount=from=downloader,target=/dl
-    --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
+RUN --mount=from=downloader,target=/dl <<EOF
 
     set -e
 
