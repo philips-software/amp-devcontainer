@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.7.1](https://github.com/philips-software/amp-devcontainer/compare/v6.7.0...v6.7.1) (2026-01-27)
+
+
+### Bug Fixes
+
+* Expose enable-edge-tag on reusable workflow ([#1098](https://github.com/philips-software/amp-devcontainer/issues/1098)) ([5d8ba52](https://github.com/philips-software/amp-devcontainer/commit/5d8ba52e62f176765abaf5d15fa532b976aec845))
+
+
+### Chores
+
+* Add checksum to umbrella certificate ([#1089](https://github.com/philips-software/amp-devcontainer/issues/1089)) ([f42f104](https://github.com/philips-software/amp-devcontainer/commit/f42f10425cfb6f1b2676c704bfbf32ecda7b9407))
+* **deps, cpp:** Update github.vscode-github-actions, sonarsource.sonarlint-vscode in devcontainer.json ([#1106](https://github.com/philips-software/amp-devcontainer/issues/1106)) ([36f7684](https://github.com/philips-software/amp-devcontainer/commit/36f7684c938a7f55acd18abad28192235e9badaf))
+* **deps, cpp:** Update llvm-vs-code-extensions.vscode-clangd, sonarsource.sonarlint-vscode in devcontainer-metadata.json ([#1105](https://github.com/philips-software/amp-devcontainer/issues/1105)) ([30b6a59](https://github.com/philips-software/amp-devcontainer/commit/30b6a59d2c8e8c0a3404ffa431c935ae745746be))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1107](https://github.com/philips-software/amp-devcontainer/issues/1107)) ([986d741](https://github.com/philips-software/amp-devcontainer/commit/986d741feabdf911dd7925797cff49ba8634abc2))
+* **deps:** Bump gcovr from 8.5 to 8.6 in /.devcontainer ([#1091](https://github.com/philips-software/amp-devcontainer/issues/1091)) ([1101b59](https://github.com/philips-software/amp-devcontainer/commit/1101b59656c53416987d45644a21928f27257266))
+* **deps:** Bump ubuntu from `c35e29c` to `cd1dba6` in amp-devcontainer-base ([#1095](https://github.com/philips-software/amp-devcontainer/issues/1095)) ([46ddc60](https://github.com/philips-software/amp-devcontainer/commit/46ddc602d448b6bc4c6cfd817c55e8bb6c7a0422))
+* **deps:** Update bats-core to v1.13.0 and bats-assert to v2.2.4 ([#1094](https://github.com/philips-software/amp-devcontainer/issues/1094)) ([8498764](https://github.com/philips-software/amp-devcontainer/commit/84987640becee2c784f283d9d8b2c6f29beda90b))
+* Verify ccache checksum ([#1100](https://github.com/philips-software/amp-devcontainer/issues/1100)) ([9254783](https://github.com/philips-software/amp-devcontainer/commit/925478327fe67ca6da4093d9e1fbe604b436d349))
+* Verify signatures for apt keys ([#1104](https://github.com/philips-software/amp-devcontainer/issues/1104)) ([5286994](https://github.com/philips-software/amp-devcontainer/commit/5286994efa7d6590b233c7a6fcc1f80f176c4b88))
+* Verify xwin checksum ([#1099](https://github.com/philips-software/amp-devcontainer/issues/1099)) ([e7aec51](https://github.com/philips-software/amp-devcontainer/commit/e7aec51afbec53e6710c0cae1bb411ce5b87ccc2))
+
 ## [6.7.0](https://github.com/philips-software/amp-devcontainer/compare/v6.6.4...v6.7.0) (2026-01-20)
 
 
