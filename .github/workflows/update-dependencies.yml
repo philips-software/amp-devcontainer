@@ -32,7 +32,7 @@ jobs:
       - uses: ./.github/actions/update-apt-packages
         id: update-packages
         with:
-          input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements*.json
+          input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements{,-*}.json
       - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: token
         if: github.event_name != 'pull_request'
