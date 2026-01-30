@@ -93,7 +93,7 @@ jobs:
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
           branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions-${{ matrix.file }}
-          body-path: "${RUNNER_TEMP}/pull-request-body.md"
+          body-path: ${{ runner.temp }}/pull-request-body.md
           title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
           labels: dependencies,vscode-extensions
           token: ${{ steps.token.outputs.token }}
