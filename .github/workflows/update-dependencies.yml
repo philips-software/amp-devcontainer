@@ -72,9 +72,7 @@ jobs:
           input-file: .devcontainer/${{ matrix.flavor }}/${{ matrix.file }}
       - run: |
           {
-            echo "> [!NOTE]"
-            echo "> Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates."
-            echo ""
+            cat .github/VSCODE_EXTENSION_UPDATE_PR_TEMPLATE.md
             echo "${{ steps.update-extensions.outputs.markdown-summary }}"
           } >> pull-request-body.md
       - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
