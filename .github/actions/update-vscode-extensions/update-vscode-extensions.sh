@@ -64,4 +64,5 @@ EXTENSIONS=$(echo "[${EXTENSIONS::-1}]" | jq 'sort_by(. | ascii_downcase)')
 echo $JSON | jq '.customizations.vscode.extensions = $extensions' --argjson extensions "$EXTENSIONS" > $FILE
 
 echo "$UPDATE_DETAILS_MARKDOWN"
+echo "$UPDATE_DETAILS_MARKDOWN" > "${RUNNER_TEMP}/markdown-summary.md"
 echo "$UPDATED_EXTENSIONS_JSON" > updated-extensions.json

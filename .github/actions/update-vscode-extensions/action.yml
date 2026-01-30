@@ -11,9 +11,9 @@ outputs:
   updated-dependencies:
     description: JSON array with the names of the updated dependencies
     value: ${{ steps.update-extensions.outputs.updated-dependencies }}
-  markdown-summary:
-    description: Markdown summary of update result
-    value: ${{ steps.update-extensions.outputs.markdown-summary }}
+  markdown-summary-file:
+    description: Path to a file containing the markdown summary of update result
+    value: ${{ steps.update-extensions.outputs.markdown-summary-file }}
 
 runs:
   using: composite
@@ -24,11 +24,8 @@ runs:
         sudo npm install -g @vscode/vsce
       shell: bash
     - run: |
-        EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-        echo "markdown-summary<<${EOF}" >> "${GITHUB_OUTPUT}"
-        echo "$(${GITHUB_ACTION_PATH}/update-vscode-extensions.sh ${INPUT_FILE})" >> "${GITHUB_OUTPUT}"
-        echo "${EOF}" >> "${GITHUB_OUTPUT}"
-
+        ${GITHUB_ACTION_PATH}/update-vscode-extensions.sh ${INPUT_FILE}
+        echo "markdown-summary-file=${RUNNER_TEMP}/markdown-summary.md" >> "${GITHUB_OUTPUT}"
         echo "updated-dependencies=$(cat updated-extensions.json)" >> "${GITHUB_OUTPUT}"
         rm updated-extensions.json
       id: update-extensions

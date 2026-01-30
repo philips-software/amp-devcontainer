@@ -77,10 +77,10 @@ jobs:
             echo "> [!NOTE]"
             echo "> Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates."
             echo ""
-            echo "$MARKDOWN_SUMMARY"
+            cat "$MARKDOWN_SUMMARY_FILE"
           } >> pull-request-body.md
         env:
-          MARKDOWN_SUMMARY: ${{ steps.update-extensions.outputs.markdown-summary }}
+          MARKDOWN_SUMMARY_FILE: ${{ steps.update-extensions.outputs.markdown-summary-file }}
       - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: token
         if: github.event_name != 'pull_request'
