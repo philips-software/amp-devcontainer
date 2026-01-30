@@ -36,12 +36,12 @@ get_github_releasenotes() {
         MAX_RELEASE_BODY_SIZE=32768
         TRUNCATED=""
 
-        if [[ ${#RELEASE_BODY} > $MAX_RELEASE_BODY_SIZE ]]
+        if [[ ${#RELEASE_BODY} -gt $MAX_RELEASE_BODY_SIZE ]]
         then
             TRUNCATED="\n\n... [truncated]"
         fi
 
-        printf "%.$MAX_RELEASE_BODY_SIZEs%s\n\n" "$(gh release view --json body --jq '.body' -R $GITHUB_URL $TAG)" $TRUNCATED
+        printf "%.$MAX_RELEASE_BODY_SIZEs%s\n\n" "$RELEASE_BODY" $TRUNCATED
     done
 }
 
