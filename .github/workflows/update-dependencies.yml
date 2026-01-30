@@ -14,6 +14,7 @@ jobs:
     name: Update APT Dependencies (🍨 ${{ matrix.flavor }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         flavor: ["base", "cpp", "rust"]
     # Using our own container is required since we need all package sources
@@ -32,7 +33,7 @@ jobs:
       - uses: ./.github/actions/update-apt-packages
         id: update-packages
         with:
-          input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements{,-*}.json
+          input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements*.json
       - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: token
         if: github.event_name != 'pull_request'
@@ -53,6 +54,7 @@ jobs:
     name: Update VS Code Extensions (🍨 ${{ matrix.flavor }}, ${{ matrix.file }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         flavor: ["cpp", "rust"]
         file: ["devcontainer-metadata.json", "devcontainer.json"]
@@ -75,8 +77,10 @@ jobs:
             echo "> [!NOTE]"
             echo "> Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates."
             echo ""
-            echo "${{ steps.update-extensions.outputs.markdown-summary }}"
+            echo "$MARKDOWN_SUMMARY"
           } >> pull-request-body.md
+        env:
+          MARKDOWN_SUMMARY: ${{ steps.update-extensions.outputs.markdown-summary }}
       - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: token
         if: github.event_name != 'pull_request'
