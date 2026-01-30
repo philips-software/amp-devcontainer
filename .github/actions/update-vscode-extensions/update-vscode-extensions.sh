@@ -36,7 +36,7 @@ get_github_releasenotes() {
         MAX_RELEASE_BODY_SIZE=32768
         TRUNCATED=""
 
-        if [[ ${#RELEASE_BODY} > $MAX_RELEASE_BODY_SIZE) ]]
+        if [[ ${#RELEASE_BODY} > $MAX_RELEASE_BODY_SIZE ]]
         then
             TRUNCATED="\n\n... [truncated]"
         fi
