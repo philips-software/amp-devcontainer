@@ -41,7 +41,7 @@ get_github_releasenotes() {
             TRUNCATED="\n\n... [truncated]"
         fi
 
-        printf "%.*%s\n\n" "$MAX_RELEASE_BODY_SIZE" "$RELEASE_BODY" "$TRUNCATED"
+        printf "%.*s%s\n\n" "$MAX_RELEASE_BODY_SIZE" "$RELEASE_BODY" "$TRUNCATED"
     done
 }
 
