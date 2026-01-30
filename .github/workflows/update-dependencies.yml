@@ -67,6 +67,13 @@ jobs:
         id: update-extensions
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/${{ matrix.file }}
+      - run: |
+          {
+            echo "> [!NOTE]"
+            echo "> Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates."
+            echo ""
+            echo "${{ steps.update-extensions.outputs.markdown-summary }}"
+          } >> pull-request-body.md
       - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: token
         with:
@@ -76,11 +83,7 @@ jobs:
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
           branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions-${{ matrix.file }}
-          body: |
-            > [!NOTE]
-            > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates.
-
-            ${{ steps.update-extensions.outputs.markdown-summary }}
+          body-path: pull-request-body.md
           title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
           labels: dependencies,vscode-extensions
           token: ${{ steps.token.outputs.token }}
