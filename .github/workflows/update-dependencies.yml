@@ -1,5 +1,5 @@
 ---
-name: Update Dependencies
+name: Update 📦
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ permissions: {}
 
 jobs:
   update-apt-dependencies:
-    name: Update APT Dependencies (🍨 ${{ matrix.flavor }})
+    name: OS (🍨 ${{ matrix.flavor }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -51,7 +51,7 @@ jobs:
           sign-commits: true
 
   update-vscode-extensions:
-    name: Update VS Code Extensions (🍨 ${{ matrix.flavor }}, ${{ matrix.file }})
+    name: Extensions (🍨 ${{ matrix.flavor }}, ${{ matrix.file }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
