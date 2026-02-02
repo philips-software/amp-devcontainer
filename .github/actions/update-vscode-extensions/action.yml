@@ -25,9 +25,6 @@ runs:
       shell: bash
     - run: |
         "${GITHUB_ACTION_PATH}/update-vscode-extensions.sh" "${INPUT_FILE}"
-        echo "markdown-summary-file=${RUNNER_TEMP}/markdown-summary.md" >> "${GITHUB_OUTPUT}"
-        echo "updated-dependencies=$(cat "${RUNNER_TEMP}/updated-extensions.json")" >> "${GITHUB_OUTPUT}"
-        rm "${RUNNER_TEMP}/updated-extensions.json"
       id: update-extensions
       shell: bash
       env:

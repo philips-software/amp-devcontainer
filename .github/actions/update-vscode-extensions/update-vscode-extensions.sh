@@ -69,6 +69,12 @@ else
 fi
 echo "$JSON" | jq '.customizations.vscode.extensions = $extensions' --argjson extensions "$EXTENSIONS" > "$FILE"
 
+MARKDOWN_SUMMARY_FILE=$(mktemp "${RUNNER_TEMP}/markdown-summary.XXXXXX.md")
+
+echo "::group::VS Code Extensions Update Details"
 echo "$UPDATE_DETAILS_MARKDOWN"
-echo "$UPDATE_DETAILS_MARKDOWN" > "${RUNNER_TEMP}/markdown-summary.md"
-echo "$UPDATED_EXTENSIONS_JSON" > "${RUNNER_TEMP}/updated-extensions.json"
+echo "::endgroup::"
+
+echo "$UPDATE_DETAILS_MARKDOWN" > "${MARKDOWN_SUMMARY_FILE}"
+echo "markdown-summary-file=${MARKDOWN_SUMMARY_FILE}" >> "${GITHUB_OUTPUT}"
+echo "updated-dependencies=${UPDATED_EXTENSIONS_JSON}" >> "${GITHUB_OUTPUT}"
