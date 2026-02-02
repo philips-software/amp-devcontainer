@@ -2,7 +2,7 @@
 
 set -Eeuo pipefail
 
-FILE=${1:?}
+FILE=${1:?"Usage: $0 <input-file>"}
 JSON=$(cat "$FILE")
 EXTENSIONS=
 UPDATE_DETAILS_MARKDOWN=
@@ -24,10 +24,10 @@ get_github_releasenotes() {
 
     gh release list --exclude-drafts --exclude-pre-releases -R "$GITHUB_URL" --json name,tagName --jq '.[]' | while read -r RELEASE;
     do
-        NAME=$(echo "$RELEASE" | jq -r '.name')
+        RELEASE_NAME=$(echo "$RELEASE" | jq -r '.name')
         TAG=$(echo "$RELEASE" | jq -r '.tagName')
 
-        if [[ $NAME == *"$CURRENT_RELEASE"* || $TAG == "v$CURRENT_RELEASE" ]];
+        if [[ $RELEASE_NAME == *"$CURRENT_RELEASE"* || $TAG == "v$CURRENT_RELEASE" ]];
         then
             break;
         fi
@@ -67,14 +67,21 @@ if [[ -n "$EXTENSIONS" ]]; then
 else
     EXTENSIONS="[]"
 fi
+
 echo "$JSON" | jq '.customizations.vscode.extensions = $extensions' --argjson extensions "$EXTENSIONS" > "$FILE"
 
-MARKDOWN_SUMMARY_FILE=$(mktemp "${RUNNER_TEMP}/markdown-summary.XXXXXX.md")
+echo "::group::📄 Changes to $FILE"
+git diff --color=always -- "$FILE" || true
+echo "::endgroup::"
 
 echo "::group::VS Code Extensions Update Details"
 echo "$UPDATE_DETAILS_MARKDOWN"
 echo "::endgroup::"
 
+MARKDOWN_SUMMARY_FILE=$(mktemp "${RUNNER_TEMP:-/tmp}/markdown-summary.XXXXXX.md")
 echo "$UPDATE_DETAILS_MARKDOWN" > "${MARKDOWN_SUMMARY_FILE}"
-echo "markdown-summary-file=${MARKDOWN_SUMMARY_FILE}" >> "${GITHUB_OUTPUT}"
-echo "updated-dependencies=${UPDATED_EXTENSIONS_JSON}" >> "${GITHUB_OUTPUT}"
+
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+    echo "markdown-summary-file=${MARKDOWN_SUMMARY_FILE}" >> "${GITHUB_OUTPUT}"
+    echo "updated-dependencies=${UPDATED_EXTENSIONS_JSON}" >> "${GITHUB_OUTPUT}"
+fi
