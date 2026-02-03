@@ -138,7 +138,7 @@ jobs:
 
   publish-devcontainer-templates:
     name: 📝 Publish templates
-    used: ./.github/workflows/wc-publish-templates.yml
+    uses: ./.github/workflows/wc-publish-templates.yml
     permissions:
       packages: write # is needed by devcontainers/action to write templates as OCI artifacts
 
