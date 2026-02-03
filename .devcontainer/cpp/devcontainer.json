@@ -44,8 +44,8 @@
         "ms-azuretools.vscode-docker@2.0.0",
         "ms-playwright.playwright@1.1.17",
         "ms-vscode.cmake-tools@1.22.26",
-        "ms-vscode.cpptools@1.29.3",
-        "sonarsource.sonarlint-vscode@4.41.0",
+        "ms-vscode.cpptools@1.30.3",
+        "sonarsource.sonarlint-vscode@4.42.0",
         "usernamehw.errorlens@3.28.0"
       ]
     }
