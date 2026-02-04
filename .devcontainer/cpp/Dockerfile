@@ -46,11 +46,28 @@ ARG XWIN_VERSION
 WORKDIR /
 
 RUN --mount=from=downloader,target=/dl <<EOF
-    set -e
+
+    set -euo pipefail
+
+    ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz"
+    ARM_GNU_TOOLCHAIN_TAR="/tmp/arm-gnu-toolchain.tar.xz"
+
+    if [[ "$(uname -m)" == "x86_64" ]]; then
+        ARM_GNU_TOOLCHAIN_SHA256="62a63b981fe391a9cbad7ef51b17e49aeaa3e7b0d029b36ca1e9c3b2a9b78823"
+    elif [[ "$(uname -m)" == "aarch64" ]]; then
+        ARM_GNU_TOOLCHAIN_SHA256="87330bab085dd8749d4ed0ad633674b9dc48b237b61069e3b481abd364d0a684"
+    fi
+
+    wget --no-hsts -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
+    echo "${ARM_GNU_TOOLCHAIN_SHA256}  ${ARM_GNU_TOOLCHAIN_TAR}" | sha256sum -c -
+
+    tar xJf "${ARM_GNU_TOOLCHAIN_TAR}" --exclude="*arm-none-eabi-gdb*" --exclude="share" --strip-components=1
     tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)/ccache"
     tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
     cp /dl/llvm.gpg.key /llvm.gpg.key
     cp /dl/mull.gpg.key /mull.gpg.key
+
+    rm -f "${ARM_GNU_TOOLCHAIN_TAR}"
 EOF
 
 # Final development container image
@@ -111,11 +128,10 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
         xargs apt-get install -y --no-install-recommends
-EOF
 
-# Install arm-gcc toolchain
-RUN mkdir /opt/gcc-arm-none-eabi \
- && wget --no-hsts -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
+    # Install arm-gcc toolchain
+    mv /src/arm-none-eabi /opt/gcc-arm-none-eabi
+EOF
 
 # Install include-what-you-use (iwyu) from source
 # hadolint ignore=DL3008
