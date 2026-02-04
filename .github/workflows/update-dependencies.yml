@@ -1,7 +1,8 @@
 ---
-name: Update Dependencies
+name: 📦 Update
 
 on:
+  pull_request:
   schedule:
     - cron: "30 2 * * 0"
   workflow_dispatch:
@@ -10,9 +11,10 @@ permissions: {}
 
 jobs:
   update-apt-dependencies:
-    name: Update APT Dependencies (🍨 ${{ matrix.flavor }})
+    name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} OS (🍨 ${{ matrix.flavor }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         flavor: ["base", "cpp", "rust"]
     # Using our own container is required since we need all package sources
@@ -31,13 +33,15 @@ jobs:
       - uses: ./.github/actions/update-apt-packages
         id: update-packages
         with:
-          input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements-*.json
+          input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements*.json
       - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: token
+        if: github.event_name != 'pull_request'
         with:
           app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
-      - uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # v8.0.0
+      - uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
+        if: github.event_name != 'pull_request'
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
           branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-apt-packages
@@ -47,9 +51,10 @@ jobs:
           sign-commits: true
 
   update-vscode-extensions:
-    name: Update VS Code Extensions (🍨 ${{ matrix.flavor }}, ${{ matrix.file }})
+    name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} Extensions (🍨 ${{ matrix.flavor }}, ${{ matrix.file }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         flavor: ["cpp", "rust"]
         file: ["devcontainer-metadata.json", "devcontainer.json"]
@@ -67,20 +72,28 @@ jobs:
         id: update-extensions
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/${{ matrix.file }}
+      - name: Generate PR body
+        run: |
+          {
+            echo "> [!NOTE]"
+            echo "> Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates."
+            echo ""
+            cat "$MARKDOWN_SUMMARY_FILE"
+          } >> "${RUNNER_TEMP}/pull-request-body.md"
+        env:
+          MARKDOWN_SUMMARY_FILE: ${{ steps.update-extensions.outputs.markdown-summary-file }}
       - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: token
+        if: github.event_name != 'pull_request'
         with:
           app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
-      - uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # v8.0.0
+      - uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
+        if: github.event_name != 'pull_request'
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
           branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions-${{ matrix.file }}
-          body: |
-            > [!NOTE]
-            > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates.
-
-            ${{ steps.update-extensions.outputs.markdown-summary }}
+          body-path: ${{ runner.temp }}/pull-request-body.md
           title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
           labels: dependencies,vscode-extensions
           token: ${{ steps.token.outputs.token }}
