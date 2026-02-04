@@ -1,6 +1,6 @@
 {
   "id": "cpp",
-  "version": "6.7.1",
+  "version": "6.7.2",
   "name": "C++",
   "description": "A modern, batteries-included software development environment for C++",
   "documentationURL": "https://github.com/philips-software/amp-devcontainer/blob/main/README.md",
@@ -9,7 +9,7 @@
     "imageVersion": {
       "type": "string",
       "description": "amp-devcontainer version",
-      "default": "6.7.1"
+      "default": "6.7.2"
     }
   },
   "optionalPaths": [".github/dependabot.yml"],
