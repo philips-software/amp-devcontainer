@@ -93,14 +93,6 @@ on:
       DOCKER_REGISTRY_USERNAME:
         description: User name for Docker login, if not provided the GitHub actor will be used
         required: false
-      TEST_GITHUB_PASSWORD:
-        required: false
-      TEST_GITHUB_TOKEN:
-        required: false
-      TEST_GITHUB_TOTP_SECRET:
-        required: false
-      TEST_GITHUB_USER:
-        required: false
 
 permissions: {}
 
@@ -153,11 +145,6 @@ jobs:
     uses: ./.github/workflows/wc-acceptance-test.yml
     permissions:
       contents: read
-    secrets:
-      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
-      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
-      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
-      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     with:
       image-basename: ${{ needs.build-push.outputs.image-basename }}
       devcontainer-file: ${{ inputs.test-devcontainer-file }}
