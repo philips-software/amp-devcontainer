@@ -152,6 +152,7 @@ jobs:
       - sanitize-image-name
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
       attestations: write # is needed by actions/attest-build-provenance to push attestations
       contents: write # is needed by anchore/sbom-action for artifact uploads
       id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
