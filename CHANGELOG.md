@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.7.2](https://github.com/philips-software/amp-devcontainer/compare/v6.7.1...v6.7.2) (2026-02-04)
+
+
+### Bug Fixes
+
+* Update devcontainer template structure ([#1132](https://github.com/philips-software/amp-devcontainer/issues/1132)) ([ef21f17](https://github.com/philips-software/amp-devcontainer/commit/ef21f175561fe3dd0a5a090749552a766ecb7474))
+
+
+### Chores
+
+* **deps, cpp:** Update github.vscode-github-actions, ms-vscode.cmake-tools, sonarsource.sonarlint-vscode, usernamehw.errorlens in devcontainer.json ([#1122](https://github.com/philips-software/amp-devcontainer/issues/1122)) ([07f8c44](https://github.com/philips-software/amp-devcontainer/commit/07f8c4469cd17da9189b2449f37bbd873a090d08))
+* **deps, cpp:** Update ms-vscode.cmake-tools, sonarsource.sonarlint-vscode in devcontainer-metadata.json ([#1121](https://github.com/philips-software/amp-devcontainer/issues/1121)) ([8b663ed](https://github.com/philips-software/amp-devcontainer/commit/8b663ed517100870a217bd85320e9dac74aab789))
+* **deps, cpp:** Update ms-vscode.cpptools, sonarsource.sonarlint-vscode in devcontainer-metadata.json ([#1127](https://github.com/philips-software/amp-devcontainer/issues/1127)) ([c0081cf](https://github.com/philips-software/amp-devcontainer/commit/c0081cf6d182e0dcd83e776aa1d6d50e2e87302e))
+* **deps, cpp:** Update ms-vscode.cpptools, sonarsource.sonarlint-vscode in devcontainer.json ([#1129](https://github.com/philips-software/amp-devcontainer/issues/1129)) ([4615474](https://github.com/philips-software/amp-devcontainer/commit/461547475ba0e02ba0080774d167e88a27e6e5f0))
+* **deps, cpp:** Update mull-19 ([#1131](https://github.com/philips-software/amp-devcontainer/issues/1131)) ([8ccc9eb](https://github.com/philips-software/amp-devcontainer/commit/8ccc9eb3b7e4282ca5432ecc0b4a79bdefd558c1))
+* **deps, rust:** Update github.vscode-github-actions, github.vscode-pull-request-github, rust-lang.rust-analyzer, sonarsource.sonarlint-vscode, usernamehw.errorlens in devcontainer.json ([#1130](https://github.com/philips-software/amp-devcontainer/issues/1130)) ([b93db92](https://github.com/philips-software/amp-devcontainer/commit/b93db92b1e7f1bdc5163e91b741b8f7529953839))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1128](https://github.com/philips-software/amp-devcontainer/issues/1128)) ([7626d5b](https://github.com/philips-software/amp-devcontainer/commit/7626d5b38e44e02f901d9b4bffac466a770acc95))
+* **deps, rust:** Update rust-lang.rust-analyzer, usernamehw.errorlens in devcontainer-metadata.json ([#1123](https://github.com/philips-software/amp-devcontainer/issues/1123)) ([f69df6d](https://github.com/philips-software/amp-devcontainer/commit/f69df6d447dcfebb5596244033d2413df5e8cc29))
+
 ## [6.7.1](https://github.com/philips-software/amp-devcontainer/compare/v6.7.0...v6.7.1) (2026-01-27)
 
 

@@ -1,22 +1,17 @@
 {
-  "id": "rust-template",
-  "version": "6.7.1",
-  "name": "amp-devcontainer-rust",
+  "id": "rust",
+  "version": "6.7.2",
+  "name": "Rust",
   "description": "A modern, batteries-included software development environment for Rust",
   "documentationURL": "https://github.com/philips-software/amp-devcontainer/blob/main/README.md",
   "licenseURL": "https://github.com/philips-software/amp-devcontainer/blob/main/LICENSE",
-  "publisher": "philips-software",
   "options": {
     "imageVersion": {
       "type": "string",
       "description": "amp-devcontainer version",
-      "default": "6.7.1"
+      "default": "6.7.2"
     }
   },
-  "optionalPaths": [
-    ".github/dependabot.yml"
-  ],
-  "platforms": [
-    "Any"
-  ]
+  "optionalPaths": [".github/dependabot.yml"],
+  "platforms": ["Any"]
 }
