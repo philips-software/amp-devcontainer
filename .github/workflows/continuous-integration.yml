@@ -36,11 +36,6 @@ jobs:
       matrix:
         flavor: [cpp, rust]
     uses: ./.github/workflows/wc-build-push-test.yml
-    secrets:
-      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
-      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
-      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
-      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
       attestations: write # is needed by actions/attest-build-provenance to push attestations
