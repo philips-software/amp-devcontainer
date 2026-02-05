@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.8.0](https://github.com/philips-software/amp-devcontainer/compare/v6.7.2...v6.8.0) (2026-02-05)
+
+
+### Features
+
+* Update LLVM/Clang to version 20 ([#1125](https://github.com/philips-software/amp-devcontainer/issues/1125)) ([20dddd7](https://github.com/philips-software/amp-devcontainer/commit/20dddd7f867cb458fa37d076428165df27f35c95))
+
+
+### Chores
+
+* **deps:** Update CPM to version 0.42.1 ([#1126](https://github.com/philips-software/amp-devcontainer/issues/1126)) ([fea1e09](https://github.com/philips-software/amp-devcontainer/commit/fea1e09bae83ac9d420d363736cdce4f99286035))
+
 ## [6.7.2](https://github.com/philips-software/amp-devcontainer/compare/v6.7.1...v6.7.2) (2026-02-04)
 
 
