@@ -69,6 +69,9 @@ jobs:
           podman run --rm \
             -v "${{ github.workspace }}:${{ github.workspace }}" \
             -w "${{ github.workspace }}" \
+            -e IMAGE_BASENAME="${IMAGE_BASENAME}" \
+            -e TEST_FILE="${TEST_FILE}" \
+            -e RUNNER_ARCH="${RUNNER_ARCH}" \
             ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }} \
             bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-podman-${RUNNER_ARCH}.xml"
         env:
