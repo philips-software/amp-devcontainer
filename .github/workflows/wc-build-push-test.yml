@@ -147,6 +147,24 @@ jobs:
       registry: ${{ inputs.registry }}
       test-file: ${{ inputs.integration-test-file }}
 
+  integration-test-podman:
+    name: 🧪 Podman
+    if: ${{ inputs.integration-test-file }}
+    needs: build-push
+    uses: ./.github/workflows/wc-integration-test-podman.yml
+    permissions:
+      contents: read
+    secrets:
+      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+    with:
+      build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
+      fully-qualified-image-name: ${{ needs.build-push.outputs.fully-qualified-image-name }}
+      image-basename: ${{ needs.build-push.outputs.image-basename }}
+      image-digest: ${{ needs.build-push.outputs.digest }}
+      registry: ${{ inputs.registry }}
+      test-file: ${{ inputs.integration-test-file }}
+
   acceptance-test:
     name: 🏗️
     if: ${{ inputs.test-devcontainer-file && inputs.acceptance-test-path }}
