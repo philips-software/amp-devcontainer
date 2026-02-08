@@ -1,3 +1,14 @@
+<!-- markdownlint-disable -->
+<a href="https://github.com/philips-software/amp-devcontainer">
+  <h1 align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/9ac111f8-7349-42e1-9778-d05d65969ba6">
+      <img alt="Flutter" src="https://github.com/user-attachments/assets/9ac111f8-7349-42e1-9778-d05d65969ba6">
+    </picture>
+  </h1>
+</a>
+<!-- markdownlint enable -->
+
 # amp-devcontainer
 
 <!-- markdownlint-disable -->
