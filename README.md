@@ -1,8 +1,16 @@
-# amp-devcontainer
-
 <!-- markdownlint-disable -->
-[![Linting & Formatting](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml) [![Continuous Integration](https://github.com/philips-software/amp-devcontainer/actions/workflows/continuous-integration.yml/badge.svg?branch=main)](https://github.com/philips-software/amp-devcontainer/actions/workflows/continuous-integration.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/philips-software/amp-devcontainer/badge)](https://securityscorecards.dev/viewer/?uri=github.com/philips-software/amp-devcontainer)
-<!-- markdownlint enable -->
+<a href="https://github.com/philips-software/amp-devcontainer">
+  <div align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/bd514b53-60de-4206-b97d-be4971d4908f">
+      <img alt="amp-devcontainer" src="https://github.com/user-attachments/assets/9ac111f8-7349-42e1-9778-d05d65969ba6">
+    </picture>
+    [![Linting & Formatting](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml) [![Continuous Integration](https://github.com/philips-software/amp-devcontainer/actions/workflows/continuous-integration.yml/badge.svg?branch=main)](https://github.com/philips-software/amp-devcontainer/actions/workflows/continuous-integration.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/philips-software/amp-devcontainer/badge)](https://securityscorecards.dev/viewer/?uri=github.com/philips-software/amp-devcontainer)
+  </div>
+</a>
+<!-- markdownlint-enable -->
+
+# amp-devcontainer
 
 ## Table of Contents
 
