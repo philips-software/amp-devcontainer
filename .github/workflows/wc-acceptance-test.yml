@@ -13,15 +13,6 @@ on:
       acceptance-test-path:
         required: true
         type: string
-    secrets:
-      TEST_GITHUB_TOKEN:
-        required: true
-      TEST_GITHUB_USER:
-        required: true
-      TEST_GITHUB_PASSWORD:
-        required: true
-      TEST_GITHUB_TOTP_SECRET:
-        required: true
 
 concurrency:
   group: ${{ github.workflow }}
@@ -34,6 +25,7 @@ jobs:
   test:
     name: Acceptance Test
     runs-on: ubuntu-latest
+    environment: acceptance-testing
     steps:
       - uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
         with:
