@@ -56,29 +56,37 @@ jobs:
           podman --version
       - name: Login to container registry
         run: |
-          echo "${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}" | \
-            podman login ${{ inputs.registry }} \
-              --username "${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}" \
+          echo "${REGISTRY_PASSWORD}" | \
+            podman login "${REGISTRY}" \
+              --username "${REGISTRY_USERNAME}" \
               --password-stdin
+        env:
+          REGISTRY: ${{ inputs.registry }}
+          REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+          REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
       - name: Pull container image
         run: |
-          podman pull ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
+          podman pull "${IMAGE_WITH_DIGEST}"
+        env:
+          IMAGE_WITH_DIGEST: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
       - run: echo "arch=$(echo "${RUNNER_ARCH}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
         id: runner-arch
       - name: Run integration tests using Podman
         run: |
           podman run --rm \
-            -v "${{ github.workspace }}:${{ github.workspace }}" \
-            -w "${{ github.workspace }}" \
+            -v "${WORKSPACE}:${WORKSPACE}" \
+            -w "${WORKSPACE}" \
             -e IMAGE_BASENAME="${IMAGE_BASENAME}" \
             -e TEST_FILE="${TEST_FILE}" \
             -e RUNNER_ARCH="${RUNNER_ARCH}" \
-            ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }} \
+            "${IMAGE_WITH_DIGEST}" \
             bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-podman-${RUNNER_ARCH}.xml"
         env:
           IMAGE_BASENAME: ${{ inputs.image-basename }}
-          TEST_FILE: ${{ inputs.test-file }}
+          IMAGE_WITH_DIGEST: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
           RUNNER_ARCH: ${{ steps.runner-arch.outputs.arch }}
+          TEST_FILE: ${{ inputs.test-file }}
+          WORKSPACE: ${{ github.workspace }}
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ !cancelled() }}
         with:
