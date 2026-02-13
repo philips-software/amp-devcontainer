@@ -234,7 +234,7 @@ jobs:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@03a6ec02581d659aa155a8127b9ecac229560d1d # v6.6.2
+      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@0b102f3ea8255073eab6cad7b6fb3e7b3dbd1121 # v6.8.0
         id: container-size-diff
         with:
           from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
@@ -244,7 +244,7 @@ jobs:
           header: container-size-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
-      - uses: anchore/sbom-action@0b82b0b1a22399a1c542d4d656f70cd903571b5c # v0.21.1
+      - uses: anchore/sbom-action@28d71544de8eaf1b958d335707167c5f783590ad # v0.22.2
         with:
           image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
