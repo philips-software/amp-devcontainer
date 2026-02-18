@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.8.1](https://github.com/philips-software/amp-devcontainer/compare/v6.8.0...v6.8.1) (2026-02-18)
+
+
+### Chores
+
+* **deps, base:** Update g++-14 ([#1156](https://github.com/philips-software/amp-devcontainer/issues/1156)) ([db4e403](https://github.com/philips-software/amp-devcontainer/commit/db4e4033c3bb379f7f5dcc8e7d9847a089810b2d))
+* **deps, cpp:** Update alexkrechik.cucumberautocomplete, ms-vscode.cpptools in devcontainer.json ([#1154](https://github.com/philips-software/amp-devcontainer/issues/1154)) ([248dd41](https://github.com/philips-software/amp-devcontainer/commit/248dd41c4d62d06f846d76cf525fde733bf8de0b))
+* **deps, cpp:** Update github.vscode-pull-request-github, ms-vscode.cmake-tools, ms-vscode.cpptools in devcontainer.json ([#1145](https://github.com/philips-software/amp-devcontainer/issues/1145)) ([ea8d44c](https://github.com/philips-software/amp-devcontainer/commit/ea8d44cdbda5ee500c6ae3b587d6bf77b92af867))
+* **deps, cpp:** Update ms-vscode.cmake-tools, ms-vscode.cpptools in devcontainer-metadata.json ([#1144](https://github.com/philips-software/amp-devcontainer/issues/1144)) ([84f3450](https://github.com/philips-software/amp-devcontainer/commit/84f34502b14cb422cc7dff1d7408425a490ffbe7))
+* **deps, cpp:** Update ms-vscode.cpptools in devcontainer-metadata.json ([#1152](https://github.com/philips-software/amp-devcontainer/issues/1152)) ([6a57e1b](https://github.com/philips-software/amp-devcontainer/commit/6a57e1bba5d6b9f1a319fc7566435c2a992a86a4))
+* **deps, rust:** Update github.vscode-pull-request-github in devcontainer.json ([#1146](https://github.com/philips-software/amp-devcontainer/issues/1146)) ([02d75f0](https://github.com/philips-software/amp-devcontainer/commit/02d75f065832d1e775d88fca88e5464cd4c96169))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1153](https://github.com/philips-software/amp-devcontainer/issues/1153)) ([22ef006](https://github.com/philips-software/amp-devcontainer/commit/22ef00632ab52fc85d0ea973edb59f3304779742))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer.json ([#1155](https://github.com/philips-software/amp-devcontainer/issues/1155)) ([bfe1bc2](https://github.com/philips-software/amp-devcontainer/commit/bfe1bc2f22ab45f716783f6ad743d03819151576))
+* **deps:** Bump conan from 2.24.0 to 2.25.1 in /.devcontainer ([#1139](https://github.com/philips-software/amp-devcontainer/issues/1139)) ([9e104c6](https://github.com/philips-software/amp-devcontainer/commit/9e104c61a3ed4492297481abce7f4b58a26f81e9))
+* **deps:** Bump conan from 2.25.1 to 2.25.2 in /.devcontainer ([#1149](https://github.com/philips-software/amp-devcontainer/issues/1149)) ([d938b08](https://github.com/philips-software/amp-devcontainer/commit/d938b08de9d6ca4fb3f592eef0cfc95484d2af4b))
+
 ## [6.8.0](https://github.com/philips-software/amp-devcontainer/compare/v6.7.2...v6.8.0) (2026-02-05)
 
 
