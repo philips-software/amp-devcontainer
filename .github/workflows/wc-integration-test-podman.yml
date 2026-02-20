@@ -1,0 +1,95 @@
+---
+name: Integration Test (Podman)
+
+on:
+  workflow_call:
+    inputs:
+      build-test-runner-labels:
+        required: true
+        type: string
+      fully-qualified-image-name:
+        required: true
+        type: string
+      image-basename:
+        required: true
+        type: string
+      image-digest:
+        required: true
+        type: string
+      registry:
+        required: true
+        type: string
+      test-file:
+        required: true
+        type: string
+    secrets:
+      DOCKER_REGISTRY_PASSWORD:
+        required: true
+      DOCKER_REGISTRY_USERNAME:
+        required: true
+
+permissions: {}
+
+jobs:
+  run-test:
+    name: Integration Test Podman (${{ (startsWith(matrix.runner, '[') && endsWith(matrix.runner, ']')) && join(matrix.runner, ', ') || matrix.runner }})
+    strategy:
+      matrix:
+        runner: ${{ fromJson(inputs.build-test-runner-labels) }}
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+    steps:
+      - uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+        with:
+          disable-sudo: false
+          egress-policy: audit
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Install Podman
+        run: |
+          # Install Podman on Ubuntu (Ubuntu 20.10+ has Podman in default repositories)
+          # This workflow is designed for Ubuntu runners (ubuntu-latest, ubuntu-24.04-arm)
+          sudo apt-get update
+          sudo apt-get install -y podman
+          podman --version
+      - name: Login to container registry
+        run: |
+          echo "${REGISTRY_PASSWORD}" | \
+            podman login "${REGISTRY}" \
+              --username "${REGISTRY_USERNAME}" \
+              --password-stdin
+        env:
+          REGISTRY: ${{ inputs.registry }}
+          REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+          REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
+      - name: Pull container image
+        run: |
+          podman pull "${IMAGE_WITH_DIGEST}"
+        env:
+          IMAGE_WITH_DIGEST: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
+      - run: echo "arch=$(echo "${RUNNER_ARCH}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+        id: runner-arch
+      - name: Run integration tests using Podman
+        run: |
+          podman run --rm \
+            --network=host \
+            -v "${WORKSPACE}:${WORKSPACE}" \
+            -w "${WORKSPACE}" \
+            -e IMAGE_BASENAME="${IMAGE_BASENAME}" \
+            -e TEST_FILE="${TEST_FILE}" \
+            -e RUNNER_ARCH="${RUNNER_ARCH}" \
+            "${IMAGE_WITH_DIGEST}" \
+            bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-podman-${RUNNER_ARCH}.xml"
+        env:
+          IMAGE_BASENAME: ${{ inputs.image-basename }}
+          IMAGE_WITH_DIGEST: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
+          RUNNER_ARCH: ${{ steps.runner-arch.outputs.arch }}
+          TEST_FILE: ${{ inputs.test-file }}
+          WORKSPACE: ${{ github.workspace }}
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: ${{ !cancelled() }}
+        with:
+          name: test-results-integration-podman-${{ inputs.image-basename }}-${{ steps.runner-arch.outputs.arch }}
+          path: test-report-*.xml
