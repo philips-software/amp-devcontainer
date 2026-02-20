@@ -74,6 +74,7 @@ jobs:
       - name: Run integration tests using Podman
         run: |
           podman run --rm \
+            --network=host \
             -v "${WORKSPACE}:${WORKSPACE}" \
             -w "${WORKSPACE}" \
             -e IMAGE_BASENAME="${IMAGE_BASENAME}" \
