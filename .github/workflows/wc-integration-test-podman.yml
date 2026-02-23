@@ -40,7 +40,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           disable-sudo: false
           egress-policy: audit
@@ -49,8 +49,6 @@ jobs:
           persist-credentials: false
       - name: Install Podman
         run: |
-          # Install Podman on Ubuntu (Ubuntu 20.10+ has Podman in default repositories)
-          # This workflow is designed for Ubuntu runners (ubuntu-latest, ubuntu-24.04-arm)
           sudo apt-get update
           sudo apt-get install -y podman
           podman --version
