@@ -32,7 +32,6 @@ jobs:
   build-push-flavors:
     name: Build → Push → Test (🍨 ${{ matrix.flavor }})
     needs: build-push-base
-    environment: acceptance-testing
     strategy:
       matrix:
         flavor: [cpp, rust]
