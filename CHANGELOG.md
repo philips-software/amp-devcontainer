@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.8.2](https://github.com/philips-software/amp-devcontainer/compare/v6.8.1...v6.8.2) (2026-02-24)
+
+
+### Bug Fixes
+
+* Add required permission to release workflow ([#1163](https://github.com/philips-software/amp-devcontainer/issues/1163)) ([6041313](https://github.com/philips-software/amp-devcontainer/commit/60413131b03248fc71bee907f808581e21d90d6c))
+
 ## [6.8.1](https://github.com/philips-software/amp-devcontainer/compare/v6.8.0...v6.8.1) (2026-02-23)
 
 
