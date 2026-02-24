@@ -54,10 +54,7 @@ jobs:
           podman --version
       - name: Login to container registry
         run: |
-          echo "${REGISTRY_PASSWORD}" | \
-            podman login "${REGISTRY}" \
-              --username "${REGISTRY_USERNAME}" \
-              --password-stdin
+          printf '%s' "${REGISTRY_PASSWORD}" | podman login "${REGISTRY}" --username "${REGISTRY_USERNAME}" --password-stdin
         env:
           REGISTRY: ${{ inputs.registry }}
           REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
@@ -71,6 +68,8 @@ jobs:
         id: runner-arch
       - name: Run integration tests using Podman
         run: |
+          set -Eeuo pipefail
+
           podman run --rm \
             --network=host \
             -v "${WORKSPACE}:${WORKSPACE}" \
@@ -86,6 +85,12 @@ jobs:
           RUNNER_ARCH: ${{ steps.runner-arch.outputs.arch }}
           TEST_FILE: ${{ inputs.test-file }}
           WORKSPACE: ${{ github.workspace }}
+      - name: Log out of container registry
+        if: ${{ always() }}
+        run: |
+          podman logout "${REGISTRY}"
+        env:
+          REGISTRY: ${{ inputs.registry }}
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ !cancelled() }}
         with:
