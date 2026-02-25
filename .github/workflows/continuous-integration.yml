@@ -58,8 +58,8 @@ jobs:
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
-      acceptance-test-path: ${{ matrix.flavor == 'cpp' && 'test/cpp/features' || '' }}
-      test-devcontainer-file: ${{ matrix.flavor == 'cpp' && '.devcontainer/cpp-test/devcontainer.json' || '' }}
+      acceptance-test-path: ${{ (github.actor != 'dependabot[bot]' && matrix.flavor == 'cpp') && 'test/cpp/features' || '' }}
+      test-devcontainer-file: .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
 
   dependency-review:
     name: 🔍 Dependency Review
