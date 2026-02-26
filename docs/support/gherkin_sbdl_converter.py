@@ -54,6 +54,52 @@ class SBDLElement:
         """Convert a name to a hyphenated slug identifier."""
         return to_slug(name)
 
+def write_gherkin_sbdl_elements(f, elements: List[SBDLElement]):
+    """Write a list of Gherkin-derived SBDL elements to an open file handle.
+
+    Handles description, custom:title, and parent/cross-type relations
+    for each element.
+
+    Args:
+        f: Writable file handle.
+        elements: List of SBDLElement objects to write.
+    """
+    tokens = sbdl.SBDL_Parser.Tokens
+    attrs = sbdl.SBDL_Parser.Attributes
+
+    # Build a lookup from identifier to element type for cross-type relation handling
+    element_types = {e.identifier: e.element_type for e in elements}
+
+    for element in elements:
+        escaped_desc = sbdl.SBDL_Parser.sanitize(element.description)
+        sbdl_type = element.element_type.value
+        f.write(f"{element.identifier} {tokens.declaration} {sbdl_type} ")
+        f.write(f"{tokens.declaration_group_delimeters[0]} ")
+        f.write(f"{attrs.description}{tokens.declaration_attribute_assign}")
+        f.write(
+            f"{tokens.declaration_attribute_delimeter}{escaped_desc}{tokens.declaration_attribute_delimeter} "
+        )
+
+        # Write custom:title with original name for display purposes
+        original_name = element.metadata.get('original_name', '') if element.metadata else ''
+        if original_name:
+            escaped_title = sbdl.SBDL_Parser.sanitize(original_name)
+            f.write(f'custom:title{tokens.declaration_attribute_assign}')
+            f.write(f'{tokens.declaration_attribute_delimeter}{escaped_title}{tokens.declaration_attribute_delimeter} ')
+
+        if element.parent:
+            parent_type = element_types.get(element.parent)
+            if parent_type and parent_type != element.element_type:
+                # Cross-type relation: use the parent's type name as relation
+                # e.g. test -> requirement becomes "requirement is <id>"
+                # e.g. requirement -> aspect becomes "aspect is <id>"
+                f.write(f"{parent_type.value}{tokens.declaration_attribute_assign}{element.parent} ")
+            else:
+                f.write(f"{attrs.parent}{tokens.declaration_attribute_assign}{element.parent} ")
+
+        f.write(f"{tokens.declaration_group_delimeters[1]}\n")
+
+
 class GherkinConverter:
     """Converts Gherkin files to SBDL using configurable hierarchy mappings."""
 
@@ -85,43 +131,10 @@ class GherkinConverter:
             return []
 
     def write_sbdl_output(self, elements: List[SBDLElement], output_file: str):
-        tokens = sbdl.SBDL_Parser.Tokens
-        attrs = sbdl.SBDL_Parser.Attributes
-
-        # Build a lookup from identifier to element type for cross-type relation handling
-        element_types = {e.identifier: e.element_type for e in elements}
-
+        """Write extracted Gherkin elements as a standalone SBDL file."""
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write("#!sbdl\n")
-
-            for element in elements:
-                escaped_desc = sbdl.SBDL_Parser.sanitize(element.description)
-                sbdl_type = element.element_type.value
-                f.write(f"{element.identifier} {tokens.declaration} {sbdl_type} ")
-                f.write(f"{tokens.declaration_group_delimeters[0]} ")
-                f.write(f"{attrs.description}{tokens.declaration_attribute_assign}")
-                f.write(
-                    f"{tokens.declaration_attribute_delimeter}{escaped_desc}{tokens.declaration_attribute_delimeter} "
-                )
-
-                # Write custom:title with original name for display purposes
-                original_name = element.metadata.get('original_name', '') if element.metadata else ''
-                if original_name:
-                    escaped_title = sbdl.SBDL_Parser.sanitize(original_name)
-                    f.write(f'custom:title{tokens.declaration_attribute_assign}')
-                    f.write(f'{tokens.declaration_attribute_delimeter}{escaped_title}{tokens.declaration_attribute_delimeter} ')
-
-                if element.parent:
-                    parent_type = element_types.get(element.parent)
-                    if parent_type and parent_type != element.element_type:
-                        # Cross-type relation: use the parent's type name as relation
-                        # e.g. test -> requirement becomes "requirement is <id>"
-                        # e.g. requirement -> aspect becomes "aspect is <id>"
-                        f.write(f"{parent_type.value}{tokens.declaration_attribute_assign}{element.parent} ")
-                    else:
-                        f.write(f"{attrs.parent}{tokens.declaration_attribute_assign}{element.parent} ")
-
-                f.write(f"{tokens.declaration_group_delimeters[1]}\n")
+            write_gherkin_sbdl_elements(f, elements)
 
     def _extract_gherkin_element(self, element_data: Dict, element_type: GherkinElementType, parent_id: Optional[str]) -> Optional[SBDLElement]:
         mapping = self.config.get_mapping_for_type(element_type)

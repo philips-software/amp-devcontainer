@@ -27,7 +27,7 @@ jobs:
       - name: Generate SRS document
         run: |
           set -Eeuo pipefail
-          python docs/support/gherkin-to-sbdl.py test/cpp/features/*.feature
+          python docs/support/generate-sbdl.py --config requirements --gherkin test/cpp/features/*.feature
           sbdl -m template-fill --template docs/templates/software-requirements-specification.md.j2 output.sbdl > software-requirements-specification.md
       - name: Generate C++ test specification and traceability documents
         run: |

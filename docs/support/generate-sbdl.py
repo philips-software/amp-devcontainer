@@ -20,7 +20,7 @@ import os
 import sys
 
 from gherkin_mapping_config import FEATURE_RULE_CONFIG, TEST_SPECIFICATION_CONFIG
-from gherkin_sbdl_converter import GherkinConverter, to_slug
+from gherkin_sbdl_converter import GherkinConverter, to_slug, write_gherkin_sbdl_elements
 from bats_sbdl_converter import BatsConverter
 
 
@@ -124,12 +124,6 @@ def _write_combined_sbdl(gherkin_elements, bats_converter, bats_tests, output_fi
     """Write a single combined SBDL file from both Gherkin and BATS sources."""
     import sbdl as sbdl_lib
 
-    tokens = sbdl_lib.SBDL_Parser.Tokens
-    attrs = sbdl_lib.SBDL_Parser.Attributes
-
-    # Build element type lookup for cross-type relation handling
-    element_types = {e.identifier: e.element_type for e in gherkin_elements}
-
     with open(output_file, "w", encoding="utf-8") as f:
         f.write("#!sbdl\n\n")
 
@@ -139,32 +133,7 @@ def _write_combined_sbdl(gherkin_elements, bats_converter, bats_tests, output_fi
             f.write(f'document-flavor is definition {{ description is "{escaped_flavor}" custom:title is "{escaped_flavor}" }}\n\n')
 
         f.write("# Elements extracted from Gherkin feature files\n")
-
-        for element in gherkin_elements:
-            escaped_desc = sbdl_lib.SBDL_Parser.sanitize(element.description)
-            sbdl_type = element.element_type.value
-            f.write(f"{element.identifier} {tokens.declaration} {sbdl_type} ")
-            f.write(f"{tokens.declaration_group_delimeters[0]} ")
-            f.write(f"{attrs.description}{tokens.declaration_attribute_assign}")
-            f.write(
-                f"{tokens.declaration_attribute_delimeter}{escaped_desc}{tokens.declaration_attribute_delimeter} "
-            )
-
-            # Write custom:title with original name for display purposes
-            original_name = element.metadata.get('original_name', '') if element.metadata else ''
-            if original_name:
-                escaped_title = sbdl_lib.SBDL_Parser.sanitize(original_name)
-                f.write(f'custom:title{tokens.declaration_attribute_assign}')
-                f.write(f'{tokens.declaration_attribute_delimeter}{escaped_title}{tokens.declaration_attribute_delimeter} ')
-
-            if element.parent:
-                parent_type = element_types.get(element.parent)
-                if parent_type and parent_type != element.element_type:
-                    f.write(f"{parent_type.value}{tokens.declaration_attribute_assign}{element.parent} ")
-                else:
-                    f.write(f"{attrs.parent}{tokens.declaration_attribute_assign}{element.parent} ")
-
-            f.write(f"{tokens.declaration_group_delimeters[1]}\n")
+        write_gherkin_sbdl_elements(f, gherkin_elements)
 
         if bats_tests:
             f.write("\n# Elements extracted from BATS integration test files\n")
