@@ -35,7 +35,7 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
     --mount=type=cache,target=/var/log,sharing=locked \
     --mount=from=extractor,target=/src <<EOF
 
-   set -e
+   set -Eeuo pipefail
 
    # Install the base system with all tool dependencies
    apt-get update && apt-get install -y --no-install-recommends jq

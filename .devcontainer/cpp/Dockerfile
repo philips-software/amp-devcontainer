@@ -47,7 +47,7 @@ WORKDIR /
 
 RUN --mount=from=downloader,target=/dl <<EOF
 
-    set -euo pipefail
+    set -Eeuo pipefail
 
     ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz"
     ARM_GNU_TOOLCHAIN_TAR="/tmp/arm-gnu-toolchain.tar.xz"
@@ -101,7 +101,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     --mount=type=cache,target=/var/log,sharing=locked \
     --mount=from=extractor,target=/src <<EOF
 
-    set -e
+    set -Eeuo pipefail
 
     # Install the base system with all tool dependencies
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
