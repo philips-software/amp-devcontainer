@@ -17,11 +17,10 @@ Usage examples:
 
 import argparse
 import os
-import re
 import sys
 
 from gherkin_mapping_config import FEATURE_RULE_CONFIG, TEST_SPECIFICATION_CONFIG
-from gherkin_sbdl_converter import GherkinConverter
+from gherkin_sbdl_converter import GherkinConverter, to_slug
 from bats_sbdl_converter import BatsConverter
 
 
@@ -95,7 +94,7 @@ def main():
             if original:
                 requirement_tag_map[original.lower()] = entry
                 # Also map the slugified version for BATS tag matching
-                slug_original = re.sub(r'[^a-z0-9]+', '-', original.lower()).strip('-')
+                slug_original = to_slug(original)
                 if slug_original:
                     requirement_tag_map[slug_original] = entry
             # Also map the SBDL identifier itself
@@ -108,19 +107,20 @@ def main():
     for bats_path in args.bats:
         if os.path.isfile(bats_path):
             print(f"Processing BATS: {bats_path}")
-            tests = bats_converter.extract_from_bats_file(bats_path)
+            flavor_prefix = to_slug(os.path.basename(os.path.dirname(os.path.abspath(bats_path))))
+            tests = bats_converter.extract_from_bats_file(bats_path, flavor=flavor_prefix)
             bats_tests.extend(tests)
         else:
             print(f"File not found: {bats_path}", file=sys.stderr)
 
     # Write combined SBDL output
-    _write_combined_sbdl(gherkin_converter, gherkin_elements, bats_converter, bats_tests, args.output, args.flavor)
+    _write_combined_sbdl(gherkin_elements, bats_converter, bats_tests, args.output, args.flavor)
 
     total = len(gherkin_elements) + len(bats_tests)
     print(f"Extracted {total} elements ({len(gherkin_elements)} from Gherkin, {len(bats_tests)} from BATS) to {args.output}")
 
 
-def _write_combined_sbdl(gherkin_converter, gherkin_elements, bats_converter, bats_tests, output_file, flavor=""):
+def _write_combined_sbdl(gherkin_elements, bats_converter, bats_tests, output_file, flavor=""):
     """Write a single combined SBDL file from both Gherkin and BATS sources."""
     import sbdl as sbdl_lib
 

@@ -10,23 +10,15 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
+from gherkin_sbdl_converter import to_slug
+
 try:
     import sbdl
-
-    def sanitize_identifier(name: str) -> str:
-        """Convert a name to a hyphenated slug identifier."""
-        slug = re.sub(r'[^a-z0-9]+', '-', name.lower())
-        return slug.strip('-')
 
     def sanitize_description(text: str) -> str:
         return sbdl.SBDL_Parser.sanitize(text)
 
 except ImportError:
-    def sanitize_identifier(name: str) -> str:
-        """Convert a name to a hyphenated slug identifier."""
-        slug = re.sub(r'[^a-z0-9]+', '-', name.lower())
-        return slug.strip('-')
-
     def sanitize_description(text: str) -> str:
         return text.replace('"', '\\"')
 
@@ -43,7 +35,7 @@ class BatsTest:
 
     def __post_init__(self):
         if not self.identifier:
-            self.identifier = sanitize_identifier(self.name)
+            self.identifier = to_slug(self.name)
 
 
 class BatsConverter:
@@ -63,24 +55,7 @@ class BatsConverter:
         """
         self.requirement_tag_map = requirement_tag_map or {}
 
-    @staticmethod
-    def _extract_flavor(file_path: str) -> str:
-        """Extract the flavor prefix from a BATS file path.
-
-        Derives a prefix from the parent directory name of the BATS file,
-        e.g. 'test/cpp/integration-tests.bats' -> 'cpp'.
-
-        Args:
-            file_path: Path to the BATS file.
-
-        Returns:
-            Flavor string derived from the parent directory.
-        """
-        import os
-        parent = os.path.basename(os.path.dirname(os.path.abspath(file_path)))
-        return sanitize_identifier(parent) if parent else ""
-
-    def extract_from_bats_file(self, file_path: str) -> List[BatsTest]:
+    def extract_from_bats_file(self, file_path: str, flavor: str = "") -> List[BatsTest]:
         """Extract all test definitions from a BATS file.
 
         Parses `@test "..."` blocks and any preceding `# bats test_tags=...`
@@ -88,6 +63,8 @@ class BatsConverter:
 
         Args:
             file_path: Path to the .bats file.
+            flavor: Optional identifier prefix for disambiguation
+                (e.g. 'cpp', 'rust', 'base').
 
         Returns:
             List of BatsTest objects.
@@ -116,8 +93,7 @@ class BatsConverter:
             test_match = self._TEST_PATTERN.match(stripped)
             if test_match:
                 test_name = test_match.group(1)
-                flavor = self._extract_flavor(file_path)
-                base_id = sanitize_identifier(test_name)
+                base_id = to_slug(test_name)
                 identifier = f"{flavor}-{base_id}" if flavor else base_id
                 test = BatsTest(
                     name=test_name,
@@ -137,54 +113,6 @@ class BatsConverter:
                 pending_tags = []
 
         return tests
-
-    def write_sbdl_output(self, tests: List[BatsTest], output_file: str):
-        """Write extracted BATS tests as SBDL test elements.
-
-        Args:
-            tests: List of BatsTest objects.
-            output_file: Path to write the SBDL output.
-        """
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write("#!sbdl\n")
-
-            for test in tests:
-                escaped_desc = sanitize_description(test.name)
-                identifier = test.identifier
-
-                f.write(f'{identifier} is test {{ description is "{escaped_desc}" custom:title is "{escaped_desc}"')
-
-                # Add tag property if tags exist
-                if test.tags:
-                    tag_str = ",".join(test.tags)
-                    f.write(f" tag is {tag_str}")
-
-                # Add requirement relation via tag mapping
-                req_ids = self._resolve_requirement_relations(test)
-                if req_ids:
-                    f.write(f" requirement is {','.join(req_ids)}")
-
-                f.write(" }\n")
-
-    def _resolve_requirement_relations(self, test: BatsTest) -> List[str]:
-        """Resolve requirement identifiers from test tags using the tag map.
-
-        Args:
-            test: A BatsTest with tags.
-
-        Returns:
-            List of requirement SBDL identifiers.
-        """
-        req_ids = []
-        for tag in test.tags:
-            tag_lower = tag.lower()
-            if tag_lower in self.requirement_tag_map:
-                entry = self.requirement_tag_map[tag_lower]
-                # Support both plain string and (identifier, type) tuple entries
-                req_id = entry[0] if isinstance(entry, tuple) else entry
-                if req_id not in req_ids:
-                    req_ids.append(req_id)
-        return req_ids
 
     def _resolve_typed_relations(self, test: BatsTest) -> Dict[str, List[str]]:
         """Resolve typed relations from test tags using the tag map.

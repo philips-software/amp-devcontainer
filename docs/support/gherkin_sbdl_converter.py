@@ -17,6 +17,22 @@ from gherkin_mapping_config import (
     SBDLElementType,
 )
 
+
+def to_slug(name: str) -> str:
+    """Convert a human-readable name to a hyphenated slug identifier.
+
+    Lowercases the name and replaces any sequence of non-alphanumeric
+    characters with a single hyphen.
+
+    Args:
+        name: The original name.
+
+    Returns:
+        Hyphenated, lowercase slug suitable as an SBDL identifier.
+    """
+    slug = re.sub(r'[^a-z0-9]+', '-', name.lower())
+    return slug.strip('-')
+
 @dataclass
 class SBDLElement:
     """A generalized SBDL element that can represent any type."""
@@ -36,8 +52,7 @@ class SBDLElement:
 
     def _make_sbdl_identifier(self, name: str) -> str:
         """Convert a name to a hyphenated slug identifier."""
-        slug = re.sub(r'[^a-z0-9]+', '-', name.lower())
-        return slug.strip('-')
+        return to_slug(name)
 
 class GherkinConverter:
     """Converts Gherkin files to SBDL using configurable hierarchy mappings."""
