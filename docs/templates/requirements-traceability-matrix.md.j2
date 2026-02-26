@@ -23,9 +23,8 @@ This document provides a requirements traceability matrix (RTM) for amp-devconta
 
 ## Abstract
 
-amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored towards modern, embedded, software development. This traceability matrix traces requirements from the software requirements specification to their corresponding verification tests (Gherkin scenarios and BATS integration tests).
-
-{%- macro reencode(text) -%}
+amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored towards modern, embedded, software development. This traceability matrix traces requirements from the *Software Requirements Specification (SRS)* to their corresponding verification tests (Gherkin scenarios and BATS integration tests) as enumerated in the *Software Test Plan (STP)*.
+{% macro reencode(text) -%}
 {{ text.encode('utf-8').decode('unicode_escape') }}
 {%- endmacro -%}
 
@@ -43,7 +42,7 @@ amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored t
 {%- else -%}
 {{ (elem_id | replace('-', ' '))[:60] }}
 {%- endif -%}
-{%- endmacro -%}
+{%- endmacro %}
 
 # Traceability Matrix
 
