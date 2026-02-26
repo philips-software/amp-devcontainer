@@ -14,24 +14,7 @@ titlepage-rule-height: 2
 toc: true
 toc-own-page: true
 ...
-
-# Introduction
-
-## Purpose
-
-This document describes the software test specification for amp-devcontainer. It enumerates all tests, both from Gherkin scenarios (verification tests) and BATS integration tests, and traces them to the requirements they verify.
-
-## Definitions of key words
-
-The key words *MUST*, *MUST NOT*, *REQUIRED*, *SHALL*, *SHALL NOT*, *SHOULD*, *SHOULD NOT*, *RECOMMENDED*, *MAY*, and *OPTIONAL* in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
-
-## Abstract
-
-amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored towards modern, embedded, software development. This document specifies the tests that verify the requirements defined in the software requirements specification.
-
-# Tests
-
-{%- macro reencode(text) -%}
+{% macro reencode(text) -%}
 {{ text.encode('utf-8').decode('unicode_escape') }}
 {%- endmacro -%}
 
@@ -41,8 +24,63 @@ amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored t
 {%- else -%}
 {{ elem_id | replace('-', ' ') }}
 {%- endif -%}
-{%- endmacro -%}
+{%- endmacro %}
 
+# Introduction
+
+## Purpose
+
+This document specifies the tests for amp-devcontainer
+{%- if 'document-flavor' in sbdl %} ({{ sbdl['document-flavor']['custom:title'] }} flavor){%- endif %}.
+It enumerates all tests, describes the test methodology, and traces each test to the requirement(s) it verifies.
+
+For the full requirement descriptions, refer to the *Software Requirements Specification* (SRS).
+For the coverage overview, refer to the *Requirements Traceability Matrix* (RTM).
+
+## Scope
+
+This document covers the following types of tests:
+
+- **Gherkin verification tests**: Scenario-based tests defined in Gherkin feature files and executed with Playwright. These tests verify behavioral requirements at the system level.
+- **BATS integration tests**: Shell-based integration tests defined in BATS (Bash Automated Testing System) files. These tests verify tool availability, version alignment, and end-to-end compilation and analysis workflows.
+
+## Definitions of key words
+
+The key words *MUST*, *MUST NOT*, *REQUIRED*, *SHALL*, *SHALL NOT*, *SHOULD*, *SHOULD NOT*, *RECOMMENDED*, *MAY*, and *OPTIONAL* in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
+
+## Referenced documents
+
+| Document | Description |
+|---|---|
+| Software Requirements Specification (SRS) | Defines the requirements verified by the tests in this document |
+| Requirements Traceability Matrix (RTM) | Maps requirements to tests and provides coverage metrics |
+
+# Test environment
+
+Tests are executed in a container built from the amp-devcontainer image for the applicable flavor. The container provides all necessary compilers, tools, and dependencies.
+
+| Component | Description |
+|---|---|
+| Container runtime | OCI-compatible container engine (e.g. Docker, Podman) |
+| Gherkin test runner | Playwright with Gherkin step definitions |
+| Integration test runner | BATS (Bash Automated Testing System) |
+| CI platform | GitHub Actions |
+
+# Test methodology
+
+## Gherkin verification tests
+
+Gherkin scenarios follow the Given-When-Then structure. Each scenario exercises a specific capability of the devcontainer by automating interactions with the development environment. Tests are executed via Playwright inside a running devcontainer instance (GitHub Codespace or local). A scenario passes when all of its steps complete without error.
+
+## BATS integration tests
+
+BATS tests verify tool presence, version alignment, and end-to-end workflows (compilation, analysis, formatting) by executing shell commands inside the devcontainer. Each test function runs in isolation. A BATS test passes when the test function exits with code 0.
+
+## Expected results
+
+> **Note**: Structured expected-result data per test is not yet available in the current toolchain. This section will be extended when test result rendering is implemented. Currently, a test is considered passed when it completes without error as described above.
+
+# Tests
 {%- set aspects = [] -%}
 {%- for elem_id, elem in sbdl.items() -%}
 {%- if elem.type == 'aspect' -%}
@@ -59,22 +97,18 @@ amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored t
 {%- for req_id, req in sbdl.items() -%}
 {%- if req.type == 'requirement' and 'aspect' in req -%}
 {%- for asp_ref in req.aspect if asp_ref.identifier == aspect_id -%}
-{%- set ns.has_requirements = true -%}
+{%- set ns.has_requirements = true %}
 
 ### {{ reencode(display_name(req_id)) }}
 
-{{ reencode(req.description) }}
-
 {%- set ns_tests = namespace(has_tests=false) -%}
-
-#### Verification tests
 
 {%- for test_id, test_elem in sbdl.items() -%}
 {%- if test_elem.type == 'test' -%}
 {%- if 'requirement' in test_elem -%}
 {%- for req_ref in test_elem.requirement if req_ref.identifier == req_id -%}
 {%- set ns_tests.has_tests = true %}
-- **{{ reencode(display_name(test_id)) }}**: {{ reencode(test_elem.description) }}
+- {{ reencode(display_name(test_id)) }}
 {%- endfor -%}
 {%- endif -%}
 {%- endif -%}
@@ -104,7 +138,7 @@ The following tests are not traced to any requirement:
 {%- for test_id, test_elem in sbdl.items() -%}
 {%- if test_elem.type == 'test' and 'requirement' not in test_elem -%}
 {%- set ns_untraced.has_untraced = true %}
-- **{{ reencode(display_name(test_id)) }}**: {{ reencode(test_elem.description) }}
+- {{ reencode(display_name(test_id)) }}
 {%- if 'tag' in test_elem %} *(tags: {{ test_elem.tag }})* {%- endif -%}
 {%- endif -%}
 {%- endfor -%}
@@ -113,3 +147,7 @@ The following tests are not traced to any requirement:
 
 *All tests are traced to requirements.*
 {%- endif %}
+
+# Anomaly handling
+
+Test failures are tracked as issues in the project's issue tracker. Each failure is triaged, assigned a severity, and linked to the affected requirement(s). Resolution is verified by re-running the affected test(s).
