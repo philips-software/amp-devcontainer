@@ -27,7 +27,7 @@ jobs:
 
   dependency-review:
     name: 🔍 Dependency Review
-    needs: build-push-flavors
+    needs: build-push-test
     uses: ./.github/workflows/wc-dependency-review.yml
     permissions:
       contents: read
@@ -39,7 +39,7 @@ jobs:
     permissions:
       checks: write # is needed by EnricoMi/publish-unit-test-result-action to add a check run with test results
       pull-requests: write # is needed by EnricoMi/publish-unit-test-result-action to annotate PRs
-    needs: build-push-flavors
+    needs: build-push-test
     if: ${{ !cancelled() }}
     steps:
       - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
