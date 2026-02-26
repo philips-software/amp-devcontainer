@@ -4,10 +4,14 @@ name: Build, Push & Test
 on:
   workflow_call:
     secrets:
-      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
-      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
-      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
-      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
+      TEST_GITHUB_PASSWORD:
+        required: false
+      TEST_GITHUB_TOKEN:
+        required: false
+      TEST_GITHUB_TOTP_SECRET:
+        required: false
+      TEST_GITHUB_USER:
+        required: false
 
 permissions: {}
 
