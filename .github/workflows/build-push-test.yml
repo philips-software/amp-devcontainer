@@ -3,12 +3,17 @@ name: Build, Push & Test
 
 on:
   workflow_call:
+    secrets:
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
+      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
+      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
 
 permissions: {}
 
 jobs:
-  build-push-base:
-    name: Build → Push → Test (🍨 base)
+  build-push-test-base:
+    name: 🍨 base
     uses: ./.github/workflows/wc-build-push-test.yml
     permissions: &build-push-test-permissions
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
@@ -25,9 +30,9 @@ jobs:
       integration-test-file: test/base/integration-tests.bats
       integration-test-podman: true
 
-  build-push-flavors:
-    name: Build → Push → Test (🍨 ${{ matrix.flavor }})
-    needs: build-push-base
+  build-push-test-flavors:
+    name: 🍨 ${{ matrix.flavor }}
+    needs: build-push-test-base
     strategy:
       matrix:
         flavor: [cpp, rust]
@@ -42,7 +47,7 @@ jobs:
       acceptance-test-path: ${{ (github.actor != 'dependabot[bot]' && matrix.flavor == 'cpp') && 'test/cpp/features' || '' }}
       acceptance-test-devcontainer-file: .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
       build-args: |
-        BASE_IMAGE=${{ needs.build-push-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-base.outputs.digest }}
+        BASE_IMAGE=${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}

@@ -24,6 +24,11 @@ jobs:
       id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
       packages: write # is needed to push image manifest when using GitHub Container Registry
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
+    secrets:
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
+      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
+      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
 
   dependency-review:
     name: 🔍 Dependency Review
