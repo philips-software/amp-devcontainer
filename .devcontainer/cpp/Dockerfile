@@ -43,12 +43,11 @@ FROM ${BASE_IMAGE} AS extractor
 ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
+SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
+
 WORKDIR /
 
 RUN --mount=from=downloader,target=/dl <<EOF
-
-    set -Eeuo pipefail
-
     ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz"
     ARM_GNU_TOOLCHAIN_TAR="/tmp/arm-gnu-toolchain.tar.xz"
 
