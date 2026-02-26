@@ -18,6 +18,7 @@ jobs:
     uses: ./.github/workflows/wc-build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
       attestations: write # is needed by actions/attest-build-provenance to push attestations
       contents: write # is needed by anchore/sbom-action for artifact uploads
       id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
@@ -42,6 +43,7 @@ jobs:
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
       attestations: write # is needed by actions/attest-build-provenance to push attestations
       contents: write # is needed by anchore/sbom-action for artifact uploads
       id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
@@ -65,7 +67,7 @@ jobs:
       # currently provide a more fine-grained permission for release modification.
       contents: write # is needed to modify a release
     steps:
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -100,7 +102,7 @@ jobs:
       REF_NAME: ${{ github.ref_name }}
       REGISTRY: ghcr.io
     steps:
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           disable-sudo: true
           egress-policy: audit
@@ -138,27 +140,9 @@ jobs:
 
   publish-devcontainer-templates:
     name: 📝 Publish templates
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/wc-publish-templates.yml
     permissions:
       packages: write # is needed by devcontainers/action to write templates as OCI artifacts
-    steps:
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
-        with:
-          disable-sudo: true
-          egress-policy: audit
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-      - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
-      - uses: devcontainers/action@1082abd5d2bf3a11abccba70eef98df068277772 # v1.4.3
-        with:
-          disable-repo-tagging: true
-          publish-templates: true
-          base-path-to-templates: .devcontainer
 
   generate-documents:
     name: 📄 Documentation
@@ -175,7 +159,7 @@ jobs:
       contents: write # is needed to modify a release
     needs: [generate-documents]
     steps:
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           disable-sudo: true
           egress-policy: audit
@@ -197,7 +181,7 @@ jobs:
     permissions:
       pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
     steps:
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           disable-sudo-and-containers: true
           egress-policy: audit

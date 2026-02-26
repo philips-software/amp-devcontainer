@@ -32,7 +32,7 @@ ADD --checksum=sha256:b85cd1e0c94f249338b02a6e54b380154a5af6b5dd754121b15722125a
 # trivy:ignore:AVD-DS-0001
 FROM downloader-${TARGETARCH} AS downloader
 
-ADD --checksum=sha256:ce6eee4130298f79b0e0f09a89f93c1bc711cd68e7e3182d37c8e96c5227e2f0 \
+ADD --checksum=sha256:8b2a587ffd672c4687e7581dad4b2f6c1bb2ad6b480cd9771ba2ff48e0b8c75d \
  https://apt.llvm.org/llvm-snapshot.gpg.key /llvm.gpg.key
 ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323fefcf1 \
  https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key /mull.gpg.key
@@ -73,9 +73,9 @@ EOF
 # Final development container image
 FROM ${BASE_IMAGE}
 
-ARG CLANG_VERSION=19
-ARG CPM_VERSION=0.40.2
-ARG INCLUDE_WHAT_YOU_USE_VERSION=0.23
+ARG CLANG_VERSION=20
+ARG CPM_VERSION=0.42.1
+ARG INCLUDE_WHAT_YOU_USE_VERSION=0.24
 
 ARG DEBIAN_FRONTEND=noninteractive
 

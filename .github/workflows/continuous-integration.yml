@@ -18,6 +18,7 @@ jobs:
     uses: ./.github/workflows/wc-build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
       attestations: write # is needed by actions/attest-build-provenance to push attestations
       contents: write # is needed by anchore/sbom-action for artifact uploads
       id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
@@ -43,6 +44,7 @@ jobs:
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
       attestations: write # is needed by actions/attest-build-provenance to push attestations
       contents: write # is needed by anchore/sbom-action for artifact uploads
       id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
@@ -56,8 +58,8 @@ jobs:
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
-      acceptance-test-path: ${{ matrix.flavor == 'cpp' && 'test/cpp/features' || '' }}
-      test-devcontainer-file: ${{ matrix.flavor == 'cpp' && '.devcontainer/cpp-test/devcontainer.json' || '' }}
+      acceptance-test-path: ${{ (github.actor != 'dependabot[bot]' && matrix.flavor == 'cpp') && 'test/cpp/features' || '' }}
+      test-devcontainer-file: .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
 
   dependency-review:
     name: 🔍 Dependency Review
@@ -76,7 +78,7 @@ jobs:
     needs: build-push-flavors
     if: ${{ !cancelled() }}
     steps:
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           disable-sudo: true
           egress-policy: audit
