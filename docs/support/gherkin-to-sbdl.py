@@ -4,13 +4,14 @@ import argparse
 import os
 import sys
 
-from gherkin_mapping_config import FEATURE_RULE_CONFIG, FEATURE_RULE_SCENARIO_CONFIG
+from gherkin_mapping_config import FEATURE_RULE_CONFIG, FEATURE_RULE_SCENARIO_CONFIG, TEST_SPECIFICATION_CONFIG
 from gherkin_sbdl_converter import GherkinConverter
 
 def main():
     configs = {
         'feature-rule': FEATURE_RULE_CONFIG,
-        'feature-rule-scenario': FEATURE_RULE_SCENARIO_CONFIG
+        'feature-rule-scenario': FEATURE_RULE_SCENARIO_CONFIG,
+        'test-specification': TEST_SPECIFICATION_CONFIG
     }
 
     parser = argparse.ArgumentParser(description='Configurable Gherkin to SBDL converter')

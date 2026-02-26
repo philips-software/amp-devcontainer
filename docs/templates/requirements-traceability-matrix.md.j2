@@ -1,0 +1,131 @@
+---
+title: "Requirements traceability matrix for amp-devcontainer
+  {%- if 'document-flavor' in sbdl %} ({{ sbdl['document-flavor']['custom:title'] }}){%- endif %}"
+author: ["@rjaegers"]
+colorlinks: true
+date: "October-2025"
+keywords: [Traceability, Requirements, RTM, amp-devcontainer]
+lang: "en"
+titlepage: true
+titlepage-color: "0B5ED7"
+titlepage-text-color: "FFFFFF"
+titlepage-rule-color: "FFFFFF"
+titlepage-rule-height: 2
+toc: true
+toc-own-page: true
+...
+
+# Introduction
+
+## Purpose
+
+This document provides a requirements traceability matrix (RTM) for amp-devcontainer. It maps each requirement to its associated verification tests, providing evidence of test coverage across the system.
+
+## Abstract
+
+amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored towards modern, embedded, software development. This traceability matrix traces requirements from the software requirements specification to their corresponding verification tests (Gherkin scenarios and BATS integration tests).
+
+{%- macro reencode(text) -%}
+{{ text.encode('utf-8').decode('unicode_escape') }}
+{%- endmacro -%}
+
+{%- macro sbdl_id_to_header(text) -%}
+{{ text.replace('-', ' ') }}
+{%- endmacro -%}
+
+{%- macro display_name(elem_id) -%}
+{%- if elem_id in sbdl and 'custom:title' in sbdl[elem_id] -%}
+{{ sbdl[elem_id]['custom:title'] }}
+{%- else -%}
+{{ elem_id | replace('-', ' ') }}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro display_name_short(elem_id) -%}
+{%- if elem_id in sbdl and 'custom:title' in sbdl[elem_id] -%}
+{{ sbdl[elem_id]['custom:title'][:60] }}
+{%- else -%}
+{{ (elem_id | replace('-', ' '))[:60] }}
+{%- endif -%}
+{%- endmacro -%}
+
+# Traceability Matrix
+
+{%- set aspects = [] -%}
+{%- for elem_id, elem in sbdl.items() -%}
+{%- if elem.type == 'aspect' -%}
+{%- set _ = aspects.append((elem_id, elem)) -%}
+{%- endif -%}
+{%- endfor -%}
+
+{%- for aspect_id, aspect in aspects %}
+
+## {{ reencode(display_name(aspect_id)) }}
+
+| Requirement | Test | Status |
+|---|---|---|
+
+{%- for req_id, req in sbdl.items() -%}
+{%- if req.type == 'requirement' and 'aspect' in req -%}
+{%- for asp_ref in req.aspect if asp_ref.identifier == aspect_id -%}
+
+{%- set ns_tests = namespace(test_list=[]) -%}
+
+{%- for test_id, test_elem in sbdl.items() -%}
+{%- if test_elem.type == 'test' -%}
+{%- if 'requirement' in test_elem -%}
+{%- for req_ref in test_elem.requirement if req_ref.identifier == req_id -%}
+{%- set _ = ns_tests.test_list.append(test_id) -%}
+{%- endfor -%}
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+
+{%- if ns_tests.test_list -%}
+{%- for test_id in ns_tests.test_list %}
+| {{ reencode(display_name_short(req_id)) }} | {{ reencode(display_name_short(test_id)) }} | Traced |
+{%- endfor -%}
+{%- else %}
+| {{ reencode(display_name_short(req_id)) }} | — | **Not covered** |
+{%- endif -%}
+
+{%- endfor -%}
+{%- endif -%}
+{%- endfor -%}
+
+{%- endfor %}
+
+# Coverage Summary
+
+{%- set ns_summary = namespace(total_reqs=0, covered_reqs=0, total_tests=0) -%}
+
+{%- for elem_id, elem in sbdl.items() -%}
+{%- if elem.type == 'requirement' -%}
+{%- set ns_summary.total_reqs = ns_summary.total_reqs + 1 -%}
+
+{%- set ns_covered = namespace(is_covered=false) -%}
+{%- for test_id, test_elem in sbdl.items() -%}
+{%- if test_elem.type == 'test' and 'requirement' in test_elem -%}
+{%- for req_ref in test_elem.requirement if req_ref.identifier == elem_id -%}
+{%- set ns_covered.is_covered = true -%}
+{%- endfor -%}
+{%- endif -%}
+{%- endfor -%}
+
+{%- if ns_covered.is_covered -%}
+{%- set ns_summary.covered_reqs = ns_summary.covered_reqs + 1 -%}
+{%- endif -%}
+
+{%- endif -%}
+
+{%- if elem.type == 'test' -%}
+{%- set ns_summary.total_tests = ns_summary.total_tests + 1 -%}
+{%- endif -%}
+{%- endfor %}
+
+| Metric | Value |
+|---|---|
+| Total requirements | {{ ns_summary.total_reqs }} |
+| Requirements with tests | {{ ns_summary.covered_reqs }} |
+| Requirements without tests | {{ ns_summary.total_reqs - ns_summary.covered_reqs }} |
+| Total tests | {{ ns_summary.total_tests }} |

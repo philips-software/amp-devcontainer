@@ -28,7 +28,7 @@ teardown() {
 #  that the tools are compatible with each other. E.g. that the host and embedded toolchains
 #  are aligned in terms of major and minor versions.
 
-# bats test_tags=Compatibility,Version,Clang
+# bats test_tags=compatibility,version,clang
 @test "clang toolchain versions should be aligned with expected versions" {
   EXPECTED_VERSION=$(get_expected_semver_for clang)
 
@@ -38,7 +38,7 @@ teardown() {
   done
 }
 
-# bats test_tags=Compatibility,Version,GCC
+# bats test_tags=compatibility,version,gcc
 @test "host gcc toolchain versions and alternatives should be aligned with expected versions" {
   EXPECTED_VERSION=$(get_expected_semver_for g++)
 
@@ -48,14 +48,14 @@ teardown() {
   done
 }
 
-# bats test_tags=Compatibility,Version,HostGCCArmGCC
+# bats test_tags=compatibility,version,hostgccarmgcc
 @test "host and embedded gcc toolchain versions should be the same major and minor version" {
   EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for g++ | cut -d. -f1,2)
   INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
   assert_equal_print "$EXPECTED_MAJOR_MINOR_VERSION" "$INSTALLED_MAJOR_MINOR_VERSION" "Host and ARM GCC major and minor version"
 }
 
-# bats test_tags=Compatibility,Version,Tools
+# bats test_tags=compatibility,version,tools
 @test "supporting tool versions should be aligned with expected versions" {
   for TOOL in gdb gdb-multiarch git ninja; do
     EXPECTED_VERSION=$(get_expected_semver_for ${TOOL})
@@ -72,6 +72,7 @@ teardown() {
   done
 }
 
+# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
 @test "valid code input should result in working executable using host compiler" {
   cmake --preset gcc
   cmake --build --preset gcc
@@ -81,6 +82,7 @@ teardown() {
   assert_output "Hello World!"
 }
 
+# bats test_tags=compilation,compile-for-arm-cortex-target-architecture
 @test "valid code input should result in elf executable using arm-none-eabi compiler" {
   cmake --preset gcc-arm-none-eabi
   cmake --build --preset gcc-arm-none-eabi
@@ -90,6 +92,7 @@ teardown() {
   assert_output --partial "Machine:                           ARM"
 }
 
+# bats test_tags=compilation,compile-for-microsoft-windows-operating-system
 @test "valid code input should result in Windows executable using clang-cl compiler" {
   install_win_sdk_when_ci_unset
 
@@ -97,6 +100,7 @@ teardown() {
   cmake --build --preset clang-cl
 }
 
+# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
 @test "compilation database should be generated on CMake configure" {
   cmake --preset gcc
   assert [ -e build/gcc/compile_commands.json ]
@@ -105,21 +109,25 @@ teardown() {
   assert [ -e build/gcc-arm-none-eabi/compile_commands.json ]
 }
 
+# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
 @test "invalid code input should result in failing build" {
   cmake --preset gcc
   run ! cmake --build --preset gcc-fail
 }
 
+# bats test_tags=compilation,compilation-cache
 @test "using ccache as a compiler launcher should result in cached build using gcc compiler" {
   configure_and_build_with_ccache gcc
 }
 
+# bats test_tags=compilation,compilation-cache
 @test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
   install_win_sdk_when_ci_unset
 
   configure_and_build_with_ccache clang-cl
 }
 
+# bats test_tags=static-and-dynamic-analysis,static-analysis
 @test "running clang-tidy as part of the build should result in warning diagnostics" {
   cmake --preset clang
 
@@ -128,6 +136,7 @@ teardown() {
   assert_output --partial "warning: use a trailing return type for this function"
 }
 
+# bats test_tags=static-and-dynamic-analysis,static-analysis
 @test "running include-what-you-use as part of the build should result in warning diagnostics" {
   cmake --preset clang
 
@@ -136,12 +145,14 @@ teardown() {
   assert_output --partial "Warning: include-what-you-use reported diagnostics:"
 }
 
+# bats test_tags=static-and-dynamic-analysis,code-formatting
 @test "running clang-format should result in re-formatted code" {
   run clang-format clang-tools/unformatted.cpp
   assert_success
   assert_output "int main() {}"
 }
 
+# bats test_tags=static-and-dynamic-analysis,coverage-analysis
 @test "coverage information should be generated when running a testsuite" {
   cmake --preset coverage
   cmake --build --preset coverage
@@ -155,6 +166,7 @@ teardown() {
   assert_output --partial "GCC Code Coverage Report"
 }
 
+# bats test_tags=static-and-dynamic-analysis,fuzz-testing
 @test "crashes should be detected when fuzzing an executable" {
   cmake --preset clang
   cmake --build --preset fuzzing
@@ -164,6 +176,7 @@ teardown() {
   assert_output --partial "SUMMARY: libFuzzer: deadly signal"
 }
 
+# bats test_tags=static-and-dynamic-analysis,mutation-testing
 @test "a mutation score should be calculated when mutation testing a testsuite" {
   cmake --preset mutation
   cmake --build --preset mutation
@@ -172,17 +185,20 @@ teardown() {
   assert_output --partial "[info] Mutation score:"
 }
 
+# bats test_tags=static-and-dynamic-analysis,static-analysis
 @test "clangd should be able to analyze source files" {
   run clangd --check=gcc/main.cpp
   assert_success
   assert_output --partial "All checks completed, 0 errors"
 }
 
+# bats test_tags=static-and-dynamic-analysis,static-analysis
 @test "clangd should start with a specified compile commands path" {
   run timeout 1s clangd --compile-commands-dir=/root/.amp
   refute_output --partial "Path specified by --compile-commands-dir does not exist. The argument will be ignored."
 }
 
+# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
 @test "using lld as an alternative linker should result in working host executable" {
   cmake --preset gcc
   cmake --build --preset gcc-lld
@@ -195,14 +211,17 @@ teardown() {
   assert_output "Hello World!"
 }
 
+# bats test_tags=static-and-dynamic-analysis,static-analysis
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with gcc" {
   build_and_run_with_sanitizers gcc
 }
 
+# bats test_tags=static-and-dynamic-analysis,static-analysis
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with clang" {
   build_and_run_with_sanitizers clang
 }
 
+# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
 @test "using Conan as package manager should resolve external dependencies" {
   pushd package-managers/conan
 
@@ -214,6 +233,7 @@ teardown() {
   popd
 }
 
+# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
 @test "using CPM as package manager should resolve external dependencies" {
   cmake --preset cpm
   cmake --build --preset cpm

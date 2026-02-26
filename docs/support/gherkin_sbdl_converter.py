@@ -4,6 +4,7 @@
 from dataclasses import dataclass
 from typing import List, Dict, Optional
 from textwrap import dedent
+import re
 import sys
 
 from gherkin.parser import Parser
@@ -34,9 +35,9 @@ class SBDLElement:
             self.metadata = {}
 
     def _make_sbdl_identifier(self, name: str) -> str:
-        return sbdl.SBDL_Parser.sanitize_identifier(
-            name.replace(" ", "_").replace("-", "_")
-        ).strip("_")
+        """Convert a name to a hyphenated slug identifier."""
+        slug = re.sub(r'[^a-z0-9]+', '-', name.lower())
+        return slug.strip('-')
 
 class GherkinConverter:
     """Converts Gherkin files to SBDL using configurable hierarchy mappings."""
@@ -72,6 +73,9 @@ class GherkinConverter:
         tokens = sbdl.SBDL_Parser.Tokens
         attrs = sbdl.SBDL_Parser.Attributes
 
+        # Build a lookup from identifier to element type for cross-type relation handling
+        element_types = {e.identifier: e.element_type for e in elements}
+
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write("#!sbdl\n")
 
@@ -85,8 +89,22 @@ class GherkinConverter:
                     f"{tokens.declaration_attribute_delimeter}{escaped_desc}{tokens.declaration_attribute_delimeter} "
                 )
 
+                # Write custom:title with original name for display purposes
+                original_name = element.metadata.get('original_name', '') if element.metadata else ''
+                if original_name:
+                    escaped_title = sbdl.SBDL_Parser.sanitize(original_name)
+                    f.write(f'custom:title{tokens.declaration_attribute_assign}')
+                    f.write(f'{tokens.declaration_attribute_delimeter}{escaped_title}{tokens.declaration_attribute_delimeter} ')
+
                 if element.parent:
-                    f.write(f"{attrs.parent}{tokens.declaration_attribute_assign}{element.parent} ")
+                    parent_type = element_types.get(element.parent)
+                    if parent_type and parent_type != element.element_type:
+                        # Cross-type relation: use the parent's type name as relation
+                        # e.g. test -> requirement becomes "requirement is <id>"
+                        # e.g. requirement -> aspect becomes "aspect is <id>"
+                        f.write(f"{parent_type.value}{tokens.declaration_attribute_assign}{element.parent} ")
+                    else:
+                        f.write(f"{attrs.parent}{tokens.declaration_attribute_assign}{element.parent} ")
 
                 f.write(f"{tokens.declaration_group_delimeters[1]}\n")
 

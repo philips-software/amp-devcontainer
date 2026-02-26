@@ -1,0 +1,119 @@
+---
+title: "Software test specification for amp-devcontainer
+  {%- if 'document-flavor' in sbdl %} ({{ sbdl['document-flavor']['custom:title'] }}){%- endif %}"
+author: ["@rjaegers"]
+colorlinks: true
+date: "October-2025"
+keywords: [Software, Test, Specification, STS, amp-devcontainer]
+lang: "en"
+titlepage: true
+titlepage-color: "0B5ED7"
+titlepage-text-color: "FFFFFF"
+titlepage-rule-color: "FFFFFF"
+titlepage-rule-height: 2
+toc: true
+toc-own-page: true
+...
+
+# Introduction
+
+## Purpose
+
+This document describes the software test specification for amp-devcontainer. It enumerates all tests, both from Gherkin scenarios (verification tests) and BATS integration tests, and traces them to the requirements they verify.
+
+## Definitions of key words
+
+The key words *MUST*, *MUST NOT*, *REQUIRED*, *SHALL*, *SHALL NOT*, *SHOULD*, *SHOULD NOT*, *RECOMMENDED*, *MAY*, and *OPTIONAL* in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
+
+## Abstract
+
+amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored towards modern, embedded, software development. This document specifies the tests that verify the requirements defined in the software requirements specification.
+
+# Tests
+
+{%- macro reencode(text) -%}
+{{ text.encode('utf-8').decode('unicode_escape') }}
+{%- endmacro -%}
+
+{%- macro sbdl_id_to_header(text) -%}
+{{ text.replace('-', ' ') }}
+{%- endmacro -%}
+
+{%- macro display_name(elem_id) -%}
+{%- if elem_id in sbdl and 'custom:title' in sbdl[elem_id] -%}
+{{ sbdl[elem_id]['custom:title'] }}
+{%- else -%}
+{{ elem_id | replace('-', ' ') }}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- set aspects = [] -%}
+{%- for elem_id, elem in sbdl.items() -%}
+{%- if elem.type == 'aspect' -%}
+{%- set _ = aspects.append((elem_id, elem)) -%}
+{%- endif -%}
+{%- endfor -%}
+
+{%- for aspect_id, aspect in aspects %}
+
+## {{ reencode(display_name(aspect_id)) }}
+
+{%- set ns = namespace(has_requirements=false) -%}
+
+{%- for req_id, req in sbdl.items() -%}
+{%- if req.type == 'requirement' and 'aspect' in req -%}
+{%- for asp_ref in req.aspect if asp_ref.identifier == aspect_id -%}
+{%- set ns.has_requirements = true -%}
+
+### {{ reencode(display_name(req_id)) }}
+
+{{ reencode(req.description) }}
+
+{%- set ns_tests = namespace(has_tests=false) -%}
+
+#### Verification tests
+
+{%- for test_id, test_elem in sbdl.items() -%}
+{%- if test_elem.type == 'test' -%}
+{%- if 'requirement' in test_elem -%}
+{%- for req_ref in test_elem.requirement if req_ref.identifier == req_id -%}
+{%- set ns_tests.has_tests = true %}
+- **{{ reencode(display_name(test_id)) }}**: {{ reencode(test_elem.description) }}
+{%- endfor -%}
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+
+{%- if not ns_tests.has_tests %}
+- *No tests traced to this requirement.*
+{%- endif -%}
+
+{%- endfor -%}
+{%- endif -%}
+{%- endfor -%}
+
+{%- if not ns.has_requirements %}
+
+*No requirements traced to this area.*
+{%- endif -%}
+
+{%- endfor %}
+
+## Untraced tests
+
+The following tests are not traced to any requirement:
+
+{%- set ns_untraced = namespace(has_untraced=false) -%}
+
+{%- for test_id, test_elem in sbdl.items() -%}
+{%- if test_elem.type == 'test' and 'requirement' not in test_elem -%}
+{%- set ns_untraced.has_untraced = true %}
+- **{{ reencode(display_name(test_id)) }}**: {{ reencode(test_elem.description) }}
+{%- if 'tag' in test_elem %} *(tags: {{ test_elem.tag }})* {%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+
+{%- if not ns_untraced.has_untraced %}
+
+*All tests are traced to requirements.*
+{%- endif %}

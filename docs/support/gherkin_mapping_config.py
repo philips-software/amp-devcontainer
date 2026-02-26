@@ -91,6 +91,27 @@ FLAT_CONFIG = ConversionConfig(
     ]
 )
 
+# Test Specification Configuration (Feature -> Rule -> Scenario with tests)
+# Used for generating test specification and traceability documents.
+# Features become aspects (system areas), Rules become requirements,
+# and Scenarios become test elements traced to their parent requirements.
+TEST_SPECIFICATION_CONFIG = ConversionConfig(
+    hierarchy_mappings=[
+        HierarchyMapping(
+            gherkin_type=GherkinElementType.FEATURE,
+            sbdl_type=SBDLElementType.ASPECT
+        ),
+        HierarchyMapping(
+            gherkin_type=GherkinElementType.RULE,
+            sbdl_type=SBDLElementType.REQUIREMENT
+        ),
+        HierarchyMapping(
+            gherkin_type=GherkinElementType.SCENARIO,
+            sbdl_type=SBDLElementType.TEST
+        )
+    ]
+)
+
 # Use Case Focused Configuration
 USECASE_CONFIG = ConversionConfig(
     hierarchy_mappings=[
