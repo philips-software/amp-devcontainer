@@ -26,7 +26,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 HEALTHCHECK NONE
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
@@ -34,8 +34,6 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
     --mount=from=extractor,target=/src <<EOF
-
-   set -Eeuo pipefail
 
    # Install the base system with all tool dependencies
    apt-get update && apt-get install -y --no-install-recommends jq

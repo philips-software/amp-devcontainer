@@ -78,7 +78,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 HEALTHCHECK NONE
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # Set default environment options
 ENV CCACHE_DIR=/cache/.ccache \
@@ -99,8 +99,6 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
     --mount=from=extractor,target=/src <<EOF
-
-    set -Eeuo pipefail
 
     # Install the base system with all tool dependencies
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
@@ -127,7 +125,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
         xargs apt-get install -y --no-install-recommends
 
     # Install arm-gcc toolchain
-    cp -r /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
+    cp -a /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
 EOF
 
 # Install include-what-you-use (iwyu) from source
