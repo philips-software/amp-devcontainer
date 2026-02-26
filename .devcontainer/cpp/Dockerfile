@@ -128,7 +128,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
         xargs apt-get install -y --no-install-recommends
 
     # Install arm-gcc toolchain
-    cp /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
+    cp -r /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
 EOF
 
 # Install include-what-you-use (iwyu) from source
