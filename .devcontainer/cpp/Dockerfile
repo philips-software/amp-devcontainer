@@ -66,8 +66,6 @@ RUN --mount=from=downloader,target=/dl <<EOF
     tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
     cp /dl/llvm.gpg.key /llvm.gpg.key
     cp /dl/mull.gpg.key /mull.gpg.key
-
-    rm -f "${ARM_GNU_TOOLCHAIN_TAR}"
 EOF
 
 # Final development container image
@@ -130,7 +128,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
         xargs apt-get install -y --no-install-recommends
 
     # Install arm-gcc toolchain
-    mv /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
+    cp /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
 EOF
 
 # Install include-what-you-use (iwyu) from source
