@@ -1,4 +1,5 @@
 Feature: Maintainability
+  # @sbdl maintainability is aspect { description is "As a software craftsperson, I want my development environment to be maintainable over time." }
 
   As a software craftsperson,
   to ensure that I have access to a stable and reliable development environment,
@@ -6,6 +7,7 @@ Feature: Maintainability
 
   @REQ-MAINT-0001
   Rule: Tool and dependency updates
+    # @sbdl req-maint-0001 is requirement { description is "amp-devcontainer *SHOULD* contain up-to-date tools and dependencies." aspect is maintainability }
     amp-devcontainer *SHOULD* contain up-to-date tools and dependencies.
 
     Keeping tools and dependencies up-to-date helps ensure that the development environment remains secure, stable, and compatible with the latest technologies.
@@ -14,6 +16,7 @@ Feature: Maintainability
 
   @REQ-MAINT-0002
   Rule: Automatic updates
+    # @sbdl req-maint-0002 is requirement { description is "amp-devcontainer *SHOULD* provide support for automatic updates when consumed as a dependency." aspect is maintainability }
     amp-devcontainer *SHOULD* provide support for automatic updates when consumed as a dependency.
 
     Providing support for automatic updates when amp-devcontainer is consumed as a dependency helps ensure that users always have access to the latest features, bug fixes, and security patches.
@@ -22,6 +25,7 @@ Feature: Maintainability
 
   @REQ-MAINT-0003
   Rule: Re-usable build system
+    # @sbdl req-maint-0003 is requirement { description is "amp-devcontainer *SHOULD* provide re-usable building blocks to enable building, publishing and testing derived containers." aspect is maintainability }
     amp-devcontainer *SHOULD* provide re-usable building blocks to enable building, publishing and testing derived containers.
 
     Providing re-usable building blocks for building, publishing and testing derived containers reduces duplication, and ensures consistent application of practices.
@@ -29,6 +33,7 @@ Feature: Maintainability
 
   @REQ-MAINT-0004
   Rule: Architectural decisions
+    # @sbdl req-maint-0004 is requirement { description is "amp-devcontainer *SHOULD* document its architectural decisions." aspect is maintainability }
     amp-devcontainer *SHOULD* document its architectural decisions.
 
     Documenting architectural decisions helps provide context and rationale for the design choices made in the development environment.
@@ -37,6 +42,7 @@ Feature: Maintainability
 
   @REQ-MAINT-0005
   Rule: Container image size
+    # @sbdl req-maint-0005 is requirement { description is "amp-devcontainer *SHOULD* aim to keep its container image size as small as possible without compromising functionality." aspect is maintainability }
     amp-devcontainer *SHOULD* aim to keep its container image size as small as possible without compromising functionality.
 
     Keeping the container image size small helps improve performance, reduce resource consumption, and minimize the time required to download and deploy the development environment.

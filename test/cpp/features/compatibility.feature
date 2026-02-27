@@ -1,4 +1,5 @@
 Feature: Compatibility
+  # @sbdl compatibility is aspect { description is "As a software craftsperson, I want my development environment to be compatible with commonly used tools and systems." }
 
   As a software craftsperson,
   to ensure that my development environment works well with a variety of tools and systems,
@@ -6,12 +7,14 @@ Feature: Compatibility
 
   @REQ-COMPAT-0001
   Rule: Open Container Initiative (OCI) Image Specification
+    # @sbdl req-compat-0001 is requirement { description is "amp-devcontainer images *SHALL* be compatible with the [OCI image specification](https://github.com/opencontainers/image-spec/blob/main/spec.md)" aspect is compatibility }
     amp-devcontainer images *SHALL* be compatible with the [OCI image specification](https://github.com/opencontainers/image-spec/blob/main/spec.md)
 
     To guarantee compatibility with container runtimes and container- and image tooling; amp-devcontainer should be compatible with the OCI image specification.
 
   @REQ-COMPAT-0002
   Rule: Host architecture
+    # @sbdl req-compat-0002 is requirement { description is "amp-devcontainer *SHALL* be compatible with both the x86-64 (AMD64) *and* AArch64 (ARM64) host architectures." aspect is compatibility }
     amp-devcontainer *SHALL* be compatible with both the x86-64 (AMD64) *and* AArch64 (ARM64) host architectures.
 
     Supporting both x86-64 and AArch64 has several advantages:
@@ -21,6 +24,7 @@ Feature: Compatibility
 
   @REQ-COMPAT-0003
   Rule: Integrated Development Environment (IDE)
+    # @sbdl req-compat-0003 is requirement { description is "amp-devcontainer *SHOULD* be compatible with [VS Code](https://code.visualstudio.com/) *and* [GitHub Codespaces](https://github.com/features/codespaces)." aspect is compatibility }
     amp-devcontainer *SHOULD* be compatible with [VS Code](https://code.visualstudio.com/) *and* [GitHub Codespaces](https://github.com/features/codespaces).
 
     It should be possible to use amp-devcontainer and all of its features in both VS Code and GitHub Codespaces with minimal effort.
@@ -29,6 +33,7 @@ Feature: Compatibility
 
   @REQ-COMPAT-0004
   Rule: GitHub Actions
+    # @sbdl req-compat-0004 is requirement { description is "amp-devcontainer *SHOULD* support seamless integration with [GitHub Actions](https://github.com/features/actions) without additional configuration." aspect is compatibility }
     amp-devcontainer *SHOULD* support seamless integration with [GitHub Actions](https://github.com/features/actions) without additional configuration.
 
     Seamless integration with GitHub Actions allows users to easily incorporate amp-devcontainer into their ci/cd workflows.

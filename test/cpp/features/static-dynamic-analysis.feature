@@ -1,4 +1,5 @@
 Feature: Static and dynamic analysis
+  # @sbdl static-and-dynamic-analysis is aspect { description is "As a software craftsperson, I want my source code to be statically and dynamically analyzed." }
 
   As a software craftsperson,
   to maintain consistent, high-quality and bug-free code,
@@ -6,6 +7,7 @@ Feature: Static and dynamic analysis
 
   @REQ-SDA-0001
   Rule: Code formatting
+    # @sbdl req-sda-0001 is requirement { description is "amp-devcontainer *MAY* provide code formatting tools for the primary programming language(s) used within the container." aspect is static-and-dynamic-analysis }
     amp-devcontainer *MAY* provide code formatting tools for the primary programming language(s) used within the container.
 
     Providing code formatting tools helps maintain a consistent coding style across the codebase, improving readability and reducing friction during code reviews.
@@ -14,6 +16,7 @@ Feature: Static and dynamic analysis
 
   @flavor:cpp @fixme
   Scenario: Format source code according to a formatting style
+    # @sbdl format-source-code-according-to-a-formatting-style is test { description is "Format source code according to a formatting style" requirement is req-sda-0001 }
     Given the file "clang-tools/unformatted.cpp" is opened in the editor
     When the active document is formatted
     And the active document is saved
@@ -21,6 +24,7 @@ Feature: Static and dynamic analysis
 
   @REQ-SDA-0002
   Rule: Static analysis
+    # @sbdl req-sda-0002 is requirement { description is "amp-devcontainer *MAY* provide static analysis tools for the primary programming language(s) used within the container." aspect is static-and-dynamic-analysis }
     amp-devcontainer *MAY* provide static analysis tools for the primary programming language(s) used within the container.
 
     Providing static analysis tools helps identify potential issues in the code before it is executed, improving code quality and reducing the likelihood of runtime errors.
@@ -29,6 +33,7 @@ Feature: Static and dynamic analysis
 
   @REQ-SDA-0003
   Rule: Coverage analysis
+    # @sbdl req-sda-0003 is requirement { description is "amp-devcontainer *SHOULD* provide code coverage analysis tools for the primary programming language(s) used within the container." aspect is static-and-dynamic-analysis }
     amp-devcontainer *SHOULD* provide code coverage analysis tools for the primary programming language(s) used within the container.
 
     Providing code coverage analysis tools helps assess the effectiveness of the existing test suite by measuring how much of the code is exercised by the tests.
@@ -37,6 +42,7 @@ Feature: Static and dynamic analysis
 
   @REQ-SDA-0004
   Rule: Mutation testing
+    # @sbdl req-sda-0004 is requirement { description is "amp-devcontainer *MAY* provide mutation testing tools for the primary programming language(s) used within the container." aspect is static-and-dynamic-analysis }
     amp-devcontainer *MAY* provide mutation testing tools for the primary programming language(s) used within the container.
 
     Providing mutation testing tools helps assess the effectiveness of the existing test suite by introducing small changes (mutations) to the code and checking if the tests can detect these changes.
@@ -45,6 +51,7 @@ Feature: Static and dynamic analysis
 
   @REQ-SDA-0005
   Rule: Fuzz testing
+    # @sbdl req-sda-0005 is requirement { description is "amp-devcontainer *MAY* provide fuzz testing tools for the primary programming language(s) used within the container." aspect is static-and-dynamic-analysis }
     amp-devcontainer *MAY* provide fuzz testing tools for the primary programming language(s) used within the container.
 
     Providing fuzz testing tools helps identify potential security vulnerabilities and robustness issues in the code by automatically generating and executing a large number of random inputs.

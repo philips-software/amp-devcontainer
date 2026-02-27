@@ -1,4 +1,5 @@
 Feature: Debugging
+  # @sbdl debugging is aspect { description is "As a software craftsperson, I want to be able to debug my source code within the development environment." }
 
   As a software craftsperson,
   to efficiently identify and resolve issues in my code,
@@ -6,6 +7,7 @@ Feature: Debugging
 
   @REQ-DBG-0001
   Rule: Debugging support
+    # @sbdl req-dbg-0001 is requirement { description is "amp-devcontainer *SHALL* provide debugging support for the primary programming language(s) used within the container." aspect is debugging }
     amp-devcontainer *SHALL* provide debugging support for the primary programming language(s) used within the container.
 
     Providing debugging support within the development environment enhances the developer experience and productivity.
@@ -15,6 +17,7 @@ Feature: Debugging
 
   @REQ-DBG-0002
   Rule: Upload firmware to micro-controller
+    # @sbdl req-dbg-0002 is requirement { description is "amp-devcontainer *MAY* provide tools to upload compiled firmware to a connected micro-controller." aspect is debugging }
     amp-devcontainer *MAY* provide tools to upload compiled firmware to a connected micro-controller.
 
     Providing tools to upload compiled firmware to a connected micro-controller enhances the development workflow for embedded systems.
