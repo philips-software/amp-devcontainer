@@ -72,7 +72,7 @@ teardown() {
   done
 }
 
-# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+# bats test_tags=compilation,REQ-COMP-0001
 @test "valid code input should result in working executable using host compiler" {
   cmake --preset gcc
   cmake --build --preset gcc
@@ -82,7 +82,7 @@ teardown() {
   assert_output "Hello World!"
 }
 
-# bats test_tags=compilation,compile-for-arm-cortex-target-architecture
+# bats test_tags=compilation,REQ-COMP-0002
 @test "valid code input should result in elf executable using arm-none-eabi compiler" {
   cmake --preset gcc-arm-none-eabi
   cmake --build --preset gcc-arm-none-eabi
@@ -92,7 +92,7 @@ teardown() {
   assert_output --partial "Machine:                           ARM"
 }
 
-# bats test_tags=compilation,compile-for-microsoft-windows-operating-system
+# bats test_tags=compilation,REQ-COMP-0003
 @test "valid code input should result in Windows executable using clang-cl compiler" {
   install_win_sdk_when_ci_unset
 
@@ -100,7 +100,7 @@ teardown() {
   cmake --build --preset clang-cl
 }
 
-# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+# bats test_tags=compilation,REQ-COMP-0001
 @test "compilation database should be generated on CMake configure" {
   cmake --preset gcc
   assert [ -e build/gcc/compile_commands.json ]
@@ -109,25 +109,25 @@ teardown() {
   assert [ -e build/gcc-arm-none-eabi/compile_commands.json ]
 }
 
-# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+# bats test_tags=compilation,REQ-COMP-0001
 @test "invalid code input should result in failing build" {
   cmake --preset gcc
   run ! cmake --build --preset gcc-fail
 }
 
-# bats test_tags=compilation,compilation-cache
+# bats test_tags=compilation,REQ-COMP-0004
 @test "using ccache as a compiler launcher should result in cached build using gcc compiler" {
   configure_and_build_with_ccache gcc
 }
 
-# bats test_tags=compilation,compilation-cache
+# bats test_tags=compilation,REQ-COMP-0004
 @test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
   install_win_sdk_when_ci_unset
 
   configure_and_build_with_ccache clang-cl
 }
 
-# bats test_tags=static-and-dynamic-analysis,static-analysis
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0002
 @test "running clang-tidy as part of the build should result in warning diagnostics" {
   cmake --preset clang
 
@@ -136,7 +136,7 @@ teardown() {
   assert_output --partial "warning: use a trailing return type for this function"
 }
 
-# bats test_tags=static-and-dynamic-analysis,static-analysis
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0002
 @test "running include-what-you-use as part of the build should result in warning diagnostics" {
   cmake --preset clang
 
@@ -145,14 +145,14 @@ teardown() {
   assert_output --partial "Warning: include-what-you-use reported diagnostics:"
 }
 
-# bats test_tags=static-and-dynamic-analysis,code-formatting
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0001
 @test "running clang-format should result in re-formatted code" {
   run clang-format clang-tools/unformatted.cpp
   assert_success
   assert_output "int main() {}"
 }
 
-# bats test_tags=static-and-dynamic-analysis,coverage-analysis
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0003
 @test "coverage information should be generated when running a testsuite" {
   cmake --preset coverage
   cmake --build --preset coverage
@@ -166,7 +166,7 @@ teardown() {
   assert_output --partial "GCC Code Coverage Report"
 }
 
-# bats test_tags=static-and-dynamic-analysis,fuzz-testing
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0005
 @test "crashes should be detected when fuzzing an executable" {
   cmake --preset clang
   cmake --build --preset fuzzing
@@ -176,7 +176,7 @@ teardown() {
   assert_output --partial "SUMMARY: libFuzzer: deadly signal"
 }
 
-# bats test_tags=static-and-dynamic-analysis,mutation-testing
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0004
 @test "a mutation score should be calculated when mutation testing a testsuite" {
   cmake --preset mutation
   cmake --build --preset mutation
@@ -185,20 +185,20 @@ teardown() {
   assert_output --partial "[info] Mutation score:"
 }
 
-# bats test_tags=static-and-dynamic-analysis,static-analysis
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0002
 @test "clangd should be able to analyze source files" {
   run clangd --check=gcc/main.cpp
   assert_success
   assert_output --partial "All checks completed, 0 errors"
 }
 
-# bats test_tags=static-and-dynamic-analysis,static-analysis
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0002
 @test "clangd should start with a specified compile commands path" {
   run timeout 1s clangd --compile-commands-dir=/root/.amp
   refute_output --partial "Path specified by --compile-commands-dir does not exist. The argument will be ignored."
 }
 
-# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+# bats test_tags=compilation,REQ-COMP-0001
 @test "using lld as an alternative linker should result in working host executable" {
   cmake --preset gcc
   cmake --build --preset gcc-lld
@@ -211,17 +211,17 @@ teardown() {
   assert_output "Hello World!"
 }
 
-# bats test_tags=static-and-dynamic-analysis,static-analysis
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0002
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with gcc" {
   build_and_run_with_sanitizers gcc
 }
 
-# bats test_tags=static-and-dynamic-analysis,static-analysis
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0002
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with clang" {
   build_and_run_with_sanitizers clang
 }
 
-# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+# bats test_tags=compilation,REQ-COMP-0001
 @test "using Conan as package manager should resolve external dependencies" {
   pushd package-managers/conan
 
@@ -233,7 +233,7 @@ teardown() {
   popd
 }
 
-# bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+# bats test_tags=compilation,REQ-COMP-0001
 @test "using CPM as package manager should resolve external dependencies" {
   cmake --preset cpm
   cmake --build --preset cpm

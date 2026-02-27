@@ -114,10 +114,21 @@ class BatsConverter:
 
         return tests
 
+    _REQ_TAG_PATTERN = re.compile(r'^REQ-', re.IGNORECASE)
+
+    def _add_relation(self, relations: Dict[str, List[str]], elem_type: str, identifier: str):
+        """Add a relation entry, creating the type list if needed."""
+        if elem_type not in relations:
+            relations[elem_type] = []
+        if identifier not in relations[elem_type]:
+            relations[elem_type].append(identifier)
+
     def _resolve_typed_relations(self, test: BatsTest) -> Dict[str, List[str]]:
         """Resolve typed relations from test tags using the tag map.
 
-        Groups resolved identifiers by their SBDL element type, so the
+        Tags matching the REQ-* pattern are treated as direct requirement
+        references. Other tags are resolved through the tag map, which
+        groups resolved identifiers by their SBDL element type so the
         correct relation keyword (e.g. 'aspect', 'requirement') is used
         in the SBDL output.
 
@@ -129,6 +140,11 @@ class BatsConverter:
         """
         relations: Dict[str, List[str]] = {}
         for tag in test.tags:
+            # Direct REQ-* tag: use as requirement identifier directly
+            if self._REQ_TAG_PATTERN.match(tag):
+                self._add_relation(relations, "requirement", to_slug(tag))
+                continue
+
             tag_lower = tag.lower()
             if tag_lower in self.requirement_tag_map:
                 entry = self.requirement_tag_map[tag_lower]
@@ -136,8 +152,5 @@ class BatsConverter:
                     identifier, elem_type = entry
                 else:
                     identifier, elem_type = entry, "requirement"
-                if elem_type not in relations:
-                    relations[elem_type] = []
-                if identifier not in relations[elem_type]:
-                    relations[elem_type].append(identifier)
+                self._add_relation(relations, elem_type, identifier)
         return relations

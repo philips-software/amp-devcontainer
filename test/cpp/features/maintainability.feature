@@ -4,6 +4,7 @@ Feature: Maintainability
   to ensure that I have access to a stable and reliable development environment,
   I want my development environment to be maintainable over time.
 
+  @REQ-MAINT-0001
   Rule: Tool and dependency updates
     amp-devcontainer *SHOULD* contain up-to-date tools and dependencies.
 
@@ -11,6 +12,7 @@ Feature: Maintainability
     It also helps prevent issues related to deprecated or unsupported software versions, reducing maintenance overhead and improving overall developer productivity.
     Regular updates can also introduce new features and improvements that enhance the development experience.
 
+  @REQ-MAINT-0002
   Rule: Automatic updates
     amp-devcontainer *SHOULD* provide support for automatic updates when consumed as a dependency.
 
@@ -18,12 +20,14 @@ Feature: Maintainability
     This reduces the maintenance burden on users, as they do not need to manually track and apply updates.
     Automatic updates can also help ensure compatibility with other dependencies and tools, improving the overall stability and reliability of the development environment.
 
+  @REQ-MAINT-0003
   Rule: Re-usable build system
     amp-devcontainer *SHOULD* provide re-usable building blocks to enable building, publishing and testing derived containers.
 
     Providing re-usable building blocks for building, publishing and testing derived containers reduces duplication, and ensures consistent application of practices.
     Derived containers (i.e. containers using amp-devcontainer as a base for further extension) should be able to build, push and test in the same way that amp-devcontainer does, without the need to duplicate the build system.
 
+  @REQ-MAINT-0004
   Rule: Architectural decisions
     amp-devcontainer *SHOULD* document its architectural decisions.
 
@@ -31,6 +35,7 @@ Feature: Maintainability
     This information can be valuable for future maintainers, as it helps them understand the reasoning behind certain implementations and can guide them in making informed decisions when modifying or extending the environment.
     Clear documentation of architectural decisions can also facilitate collaboration among team members and improve overall maintainability.
 
+  @REQ-MAINT-0005
   Rule: Container image size
     amp-devcontainer *SHOULD* aim to keep its container image size as small as possible without compromising functionality.
 

@@ -4,6 +4,7 @@ Feature: Compilation
   to generate a working product, when using compiled languages,
   source code needs to be compiled into working software.
 
+  @REQ-COMP-0001
   Rule: Compile for container host architecture and operating system
     amp-devcontainer *SHALL* be able to compile valid source code into a working executable targeting the container host architecture and operating system.
 
@@ -21,6 +22,7 @@ Feature: Compilation
       When the selected target is built
       Then the output should contain "Build finished with exit code 0"
 
+  @REQ-COMP-0002
   Rule: Compile for ARM Cortex target architecture
     amp-devcontainer *SHOULD* be able to compile valid source-code into a working ELF executable targeting the ARM Cortex architecture.
 
@@ -28,6 +30,7 @@ Feature: Compilation
     is a primary function for amp-devcontainer. It enables building firmware for micro-controllers based
     on the ARM Cortex architecture.
 
+  @REQ-COMP-0003
   Rule: Compile for Microsoft® Windows operating system
     amp-devcontainer *SHOULD* be able to compile valid source-code into a working executable targeting the Microsoft® Windows operating system.
 
@@ -36,6 +39,7 @@ Feature: Compilation
     - Cross platform code is written and needs to be compiled and deployed
     - Executables needs to be deployed outside of container context to a host running the Microsoft® Windows operating system
 
+  @REQ-COMP-0004
   Rule: Compilation cache
     amp-devcontainer *MAY* be able to cache the results of a compilation to speed-up subsequent compilations.
 

@@ -81,9 +81,12 @@ def write_gherkin_sbdl_elements(f, elements: List[SBDLElement]):
         )
 
         # Write custom:title with original name for display purposes
+        # When a REQ tag is present, format as "REQ-ID: Original Name"
         original_name = element.metadata.get('original_name', '') if element.metadata else ''
+        req_id = element.metadata.get('req_id', '') if element.metadata else ''
         if original_name:
-            escaped_title = sbdl.SBDL_Parser.sanitize(original_name)
+            display_title = f"{req_id}: {original_name}" if req_id else original_name
+            escaped_title = sbdl.SBDL_Parser.sanitize(display_title)
             f.write(f'custom:title{tokens.declaration_attribute_assign}')
             f.write(f'{tokens.declaration_attribute_delimeter}{escaped_title}{tokens.declaration_attribute_delimeter} ')
 
@@ -147,14 +150,25 @@ class GherkinConverter:
         if not name:
             return None
 
+        # Check for @REQ-* tag to use as stable identifier
+        req_id = None
+        for tag in element_data.get('tags', []):
+            tag_name = tag.get('name', '')
+            if tag_name.upper().startswith('@REQ-'):
+                req_id = tag_name[1:]  # Remove @ prefix, preserve case
+                break
+
+        identifier = req_id if req_id else name
+
         return SBDLElement(
-            identifier=name,
+            identifier=identifier,
             element_type=mapping.sbdl_type,
             description=element_data.get('description', ''),
             parent=parent_id,
             metadata={
                 'gherkin_type': element_type.value,
                 'original_name': name,
+                'req_id': req_id,
                 'line': element_data.get('location', {}).get('line'),
             },
         )
