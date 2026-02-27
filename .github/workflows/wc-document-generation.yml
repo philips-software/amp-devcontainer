@@ -23,30 +23,32 @@ jobs:
         run: |
           set -Eeuo pipefail
           sudo apt-get update && sudo apt-get install --no-install-recommends -y plantuml
-          python -m pip install gherkin-official==35.1.0 sbdl==1.16.4
+          python -m pip install sbdl==1.16.4
       - name: Generate SRS document
         run: |
           set -Eeuo pipefail
-          python docs/support/generate-sbdl.py --config requirements --gherkin test/cpp/features/*.feature
+          bash docs/support/extract-sbdl.sh test/cpp/features/*.feature
           sbdl -m template-fill --template docs/templates/software-requirements-specification.md.j2 output.sbdl > software-requirements-specification.md
       - name: Generate C++ test plan and traceability documents
         run: |
           set -Eeuo pipefail
-          python docs/support/generate-sbdl.py --config test-specification \
-            --gherkin test/cpp/features/*.feature \
-            --bats test/cpp/integration-tests.bats test/base/integration-tests.bats \
+          bash docs/support/extract-sbdl.sh \
             --flavor "C++ (cpp)" \
-            -o cpp-test-plan.sbdl
+            -o cpp-test-plan.sbdl \
+            test/cpp/features/*.feature \
+            test/cpp/integration-tests.bats \
+            test/base/integration-tests.bats
           sbdl -m template-fill --template docs/templates/software-test-plan.md.j2 cpp-test-plan.sbdl > cpp-software-test-plan.md
           sbdl -m template-fill --template docs/templates/requirements-traceability-matrix.md.j2 cpp-test-plan.sbdl > cpp-requirements-traceability-matrix.md
       - name: Generate Rust test plan and traceability documents
         run: |
           set -Eeuo pipefail
-          python docs/support/generate-sbdl.py --config test-specification \
-            --gherkin test/cpp/features/*.feature \
-            --bats test/rust/integration-tests.bats test/base/integration-tests.bats \
+          bash docs/support/extract-sbdl.sh \
             --flavor Rust \
-            -o rust-test-plan.sbdl
+            -o rust-test-plan.sbdl \
+            test/cpp/features/*.feature \
+            test/rust/integration-tests.bats \
+            test/base/integration-tests.bats
           sbdl -m template-fill --template docs/templates/software-test-plan.md.j2 rust-test-plan.sbdl > rust-software-test-plan.md
           sbdl -m template-fill --template docs/templates/requirements-traceability-matrix.md.j2 rust-test-plan.sbdl > rust-requirements-traceability-matrix.md
       - uses: docker://pandoc/extra:3.7.0@sha256:a703d335fa237f8fc3303329d87e2555dca5187930da38bfa9010fa4e690933a

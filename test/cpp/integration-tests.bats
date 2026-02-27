@@ -29,6 +29,7 @@ teardown() {
 #  are aligned in terms of major and minor versions.
 
 # bats test_tags=compatibility,version,clang
+#!sbdl cpp-version-clang is test { aspect is compatibility }
 @test "clang toolchain versions should be aligned with expected versions" {
   EXPECTED_VERSION=$(get_expected_semver_for clang)
 
@@ -39,6 +40,7 @@ teardown() {
 }
 
 # bats test_tags=compatibility,version,gcc
+#!sbdl cpp-version-gcc is test { aspect is compatibility }
 @test "host gcc toolchain versions and alternatives should be aligned with expected versions" {
   EXPECTED_VERSION=$(get_expected_semver_for g++)
 
@@ -49,6 +51,7 @@ teardown() {
 }
 
 # bats test_tags=compatibility,version,hostgccarmgcc
+#!sbdl cpp-version-host-arm-gcc is test { aspect is compatibility }
 @test "host and embedded gcc toolchain versions should be the same major and minor version" {
   EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for g++ | cut -d. -f1,2)
   INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
@@ -56,6 +59,7 @@ teardown() {
 }
 
 # bats test_tags=compatibility,version,tools
+#!sbdl cpp-version-tools is test { aspect is compatibility }
 @test "supporting tool versions should be aligned with expected versions" {
   for TOOL in gdb gdb-multiarch git ninja; do
     EXPECTED_VERSION=$(get_expected_semver_for ${TOOL})
@@ -73,6 +77,7 @@ teardown() {
 }
 
 # bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+#!sbdl cpp-compile-host-gcc is test { requirement is compile-for-container-host-architecture-and-operating-system }
 @test "valid code input should result in working executable using host compiler" {
   cmake --preset gcc
   cmake --build --preset gcc
@@ -83,6 +88,7 @@ teardown() {
 }
 
 # bats test_tags=compilation,compile-for-arm-cortex-target-architecture
+#!sbdl cpp-compile-arm-cortex is test { requirement is compile-for-arm-cortex-target-architecture }
 @test "valid code input should result in elf executable using arm-none-eabi compiler" {
   cmake --preset gcc-arm-none-eabi
   cmake --build --preset gcc-arm-none-eabi
@@ -93,6 +99,7 @@ teardown() {
 }
 
 # bats test_tags=compilation,compile-for-microsoft-windows-operating-system
+#!sbdl cpp-compile-windows is test { requirement is compile-for-microsoft-windows-operating-system }
 @test "valid code input should result in Windows executable using clang-cl compiler" {
   install_win_sdk_when_ci_unset
 
@@ -101,6 +108,7 @@ teardown() {
 }
 
 # bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+#!sbdl cpp-compile-database is test { requirement is compile-for-container-host-architecture-and-operating-system }
 @test "compilation database should be generated on CMake configure" {
   cmake --preset gcc
   assert [ -e build/gcc/compile_commands.json ]
@@ -110,17 +118,20 @@ teardown() {
 }
 
 # bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+#!sbdl cpp-compile-host-fail is test { requirement is compile-for-container-host-architecture-and-operating-system }
 @test "invalid code input should result in failing build" {
   cmake --preset gcc
   run ! cmake --build --preset gcc-fail
 }
 
 # bats test_tags=compilation,compilation-cache
+#!sbdl cpp-ccache-gcc is test { requirement is compilation-cache }
 @test "using ccache as a compiler launcher should result in cached build using gcc compiler" {
   configure_and_build_with_ccache gcc
 }
 
 # bats test_tags=compilation,compilation-cache
+#!sbdl cpp-ccache-clang-cl is test { requirement is compilation-cache }
 @test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
   install_win_sdk_when_ci_unset
 
@@ -128,6 +139,7 @@ teardown() {
 }
 
 # bats test_tags=static-and-dynamic-analysis,static-analysis
+#!sbdl cpp-clang-tidy is test { requirement is static-analysis }
 @test "running clang-tidy as part of the build should result in warning diagnostics" {
   cmake --preset clang
 
@@ -137,6 +149,7 @@ teardown() {
 }
 
 # bats test_tags=static-and-dynamic-analysis,static-analysis
+#!sbdl cpp-iwyu is test { requirement is static-analysis }
 @test "running include-what-you-use as part of the build should result in warning diagnostics" {
   cmake --preset clang
 
@@ -146,6 +159,7 @@ teardown() {
 }
 
 # bats test_tags=static-and-dynamic-analysis,code-formatting
+#!sbdl cpp-clang-format is test { requirement is code-formatting }
 @test "running clang-format should result in re-formatted code" {
   run clang-format clang-tools/unformatted.cpp
   assert_success
@@ -153,6 +167,7 @@ teardown() {
 }
 
 # bats test_tags=static-and-dynamic-analysis,coverage-analysis
+#!sbdl cpp-coverage is test { requirement is coverage-analysis }
 @test "coverage information should be generated when running a testsuite" {
   cmake --preset coverage
   cmake --build --preset coverage
@@ -167,6 +182,7 @@ teardown() {
 }
 
 # bats test_tags=static-and-dynamic-analysis,fuzz-testing
+#!sbdl cpp-fuzz-testing is test { requirement is fuzz-testing }
 @test "crashes should be detected when fuzzing an executable" {
   cmake --preset clang
   cmake --build --preset fuzzing
@@ -177,6 +193,7 @@ teardown() {
 }
 
 # bats test_tags=static-and-dynamic-analysis,mutation-testing
+#!sbdl cpp-mutation-testing is test { requirement is mutation-testing }
 @test "a mutation score should be calculated when mutation testing a testsuite" {
   cmake --preset mutation
   cmake --build --preset mutation
@@ -186,6 +203,7 @@ teardown() {
 }
 
 # bats test_tags=static-and-dynamic-analysis,static-analysis
+#!sbdl cpp-clangd-check is test { requirement is static-analysis }
 @test "clangd should be able to analyze source files" {
   run clangd --check=gcc/main.cpp
   assert_success
@@ -193,12 +211,14 @@ teardown() {
 }
 
 # bats test_tags=static-and-dynamic-analysis,static-analysis
+#!sbdl cpp-clangd-start is test { requirement is static-analysis }
 @test "clangd should start with a specified compile commands path" {
   run timeout 1s clangd --compile-commands-dir=/root/.amp
   refute_output --partial "Path specified by --compile-commands-dir does not exist. The argument will be ignored."
 }
 
 # bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+#!sbdl cpp-compile-lld is test { requirement is compile-for-container-host-architecture-and-operating-system }
 @test "using lld as an alternative linker should result in working host executable" {
   cmake --preset gcc
   cmake --build --preset gcc-lld
@@ -212,16 +232,19 @@ teardown() {
 }
 
 # bats test_tags=static-and-dynamic-analysis,static-analysis
+#!sbdl cpp-sanitizers-gcc is test { requirement is static-analysis }
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with gcc" {
   build_and_run_with_sanitizers gcc
 }
 
 # bats test_tags=static-and-dynamic-analysis,static-analysis
+#!sbdl cpp-sanitizers-clang is test { requirement is static-analysis }
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with clang" {
   build_and_run_with_sanitizers clang
 }
 
 # bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+#!sbdl cpp-compile-conan is test { requirement is compile-for-container-host-architecture-and-operating-system }
 @test "using Conan as package manager should resolve external dependencies" {
   pushd package-managers/conan
 
@@ -234,6 +257,7 @@ teardown() {
 }
 
 # bats test_tags=compilation,compile-for-container-host-architecture-and-operating-system
+#!sbdl cpp-compile-cpm is test { requirement is compile-for-container-host-architecture-and-operating-system }
 @test "using CPM as package manager should resolve external dependencies" {
   cmake --preset cpm
   cmake --build --preset cpm

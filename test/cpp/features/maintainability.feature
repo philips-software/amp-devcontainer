@@ -1,10 +1,12 @@
 Feature: Maintainability
+  #!sbdl maintainability is aspect { description is "As a software craftsperson, to ensure that I have access to a stable and reliable development environment, I want my development environment to be maintainable over time." }
 
   As a software craftsperson,
   to ensure that I have access to a stable and reliable development environment,
   I want my development environment to be maintainable over time.
 
   Rule: Tool and dependency updates
+    #!sbdl tool-and-dependency-updates is requirement { aspect is maintainability description is "amp-devcontainer SHOULD contain up-to-date tools and dependencies." }
     amp-devcontainer *SHOULD* contain up-to-date tools and dependencies.
 
     Keeping tools and dependencies up-to-date helps ensure that the development environment remains secure, stable, and compatible with the latest technologies.
@@ -12,6 +14,7 @@ Feature: Maintainability
     Regular updates can also introduce new features and improvements that enhance the development experience.
 
   Rule: Automatic updates
+    #!sbdl automatic-updates is requirement { aspect is maintainability description is "amp-devcontainer SHOULD provide support for automatic updates when consumed as a dependency." }
     amp-devcontainer *SHOULD* provide support for automatic updates when consumed as a dependency.
 
     Providing support for automatic updates when amp-devcontainer is consumed as a dependency helps ensure that users always have access to the latest features, bug fixes, and security patches.
@@ -19,12 +22,14 @@ Feature: Maintainability
     Automatic updates can also help ensure compatibility with other dependencies and tools, improving the overall stability and reliability of the development environment.
 
   Rule: Re-usable build system
+    #!sbdl re-usable-build-system is requirement { aspect is maintainability description is "amp-devcontainer SHOULD provide re-usable building blocks to enable building, publishing and testing derived containers." }
     amp-devcontainer *SHOULD* provide re-usable building blocks to enable building, publishing and testing derived containers.
 
     Providing re-usable building blocks for building, publishing and testing derived containers reduces duplication, and ensures consistent application of practices.
     Derived containers (i.e. containers using amp-devcontainer as a base for further extension) should be able to build, push and test in the same way that amp-devcontainer does, without the need to duplicate the build system.
 
   Rule: Architectural decisions
+    #!sbdl architectural-decisions is requirement { aspect is maintainability description is "amp-devcontainer SHOULD document its architectural decisions." }
     amp-devcontainer *SHOULD* document its architectural decisions.
 
     Documenting architectural decisions helps provide context and rationale for the design choices made in the development environment.
@@ -32,6 +37,7 @@ Feature: Maintainability
     Clear documentation of architectural decisions can also facilitate collaboration among team members and improve overall maintainability.
 
   Rule: Container image size
+    #!sbdl container-image-size is requirement { aspect is maintainability description is "amp-devcontainer SHOULD aim to keep its container image size as small as possible without compromising functionality." }
     amp-devcontainer *SHOULD* aim to keep its container image size as small as possible without compromising functionality.
 
     Keeping the container image size small helps improve performance, reduce resource consumption, and minimize the time required to download and deploy the development environment.
