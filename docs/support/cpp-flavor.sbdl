@@ -1,0 +1,2 @@
+#!sbdl
+document-flavor is definition { description is "C++ (cpp)" custom:title is "C++ (cpp)" }

@@ -8,7 +8,7 @@ setup() {
 }
 
 # bats test_tags=security
-#!sbdl base-cisco-umbrella-cert is test { aspect is security }
+# @sbdl base-cisco-umbrella-cert is test { aspect is security }
 @test "cisco umbrella root certificate is included in system certificate store" {
   run openssl verify -CAfile /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/cisco-umbrella-root.pem
   assert_success

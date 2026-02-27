@@ -1,0 +1,2 @@
+#!sbdl
+document-flavor is definition { description is "Rust" custom:title is "Rust" }

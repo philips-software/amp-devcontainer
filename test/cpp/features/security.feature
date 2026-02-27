@@ -1,12 +1,12 @@
 Feature: Security
-  #!sbdl security is aspect { description is "As a security engineer and security conscious developer, to have control over the security posture of my development environment, I want to have controls in place to identify and mitigate supply-chain vulnerabilities." }
+  # @sbdl security is aspect { description is "As a security engineer and security conscious developer, to have control over the security posture of my development environment, I want to have controls in place to identify and mitigate supply-chain vulnerabilities." }
 
   As a security engineer and security conscious developer,
   to have control over the security posture of my development environment,
   I want to have controls in place to identify and mitigate supply-chain vulnerabilities.
 
   Rule: Build provenance
-    #!sbdl build-provenance is requirement { aspect is security description is "amp-devcontainer SHALL include build provenance as specified in SLSA v1.0 Build L3." }
+    # @sbdl build-provenance is requirement { aspect is security description is "amp-devcontainer SHALL include build provenance as specified in SLSA v1.0 Build L3." }
     amp-devcontainer *SHALL* include build provenance as specified in [SLSA v1.0 Build L3](https://slsa.dev/spec/v1.0/levels).
 
     Including provenance gives confidence that the container images haven't been tampered with and can be securely traced back to its source code.
@@ -15,7 +15,7 @@ Feature: Security
     Doing so prevents several classes of [supply chain threats](https://slsa.dev/spec/v1.0/threats).
 
   Rule: Signing
-    #!sbdl signing is requirement { aspect is security description is "amp-devcontainer SHALL cryptographically sign its released container images." }
+    # @sbdl signing is requirement { aspect is security description is "amp-devcontainer SHALL cryptographically sign its released container images." }
     amp-devcontainer *SHALL* cryptographically sign its released container images.
 
     Cryptographically signing released container images provides integrity and authenticity guarantees.
@@ -23,7 +23,7 @@ Feature: Security
     This helps mitigate several classes of [supply chain threats](https://slsa.dev/spec/v1.0/threats).
 
   Rule: Software Bill of Materials (SBOM)
-    #!sbdl software-bill-of-materials-sbom is requirement { aspect is security description is "amp-devcontainer SHOULD provide a Software Bill of Materials (SBOM) for its released container images." }
+    # @sbdl software-bill-of-materials-sbom is requirement { aspect is security description is "amp-devcontainer SHOULD provide a Software Bill of Materials (SBOM) for its released container images." }
     amp-devcontainer *SHOULD* provide a Software Bill of Materials (SBOM) for its released container images.
 
     Providing a Software Bill of Materials (SBOM) enables consumers to identify and manage security risks associated with the software components included in the container images.

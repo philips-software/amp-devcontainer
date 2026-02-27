@@ -27,30 +27,44 @@ jobs:
       - name: Generate SRS document
         run: |
           set -Eeuo pipefail
-          bash docs/support/extract-sbdl.sh test/cpp/features/*.feature
-          sbdl -m template-fill --template docs/templates/software-requirements-specification.md.j2 output.sbdl > software-requirements-specification.md
+          sbdl -m template-fill \
+            --template docs/templates/software-requirements-specification.md.j2 \
+            test/cpp/features/*.feature \
+            > software-requirements-specification.md
       - name: Generate C++ test plan and traceability documents
         run: |
           set -Eeuo pipefail
-          bash docs/support/extract-sbdl.sh \
-            --flavor "C++ (cpp)" \
-            -o cpp-test-plan.sbdl \
+          sbdl -m template-fill \
+            --template docs/templates/software-test-plan.md.j2 \
+            docs/support/cpp-flavor.sbdl \
             test/cpp/features/*.feature \
             test/cpp/integration-tests.bats \
-            test/base/integration-tests.bats
-          sbdl -m template-fill --template docs/templates/software-test-plan.md.j2 cpp-test-plan.sbdl > cpp-software-test-plan.md
-          sbdl -m template-fill --template docs/templates/requirements-traceability-matrix.md.j2 cpp-test-plan.sbdl > cpp-requirements-traceability-matrix.md
+            test/base/integration-tests.bats \
+            > cpp-software-test-plan.md
+          sbdl -m template-fill \
+            --template docs/templates/requirements-traceability-matrix.md.j2 \
+            docs/support/cpp-flavor.sbdl \
+            test/cpp/features/*.feature \
+            test/cpp/integration-tests.bats \
+            test/base/integration-tests.bats \
+            > cpp-requirements-traceability-matrix.md
       - name: Generate Rust test plan and traceability documents
         run: |
           set -Eeuo pipefail
-          bash docs/support/extract-sbdl.sh \
-            --flavor Rust \
-            -o rust-test-plan.sbdl \
+          sbdl -m template-fill \
+            --template docs/templates/software-test-plan.md.j2 \
+            docs/support/rust-flavor.sbdl \
             test/cpp/features/*.feature \
             test/rust/integration-tests.bats \
-            test/base/integration-tests.bats
-          sbdl -m template-fill --template docs/templates/software-test-plan.md.j2 rust-test-plan.sbdl > rust-software-test-plan.md
-          sbdl -m template-fill --template docs/templates/requirements-traceability-matrix.md.j2 rust-test-plan.sbdl > rust-requirements-traceability-matrix.md
+            test/base/integration-tests.bats \
+            > rust-software-test-plan.md
+          sbdl -m template-fill \
+            --template docs/templates/requirements-traceability-matrix.md.j2 \
+            docs/support/rust-flavor.sbdl \
+            test/cpp/features/*.feature \
+            test/rust/integration-tests.bats \
+            test/base/integration-tests.bats \
+            > rust-requirements-traceability-matrix.md
       - uses: docker://pandoc/extra:3.7.0@sha256:a703d335fa237f8fc3303329d87e2555dca5187930da38bfa9010fa4e690933a
         with:
           args: >-
