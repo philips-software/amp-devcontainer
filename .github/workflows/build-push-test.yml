@@ -1,0 +1,60 @@
+---
+name: Build, Push & Test
+
+on:
+  workflow_call:
+    secrets:
+      TEST_GITHUB_PASSWORD:
+        required: false
+      TEST_GITHUB_TOKEN:
+        required: false
+      TEST_GITHUB_TOTP_SECRET:
+        required: false
+      TEST_GITHUB_USER:
+        required: false
+
+permissions: {}
+
+jobs:
+  build-push-test-base:
+    name: 🍨 base
+    uses: ./.github/workflows/wc-build-push-test.yml
+    permissions: &build-push-test-permissions
+      actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
+      artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
+      attestations: write # is needed by actions/attest-build-provenance to push attestations
+      contents: write # is needed by anchore/sbom-action for artifact uploads
+      id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
+      packages: write # is needed to push image manifest when using GitHub Container Registry
+      pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
+    with:
+      dockerfile: .devcontainer/base/Dockerfile
+      enable-edge-tag: ${{ github.event_name == 'merge_group' }}
+      image-name: ${{ github.repository }}-base
+      integration-test-file: test/base/integration-tests.bats
+      integration-test-podman: true
+
+  build-push-test-flavors:
+    name: 🍨 ${{ matrix.flavor }}
+    needs: build-push-test-base
+    strategy:
+      matrix:
+        flavor: [cpp, rust]
+    uses: ./.github/workflows/wc-build-push-test.yml
+    secrets:
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
+      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
+      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
+    permissions: *build-push-test-permissions
+    with:
+      acceptance-test-path: ${{ (github.actor != 'dependabot[bot]' && matrix.flavor == 'cpp') && 'test/cpp/features' || '' }}
+      acceptance-test-devcontainer-file: .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
+      build-args: |
+        BASE_IMAGE=${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
+      devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
+      dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
+      enable-edge-tag: ${{ github.event_name == 'merge_group' }}
+      image-name: ${{ github.repository }}-${{ matrix.flavor }}
+      integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
+      integration-test-podman: true

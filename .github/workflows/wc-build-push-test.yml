@@ -4,12 +4,16 @@ name: Build, Push & Test
 on:
   workflow_call:
     inputs:
+      acceptance-test-devcontainer-file:
+        description: Path to the devcontainer.json file to use for acceptance tests.
+        required: false
+        type: string
       acceptance-test-path:
-        description: Path to the Playwright acceptance tests (directory that contains playwright.config.ts)
+        description: Path to the Playwright acceptance tests (directory that contains playwright.config.ts).
         required: false
         type: string
       build-args:
-        description: Optional docker build args (newline-separated KEY=VALUE)
+        description: Optional docker build args (newline-separated KEY=VALUE).
         required: false
         type: string
       build-test-runner-labels:
@@ -38,7 +42,7 @@ on:
         required: true
         type: string
       enable-edge-tag:
-        description: Whether to also build and push an "edge" tag for the image
+        description: Whether to also build and push an "edge" tag for the image.
         required: false
         type: boolean
         default: false
@@ -52,9 +56,14 @@ on:
         required: true
         type: string
       integration-test-file:
-        description: Path to the BATS test file to run for integration tests
+        description: Path to the BATS test file to run for integration tests.
         required: false
         type: string
+      integration-test-podman:
+        description: Enable running the tests using the Podman container runtime, next to the default Docker container runtime.
+        required: false
+        type: boolean
+        default: false
       registry:
         description: >-
           Docker registry to push built containers to.
@@ -73,10 +82,6 @@ on:
         required: false
         type: string
         default: '["ubuntu-latest"]'
-      test-devcontainer-file:
-        description: Path to the devcontainer.json file to use for acceptance tests
-        required: false
-        type: string
     outputs:
       digest:
         value: ${{ jobs.build-push.outputs.digest }}
@@ -88,10 +93,10 @@ on:
         value: ${{ jobs.build-push.outputs.version }}
     secrets:
       DOCKER_REGISTRY_PASSWORD:
-        description: Password or token for Docker login, if not provided the GitHub token will be used
+        description: Password or token for Docker login, if not provided the GitHub token will be used.
         required: false
       DOCKER_REGISTRY_USERNAME:
-        description: User name for Docker login, if not provided the GitHub actor will be used
+        description: User name for Docker login, if not provided the GitHub actor will be used.
         required: false
       TEST_GITHUB_PASSWORD:
         required: false
@@ -116,7 +121,7 @@ jobs:
       id-token: write # is needed by actions/attest-build-provenance to obtain an OIDC token
       packages: write # is needed to push image manifest when using GitHub Container Registry
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
-    secrets:
+    secrets: &docker-secrets
       DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
       DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     with:
@@ -129,17 +134,15 @@ jobs:
       runner-labels: ${{ inputs.runner-labels }}
       build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
 
-  integration-test:
+  integration-test-docker:
     name: 🧪
     if: ${{ inputs.integration-test-file }}
     needs: build-push
-    uses: ./.github/workflows/wc-integration-test.yml
+    uses: ./.github/workflows/wc-integration-test-docker.yml
     permissions:
       contents: read
-    secrets:
-      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
-      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
-    with:
+    secrets: *docker-secrets
+    with: &integration-test-inputs
       build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
       fully-qualified-image-name: ${{ needs.build-push.outputs.fully-qualified-image-name }}
       image-basename: ${{ needs.build-push.outputs.image-basename }}
@@ -147,9 +150,19 @@ jobs:
       registry: ${{ inputs.registry }}
       test-file: ${{ inputs.integration-test-file }}
 
+  integration-test-podman:
+    name: 🧪
+    if: ${{ inputs.integration-test-file && inputs.integration-test-podman }}
+    needs: build-push
+    uses: ./.github/workflows/wc-integration-test-podman.yml
+    permissions:
+      contents: read
+    secrets: *docker-secrets
+    with: *integration-test-inputs
+
   acceptance-test:
     name: 🏗️
-    if: ${{ inputs.test-devcontainer-file && inputs.acceptance-test-path }}
+    if: ${{ inputs.acceptance-test-devcontainer-file && inputs.acceptance-test-path }}
     needs: build-push
     uses: ./.github/workflows/wc-acceptance-test.yml
     permissions:
@@ -161,5 +174,5 @@ jobs:
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     with:
       image-basename: ${{ needs.build-push.outputs.image-basename }}
-      devcontainer-file: ${{ inputs.test-devcontainer-file }}
+      devcontainer-file: ${{ inputs.acceptance-test-devcontainer-file }}
       acceptance-test-path: ${{ inputs.acceptance-test-path }}
