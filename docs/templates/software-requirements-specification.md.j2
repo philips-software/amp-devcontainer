@@ -46,24 +46,24 @@ The containers may be used both for local development and continuous integration
 {{ text.encode('utf-8').decode('unicode_escape') }}
 {%- endmacro -%}
 
-{%- macro sbdl_id_to_header(text) -%}
-{{ text.replace('_', ' ') }}
+{%- macro strip_rule_prefix(text) -%}
+{{ text | replace('Rule: ', '') }}
 {%- endmacro -%}
 
-{%- for req_id, requirement in sbdl.items() %}
-{%- if requirement.type == 'requirement' and 'parent' not in requirement %}
+{%- for aspect_id, aspect in sbdl.items() %}
+{%- if aspect.type == 'aspect' %}
 
-## {{ reencode(sbdl_id_to_header(req_id)) }}
+## {{ reencode(strip_rule_prefix(aspect_id)) | title }}
 
-{{ reencode(requirement.description) }}
+{{ reencode(aspect.description) }}
 
-{%- if 'child' in requirement %}
-{%- for child in requirement.child %}
-{%- set child_req = sbdl[child.identifier] %}
+{%- if 'requirement' in aspect %}
+{%- for req_ref in aspect.requirement %}
+{%- set req = sbdl[req_ref.identifier] %}
 
-### {{ reencode(sbdl_id_to_header(child.identifier)) }}
+### {{ req_ref.identifier }}: {{ reencode(strip_rule_prefix(req['custom:title'])) }}
 
-{{ reencode(child_req.description) }}
+{{ reencode(req.description) }}
 
 {%- endfor %}
 {%- endif %}

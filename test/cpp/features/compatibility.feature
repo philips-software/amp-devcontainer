@@ -14,7 +14,7 @@ Feature: Compatibility
   Rule: Open Container Initiative (OCI) Image Specification
     @sbdl-begin
       req-compat-0001 is requirement {
-        custom:title is "@[-LINE]"
+        custom:title is "[@-LINE]"
         description is
         "amp-devcontainer images *SHALL* be compatible with the [OCI image specification](https://github.com/opencontainers/image-spec/blob/main/spec.md)"
         remark is
@@ -25,7 +25,7 @@ Feature: Compatibility
   Rule: Host architecture
     @sbdl-begin
       req-compat-0002 is requirement {
-        custom:title is "@[-LINE]"
+        custom:title is "[@-LINE]"
         description is
         "amp-devcontainer *SHALL* be compatible with both the x86-64 (AMD64) *and* AArch64 (ARM64) host architectures."
         remark is
@@ -36,7 +36,7 @@ Feature: Compatibility
   Rule: Integrated Development Environment (IDE)
     @sbdl-begin
       req-compat-0003 is requirement {
-        custom:title is "@[-LINE]"
+        custom:title is "[@-LINE]"
         description is
         "amp-devcontainer *SHOULD* be compatible with [VS Code](https://code.visualstudio.com/) *and* [GitHub Codespaces](https://github.com/features/codespaces)."
         remark is
@@ -49,7 +49,7 @@ Feature: Compatibility
   Rule: GitHub Actions
     @sbdl-begin
       req-compat-0004 is requirement {
-        custom:title is "@[-LINE]"
+        custom:title is "[@-LINE]"
         description is
         "amp-devcontainer *SHOULD* support seamless integration with [GitHub Actions](https://github.com/features/actions) without additional configuration."
         remark is
