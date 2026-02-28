@@ -1,7 +1,6 @@
 Feature: Compatibility
 
   @sbdl-begin
-    """
     compatibility is aspect {
       custom:title is "[@-LINE]"
       description is
@@ -12,7 +11,6 @@ Feature: Compatibility
 
     using { aspect is compatibility }
   @sbdl-end
-  """
 
   Rule: Open Container Initiative (OCI) Image Specification
 
