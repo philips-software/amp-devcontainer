@@ -39,6 +39,6 @@ jobs:
         with:
           name: documents
           path: |
-            ${RUNNER_TEMP}/amp-devcontainer.sbdl
-            "*.pdf"
+            ${{ env.RUNNER_TEMP }}/amp-devcontainer.sbdl
+            *.pdf
           retention-days: 2
