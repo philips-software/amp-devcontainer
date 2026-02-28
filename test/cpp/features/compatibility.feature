@@ -1,6 +1,5 @@
 Feature: Compatibility
-
-  @sbdl-begin
+  # @sbdl-begin
     compatibility is aspect {
       custom:title is "[@-LINE]"
       description is
@@ -10,11 +9,10 @@ Feature: Compatibility
     }
 
     using { aspect is compatibility }
-  @sbdl-end
+  # @sbdl-end
 
   Rule: Open Container Initiative (OCI) Image Specification
-
-    @sbdl-begin
+    # @sbdl-begin
       req-compat-0001 is requirement {
         custom:title is "[@-LINE]"
         description is
@@ -22,11 +20,10 @@ Feature: Compatibility
         remark is
         "To guarantee compatibility with container runtimes and container- and image tooling; amp-devcontainer should be compatible with the OCI image specification."
       }
-    @sbdl-end
+    # @sbdl-end
 
   Rule: Host architecture
-
-    @sbdl-begin
+    # @sbdl-begin
       req-compat-0002 is requirement {
         custom:title is "[@-LINE]"
         description is
@@ -34,11 +31,10 @@ Feature: Compatibility
         remark is
         "Supporting both x86-64 and AArch64 has several advantages:\n\n- Increasing useability on a wide range of host machines, from PC hardware using the x86-64 architecture to Apple Silicon using the AArch64 architecture\n- Unlocking the power efficiency of the AArch64 architecture, potentially reducing energy consumption and cost for metered ci-systems"
       }
-    @sbdl-end
+    # @sbdl-end
 
   Rule: Integrated Development Environment (IDE)
-
-    @sbdl-begin
+    # @sbdl-begin
       req-compat-0003 is requirement {
         custom:title is "[@-LINE]"
         description is
@@ -48,11 +44,10 @@ Feature: Compatibility
          Where minimal effort means: with the least amount of additional set-up, user intervention or configuration for all functionality that is provided by amp-devcontainer.
          Features and functions should work \"out-of-the-box\" without being overly opinionated."
       }
-    @sbdl-end
+    # @sbdl-end
 
   Rule: GitHub Actions
-
-    @sbdl-begin
+    # @sbdl-begin
       req-compat-0004 is requirement {
         custom:title is "[@-LINE]"
         description is
@@ -62,4 +57,4 @@ Feature: Compatibility
          This integration helps automate the build, test, and deployment processes, improving efficiency and reducing manual errors.
          By minimizing the need for additional configuration, users can quickly set up and start using amp-devcontainer in their GitHub Actions workflows, enhancing their overall development experience."
       }
-    @sbdl-end
+    # @sbdl-end
