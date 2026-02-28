@@ -1,5 +1,7 @@
 Feature: Compatibility
+
   @sbdl-begin
+    """
     compatibility is aspect {
       custom:title is "[@-LINE]"
       description is
@@ -10,8 +12,10 @@ Feature: Compatibility
 
     using { aspect is compatibility }
   @sbdl-end
+  """
 
   Rule: Open Container Initiative (OCI) Image Specification
+
     @sbdl-begin
       req-compat-0001 is requirement {
         custom:title is "[@-LINE]"
@@ -23,6 +27,7 @@ Feature: Compatibility
     @sbdl-end
 
   Rule: Host architecture
+
     @sbdl-begin
       req-compat-0002 is requirement {
         custom:title is "[@-LINE]"
@@ -34,6 +39,7 @@ Feature: Compatibility
     @sbdl-end
 
   Rule: Integrated Development Environment (IDE)
+
     @sbdl-begin
       req-compat-0003 is requirement {
         custom:title is "[@-LINE]"
@@ -47,6 +53,7 @@ Feature: Compatibility
     @sbdl-end
 
   Rule: GitHub Actions
+
     @sbdl-begin
       req-compat-0004 is requirement {
         custom:title is "[@-LINE]"
