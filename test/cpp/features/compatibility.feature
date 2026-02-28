@@ -1,7 +1,7 @@
 Feature: Compatibility
-
   @sbdl-begin
     compatibility is aspect {
+      custom:title is "[@-LINE]"
       description is
       "As a software craftsperson,
        to ensure that my development environment works well with a variety of tools and systems,

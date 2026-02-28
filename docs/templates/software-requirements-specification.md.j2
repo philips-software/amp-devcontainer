@@ -2,7 +2,7 @@
 title: "Software requirements specification for amp-devcontainer"
 author: ["@rjaegers"]
 colorlinks: true
-date: "October-2025"
+date: "February-2026"
 keywords: [Software, Requirements, SRS, amp-devcontainer]
 lang: "en"
 titlepage: true
@@ -46,14 +46,14 @@ The containers may be used both for local development and continuous integration
 {{ text.encode('utf-8').decode('unicode_escape') }}
 {%- endmacro -%}
 
-{%- macro strip_rule_prefix(text) -%}
-{{ text | replace('Rule: ', '') }}
+{%- macro strip_gherkin_prefix(text) -%}
+{{ text | replace('Rule: ', '') | replace('Feature: ', '') }}
 {%- endmacro -%}
 
 {%- for aspect_id, aspect in sbdl.items() %}
 {%- if aspect.type == 'aspect' %}
 
-## {{ reencode(strip_rule_prefix(aspect_id)) | title }}
+## {{ reencode(strip_gherkin_prefix(aspect_id)) | title }}
 
 {{ reencode(aspect.description) }}
 
@@ -61,9 +61,11 @@ The containers may be used both for local development and continuous integration
 {%- for req_ref in aspect.requirement %}
 {%- set req = sbdl[req_ref.identifier] %}
 
-### {{ req_ref.identifier }}: {{ reencode(strip_rule_prefix(req['custom:title'])) }}
+### {{ req_ref.identifier }}: {{ reencode(strip_gherkin_prefix(req['custom:title'])) }}
 
 {{ reencode(req.description) }}
+
+{{ reencode(req.remark) }}
 
 {%- endfor %}
 {%- endif %}
