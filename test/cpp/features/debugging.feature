@@ -4,6 +4,7 @@ Feature: Debugging
   to efficiently identify and resolve issues in my code,
   I want to be able to debug my source code within the development environment.
 
+  @REQ-DBG-0001
   Rule: Debugging support
     amp-devcontainer *SHALL* provide debugging support for the primary programming language(s) used within the container.
 
@@ -12,6 +13,7 @@ Feature: Debugging
     This capability is essential for diagnosing complex problems, understanding code flow, and ensuring the correctness of software.
     By having integrated debugging tools, developers can streamline their workflow and reduce the time spent on troubleshooting and fixing bugs.
 
+  @REQ-DBG-0002
   Rule: Upload firmware to micro-controller
     amp-devcontainer *MAY* provide tools to upload compiled firmware to a connected micro-controller.
 

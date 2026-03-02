@@ -7,6 +7,7 @@ setup() {
   load '/usr/local/bats-assert/load'
 }
 
+# bats test_tags=security
 @test "cisco umbrella root certificate is included in system certificate store" {
   run openssl verify -CAfile /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/cisco-umbrella-root.pem
   assert_success

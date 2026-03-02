@@ -15,6 +15,7 @@ teardown() {
   popd
 }
 
+# bats test_tags=compilation,REQ-COMP-0001
 @test "valid code input should result in working executable targeting the host architecture" {
   rustc --out-dir build rust/hello.rs
 
@@ -23,6 +24,7 @@ teardown() {
   assert_output "Hello, world!"
 }
 
+# bats test_tags=compilation,REQ-COMP-0002
 @test "valid code input should result in working elf executable targeting the cortex-m architecture" {
   pushd cortex-m
 
@@ -36,6 +38,7 @@ teardown() {
   popd
 }
 
+# bats test_tags=compilation,REQ-COMP-0002
 @test "valid code input should result in working elf executable targeting the cortex-mf architecture" {
   pushd cortex-mf
 
@@ -49,6 +52,7 @@ teardown() {
   popd
 }
 
+# bats test_tags=compilation,REQ-COMP-0001
 @test "using cargo run should result in working executable" {
   pushd cargo
 
@@ -59,12 +63,14 @@ teardown() {
   popd
 }
 
+# bats test_tags=compilation,REQ-COMP-0001
 @test "invalid code input should result in failing build" {
   run rustc rust/fail.rs
   assert_failure
   assert_output --partial "error: "
 }
 
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0002
 @test "running clippy should result in warning diagnostics" {
   pushd clippy
 
@@ -75,6 +81,7 @@ teardown() {
   popd
 }
 
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0001
 @test "running rustfmt should result in re-formatted code" {
   run rustfmt --color=never --check rust/unformatted.rs
   assert_failure
@@ -88,6 +95,7 @@ teardown() {
 EOF
 }
 
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0003
 @test "coverage information should be generated when running a testsuite" {
   pushd test
 
@@ -104,6 +112,7 @@ EOF
   popd
 }
 
+# bats test_tags=static-and-dynamic-analysis,REQ-SDA-0004
 @test "mutation testing a test executable should be supported" {
   pushd test
 

@@ -4,6 +4,7 @@ Feature: Static and dynamic analysis
   to maintain consistent, high-quality and bug-free code,
   I want my source code to be statically and dynamically analyzed.
 
+  @REQ-SDA-0001
   Rule: Code formatting
     amp-devcontainer *MAY* provide code formatting tools for the primary programming language(s) used within the container.
 
@@ -18,6 +19,7 @@ Feature: Static and dynamic analysis
     And the active document is saved
     Then the contents of "clang-tools/unformatted.cpp" should match the contents of "clang-tools/formatted.cpp"
 
+  @REQ-SDA-0002
   Rule: Static analysis
     amp-devcontainer *MAY* provide static analysis tools for the primary programming language(s) used within the container.
 
@@ -25,6 +27,7 @@ Feature: Static and dynamic analysis
     These tools can analyze the code for common pitfalls, coding standards violations, and potential bugs, providing developers with valuable feedback early in the development process.
     By integrating static analysis tools into the development environment, developers can catch issues before they become more significant problems, streamlining the development workflow and improving overall code quality.
 
+  @REQ-SDA-0003
   Rule: Coverage analysis
     amp-devcontainer *SHOULD* provide code coverage analysis tools for the primary programming language(s) used within the container.
 
@@ -32,6 +35,7 @@ Feature: Static and dynamic analysis
     This information can help identify gaps in test coverage, ensuring that critical parts of the code are adequately tested.
     By integrating code coverage analysis tools into the development environment, developers can improve their test suites, leading to higher code quality and increased confidence in the software's correctness.
 
+  @REQ-SDA-0004
   Rule: Mutation testing
     amp-devcontainer *MAY* provide mutation testing tools for the primary programming language(s) used within the container.
 
@@ -39,6 +43,7 @@ Feature: Static and dynamic analysis
     This process helps identify gaps in test coverage and ensures that the tests are robust enough to catch potential issues in the code.
     By integrating mutation testing tools into the development environment, developers can improve their test suites, leading to higher code quality and increased confidence in the software's correctness.
 
+  @REQ-SDA-0005
   Rule: Fuzz testing
     amp-devcontainer *MAY* provide fuzz testing tools for the primary programming language(s) used within the container.
 

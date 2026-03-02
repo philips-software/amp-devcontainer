@@ -4,6 +4,7 @@ Feature: Security
   to have control over the security posture of my development environment,
   I want to have controls in place to identify and mitigate supply-chain vulnerabilities.
 
+  @REQ-SEC-0001
   Rule: Build provenance
     amp-devcontainer *SHALL* include build provenance as specified in [SLSA v1.0 Build L3](https://slsa.dev/spec/v1.0/levels).
 
@@ -12,6 +13,7 @@ Feature: Security
     Consumers have some way of knowing what the expected provenance should look like for a given container image and then compare each container image's actual provenance to those expectations.
     Doing so prevents several classes of [supply chain threats](https://slsa.dev/spec/v1.0/threats).
 
+  @REQ-SEC-0002
   Rule: Signing
     amp-devcontainer *SHALL* cryptographically sign its released container images.
 
@@ -19,6 +21,7 @@ Feature: Security
     It enables consumers to verify that the container image hasn't been tampered with and that it indeed originates from the expected publisher.
     This helps mitigate several classes of [supply chain threats](https://slsa.dev/spec/v1.0/threats).
 
+  @REQ-SEC-0003
   Rule: Software Bill of Materials (SBOM)
     amp-devcontainer *SHOULD* provide a Software Bill of Materials (SBOM) for its released container images.
 
