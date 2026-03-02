@@ -29,7 +29,7 @@ Feature: Compatibility
         description is
         "amp-devcontainer *SHALL* be compatible with both the x86-64 (AMD64) *and* AArch64 (ARM64) host architectures."
         remark is
-        "Supporting both x86-64 and AArch64 has several advantages:\n\n- Increasing useability on a wide range of host machines, from PC hardware using the x86-64 architecture to Apple Silicon using the AArch64 architecture\n- Unlocking the power efficiency of the AArch64 architecture, potentially reducing energy consumption and cost for metered ci-systems"
+        "Supporting both x86-64 and AArch64 has several advantages:\n\n- Increasing usability on a wide range of host machines, from PC hardware using the x86-64 architecture to Apple Silicon using the AArch64 architecture\n- Unlocking the power efficiency of the AArch64 architecture, potentially reducing energy consumption and cost for metered ci-systems"
       }
     # @sbdl-end
 
