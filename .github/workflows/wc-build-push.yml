@@ -137,7 +137,7 @@ jobs:
           touch "${RUNNER_TEMP}/digests/${DIGEST#sha256:}"
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ steps.devcontainer-arch.outputs.arch }}
           path: ${{ runner.temp }}/digests/*
@@ -229,7 +229,7 @@ jobs:
         env:
           FROM_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
           TO_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
