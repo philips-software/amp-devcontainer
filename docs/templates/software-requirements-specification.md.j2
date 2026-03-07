@@ -53,7 +53,7 @@ The containers may be used both for local development and continuous integration
 {%- for aspect_id, aspect in sbdl.items() %}
 {%- if aspect.type == 'aspect' %}
 
-## {{ reencode(strip_gherkin_prefix(aspect_id)) | title }}
+## {{ reencode(strip_gherkin_prefix(aspect['custom:title'])) }}
 
 {{ reencode(aspect.description) }}
 

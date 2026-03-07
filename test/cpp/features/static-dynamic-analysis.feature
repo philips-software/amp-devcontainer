@@ -16,11 +16,15 @@ Feature: Static and dynamic analysis
       req-sda-0001 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *MAY* provide code formatting tools for the primary programming language(s) used within the container."
+        "amp-devcontainer *MAY* provide code formatting tools for the primary programming language(s)
+         used within the container."
         remark is
-        "Providing code formatting tools helps maintain a consistent coding style across the codebase, improving readability and reducing friction during code reviews.
-         It also helps catch potential issues early by enforcing coding standards and best practices.
-         By integrating code formatting tools into the development environment, developers can easily format their code according to predefined rules, ensuring that the code adheres to the project's style guidelines."
+        "Providing code formatting tools helps maintain a consistent coding style across the
+         codebase, improving readability and reducing friction during code reviews. It also helps
+         catch potential issues early by enforcing coding standards and best practices. By
+         integrating code formatting tools into the development environment, developers can easily
+         format their code according to predefined rules, ensuring that the code adheres to the
+         project's style guidelines."
       }
     # @sbdl-end
 
@@ -36,11 +40,16 @@ Feature: Static and dynamic analysis
       req-sda-0002 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *MAY* provide static analysis tools for the primary programming language(s) used within the container."
+        "amp-devcontainer *MAY* provide static analysis tools for the primary programming language(s)
+         used within the container."
         remark is
-        "Providing static analysis tools helps identify potential issues in the code before it is executed, improving code quality and reducing the likelihood of runtime errors.
-         These tools can analyze the code for common pitfalls, coding standards violations, and potential bugs, providing developers with valuable feedback early in the development process.
-         By integrating static analysis tools into the development environment, developers can catch issues before they become more significant problems, streamlining the development workflow and improving overall code quality."
+        "Providing static analysis tools helps identify potential issues in the code before it is
+         executed, improving code quality and reducing the likelihood of runtime errors. These tools
+         can analyze the code for common pitfalls, coding standards violations, and potential bugs,
+         providing developers with valuable feedback early in the development process. By integrating
+         static analysis tools into the development environment, developers can catch issues before
+         they become more significant problems, streamlining the development workflow and improving
+         overall code quality."
       }
     # @sbdl-end
 
@@ -49,11 +58,15 @@ Feature: Static and dynamic analysis
       req-sda-0003 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* provide code coverage analysis tools for the primary programming language(s) used within the container."
+        "amp-devcontainer *SHOULD* provide code coverage analysis tools for the primary programming
+         language(s) used within the container."
         remark is
-        "Providing code coverage analysis tools helps assess the effectiveness of the existing test suite by measuring how much of the code is exercised by the tests.
-         This information can help identify gaps in test coverage, ensuring that critical parts of the code are adequately tested.
-         By integrating code coverage analysis tools into the development environment, developers can improve their test suites, leading to higher code quality and increased confidence in the software's correctness."
+        "Providing code coverage analysis tools helps assess the effectiveness of the existing test
+         suite by measuring how much of the code is exercised by the tests. This information can
+         help identify gaps in test coverage, ensuring that critical parts of the code are
+         adequately tested. By integrating code coverage analysis tools into the development
+         environment, developers can improve their test suites, leading to higher code quality and
+         increased confidence in the software's correctness."
       }
     # @sbdl-end
 
@@ -62,11 +75,15 @@ Feature: Static and dynamic analysis
       req-sda-0004 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *MAY* provide mutation testing tools for the primary programming language(s) used within the container."
+        "amp-devcontainer *MAY* provide mutation testing tools for the primary programming
+         language(s) used within the container."
         remark is
-        "Providing mutation testing tools helps assess the effectiveness of the existing test suite by introducing small changes (mutations) to the code and checking if the tests can detect these changes.
-         This process helps identify gaps in test coverage and ensures that the tests are robust enough to catch potential issues in the code.
-         By integrating mutation testing tools into the development environment, developers can improve their test suites, leading to higher code quality and increased confidence in the software's correctness."
+        "Providing mutation testing tools helps assess the effectiveness of the existing test suite
+         by introducing small changes (mutations) to the code and checking if the tests can detect
+         these changes. This process helps identify gaps in test coverage and ensures that the tests
+         are robust enough to catch potential issues in the code. By integrating mutation testing
+         tools into the development environment, developers can improve their test suites, leading
+         to higher code quality and increased confidence in the software's correctness."
       }
     # @sbdl-end
 
@@ -75,10 +92,14 @@ Feature: Static and dynamic analysis
       req-sda-0005 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *MAY* provide fuzz testing tools for the primary programming language(s) used within the container."
+        "amp-devcontainer *MAY* provide fuzz testing tools for the primary programming language(s)
+         used within the container."
         remark is
-        "Providing fuzz testing tools helps identify potential security vulnerabilities and robustness issues in the code by automatically generating and executing a large number of random inputs.
-         This process can uncover edge cases and unexpected behaviors that may not be covered by traditional testing methods.
-         By integrating fuzz testing tools into the development environment, developers can improve the overall security and reliability of their software, reducing the risk of vulnerabilities being exploited in production."
+        "Providing fuzz testing tools helps identify potential security vulnerabilities and
+         robustness issues in the code by automatically generating and executing a large number of
+         random inputs. This process can uncover edge cases and unexpected behaviors that may not be
+         covered by traditional testing methods. By integrating fuzz testing tools into the
+         development environment, developers can improve the overall security and reliability of
+         their software, reducing the risk of vulnerabilities being exploited in production."
       }
     # @sbdl-end
