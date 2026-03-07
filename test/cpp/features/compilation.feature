@@ -62,7 +62,7 @@ Feature: Compilation
          operating system, can be necessary in several scenarios e.g.\n\n
 
          - Cross platform code is written and needs to be compiled and deployed\n
-         - Executables needs to be deployed outside of container context to a host running the
+         - Executables need to be deployed outside of container context to a host running the
            Microsoft® Windows operating system"
       }
     # @sbdl-end
