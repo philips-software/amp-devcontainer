@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.8.3](https://github.com/philips-software/amp-devcontainer/compare/v6.8.2...v6.8.3) (2026-03-08)
+
+
+### Chores
+
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1174](https://github.com/philips-software/amp-devcontainer/issues/1174)) ([be2bd22](https://github.com/philips-software/amp-devcontainer/commit/be2bd22e64d4d77dc88e81eb4c875044c49c3d6e))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1185](https://github.com/philips-software/amp-devcontainer/issues/1185)) ([6199bf2](https://github.com/philips-software/amp-devcontainer/commit/6199bf2e836e1c6d9370262cb2e51d3f8f090a26))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer.json ([#1175](https://github.com/philips-software/amp-devcontainer/issues/1175)) ([9cb2abd](https://github.com/philips-software/amp-devcontainer/commit/9cb2abd6ec176c75342c6d559d6d08e3bece291b))
+* **deps:** Bump conan from 2.25.2 to 2.26.0 in /.devcontainer ([#1176](https://github.com/philips-software/amp-devcontainer/issues/1176)) ([7c9d1ef](https://github.com/philips-software/amp-devcontainer/commit/7c9d1efd2b866bae45fb7465cec98815e1140726))
+* Verify checksum for arm-gcc toolchain ([#1108](https://github.com/philips-software/amp-devcontainer/issues/1108)) ([094efc5](https://github.com/philips-software/amp-devcontainer/commit/094efc5c5131bcd20c04033c8eae5e94cb6cc7f0))
+
 ## [6.8.2](https://github.com/philips-software/amp-devcontainer/compare/v6.8.1...v6.8.2) (2026-02-24)
 
 
