@@ -129,7 +129,7 @@ jobs:
             ${{ steps.devcontainer-metadata.outputs.label }}
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
-          outputs: type=image,push-by-digest=true,name-canonical=true
+          outputs: type=image,compression=zstd,compression-level=9,force-compression=true,push-by-digest=true,name-canonical=true
       - name: Export digest
         run: |
           set -Eeuo pipefail
