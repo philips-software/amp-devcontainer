@@ -90,7 +90,7 @@ jobs:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
-      - uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+      - uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         env:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         id: metadata
@@ -179,7 +179,7 @@ jobs:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
-      - uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+      - uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         id: metadata
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
