@@ -8,6 +8,50 @@ on:
 permissions: {}
 
 jobs:
+  delete-attestations:
+    name: 🔏 Delete PR Attestations (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    permissions:
+      attestations: write # is needed to delete attestations
+      packages: read # is needed to list package versions to find the PR digest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [amp-devcontainer-base, amp-devcontainer-cpp, amp-devcontainer-rust]
+    steps:
+      - uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+          allowed-endpoints: api.github.com:443
+      - name: Delete attestations for PR ${{ github.event.pull_request.number }}
+        run: |
+          set -Eeuo pipefail
+
+          ORG="${GH_REPO%%/*}"
+          PR_TAG="pr-${PR_NUMBER}"
+
+          # Find the digest for the PR tag
+          digest=$(gh api "/orgs/${ORG}/packages/container/${GH_PACKAGE}/versions" \
+            --paginate \
+            --jq ".[] | select((.metadata.container.tags // []) | contains([\"${PR_TAG}\"]) ) | .name" \
+            2>/dev/null | head -1 || true)
+
+          if [[ -z "$digest" ]]; then
+            echo "No version found with tag ${PR_TAG} for ${GH_PACKAGE}, skipping"
+            exit 0
+          fi
+
+          echo "Deleting attestations for ${GH_PACKAGE}@${digest} (tag: ${PR_TAG})"
+          encoded_digest="${digest//:/%3A}"
+          gh api --method DELETE "/orgs/${ORG}/attestations/digest/${encoded_digest}" \
+            2>/dev/null && echo "Deleted" || echo "No attestations found (already cleaned up)"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          GH_PACKAGE: ${{ matrix.package }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+
   delete-images:
     name: 🗑️ Delete PR Images
     runs-on: ubuntu-latest

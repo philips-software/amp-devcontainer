@@ -9,8 +9,88 @@ on:
 permissions: {}
 
 jobs:
+  cleanup-attestations:
+    name: 🔏 Cleanup Attestations (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    permissions:
+      attestations: write # is needed to delete attestations
+      packages: read # is needed to list package versions to find digests
+      pull-requests: read # is needed to determine which pull requests are open
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [amp-devcontainer-base, amp-devcontainer-cpp, amp-devcontainer-rust]
+    steps:
+      - uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+          allowed-endpoints: api.github.com:443
+      - name: Delete outdated attestations
+        run: |
+          set -Eeuo pipefail
+
+          ORG="${GH_REPO%%/*}"
+
+          # Get all open PR numbers to determine which pr-N tags to keep
+          open_pr_numbers=$(gh api "/repos/${GH_REPO}/pulls?state=open&per_page=100" \
+            --paginate \
+            --jq '.[].number' 2>/dev/null || true)
+
+          # Get all package versions with their digests and tags
+          while IFS=$'\t' read -r digest tags_csv; do
+            [[ -z "$digest" ]] && continue
+
+            keep=false
+
+            # Check each tag to determine if this digest should be kept
+            IFS=',' read -r -a tags <<< "$tags_csv"
+            for tag in "${tags[@]}"; do
+              [[ -z "$tag" ]] && continue
+
+              # Keep release semver tags (e.g., v6.5.2, 6.5.2, 6.5, 6)
+              if [[ "$tag" =~ ^v?[0-9]+(\.[0-9]+)*$ ]]; then
+                keep=true
+                break
+              fi
+
+              # Keep edge tag
+              if [[ "$tag" == "edge" ]]; then
+                keep=true
+                break
+              fi
+
+              # Keep pr-N tags for open pull requests
+              if [[ "$tag" =~ ^pr-([0-9]+)$ ]]; then
+                pr_number="${BASH_REMATCH[1]}"
+                if echo "$open_pr_numbers" | grep -qx "$pr_number"; then
+                  keep=true
+                  break
+                fi
+              fi
+            done
+
+            if [[ "$keep" == "false" ]]; then
+              echo "Deleting attestations for ${GH_PACKAGE}@${digest} (tags: ${tags_csv})"
+              encoded_digest="${digest//:/%3A}"
+              gh api --method DELETE "/orgs/${ORG}/attestations/digest/${encoded_digest}" \
+                2>/dev/null && echo "Deleted" || echo "No attestations found (already cleaned up)"
+            fi
+          done < <(
+            gh api "/orgs/${ORG}/packages/container/${GH_PACKAGE}/versions" \
+              --paginate \
+              --jq '.[] | "\(.name)\t\(.metadata.container.tags // [] | join(","))"' \
+              2>/dev/null || true
+          )
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          GH_PACKAGE: ${{ matrix.package }}
+
   cleanup-images:
     name: 🧹 Clean Images
+    if: always()
+    needs: cleanup-attestations
     runs-on: ubuntu-latest
     permissions:
       packages: write # is needed by dataaxiom/ghcr-cleanup-action to delete untagged and orphaned images
