@@ -2,7 +2,7 @@
 title: "Software requirements specification for amp-devcontainer"
 author: ["@rjaegers"]
 colorlinks: true
-date: "October-2025"
+date: "February-2026"
 keywords: [Software, Requirements, SRS, amp-devcontainer]
 lang: "en"
 titlepage: true
@@ -46,24 +46,26 @@ The containers may be used both for local development and continuous integration
 {{ text.encode('utf-8').decode('unicode_escape') }}
 {%- endmacro -%}
 
-{%- macro sbdl_id_to_header(text) -%}
-{{ text.replace('_', ' ') }}
+{%- macro strip_gherkin_prefix(text) -%}
+{{ text | replace('Rule: ', '') | replace('Feature: ', '') }}
 {%- endmacro -%}
 
-{%- for req_id, requirement in sbdl.items() %}
-{%- if requirement.type == 'requirement' and 'parent' not in requirement %}
+{%- for aspect_id, aspect in sbdl.items() %}
+{%- if aspect.type == 'aspect' %}
 
-## {{ reencode(sbdl_id_to_header(req_id)) }}
+## {{ reencode(strip_gherkin_prefix(aspect['custom:title'])) }}
 
-{{ reencode(requirement.description) }}
+{{ reencode(aspect.description) }}
 
-{%- if 'child' in requirement %}
-{%- for child in requirement.child %}
-{%- set child_req = sbdl[child.identifier] %}
+{%- if 'requirement' in aspect %}
+{%- for req_ref in aspect.requirement %}
+{%- set req = sbdl[req_ref.identifier] %}
 
-### {{ reencode(sbdl_id_to_header(child.identifier)) }}
+### {{ req_ref.identifier }}: {{ reencode(strip_gherkin_prefix(req['custom:title'])) }}
 
-{{ reencode(child_req.description) }}
+{{ reencode(req.description) }}
+
+{{ reencode(req.remark) }}
 
 {%- endfor %}
 {%- endif %}
