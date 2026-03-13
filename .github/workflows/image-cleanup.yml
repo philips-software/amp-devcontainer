@@ -9,8 +9,43 @@ on:
 permissions: {}
 
 jobs:
+  collect-digests:
+    name: 📦 Collect Digests (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [amp-devcontainer-base, amp-devcontainer-cpp, amp-devcontainer-rust]
+    permissions:
+      packages: read # is needed to list package versions
+    steps:
+      - uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+          allowed-endpoints: api.github.com:443
+      - name: Collect package digests
+        run: |
+          set -Eeuo pipefail
+          ORG="${GH_REPO%%/*}"
+          gh api "/orgs/${ORG}/packages/container/${GH_PACKAGE}/versions" \
+            --paginate \
+            --jq '.[].name' 2>/dev/null > digests.txt || touch digests.txt
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          GH_PACKAGE: ${{ matrix.package }}
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: digests-before-cleanup-${{ matrix.package }}
+          path: digests.txt
+          if-no-files-found: warn
+          retention-days: 1
+
   cleanup-images:
     name: 🧹 Clean Images
+    if: always()
+    needs: collect-digests
     runs-on: ubuntu-latest
     permissions:
       packages: write # is needed by dataaxiom/ghcr-cleanup-action to delete untagged and orphaned images
@@ -26,3 +61,51 @@ jobs:
           delete-orphaned-images: true
           delete-untagged: true
           packages: amp-devcontainer,amp-devcontainer-cpp,amp-devcontainer-rust
+
+  cleanup-attestations:
+    name: 🔏 Cleanup Orphaned Attestations (${{ matrix.package }})
+    needs: cleanup-images
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [amp-devcontainer-base, amp-devcontainer-cpp, amp-devcontainer-rust]
+    permissions:
+      attestations: write # is needed to delete attestations
+      packages: read # is needed to list remaining package versions after cleanup
+    steps:
+      - uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+          allowed-endpoints: api.github.com:443
+      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+        id: download-digests
+        continue-on-error: true
+        with:
+          name: digests-before-cleanup-${{ matrix.package }}
+      - name: Delete orphaned attestations
+        if: steps.download-digests.outcome == 'success'
+        run: |
+          set -Eeuo pipefail
+          ORG="${GH_REPO%%/*}"
+
+          # Get remaining digests after image cleanup
+          current_digests=$(gh api "/orgs/${ORG}/packages/container/${GH_PACKAGE}/versions" \
+            --paginate \
+            --jq '.[].name' 2>/dev/null || echo "")
+
+          # Delete attestations for digests that no longer have a package version
+          while read -r digest; do
+            [[ -z "$digest" ]] && continue
+            if ! echo "$current_digests" | grep -qx "$digest"; then
+              echo "Deleting attestations for removed digest: ${digest}"
+              encoded_digest="${digest//:/%3A}"
+              gh api --method DELETE "/orgs/${ORG}/attestations/digest/${encoded_digest}" \
+                2>/dev/null && echo "Deleted" || echo "No attestations found (already cleaned up)"
+            fi
+          done < digests.txt
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          GH_PACKAGE: ${{ matrix.package }}
