@@ -12,9 +12,9 @@ ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
 ADD --checksum=sha256:dd9fc188e738add3c12509063bb082b05e77a9a71fa85a20e01230044aa410f1 \
- https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz /ccache.tar.xz
-ADD --checksum=sha256:d5b32dbab29a47b9c6f9e5a20d2e00da8cdf57832b0477d31dd61e0520ec29f5 \
- https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz.minisig /ccache.tar.xz.minisig
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz /ccache.tar.xz
+ADD --checksum=sha256:fdf00b1eadebf437e898ca3c0c94fd3e8d03b9e2bbe4f3d74ac6df2fecbf0a74 \
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
 ADD --checksum=sha256:f1bffe5319728fca9cde5bb03fcb6c88cdf44922bd003fca8b4b9ce5b6f259d2 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
@@ -25,9 +25,9 @@ ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
 ADD --checksum=sha256:4cf4b05d9c381b3a60f1f10189f45ad9402bbc58979dbdc4901659c7f5e42dc8 \
- https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64.tar.xz /ccache.tar.xz
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz /ccache.tar.xz
 ADD --checksum=sha256:24b50ebf8ce5ec9e5e56af298ddb17699a46f0d9bb035d7c824500270a5cde74 \
- https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64.tar.xz.minisig /ccache.tar.xz.minisig
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
 ADD --checksum=sha256:b85cd1e0c94f249338b02a6e54b380154a5af6b5dd754121b15722125a67cf9f \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
