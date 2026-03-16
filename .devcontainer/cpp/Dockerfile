@@ -72,7 +72,7 @@ RUN --mount=from=downloader,target=/dl \
     minisign -P RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF -Vm /dl/ccache.tar.xz
 
     tar xJf "${ARM_GNU_TOOLCHAIN_TAR}" --exclude="*arm-none-eabi-gdb*" --exclude="share"
-    tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)/ccache"
+    tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)-glibc/ccache"
     tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
     cp /dl/llvm.gpg.key /llvm.gpg.key
     cp /dl/mull.gpg.key /mull.gpg.key
