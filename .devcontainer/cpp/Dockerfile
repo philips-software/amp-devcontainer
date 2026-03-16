@@ -51,7 +51,7 @@ SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 WORKDIR /
 
-RUN --mount=from=downloader,target=/dl
+RUN --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
     apt-get update && apt-get install --no-install-recommends -y minisign
