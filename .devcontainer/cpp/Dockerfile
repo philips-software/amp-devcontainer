@@ -2,6 +2,9 @@
 # hadolint global ignore=DL3006
 
 ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
+# Public minisign key for verifying ccache releases,
+# taken from https://ccache.dev/minisign.pub
+ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF
 ARG CCACHE_VERSION=4.13.1
 ARG XWIN_VERSION=0.8.0
 
@@ -44,6 +47,7 @@ ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
 
+ARG CCACHE_MINISIGN_PUBKEY
 ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
@@ -69,7 +73,7 @@ RUN --mount=from=downloader,target=/dl \
     wget --no-hsts -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
     echo "${ARM_GNU_TOOLCHAIN_SHA256}  ${ARM_GNU_TOOLCHAIN_TAR}" | sha256sum -c -
 
-    minisign -P RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF -Vm /dl/ccache.tar.xz
+    minisign -P "${CCACHE_MINISIGN_PUBKEY}" -Vm /dl/ccache.tar.xz
 
     tar xJf "${ARM_GNU_TOOLCHAIN_TAR}" --exclude="*arm-none-eabi-gdb*" --exclude="share"
     tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)-glibc/ccache"
