@@ -2,7 +2,10 @@
 # hadolint global ignore=DL3006
 
 ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
-ARG CCACHE_VERSION=4.12.2
+# Public minisign key for verifying ccache releases,
+# taken from https://ccache.dev/minisign.pub
+ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF
+ARG CCACHE_VERSION=4.13.1
 ARG XWIN_VERSION=0.8.0
 
 # Downloader stage for AMD64 architecture
@@ -11,8 +14,10 @@ FROM scratch AS downloader-amd64
 ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
-ADD --checksum=sha256:630c34ec94d451b200f5b14a6a25580d6a45bc80c394b7e0b93e33556eee5d32 \
- https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz /ccache.tar.xz
+ADD --checksum=sha256:dd9fc188e738add3c12509063bb082b05e77a9a71fa85a20e01230044aa410f1 \
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz /ccache.tar.xz
+ADD --checksum=sha256:fdf00b1eadebf437e898ca3c0c94fd3e8d03b9e2bbe4f3d74ac6df2fecbf0a74 \
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
 ADD --checksum=sha256:8a354e12475dd154d0a2d3084eefd2c105f872ec8062965baaa7e9f2f76fe611 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
@@ -22,8 +27,10 @@ FROM scratch AS downloader-arm64
 ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
-ADD --checksum=sha256:b01c270c245e41998ab777164aba085dbeb23ce515f4e2134a1fdddabf0bf6ad \
- https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64.tar.xz /ccache.tar.xz
+ADD --checksum=sha256:4cf4b05d9c381b3a60f1f10189f45ad9402bbc58979dbdc4901659c7f5e42dc8 \
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz /ccache.tar.xz
+ADD --checksum=sha256:24b50ebf8ce5ec9e5e56af298ddb17699a46f0d9bb035d7c824500270a5cde74 \
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
 ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c67368aeab \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
@@ -40,6 +47,7 @@ ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
 
+ARG CCACHE_MINISIGN_PUBKEY
 ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
@@ -47,7 +55,12 @@ SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 WORKDIR /
 
-RUN --mount=from=downloader,target=/dl <<EOF
+# hadolint ignore=DL3008
+RUN --mount=from=downloader,target=/dl \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
+    apt-get update && apt-get install --no-install-recommends -y minisign
+
     ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz"
     ARM_GNU_TOOLCHAIN_TAR="/tmp/arm-gnu-toolchain.tar.xz"
 
@@ -60,8 +73,10 @@ RUN --mount=from=downloader,target=/dl <<EOF
     wget --no-hsts -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
     echo "${ARM_GNU_TOOLCHAIN_SHA256}  ${ARM_GNU_TOOLCHAIN_TAR}" | sha256sum -c -
 
+    minisign -P "${CCACHE_MINISIGN_PUBKEY}" -Vm /dl/ccache.tar.xz
+
     tar xJf "${ARM_GNU_TOOLCHAIN_TAR}" --exclude="*arm-none-eabi-gdb*" --exclude="share"
-    tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)/ccache"
+    tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)-glibc/ccache"
     tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
     cp /dl/llvm.gpg.key /llvm.gpg.key
     cp /dl/mull.gpg.key /mull.gpg.key
@@ -90,7 +105,6 @@ ENV CCACHE_DIR=/cache/.ccache \
     PYTHONPYCACHEPREFIX=/cache/.python
 
 # Install the base system with all tool dependencies
-# hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
