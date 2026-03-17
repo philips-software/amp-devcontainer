@@ -3,7 +3,7 @@
 
 ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 ARG CCACHE_VERSION=4.12.2
-ARG XWIN_VERSION=0.7.0
+ARG XWIN_VERSION=0.8.0
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
@@ -13,7 +13,7 @@ ARG XWIN_VERSION
 
 ADD --checksum=sha256:630c34ec94d451b200f5b14a6a25580d6a45bc80c394b7e0b93e33556eee5d32 \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz /ccache.tar.xz
-ADD --checksum=sha256:f1bffe5319728fca9cde5bb03fcb6c88cdf44922bd003fca8b4b9ce5b6f259d2 \
+ADD --checksum=sha256:8a354e12475dd154d0a2d3084eefd2c105f872ec8062965baaa7e9f2f76fe611 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Downloader stage for ARM64 architecture
@@ -24,7 +24,7 @@ ARG XWIN_VERSION
 
 ADD --checksum=sha256:b01c270c245e41998ab777164aba085dbeb23ce515f4e2134a1fdddabf0bf6ad \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64.tar.xz /ccache.tar.xz
-ADD --checksum=sha256:b85cd1e0c94f249338b02a6e54b380154a5af6b5dd754121b15722125a67cf9f \
+ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c67368aeab \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Select downloader stage based on target architecture.
