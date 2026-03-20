@@ -20,6 +20,50 @@ toc-own-page: true
 
 This document describes the software system requirements for amp-devcontainer.
 
+
+## Scope
+
+This document covers the requirements for the amp-devcontainer project: a set of devcontainers tailored towards modern, embedded, software development.
+
+The following is in scope:
+
+- Container image flavors for C++ and Rust development
+- Tooling for compilation, debugging, static and dynamic analysis
+- Compatibility with IDEs, container runtimes, and ci/cd systems
+- Security properties of released container images
+- Maintainability of the container images and their build system
+
+The following is out of scope:
+
+- Application-level software built using the containers
+- Deployment of end-user products
+- Requirements for third-party tools and dependencies included in the containers
+
+## References
+
+| Identifier | Title                                                                                                                                    |
+|------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| RFC 2119   | [Key words for use in RFCs to Indicate Requirement Levels](https://www.rfc-editor.org/rfc/rfc2119)                                       |
+| OCI        | [Open Container Initiative Image Specification](https://github.com/opencontainers/image-spec/blob/main/spec.md)                          |
+| SLSA       | [Supply-chain Levels for Software Artifacts v1.0](https://slsa.dev/spec/v1.0/levels)                                                     |
+| SemVer     | [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)                                                                         |
+| DevC       | [Development Containers Specification](https://containers.dev/)                                                                           |
+
+## Document Control
+
+| Property         | Value                |
+|------------------|----------------------|
+| Document version | {{ version }}        |
+| Generation date  | {{ generated_at }}   |
+| Source revision  | {{ git_sha }}        |
+| Source branch/tag| {{ git_ref }}        |
+| Model            | sbdl {{ sbdl_version }} |
+
+This document is generated from a formal requirements model defined in [sbdl](https://sbdl.dev) and versioned alongside the source code in Git.
+The authoritative source of change history is the [Git log](https://github.com/philips-software/amp-devcontainer/commits/) for the requirements model files.
+
+Changes to requirements are tracked at the individual requirement level through the version control system and are part of the project's standard change control process.
+
 ## Definitions of key words
 
 The key words *MUST*, *MUST NOT*, *REQUIRED*, *SHALL*, *SHALL NOT*, *SHOULD*, *SHOULD NOT*, *RECOMMENDED*, *MAY*, and *OPTIONAL* in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).

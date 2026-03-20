@@ -1,0 +1,122 @@
+---
+title: "Requirements traceability matrix for amp-devcontainer"
+author: ["@rjaegers"]
+colorlinks: true
+date: "March-2026"
+keywords: [Traceability, Requirements, RTM, amp-devcontainer]
+lang: "en"
+titlepage: true
+titlepage-color: "0B5ED7"
+titlepage-text-color: "FFFFFF"
+titlepage-rule-color: "FFFFFF"
+titlepage-rule-height: 2
+toc: true
+toc-own-page: true
+...
+
+{% macro reencode(text) -%}
+{{ text.encode('utf-8').decode('unicode_escape') }}
+{%- endmacro -%}
+
+{%- macro strip_gherkin_prefix(text) -%}
+{{ text | replace('Rule: ', '') | replace('Feature: ', '') }}
+{%- endmacro -%}
+
+{%- macro display_short(text) -%}
+{{ text[:60] }}
+{%- endmacro %}
+
+# Introduction
+
+## Purpose
+
+This document provides a requirements traceability matrix (RTM) for amp-devcontainer. It maps each requirement to its associated verification tests, providing evidence of test coverage across the system.
+
+## Abstract
+
+amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored towards modern, embedded, software development. This traceability matrix traces requirements from the *Software Requirements Specification (SRS)* to their corresponding verification tests as enumerated in the *Software Test Plan (STP)*.
+
+## Document Control
+
+| Property         | Value                |
+|------------------|----------------------|
+| Document version | {{ version }}        |
+| Generation date  | {{ generated_at }}   |
+| Source revision  | {{ git_sha }}        |
+| Source branch/tag| {{ git_ref }}        |
+| Model            | sbdl {{ sbdl_version }} |
+
+# Traceability Matrix
+{%- for aspect_id, aspect in sbdl.items() %}
+{%- if aspect.type == 'aspect' %}
+
+## {{ reencode(strip_gherkin_prefix(aspect['custom:title'])) }}
+
+| Requirement | Test | Status |
+|---|---|---|
+
+{%- if 'requirement' in aspect %}
+{%- for req_ref in aspect.requirement %}
+{%- set req = sbdl[req_ref.identifier] %}
+{%- set req_name = strip_gherkin_prefix(req['custom:title']) | trim %}
+
+{%- set ns_tests = namespace(test_list=[]) -%}
+
+{%- for test_id, test_elem in sbdl.items() -%}
+{%- if test_elem.type == 'test' -%}
+{%- if 'requirement' in test_elem -%}
+{%- for test_req_ref in test_elem.requirement if test_req_ref.identifier == req_ref.identifier -%}
+{%- set _ = ns_tests.test_list.append(test_id) -%}
+{%- endfor -%}
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+
+{%- if ns_tests.test_list -%}
+{%- for test_id in ns_tests.test_list %}
+{%- set test_name = strip_gherkin_prefix(sbdl[test_id]['custom:title']) | trim %}
+| {{ display_short(req_name) }} | {{ display_short(test_name) }} | Traced |
+{%- endfor -%}
+{%- else %}
+| {{ display_short(req_name) }} | — | **Not covered** |
+{%- endif -%}
+
+{%- endfor %}
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+
+# Coverage Summary
+
+{%- set ns_summary = namespace(total_reqs=0, covered_reqs=0, total_tests=0) -%}
+
+{%- for elem_id, elem in sbdl.items() -%}
+{%- if elem.type == 'requirement' -%}
+{%- set ns_summary.total_reqs = ns_summary.total_reqs + 1 -%}
+
+{%- set ns_covered = namespace(is_covered=false) -%}
+{%- for test_id, test_elem in sbdl.items() -%}
+{%- if test_elem.type == 'test' and 'requirement' in test_elem -%}
+{%- for req_ref in test_elem.requirement if req_ref.identifier == elem_id -%}
+{%- set ns_covered.is_covered = true -%}
+{%- endfor -%}
+{%- endif -%}
+{%- endfor -%}
+
+{%- if ns_covered.is_covered -%}
+{%- set ns_summary.covered_reqs = ns_summary.covered_reqs + 1 -%}
+{%- endif -%}
+
+{%- endif -%}
+
+{%- if elem.type == 'test' -%}
+{%- set ns_summary.total_tests = ns_summary.total_tests + 1 -%}
+{%- endif -%}
+{%- endfor %}
+
+| Metric | Value |
+|---|---|
+| Total requirements | {{ ns_summary.total_reqs }} |
+| Requirements with tests | {{ ns_summary.covered_reqs }} |
+| Requirements without tests | {{ ns_summary.total_reqs - ns_summary.covered_reqs }} |
+| Total tests | {{ ns_summary.total_tests }} |

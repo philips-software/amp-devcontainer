@@ -73,6 +73,7 @@ teardown() {
 }
 
 @test "valid code input should result in working executable using host compiler" {
+  # @sbdl test-comp-0001 is test { description is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   cmake --preset gcc
   cmake --build --preset gcc
 
