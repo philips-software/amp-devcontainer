@@ -58,7 +58,7 @@ amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored t
 {%- if 'requirement' in aspect %}
 {%- for req_ref in aspect.requirement %}
 {%- set req = sbdl[req_ref.identifier] %}
-{%- set req_name = strip_gherkin_prefix(req['custom:title']) | trim %}
+{%- set req_name = reencode(strip_gherkin_prefix(req['custom:title'])) | trim %}
 
 {%- set ns_tests = namespace(test_list=[]) -%}
 
