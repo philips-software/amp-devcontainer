@@ -11,7 +11,7 @@
         "ms-vscode.cmake-tools@1.22.28",
         "ms-vscode.cpptools@1.30.5",
         "ms-vsliveshare.vsliveshare@1.0.5959",
-        "sonarsource.sonarlint-vscode@4.44.0"
+        "sonarsource.sonarlint-vscode@4.45.0"
       ],
       "settings": {
         "C_Cpp.intelliSenseEngine": "disabled",
