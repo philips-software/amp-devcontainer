@@ -54,9 +54,7 @@ jobs:
           persist-credentials: false
       - run: echo "arch=$(echo "${RUNNER_ARCH}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
         id: runner-arch
-      - run: |
-          set -Eeuo pipefail
-          bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-${RUNNER_ARCH}.xml"
+      - run: bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-${RUNNER_ARCH}.xml"
         env:
           IMAGE_BASENAME: ${{ inputs.image-basename }}
           TEST_FILE: ${{ inputs.test-file }}
