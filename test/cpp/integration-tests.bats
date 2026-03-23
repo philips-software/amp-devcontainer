@@ -34,7 +34,7 @@ teardown() {
 
   for TOOL in clang clang++ clang-cl clang-format clang-tidy; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
-    assert_equal_print "$EXPECTED_VERSION" "$INSTALLED_VERSION" "Tool '${TOOL}' version"
+    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
   done
 }
 
@@ -44,7 +44,7 @@ teardown() {
 
   for TOOL in cc gcc c++ g++ gcov; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
-    assert_equal_print "$EXPECTED_VERSION" "$INSTALLED_VERSION" "Tool '${TOOL}' version"
+    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
   done
 }
 
@@ -52,23 +52,30 @@ teardown() {
 @test "host and embedded gcc toolchain versions should be the same major and minor version" {
   EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for g++ | cut -d. -f1,2)
   INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
-  assert_equal_print "$EXPECTED_MAJOR_MINOR_VERSION" "$INSTALLED_MAJOR_MINOR_VERSION" "Host and ARM GCC major and minor version"
+  assert_equal "$INSTALLED_MAJOR_MINOR_VERSION" "$EXPECTED_MAJOR_MINOR_VERSION"
 }
 
 # bats test_tags=Compatibility,Version,Tools
 @test "supporting tool versions should be aligned with expected versions" {
-  for TOOL in gdb gdb-multiarch git ninja; do
+  for TOOL in gdb gdb-multiarch; do
+    EXPECTED_VERSION=$(get_expected_version_for ${TOOL})
+    INSTALLED_VERSION=$(${TOOL} --version | grep -o '[0-9]\+\.[0-9]\+' | head -n1)
+
+    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+  done
+
+  for TOOL in git ninja; do
     EXPECTED_VERSION=$(get_expected_semver_for ${TOOL})
     INSTALLED_VERSION=$(${TOOL} --version | to_semver)
 
-    assert_equal_print "$EXPECTED_VERSION" "$INSTALLED_VERSION" "Tool '${TOOL}' version"
+    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
   done
 
   for TOOL in cmake conan; do
     EXPECTED_VERSION=$(cat ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/requirements.in | grep ${TOOL} | to_semver)
     INSTALLED_VERSION=$(${TOOL} --version | to_semver)
 
-    assert_equal_print "$EXPECTED_VERSION" "$INSTALLED_VERSION" "Tool '${TOOL}' version"
+    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
   done
 }
 
@@ -299,13 +306,4 @@ function install_win_sdk_when_ci_set() {
   if [[ -n "${CI}" ]]; then
     install_win_sdk
   fi
-}
-
-function assert_equal_print() {
-  local EXPECTED=${1:?}
-  local ACTUAL=${2:?}
-  local MESSAGE=${3:-"Expecting values to be equal"}
-
-  echo "# ${MESSAGE} expected(${EXPECTED}) actual(${ACTUAL})" >&3
-  assert_equal ${ACTUAL} ${EXPECTED}
 }
