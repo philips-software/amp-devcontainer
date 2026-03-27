@@ -75,7 +75,7 @@ jobs:
       contents: read
       packages: write # is needed by docker/build-push-action to push images when using GitHub Container Registry
     steps:
-      - uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -162,7 +162,7 @@ jobs:
       digest: ${{ steps.inspect-manifest.outputs.digest }}
       version: ${{ steps.metadata.outputs.version }}
     steps:
-      - uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -244,7 +244,7 @@ jobs:
           header: container-size-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
-      - uses: anchore/sbom-action@57aae528053a48a3f6235f2d9461b05fbcb7366d # v0.23.1
+      - uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
