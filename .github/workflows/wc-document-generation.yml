@@ -32,13 +32,16 @@ jobs:
         run: sbdl -m template-fill --template docs/templates/software-test-plan.md.j2 amp-devcontainer.sbdl > software-test-plan.md
       - name: Generate RTM document
         run: sbdl -m template-fill --template docs/templates/requirements-traceability-matrix.md.j2 amp-devcontainer.sbdl > requirements-traceability-matrix.md
-      - uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
+      - name: 📄 Generate SRS PDF
+        uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
         with:
           args: --template eisvogel --syntax-highlighting idiomatic --number-sections --output software-requirements-specification.pdf software-requirements-specification.md
-      - uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
+      - name: 🧪 Generate STP PDF
+        uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
         with:
           args: --template eisvogel --syntax-highlighting idiomatic --number-sections --output software-test-plan.pdf software-test-plan.md
-      - uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
+      - name: 🧩 Generate RTM PDF
+        uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
         with:
           args: --template eisvogel --syntax-highlighting idiomatic --number-sections --output requirements-traceability-matrix.pdf requirements-traceability-matrix.md
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
