@@ -1,5 +1,5 @@
 {
-  "gdb-multiarch": "15.0.50.20240403-0ubuntu1",
+  "gdb-multiarch": "15.1-1ubuntu1~24.04.1",
   "ninja-build": "1.11.1-2",
   "python3-pip": "24.0+dfsg-1ubuntu1.3",
   "unzip": "6.0-28ubuntu4.1",
