@@ -38,7 +38,7 @@ jobs:
       # currently provide a more fine-grained permission for release modification.
       contents: write # is needed to modify a release
     steps:
-      - uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -73,7 +73,7 @@ jobs:
       REF_NAME: ${{ github.ref_name }}
       REGISTRY: ghcr.io
     steps:
-      - uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -130,11 +130,11 @@ jobs:
       contents: write # is needed to modify a release
     needs: [generate-documents]
     steps:
-      - uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: documents
       - name: Upload documents to release
@@ -152,7 +152,7 @@ jobs:
     permissions:
       pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
     steps:
-      - uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
