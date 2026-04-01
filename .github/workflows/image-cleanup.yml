@@ -6,7 +6,10 @@ on:
     - cron: "0 0 * * 3"
   workflow_dispatch:
     inputs:
-      dry-run:
+      image-cleanup-dry-run:
+        default: false
+        type: boolean
+      attestation-cleanup-dry-run:
         default: false
         type: boolean
 
@@ -26,7 +29,6 @@ jobs:
       - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
         with:
           disable-sudo-and-containers: true
-          egress-policy: audit
           allowed-endpoints: api.github.com:443
       - name: Collect package digests
         run: |
@@ -65,7 +67,7 @@ jobs:
         with:
           delete-orphaned-images: true
           delete-untagged: true
-          dry-run: ${{ inputs.dry-run == true }}
+          dry-run: ${{ inputs.image-cleanup-dry-run == true }}
           packages: amp-devcontainer-base,amp-devcontainer-cpp,amp-devcontainer-rust
 
   cleanup-attestations:
@@ -83,7 +85,6 @@ jobs:
       - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
         with:
           disable-sudo-and-containers: true
-          egress-policy: audit
           allowed-endpoints: api.github.com:443
       - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         id: download-digests
@@ -125,7 +126,7 @@ jobs:
           echo "$orphaned" | jq -R . | jq -sc '{subject_digests: .}' | \
             gh api --method POST "/orgs/${ORG}/attestations/delete-request" --input -
         env:
-          DRY_RUN: ${{ inputs.dry-run == true }}
+          DRY_RUN: ${{ inputs.attestation-cleanup-dry-run == true }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           GH_PACKAGE: ${{ matrix.package }}
