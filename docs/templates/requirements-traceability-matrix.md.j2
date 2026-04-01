@@ -2,7 +2,7 @@
 title: "Requirements traceability matrix for amp-devcontainer"
 author: ["@rjaegers"]
 colorlinks: true
-date: "March-2026"
+date: "{{ sbdl['doc_control']['custom:generated_at'] }}"
 keywords: [Traceability, Requirements, RTM, amp-devcontainer]
 lang: "en"
 titlepage: true
@@ -38,13 +38,16 @@ amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored t
 
 ## Document Control
 
-| Property         | Value                |
-|------------------|----------------------|
-| Document version | {{ sbdl['doc_control']['custom:version'] }}        |
-| Generation date  | {{ sbdl['doc_control']['custom:generated_at'] }}   |
-| Source revision  | {{ sbdl['doc_control']['custom:git_sha'] }}        |
-| Source branch/tag| {{ sbdl['doc_control']['custom:git_ref'] }}        |
-| Model            | sbdl {{ sbdl['doc_control']['custom:sbdl_version'] }} |
+| Property          | Value                                                 |
+|-------------------|-------------------------------------------------------|
+| Document version  | {{ sbdl['doc_control']['custom:version'] }}           |
+| Generation date   | {{ sbdl['doc_control']['custom:generated_at'] }}      |
+| Source revision   | {{ sbdl['doc_control']['custom:git_sha'] }}           |
+| Source branch/tag | {{ sbdl['doc_control']['custom:git_ref'] }}           |
+| Model             | sbdl {{ sbdl['doc_control']['custom:sbdl_version'] }} |
+
+This document is generated from a formal model defined in [sbdl](https://sbdl.dev) and versioned alongside the source code in Git.
+The authoritative source of change history is the [Git log](https://github.com/philips-software/amp-devcontainer/commits/) of the source material from which the model is built.
 
 # Traceability Matrix
 {%- for aspect_id, aspect in sbdl.items() %}
@@ -53,7 +56,7 @@ amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored t
 ## {{ reencode(strip_gherkin_prefix(aspect['custom:title'])) }}
 
 | Requirement | Test | Status |
-|---|---|---|
+|-------------|------|--------|
 
 {%- if 'requirement' in aspect %}
 {%- for req_ref in aspect.requirement %}

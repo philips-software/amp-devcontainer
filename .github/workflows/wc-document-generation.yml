@@ -22,11 +22,15 @@ jobs:
       - name: Install dependencies
         run: |
           set -Eeuo pipefail
+
           sudo apt-get update && sudo apt-get install --no-install-recommends -y plantuml
           python -m pip install gherkin-official==38.0.0 sbdl==1.21.3
       - name: Build & Validate SBDL model
         run: sbdl -m compile test/cpp/integration-tests.bats test/cpp/features/*.feature > amp-devcontainer.sbdl
       - name: Create document control context
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
           set -Eeuo pipefail
 
@@ -36,8 +40,8 @@ jobs:
             description is "Document control metadata"
             custom:version is "$(jq -r '.["."]' .release-please-manifest.json)"
             custom:generated_at is "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            custom:git_sha is "${{ github.sha }}"
-            custom:git_ref is "${{ github.ref_name }}"
+            custom:git_sha is "${GITHUB_SHA}"
+            custom:git_ref is "${GITHUB_REF_NAME}"
             custom:sbdl_version is "$(sbdl --version)"
           }
           SBDL
