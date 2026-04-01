@@ -22,6 +22,10 @@ toc-own-page: true
 {{ text | replace('Rule: ', '') | replace('Feature: ', '') }}
 {%- endmacro -%}
 
+{%- macro strip_bats_syntax(text) -%}
+{{ text | replace('@test "', '') | replace('" \{', '') | replace('" {', '') }}
+{%- endmacro -%}
+
 {%- macro display_short(text) -%}
 {{ text[:60] }}
 {%- endmacro %}
@@ -77,8 +81,8 @@ The authoritative source of change history is the [Git log](https://github.com/p
 
 {%- if ns_tests.test_list -%}
 {%- for test_id in ns_tests.test_list %}
-{%- set test_name = strip_gherkin_prefix(sbdl[test_id]['custom:title']) | trim %}
-| {{ display_short(req_name) }} | {{ display_short(test_name) }} | Traced |
+{%- set test_name = strip_bats_syntax(strip_gherkin_prefix(sbdl[test_id]['custom:title'])) | trim %}
+| {{ display_short(req_name) }} | {{ test_id }}: {{ display_short(test_name) | title }} | Traced |
 {%- endfor -%}
 {%- else %}
 | {{ display_short(req_name) }} | — | **Not covered** |

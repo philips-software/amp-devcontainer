@@ -22,6 +22,10 @@ toc-own-page: true
 {{ text | replace('Rule: ', '') | replace('Feature: ', '') }}
 {%- endmacro %}
 
+{%- macro strip_bats_syntax(text) -%}
+{{ text | replace('@test "', '') | replace('" \{', '') | replace('" {', '') }}
+{%- endmacro -%}
+
 # Introduction
 
 ## Purpose
@@ -108,7 +112,7 @@ BATS tests verify tool presence, version alignment, and end-to-end workflows (co
 {%- if 'requirement' in test_elem -%}
 {%- for test_req_ref in test_elem.requirement if test_req_ref.identifier == req_ref.identifier -%}
 {%- set ns_tests.has_tests = true %}
-- {{ reencode(strip_gherkin_prefix(test_elem['custom:title'])) }}
+- **{{ test_id }}**: {{ reencode(strip_bats_syntax(test_elem['custom:title'])) | title }}
 {%- endfor -%}
 {%- endif -%}
 {%- endif -%}
