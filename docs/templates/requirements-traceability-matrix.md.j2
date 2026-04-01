@@ -40,11 +40,11 @@ amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored t
 
 | Property         | Value                |
 |------------------|----------------------|
-| Document version | {{ version }}        |
-| Generation date  | {{ generated_at }}   |
-| Source revision  | {{ git_sha }}        |
-| Source branch/tag| {{ git_ref }}        |
-| Model            | sbdl {{ sbdl_version }} |
+| Document version | {{ sbdl['doc_control']['custom:version'] }}        |
+| Generation date  | {{ sbdl['doc_control']['custom:generated_at'] }}   |
+| Source revision  | {{ sbdl['doc_control']['custom:git_sha'] }}        |
+| Source branch/tag| {{ sbdl['doc_control']['custom:git_ref'] }}        |
+| Model            | sbdl {{ sbdl['doc_control']['custom:sbdl_version'] }} |
 
 # Traceability Matrix
 {%- for aspect_id, aspect in sbdl.items() %}

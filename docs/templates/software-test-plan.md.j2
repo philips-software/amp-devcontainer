@@ -51,11 +51,11 @@ This document covers the following types of tests:
 
 | Property         | Value                |
 |------------------|----------------------|
-| Document version | {{ version }}        |
-| Generation date  | {{ generated_at }}   |
-| Source revision  | {{ git_sha }}        |
-| Source branch/tag| {{ git_ref }}        |
-| Model            | sbdl {{ sbdl_version }} |
+| Document version | {{ sbdl['doc_control']['custom:version'] }}        |
+| Generation date  | {{ sbdl['doc_control']['custom:generated_at'] }}   |
+| Source revision  | {{ sbdl['doc_control']['custom:git_sha'] }}        |
+| Source branch/tag| {{ sbdl['doc_control']['custom:git_ref'] }}        |
+| Model            | sbdl {{ sbdl['doc_control']['custom:sbdl_version'] }} |
 
 This document is generated from a formal requirements model defined in [sbdl](https://sbdl.dev) and versioned alongside the source code in Git.
 
