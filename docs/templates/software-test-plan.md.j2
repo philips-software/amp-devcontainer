@@ -14,6 +14,9 @@ toc: true
 toc-own-page: true
 header-includes:
   - \AtEndDocument{\label{lastpage}}
+{% if sbdl['doc_control']['custom:is_release'] != 'true' %}
+watermark: "DRAFT"
+{% endif %}
 footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
 ...
 

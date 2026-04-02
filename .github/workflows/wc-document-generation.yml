@@ -3,6 +3,10 @@ name: Document Generation
 
 on:
   workflow_call:
+    inputs:
+      is-release:
+        default: false
+        type: boolean
 
 permissions: {}
 
@@ -30,6 +34,7 @@ jobs:
       - name: Create document control context
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}
+          IS_RELEASE: ${{ inputs.is-release }}
         run: |
           set -Eeuo pipefail
 
@@ -43,6 +48,7 @@ jobs:
             custom:git_ref is "${GITHUB_REF_NAME}"
             custom:sbdl_compiler_version is "[@COMPILER_VERSION:0]"
             custom:sbdl_dsl_version is "[@DSL_VERSION:0]"
+            custom:is_release is "${IS_RELEASE}"
           }
           SBDL
       - name: 📄 Generate SRS document

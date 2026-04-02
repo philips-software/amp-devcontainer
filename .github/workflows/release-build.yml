@@ -118,6 +118,8 @@ jobs:
   generate-documents:
     name: 📄 Documentation
     uses: ./.github/workflows/wc-document-generation.yml
+    with:
+      is-release: true
     permissions:
       contents: read
 
