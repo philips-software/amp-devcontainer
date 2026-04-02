@@ -80,7 +80,7 @@ teardown() {
 }
 
 @test "valid code input should result in working executable using host compiler" {
-  # @sbdl test-comp-0001 is test { custom:title is [[[[@-LINE]]]]; description is [[[[@-LINE]]]]; requirement is req-comp-0001 }
+  # @sbdl test-comp-0001 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   cmake --preset gcc
   cmake --build --preset gcc
 
@@ -90,6 +90,7 @@ teardown() {
 }
 
 @test "valid code input should result in elf executable using arm-none-eabi compiler" {
+  # @sbdl test-comp-0002 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0002 }
   cmake --preset gcc-arm-none-eabi
   cmake --build --preset gcc-arm-none-eabi
 
@@ -99,6 +100,7 @@ teardown() {
 }
 
 @test "valid code input should result in Windows executable using clang-cl compiler" {
+  # @sbdl test-comp-0003 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0003 }
   install_win_sdk_when_ci_unset
 
   cmake --preset clang-cl
@@ -114,21 +116,25 @@ teardown() {
 }
 
 @test "invalid code input should result in failing build" {
+  # @sbdl test-comp-0004 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   cmake --preset gcc
   run ! cmake --build --preset gcc-fail
 }
 
 @test "using ccache as a compiler launcher should result in cached build using gcc compiler" {
+  # @sbdl test-comp-0005 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0004 }
   configure_and_build_with_ccache gcc
 }
 
 @test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
+  # @sbdl test-comp-0006 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0004 }
   install_win_sdk_when_ci_unset
 
   configure_and_build_with_ccache clang-cl
 }
 
 @test "running clang-tidy as part of the build should result in warning diagnostics" {
+  # @sbdl test-sda-0001 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0002 }
   cmake --preset clang
 
   run cmake --build --preset clang-tidy
@@ -137,6 +143,7 @@ teardown() {
 }
 
 @test "running include-what-you-use as part of the build should result in warning diagnostics" {
+  # @sbdl test-sda-0002 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0002 }
   cmake --preset clang
 
   run cmake --build --preset clang-iwyu
@@ -145,12 +152,14 @@ teardown() {
 }
 
 @test "running clang-format should result in re-formatted code" {
+  # @sbdl test-sda-0003 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0001 }
   run clang-format clang-tools/unformatted.cpp
   assert_success
   assert_output "int main() {}"
 }
 
 @test "coverage information should be generated when running a testsuite" {
+  # @sbdl test-sda-0004 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0003 }
   cmake --preset coverage
   cmake --build --preset coverage
 
@@ -163,7 +172,17 @@ teardown() {
   assert_output --partial "GCC Code Coverage Report"
 }
 
+@test "a mutation score should be calculated when mutation testing a testsuite" {
+  # @sbdl test-sda-0005 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0004 }
+  cmake --preset mutation
+  cmake --build --preset mutation
+
+  run ctest --preset mutation
+  assert_output --partial "[info] Mutation score:"
+}
+
 @test "crashes should be detected when fuzzing an executable" {
+  # @sbdl test-sda-0006 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0005 }
   cmake --preset clang
   cmake --build --preset fuzzing
 
@@ -172,15 +191,8 @@ teardown() {
   assert_output --partial "SUMMARY: libFuzzer: deadly signal"
 }
 
-@test "a mutation score should be calculated when mutation testing a testsuite" {
-  cmake --preset mutation
-  cmake --build --preset mutation
-
-  run ctest --preset mutation
-  assert_output --partial "[info] Mutation score:"
-}
-
 @test "clangd should be able to analyze source files" {
+  # @sbdl test-sda-0007 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0002 }
   run clangd --check=gcc/main.cpp
   assert_success
   assert_output --partial "All checks completed, 0 errors"
