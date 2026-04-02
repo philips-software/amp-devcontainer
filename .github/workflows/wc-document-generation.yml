@@ -28,7 +28,7 @@ jobs:
           set -Eeuo pipefail
 
           sudo apt-get update && sudo apt-get install --no-install-recommends -y plantuml
-          python -m pip install gherkin-official==38.0.0 sbdl==1.21.3
+          python -m pip install gherkin-official==38.0.0 sbdl==1.22.7
       - name: Build & Validate SBDL model
         run: sbdl -m compile test/cpp/integration-tests.bats test/cpp/features/*.feature > amp-devcontainer.sbdl
       - name: Create document control context
@@ -52,11 +52,11 @@ jobs:
           }
           SBDL
       - name: 📄 Generate SRS document
-        run: sbdl -m template-fill --template docs/templates/software-requirements-specification.md.j2 amp-devcontainer.sbdl document-control.sbdl > software-requirements-specification.md
+        run: sbdl -m template-fill --set-config template_extensions_file docs/templates/jinja-extensions.py --template docs/templates/software-requirements-specification.md.j2 amp-devcontainer.sbdl document-control.sbdl > software-requirements-specification.md
       - name: 🧪 Generate STP document
-        run: sbdl -m template-fill --template docs/templates/software-test-plan.md.j2 amp-devcontainer.sbdl document-control.sbdl > software-test-plan.md
+        run: sbdl -m template-fill --set-config template_extensions_file docs/templates/jinja-extensions.py --template docs/templates/software-test-plan.md.j2 amp-devcontainer.sbdl document-control.sbdl > software-test-plan.md
       - name: 🧩 Generate RTM document
-        run: sbdl -m template-fill --template docs/templates/requirements-traceability-matrix.md.j2 amp-devcontainer.sbdl document-control.sbdl > requirements-traceability-matrix.md
+        run: sbdl -m template-fill --set-config template_extensions_file docs/templates/jinja-extensions.py --template docs/templates/requirements-traceability-matrix.md.j2 amp-devcontainer.sbdl document-control.sbdl > requirements-traceability-matrix.md
       - name: 📄 Generate SRS PDF
         uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
         with:

@@ -2,7 +2,7 @@
 title: "Software test plan for amp-devcontainer"
 author: ["@rjaegers"]
 colorlinks: true
-date: "{{ sbdl['doc_control']['custom:generated_at'] }}"
+date: "{{ sbdl['doc_control']['custom:generated_at'] | strftime('%Y-%m-%d') }}"
 keywords: [Software, Test, Plan, STP, amp-devcontainer]
 lang: "en"
 titlepage: true
@@ -59,13 +59,7 @@ This document covers the following types of tests:
 
 ## Document Control
 
-| Property          | Value                                                 |
-|-------------------|-------------------------------------------------------|
-| Document version  | {{ sbdl['doc_control']['custom:version'] }}           |
-| Generation date   | {{ sbdl['doc_control']['custom:generated_at'] }}      |
-| Source revision   | {{ sbdl['doc_control']['custom:git_sha'] }}           |
-| Source branch/tag | {{ sbdl['doc_control']['custom:git_ref'] }}           |
-| Model             | SBDL {{ sbdl['doc_control']['custom:sbdl_compiler_version'] }} (DSL {{ sbdl['doc_control']['custom:sbdl_dsl_version'] }}) |
+{% include "partials/document-control.md.j2" with context %}
 
 This document is generated from a formal model defined in [sbdl](https://sbdl.dev) and versioned alongside the source code in Git.
 The authoritative source of change history is the [Git log](https://github.com/philips-software/amp-devcontainer/commits/) of the source material from which the model is built.
