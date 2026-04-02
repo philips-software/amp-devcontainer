@@ -29,7 +29,6 @@ jobs:
         run: sbdl -m compile test/cpp/integration-tests.bats test/cpp/features/*.feature > amp-devcontainer.sbdl
       - name: Create document control context
         env:
-          GITHUB_SHA: ${{ github.sha }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
           set -Eeuo pipefail
@@ -39,10 +38,11 @@ jobs:
           doc_control is aspect {
             description is "Document control metadata"
             custom:version is "$(jq -r '.["."]' .release-please-manifest.json)"
-            custom:generated_at is "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            custom:git_sha is "${GITHUB_SHA}"
+            custom:generated_at is "[@DATE]"
+            custom:git_sha is "[@GIT_COMMIT_HASH]"
             custom:git_ref is "${GITHUB_REF_NAME}"
-            custom:sbdl_version is "$(sbdl --version)"
+            custom:sbdl_compiler_version is "[@COMPILER_VERSION:0]"
+            custom:sbdl_dsl_version is "[@DSL_VERSION:0]"
           }
           SBDL
       - name: 📄 Generate SRS document
@@ -69,4 +69,5 @@ jobs:
           path: |
             *.pdf
             *.sbdl
+            !document-control.sbdl
           retention-days: 2
