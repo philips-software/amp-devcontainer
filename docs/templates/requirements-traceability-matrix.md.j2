@@ -12,6 +12,9 @@ titlepage-rule-color: "FFFFFF"
 titlepage-rule-height: 2
 toc: true
 toc-own-page: true
+header-includes:
+  - \AtEndDocument{\label{lastpage}}
+footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
 ...
 
 {% macro reencode(text) -%}
