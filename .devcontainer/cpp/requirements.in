@@ -1,3 +1,3 @@
 cmake==4.3.0
-conan==2.26.2
+conan==2.27.0
 gcovr==8.6
