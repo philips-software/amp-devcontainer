@@ -46,8 +46,8 @@ jobs:
             custom:generated_at is "[@DATE]"
             custom:git_sha is "[@GIT_COMMIT_HASH]"
             custom:git_ref is "${GITHUB_REF_NAME}"
-            custom:sbdl_compiler_version is "[@COMPILER_VERSION:0]"
-            custom:sbdl_dsl_version is "[@DSL_VERSION:0]"
+            custom:sbdl_compiler_version is "[@COMPILER_VERSION]"
+            custom:sbdl_dsl_version is "[@DSL_VERSION]"
             custom:is_release is "${IS_RELEASE}"
           }
           SBDL
