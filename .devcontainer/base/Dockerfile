@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:24.04@sha256:cd1dba651b3080c3686ecf4e3c4220f026b521fb76978881737d24f200828b2b AS extractor
+FROM ubuntu:26.04@sha256:a072b64036a738e55bff8f9a9682cbb893bf20c213772effc1de8dee8df1cea9 AS extractor
 
 ARG BATS_CORE_VERSION=1.13.0
 ARG BATS_SUPPORT_VERSION=0.3.0
@@ -20,9 +20,11 @@ RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
  && tar xzf /bats-support.tar.gz && mv bats-support-*/ bats-support \
  && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert
 
-FROM ubuntu:24.04@sha256:cd1dba651b3080c3686ecf4e3c4220f026b521fb76978881737d24f200828b2b
+FROM ubuntu:26.04@sha256:a072b64036a738e55bff8f9a9682cbb893bf20c213772effc1de8dee8df1cea9
 
 ARG DEBIAN_FRONTEND=noninteractive
+
+ENV LANG=en_US.UTF-8
 
 HEALTHCHECK NONE
 
@@ -49,8 +51,10 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
    cp -r /src/bats-support /usr/local/bats-support
    cp -r /src/bats-assert /usr/local/bats-assert
 
-   # Update all tool alternatives to the correct version
-   # and patch root's bashrc to include bash-completion
-   update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 20
+   # Generate locale
+   sed -i '/en_US.UTF-8/s/^# //' /etc/locale.gen
+   locale-gen
+
+   # Patch root's bashrc to include bash-completion
    cp /etc/skel/.bashrc /root/.bashrc
 EOF
