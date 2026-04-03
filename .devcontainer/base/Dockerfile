@@ -24,7 +24,7 @@ FROM ubuntu:26.04@sha256:a072b64036a738e55bff8f9a9682cbb893bf20c213772effc1de8de
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV LANG=en_US.UTF-8
+ENV LANG=C.UTF-8
 
 HEALTHCHECK NONE
 
@@ -52,7 +52,7 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
    cp -r /src/bats-assert /usr/local/bats-assert
 
    # Generate locale
-   sed -i '/en_US.UTF-8/s/^# //' /etc/locale.gen
+   sed -i '/C.UTF-8/s/^# //' /etc/locale.gen
    locale-gen
 
    # Patch root's bashrc to include bash-completion
