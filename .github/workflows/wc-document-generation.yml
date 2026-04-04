@@ -5,6 +5,7 @@ on:
   workflow_call:
     inputs:
       is-release:
+        description: Whether the workflow is running for a release.
         default: false
         type: boolean
 

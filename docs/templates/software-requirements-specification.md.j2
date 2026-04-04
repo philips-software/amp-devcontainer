@@ -14,11 +14,13 @@ toc: true
 toc-own-page: true
 header-includes:
   - \AtEndDocument{\label{lastpage}}
-{% if sbdl['doc_control']['custom:is_release'] != 'true' %}
+{%- if sbdl['doc_control']['custom:is_release'] != 'true' %}
 watermark: "DRAFT"
-{% endif %}
+{%- endif %}
 footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
 ...
+
+{% import "partials/text-utilities.j2" as utils %}
 
 # Introduction
 
@@ -85,30 +87,22 @@ The containers may be used both for local development and continuous integration
 
 # Requirements
 
-{%- macro reencode(text) -%}
-{{ text.encode('utf-8').decode('unicode_escape') }}
-{%- endmacro -%}
+{%- for id, item in sbdl.items() %}
+{%- if item.type == 'aspect' and 'custom:title' in item %}
 
-{%- macro strip_gherkin_prefix(text) -%}
-{{ text | replace('Rule: ', '') | replace('Feature: ', '') }}
-{%- endmacro -%}
+## {{ utils.reencode(utils.strip_gherkin_prefix(item['custom:title'])) }}
 
-{%- for aspect_id, aspect in sbdl.items() %}
-{%- if aspect.type == 'aspect' %}
+{{ utils.reencode(item.description) }}
 
-## {{ reencode(strip_gherkin_prefix(aspect['custom:title'])) }}
-
-{{ reencode(aspect.description) }}
-
-{%- if 'requirement' in aspect %}
-{%- for req_ref in aspect.requirement %}
+{%- if 'requirement' in item %}
+{%- for req_ref in item.requirement %}
 {%- set req = sbdl[req_ref.identifier] %}
 
-### {{ req_ref.identifier }}: {{ reencode(strip_gherkin_prefix(req['custom:title'])) }}
+### {{ req_ref.identifier }}: {{ utils.reencode(utils.strip_gherkin_prefix(req['custom:title'])) }}
 
-{{ reencode(req.description) }}
+{{ utils.reencode(req.description) }}
 
-{{ reencode(req.remark) }}
+{{ utils.reencode(req.remark) }}
 
 {%- endfor %}
 {%- endif %}

@@ -14,27 +14,13 @@ toc: true
 toc-own-page: true
 header-includes:
   - \AtEndDocument{\label{lastpage}}
-{% if sbdl['doc_control']['custom:is_release'] != 'true' %}
+{%- if sbdl['doc_control']['custom:is_release'] != 'true' %}
 watermark: "DRAFT"
-{% endif %}
+{%- endif %}
 footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
 ...
 
-{% macro reencode(text) -%}
-{{ text.encode('utf-8').decode('unicode_escape') }}
-{%- endmacro -%}
-
-{%- macro strip_gherkin_prefix(text) -%}
-{{ text | replace('Rule: ', '') | replace('Feature: ', '') }}
-{%- endmacro -%}
-
-{%- macro strip_bats_syntax(text) -%}
-{{ text | replace('@test "', '') | replace('" \{', '') | replace('" {', '') }}
-{%- endmacro -%}
-
-{%- macro display_short(text) -%}
-{{ text[:60] }}
-{%- endmacro %}
+{% import "partials/text-utilities.j2" as utils %}
 
 # Introduction
 
@@ -54,18 +40,18 @@ This document is generated from a formal model defined in [sbdl](https://sbdl.de
 The authoritative source of change history is the [Git log](https://github.com/philips-software/amp-devcontainer/commits/) of the source material from which the model is built.
 
 # Traceability Matrix
-{%- for aspect_id, aspect in sbdl.items() %}
-{%- if aspect.type == 'aspect' %}
+{%- for id, item in sbdl.items() %}
+{%- if item.type == 'aspect' and 'custom:title' in item %}
 
-## {{ reencode(strip_gherkin_prefix(aspect['custom:title'])) }}
+## {{ utils.reencode(utils.strip_gherkin_prefix(item['custom:title'])) }}
 
 | Requirement | Test | Status |
 |-------------|------|--------|
 
-{%- if 'requirement' in aspect %}
-{%- for req_ref in aspect.requirement %}
+{%- if 'requirement' in item %}
+{%- for req_ref in item.requirement %}
 {%- set req = sbdl[req_ref.identifier] %}
-{%- set req_name = reencode(strip_gherkin_prefix(req['custom:title'])) | trim %}
+{%- set req_name = utils.reencode(utils.strip_gherkin_prefix(req['custom:title'])) | trim %}
 
 {%- set ns_tests = namespace(test_list=[]) -%}
 
@@ -81,11 +67,11 @@ The authoritative source of change history is the [Git log](https://github.com/p
 
 {%- if ns_tests.test_list -%}
 {%- for test_id in ns_tests.test_list %}
-{%- set test_name = strip_bats_syntax(strip_gherkin_prefix(sbdl[test_id]['custom:title'])) | trim %}
-| {{ display_short(req_name) }} | {{ test_id }}: {{ display_short(test_name) | capitalize }} | Traced |
+{%- set test_name = utils.strip_bats_syntax(sbdl[test_id]['custom:title']) | trim %}
+| {{ utils.display_short(req_name) }} | {{ test_id }}: {{ utils.display_short(test_name) | capitalize }} | Traced |
 {%- endfor -%}
 {%- else %}
-| {{ display_short(req_name) }} | — | **Not covered** |
+| {{ utils.display_short(req_name) }} | — | **Not covered** |
 {%- endif -%}
 
 {%- endfor %}
