@@ -9,9 +9,9 @@
         "marus25.cortex-debug@1.12.1",
         "mhutchie.git-graph@1.30.0",
         "ms-vscode.cmake-tools@1.22.28",
-        "ms-vscode.cpptools@1.31.3",
-        "ms-vsliveshare.vsliveshare@1.0.5959",
-        "sonarsource.sonarlint-vscode@4.45.0"
+        "ms-vscode.cpptools@1.31.4",
+        "ms-vsliveshare.vsliveshare@1.1.119",
+        "sonarsource.sonarlint-vscode@5.0.0"
       ],
       "settings": {
         "C_Cpp.intelliSenseEngine": "disabled",
