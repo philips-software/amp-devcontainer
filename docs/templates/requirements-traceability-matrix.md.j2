@@ -68,7 +68,7 @@ The authoritative source of change history is the [Git log](https://github.com/p
 {%- if ns_tests.test_list -%}
 {%- for test_id in ns_tests.test_list %}
 {%- set test_name = utils.strip_bats_syntax(sbdl[test_id]['custom:title']) | trim %}
-| {{ utils.display_short(req_name) }} | {{ test_id }}: {{ utils.display_short(test_name) | capitalize }} | Traced |
+| {{ utils.display_short(req_name) }} | {{ test_id }}: {{ utils.display_short(test_name) }} | Traced |
 {%- endfor -%}
 {%- else %}
 | {{ utils.display_short(req_name) }} | — | **Not covered** |

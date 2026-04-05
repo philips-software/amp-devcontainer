@@ -102,7 +102,7 @@ BATS tests verify tool presence, version alignment, and end-to-end workflows (co
 {%- if 'requirement' in test_elem -%}
 {%- for test_req_ref in test_elem.requirement if test_req_ref.identifier == req_ref.identifier -%}
 {%- set ns_tests.has_tests = true %}
-- **{{ test_id }}**: {{ utils.reencode(utils.strip_bats_syntax(test_elem['custom:title'])) | capitalize }}
+- **{{ test_id }}**: {{ utils.reencode(utils.strip_bats_syntax(test_elem['custom:title'])) }}
 {%- endfor -%}
 {%- endif -%}
 {%- endif -%}
