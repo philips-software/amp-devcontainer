@@ -10,7 +10,7 @@
         "mhutchie.git-graph@1.30.0",
         "ms-vscode.cmake-tools@1.22.28",
         "ms-vscode.cpptools@1.31.4",
-        "ms-vsliveshare.vsliveshare@1.1.119",
+        "ms-vsliveshare.vsliveshare@1.1.122",
         "sonarsource.sonarlint-vscode@5.0.0"
       ],
       "settings": {
