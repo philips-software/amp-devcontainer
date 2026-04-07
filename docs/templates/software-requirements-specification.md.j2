@@ -2,7 +2,7 @@
 title: "Software requirements specification for amp-devcontainer"
 author: ["@rjaegers"]
 colorlinks: true
-date: "February-2026"
+date: "{{ sbdl['doc_control']['custom:generated_at'] | strftime('%Y-%m-%d') }}"
 keywords: [Software, Requirements, SRS, amp-devcontainer]
 lang: "en"
 titlepage: true
@@ -12,13 +12,58 @@ titlepage-rule-color: "FFFFFF"
 titlepage-rule-height: 2
 toc: true
 toc-own-page: true
+header-includes:
+  - \AtEndDocument{\label{lastpage}}
+{%- if sbdl['doc_control']['custom:is_release'] != 'true' %}
+watermark: "DRAFT"
+{%- endif %}
+footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
 ...
+
+{% import "partials/text-utilities.j2" as utils %}
 
 # Introduction
 
 ## Purpose
 
 This document describes the software system requirements for amp-devcontainer.
+
+## Scope
+
+This document covers the requirements for the amp-devcontainer project: a set of devcontainers tailored towards modern, embedded, software development.
+
+The following is in scope:
+
+- Container image flavors for C++ and Rust development
+- Tooling for compilation, debugging, static and dynamic analysis
+- Compatibility with IDEs, container runtimes, and ci/cd systems
+- Security properties of released container images
+- Maintainability of the container images and their build system
+
+The following is out of scope:
+
+- Application-level software built using the containers
+- Deployment of end-user products
+- Requirements for third-party tools and dependencies included in the containers
+
+## References
+
+| Identifier | Title                                                                                                                                    |
+|------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| RFC 2119   | [Key words for use in RFCs to Indicate Requirement Levels](https://www.rfc-editor.org/rfc/rfc2119)                                       |
+| OCI        | [Open Container Initiative Image Specification](https://github.com/opencontainers/image-spec/blob/main/spec.md)                          |
+| SLSA       | [Supply-chain Levels for Software Artifacts v1.0](https://slsa.dev/spec/v1.0/levels)                                                     |
+| SemVer     | [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)                                                                         |
+| DevC       | [Development Containers Specification](https://containers.dev/)                                                                           |
+
+## Document Control
+
+{% include "partials/document-control.md.j2" with context %}
+
+This document is generated from a formal model defined in [sbdl](https://sbdl.dev) and versioned alongside the source code in Git.
+The authoritative source of change history is the [Git log](https://github.com/philips-software/amp-devcontainer/commits/) of the source material from which the model is built.
+
+Changes to requirements are tracked at the individual requirement level through the version control system and are part of the project's standard change control process.
 
 ## Definitions of key words
 
@@ -42,30 +87,22 @@ The containers may be used both for local development and continuous integration
 
 # Requirements
 
-{%- macro reencode(text) -%}
-{{ text.encode('utf-8').decode('unicode_escape') }}
-{%- endmacro -%}
+{%- for id, item in sbdl.items() %}
+{%- if item.type == 'aspect' and 'custom:title' in item %}
 
-{%- macro strip_gherkin_prefix(text) -%}
-{{ text | replace('Rule: ', '') | replace('Feature: ', '') }}
-{%- endmacro -%}
+## {{ utils.reencode(utils.strip_gherkin_prefix(item['custom:title'])) }}
 
-{%- for aspect_id, aspect in sbdl.items() %}
-{%- if aspect.type == 'aspect' %}
+{{ utils.reencode(item.description) }}
 
-## {{ reencode(strip_gherkin_prefix(aspect['custom:title'])) }}
-
-{{ reencode(aspect.description) }}
-
-{%- if 'requirement' in aspect %}
-{%- for req_ref in aspect.requirement %}
+{%- if 'requirement' in item %}
+{%- for req_ref in item.requirement %}
 {%- set req = sbdl[req_ref.identifier] %}
 
-### {{ req_ref.identifier }}: {{ reencode(strip_gherkin_prefix(req['custom:title'])) }}
+### {{ req_ref.identifier }}: {{ utils.reencode(utils.strip_gherkin_prefix(req['custom:title'])) }}
 
-{{ reencode(req.description) }}
+{{ utils.reencode(req.description) }}
 
-{{ reencode(req.remark) }}
+{{ utils.reencode(req.remark) }}
 
 {%- endfor %}
 {%- endif %}
