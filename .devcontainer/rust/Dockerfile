@@ -19,7 +19,9 @@ RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tm
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
  apt-get update \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | xargs apt-get install -y --no-install-recommends
+ && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | xargs apt-get install -y --no-install-recommends \
+ && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
+                        --slave /usr/bin/c++ c++ /usr/bin/g++-15
 
 # Install rust
 ENV BINSTALL_DISABLE_TELEMETRY=true \
