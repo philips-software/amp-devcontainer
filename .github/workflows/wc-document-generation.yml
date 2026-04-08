@@ -3,6 +3,11 @@ name: Document Generation
 
 on:
   workflow_call:
+    inputs:
+      is-release:
+        description: Whether the workflow is running for a release.
+        default: false
+        type: boolean
 
 permissions: {}
 
@@ -22,19 +27,54 @@ jobs:
       - name: Install dependencies
         run: |
           set -Eeuo pipefail
+
           sudo apt-get update && sudo apt-get install --no-install-recommends -y plantuml
-          python -m pip install gherkin-official==38.0.0 sbdl==1.21.3
+          python -m pip install sbdl==1.22.7
       - name: Build & Validate SBDL model
-        run: sbdl -m compile test/cpp/features/*.feature > amp-devcontainer.sbdl
-      - name: Generate SRS document
-        run: sbdl -m template-fill --template docs/templates/software-requirements-specification.md.j2 amp-devcontainer.sbdl > software-requirements-specification.md
-      - uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
+        run: sbdl -m compile test/cpp/integration-tests.bats test/cpp/features/*.feature > amp-devcontainer.sbdl
+      - name: Create document control context
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          IS_RELEASE: ${{ inputs.is-release }}
+        run: |
+          set -Eeuo pipefail
+
+          cat > document-control.sbdl <<SBDL
+          #!sbdl
+          doc_control is aspect {
+            description is "Document control metadata"
+            custom:version is "$(jq -r '.["."]' .release-please-manifest.json)"
+            custom:generated_at is "[@DATE]"
+            custom:git_sha is "[@GIT_COMMIT_HASH]"
+            custom:git_ref is "${GITHUB_REF_NAME}"
+            custom:sbdl_compiler_version is "[@COMPILER_VERSION]"
+            custom:sbdl_dsl_version is "[@DSL_VERSION]"
+            custom:is_release is "${IS_RELEASE}"
+          }
+          SBDL
+      - name: 📄 Generate SRS document
+        run: sbdl -m template-fill --set-config template_extensions_file docs/templates/jinja-extensions.py --template docs/templates/software-requirements-specification.md.j2 amp-devcontainer.sbdl document-control.sbdl > software-requirements-specification.md
+      - name: 🧪 Generate STP document
+        run: sbdl -m template-fill --set-config template_extensions_file docs/templates/jinja-extensions.py --template docs/templates/software-test-plan.md.j2 amp-devcontainer.sbdl document-control.sbdl > software-test-plan.md
+      - name: 🧩 Generate RTM document
+        run: sbdl -m template-fill --set-config template_extensions_file docs/templates/jinja-extensions.py --template docs/templates/requirements-traceability-matrix.md.j2 amp-devcontainer.sbdl document-control.sbdl > requirements-traceability-matrix.md
+      - name: 📄 Generate SRS PDF
+        uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
         with:
           args: --template eisvogel --syntax-highlighting idiomatic --number-sections --output software-requirements-specification.pdf software-requirements-specification.md
+      - name: 🧪 Generate STP PDF
+        uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
+        with:
+          args: --template eisvogel --syntax-highlighting idiomatic --number-sections --output software-test-plan.pdf software-test-plan.md
+      - name: 🧩 Generate RTM PDF
+        uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
+        with:
+          args: --template eisvogel --syntax-highlighting idiomatic --number-sections --output requirements-traceability-matrix.pdf requirements-traceability-matrix.md
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: documents
           path: |
             *.pdf
             *.sbdl
+            !document-control.sbdl
           retention-days: 2
