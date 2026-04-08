@@ -1,0 +1,15 @@
+{% macro reencode(text) -%}
+{{ text.encode('utf-8').decode('unicode_escape') }}
+{%- endmacro -%}
+
+{%- macro strip_gherkin_prefix(text) -%}
+{{ text | replace('Rule: ', '') | replace('Feature: ', '') }}
+{%- endmacro -%}
+
+{%- macro strip_bats_syntax(text) -%}
+{{ text | replace('@test "', '') | replace('" \{', '') | replace('" {', '') }}
+{%- endmacro -%}
+
+{%- macro display_short(text) -%}
+{{ text[:60] }}
+{%- endmacro %}
