@@ -4,7 +4,7 @@
   "git": "1:2.53.0-1ubuntu1",
   "gnupg2": "2.4.8-4ubuntu3",
   "locales": "2.43-2ubuntu1",
-  "udev": "259.5-0ubuntu1",
+  "udev": "259.5-0ubuntu2",
   "wget": "1.25.0-2ubuntu4",
   "xz-utils": "5.8.2-2"
 }
