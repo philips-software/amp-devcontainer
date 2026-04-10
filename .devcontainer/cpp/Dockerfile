@@ -61,13 +61,13 @@ RUN --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
     apt-get update && apt-get install --no-install-recommends -y minisign
 
-    ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz"
+    ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/15.2.rel1/binrel/arm-gnu-toolchain-15.2.rel1-$(uname -m)-arm-none-eabi.tar.xz"
     ARM_GNU_TOOLCHAIN_TAR="/tmp/arm-gnu-toolchain.tar.xz"
 
     if [[ "$(uname -m)" == "x86_64" ]]; then
-        ARM_GNU_TOOLCHAIN_SHA256="62a63b981fe391a9cbad7ef51b17e49aeaa3e7b0d029b36ca1e9c3b2a9b78823"
+        ARM_GNU_TOOLCHAIN_SHA256="597893282ac8c6ab1a4073977f2362990184599643b4c5ee34870a8215783a16"
     elif [[ "$(uname -m)" == "aarch64" ]]; then
-        ARM_GNU_TOOLCHAIN_SHA256="87330bab085dd8749d4ed0ad633674b9dc48b237b61069e3b481abd364d0a684"
+        ARM_GNU_TOOLCHAIN_SHA256="d061559d814b205ed30c5b7c577c03317ec447ca51cd5a159d26b12a5bbeb20c"
     fi
 
     wget --no-hsts -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
@@ -132,7 +132,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     cat /src/mull.gpg.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg
 
     UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2)
-    echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm-snapshot.list > /dev/null
+    #echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm-snapshot.list > /dev/null
     echo "deb [signed-by=/usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/mull-project/mull-stable/deb/ubuntu ${UBUNTU_CODENAME} main" | tee /etc/apt/sources.list.d/mull-project-mull-stable.list > /dev/null
     echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
@@ -159,11 +159,11 @@ RUN --mount=type=cache,target=/cache,sharing=locked \
 # Update all tool alternatives to the correct version
 # and patch root's bashrc to include bash-completion
 RUN --mount=type=cache,target=/var/log,sharing=locked \
- update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 10 \
-                        --slave /usr/bin/g++ g++ /usr/bin/g++-14 \
-                        --slave /usr/bin/gcov gcov /usr/bin/gcov-14 \
- && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 10 \
-                        --slave /usr/bin/c++ c++ /usr/bin/g++-14 \
+ update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 10 \
+                        --slave /usr/bin/g++ g++ /usr/bin/g++-15 \
+                        --slave /usr/bin/gcov gcov /usr/bin/gcov-15 \
+ && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
+                        --slave /usr/bin/c++ c++ /usr/bin/g++-15 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
  && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/bin/mull-runner-${CLANG_VERSION} 10 \
                         --slave /usr/bin/mull-reporter mull-reporter /usr/bin/mull-reporter-${CLANG_VERSION} \

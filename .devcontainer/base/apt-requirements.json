@@ -1,10 +1,10 @@
 {
-  "bash-completion": "1:2.11-8",
-  "ca-certificates": "20240203",
-  "g++-14": "14.2.0-4ubuntu2~24.04.1",
-  "git": "1:2.43.0-1ubuntu7.3",
-  "gnupg2": "2.4.4-2ubuntu17.4",
-  "udev": "255.4-1ubuntu8.15",
-  "wget": "1.21.4-1ubuntu4.1",
-  "xz-utils": "5.6.1+really5.4.5-1ubuntu0.2"
+  "bash-completion": "1:2.16.0-8build1",
+  "ca-certificates": "20250419build1",
+  "git": "1:2.53.0-1ubuntu1",
+  "gnupg2": "2.4.8-4ubuntu3",
+  "locales": "2.43-2ubuntu1",
+  "udev": "259.5-0ubuntu2",
+  "wget": "1.25.0-2ubuntu4",
+  "xz-utils": "5.8.2-2"
 }
