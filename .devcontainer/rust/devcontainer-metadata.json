@@ -6,8 +6,8 @@
     "vscode": {
       "extensions": [
         "mhutchie.git-graph@1.30.0",
-        "ms-vsliveshare.vsliveshare@1.1.119",
-        "rust-lang.rust-analyzer@0.3.2845",
+        "ms-vsliveshare.vsliveshare@1.1.122",
+        "rust-lang.rust-analyzer@0.3.2854",
         "tamasfe.even-better-toml@0.21.2",
         "usernamehw.errorlens@3.28.0"
       ]
