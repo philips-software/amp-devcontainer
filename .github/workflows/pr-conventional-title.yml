@@ -32,7 +32,7 @@ jobs:
             doesn't start with an uppercase character.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: marocchino/sticky-pull-request-comment@70d2764d1a7d5d9560b100cbea0077fc8f633987 # v3.0.2
+      - uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
         if: ${{ !cancelled() && steps.pr-title.outputs.error_message != null }}
         with:
           header: pr-title-lint-error
@@ -44,7 +44,7 @@ jobs:
             :warning: Details
 
             ${{ steps.pr-title.outputs.error_message }}
-      - uses: marocchino/sticky-pull-request-comment@70d2764d1a7d5d9560b100cbea0077fc8f633987 # v3.0.2
+      - uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
         if: steps.pr-title.outputs.error_message == null
         with:
           header: pr-title-lint-error
