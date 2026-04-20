@@ -21,8 +21,8 @@ jobs:
     # set-up correctly.
     container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge
     permissions:
-      contents: write # is needed by peter-evans/create-pull-request to create branches and push commits
-      pull-requests: write # is needed by peter-evans/create-pull-request to create a PR
+      contents: write # is needed by gh cli to create branches and push commits
+      pull-requests: write # is needed by gh cli to create a PR
     steps:
       - uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
         with:
@@ -40,15 +40,34 @@ jobs:
         with:
           app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
-      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+      - name: Create pull request
         if: github.event_name != 'pull_request'
-        with:
-          commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
-          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-apt-packages
-          title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
-          labels: dependencies,apt
-          token: ${{ steps.token.outputs.token }}
-          sign-commits: true
+        env:
+          BRANCH: feature/amp-devcontainer-${{ matrix.flavor }}/update-apt-packages
+          COMMIT_MESSAGE: Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          TITLE: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo No changes detected
+            exit 0
+          fi
+
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          gh auth setup-git
+
+          git checkout -B "${BRANCH}"
+          git add .
+          git commit -m "${COMMIT_MESSAGE}"
+          git push --force-with-lease origin "${BRANCH}"
+
+          pr_number="$(gh pr list --head "${BRANCH}" --state open --json number --jq '.[0].number')"
+          if [[ -n "${pr_number}" ]]; then
+            gh pr edit "${pr_number}" --title "${TITLE}" --add-label dependencies --add-label apt
+          else
+            gh pr create --head "${BRANCH}" --title "${TITLE}" --body "${COMMIT_MESSAGE}" --label dependencies --label apt
+          fi
 
   update-vscode-extensions:
     name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} Extensions (🍨 ${{ matrix.flavor }}, ${{ matrix.file }})
@@ -56,11 +75,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flavor: ["cpp", "rust"]
-        file: ["devcontainer-metadata.json", "devcontainer.json"]
+        flavor: [cpp, rust]
+        file: [devcontainer-metadata.json, devcontainer.json]
     permissions:
-      contents: write # is needed by peter-evans/create-pull-request to create branches and push commits
-      pull-requests: write # is needed by peter-evans/create-pull-request to create a PR
+      contents: write # is needed by gh cli to create branches and push commits
+      pull-requests: write # is needed by gh cli to create a PR
     steps:
       - uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
         with:
@@ -88,13 +107,32 @@ jobs:
         with:
           app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
-      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+      - name: Create pull request
         if: github.event_name != 'pull_request'
-        with:
-          commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
-          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions-${{ matrix.file }}
-          body-path: ${{ runner.temp }}/pull-request-body.md
-          title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
-          labels: dependencies,vscode-extensions
-          token: ${{ steps.token.outputs.token }}
-          sign-commits: true
+        env:
+          BODY_PATH: ${{ runner.temp }}/pull-request-body.md
+          BRANCH: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions-${{ matrix.file }}
+          COMMIT_MESSAGE: Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          TITLE: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo No changes detected
+            exit 0
+          fi
+
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          gh auth setup-git
+
+          git checkout -B "${BRANCH}"
+          git add .
+          git commit -m "${COMMIT_MESSAGE}"
+          git push --force-with-lease origin "${BRANCH}"
+
+          pr_number="$(gh pr list --head "${BRANCH}" --state open --json number --jq '.[0].number')"
+          if [[ -n "${pr_number}" ]]; then
+            gh pr edit "${pr_number}" --title "${TITLE}" --body-file "${BODY_PATH}" --add-label dependencies --add-label vscode-extensions
+          else
+            gh pr create --head "${BRANCH}" --title "${TITLE}" --body-file "${BODY_PATH}" --label dependencies --label vscode-extensions
+          fi
