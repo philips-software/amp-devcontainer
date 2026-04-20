@@ -8,10 +8,10 @@
         "llvm-vs-code-extensions.vscode-clangd@0.4.0",
         "marus25.cortex-debug@1.12.1",
         "mhutchie.git-graph@1.30.0",
-        "ms-vscode.cmake-tools@1.22.28",
+        "ms-vscode.cmake-tools@1.23.51",
         "ms-vscode.cpptools@1.31.4",
         "ms-vsliveshare.vsliveshare@1.1.122",
-        "sonarsource.sonarlint-vscode@5.0.0"
+        "sonarsource.sonarlint-vscode@5.1.0"
       ],
       "settings": {
         "C_Cpp.intelliSenseEngine": "disabled",
