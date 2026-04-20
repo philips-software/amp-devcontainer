@@ -15,7 +15,7 @@
     "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt"
   },
   "features": {
-    "ghcr.io/devcontainers/features/desktop-lite:1.2.8": {},
+    "ghcr.io/devcontainers/features/desktop-lite:1.2.9": {},
     "ghcr.io/devcontainers/features/github-cli:1.1.0": {},
     "ghcr.io/devcontainers/features/node:1.7.1": {}
   },
