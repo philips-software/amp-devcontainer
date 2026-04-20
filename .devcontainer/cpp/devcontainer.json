@@ -15,7 +15,7 @@
     "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt"
   },
   "features": {
-    "ghcr.io/devcontainers/features/desktop-lite:1.2.8": {},
+    "ghcr.io/devcontainers/features/desktop-lite:1.2.9": {},
     "ghcr.io/devcontainers/features/github-cli:1.1.0": {},
     "ghcr.io/devcontainers/features/node:1.7.1": {}
   },
@@ -37,15 +37,15 @@
         "alexkrechik.cucumberautocomplete@3.1.0",
         "github.copilot@1.388.0",
         "github.vscode-github-actions@0.31.3",
-        "github.vscode-pull-request-github@0.134.0",
+        "github.vscode-pull-request-github@0.136.0",
         "jetmartin.bats@0.1.10",
         "kherring.bats-test-runner@0.1.3",
         "mhutchie.git-graph@1.30.0",
         "ms-azuretools.vscode-docker@2.0.0",
         "ms-playwright.playwright@1.1.17",
-        "ms-vscode.cmake-tools@1.22.28",
+        "ms-vscode.cmake-tools@1.23.51",
         "ms-vscode.cpptools@1.31.4",
-        "sonarsource.sonarlint-vscode@5.0.0",
+        "sonarsource.sonarlint-vscode@5.1.0",
         "usernamehw.errorlens@3.28.0"
       ]
     }
