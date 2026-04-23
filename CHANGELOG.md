@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.10.2](https://github.com/philips-software/amp-devcontainer/compare/v6.10.1...v6.10.2) (2026-04-22)
+
+
+### Chores
+
+* **deps, cpp:** Update github.vscode-pull-request-github, ms-vscode.cmake-tools, sonarsource.sonarlint-vscode in devcontainer.json ([#1246](https://github.com/philips-software/amp-devcontainer/issues/1246)) ([de947b4](https://github.com/philips-software/amp-devcontainer/commit/de947b40c6e5af3ed33c5af5f482176ed1744d58))
+* **deps, cpp:** Update ms-vscode.cmake-tools, sonarsource.sonarlint-vscode in devcontainer-metadata.json ([#1247](https://github.com/philips-software/amp-devcontainer/issues/1247)) ([3994e82](https://github.com/philips-software/amp-devcontainer/commit/3994e822cddd5543deb29cae0c772b1e14a17b31))
+* **deps, cpp:** Update mull-20 ([#1240](https://github.com/philips-software/amp-devcontainer/issues/1240)) ([c4c2fa1](https://github.com/philips-software/amp-devcontainer/commit/c4c2fa1300ba05cf128c88991b76de2da8a7d132))
+* **deps, rust:** Update github.vscode-pull-request-github, rust-lang.rust-analyzer, sonarsource.sonarlint-vscode in devcontainer.json ([#1248](https://github.com/philips-software/amp-devcontainer/issues/1248)) ([5014767](https://github.com/philips-software/amp-devcontainer/commit/50147677e163d436fedec5b9454db7ad1653ad95))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1245](https://github.com/philips-software/amp-devcontainer/issues/1245)) ([18f4a4d](https://github.com/philips-software/amp-devcontainer/commit/18f4a4de91a8f658647a97c9a1f806e3ff76e972))
+* **deps:** Bump cmake from 4.3.0 to 4.3.1 in /.devcontainer ([#1236](https://github.com/philips-software/amp-devcontainer/issues/1236)) ([05f181d](https://github.com/philips-software/amp-devcontainer/commit/05f181d50e3af004d34dcc96d6a2decff6a648cc))
+* **deps:** Bump ghcr.io/devcontainers/features/desktop-lite ([78fe38a](https://github.com/philips-software/amp-devcontainer/commit/78fe38a10d4c1ca71deca6fc5632e35111e0c892))
+* **deps:** Bump ghcr.io/devcontainers/features/desktop-lite from 1.2.8 to 1.2.9 ([#1242](https://github.com/philips-software/amp-devcontainer/issues/1242)) ([78fe38a](https://github.com/philips-software/amp-devcontainer/commit/78fe38a10d4c1ca71deca6fc5632e35111e0c892))
+* **deps:** Bump lxml from 4.9.3 to 6.1.0 in /.devcontainer/cpp ([#1250](https://github.com/philips-software/amp-devcontainer/issues/1250)) ([78a06f1](https://github.com/philips-software/amp-devcontainer/commit/78a06f147fb411579dce110173378b9a0aa85cd2))
+
 ## [6.10.1](https://github.com/philips-software/amp-devcontainer/compare/v6.10.0...v6.10.1) (2026-04-09)
 
 
