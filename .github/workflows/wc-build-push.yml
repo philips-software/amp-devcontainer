@@ -75,7 +75,7 @@ jobs:
       contents: read
       packages: write # is needed by docker/build-push-action to push images when using GitHub Container Registry
     steps:
-      - uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+      - uses: step-security/harden-runner@6c3c2f2c1c457b00c10c4848d6f5491db3b629df # v2.18.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -162,7 +162,7 @@ jobs:
       digest: ${{ steps.inspect-manifest.outputs.digest }}
       version: ${{ steps.metadata.outputs.version }}
     steps:
-      - uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+      - uses: step-security/harden-runner@6c3c2f2c1c457b00c10c4848d6f5491db3b629df # v2.18.0
         with:
           disable-sudo: true
           egress-policy: audit
