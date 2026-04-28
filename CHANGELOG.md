@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.10.3](https://github.com/philips-software/amp-devcontainer/compare/v6.10.2...v6.10.3) (2026-04-28)
+
+
+### Chores
+
+* **deps, cpp:** Update ms-vscode.cmake-tools, ms-vscode.cpptools in devcontainer-metadata.json ([#1255](https://github.com/philips-software/amp-devcontainer/issues/1255)) ([3401e8a](https://github.com/philips-software/amp-devcontainer/commit/3401e8a7ae9b923a320ba5f2808c5c4af04633e1))
+* **deps, rust:** Update rustup ([#1254](https://github.com/philips-software/amp-devcontainer/issues/1254)) ([3a7bba0](https://github.com/philips-software/amp-devcontainer/commit/3a7bba05016e3538f5513c28915f0e6dce8c264d))
+* **deps:** Bump conan from 2.27.0 to 2.27.1 in /.devcontainer ([#1251](https://github.com/philips-software/amp-devcontainer/issues/1251)) ([afe5830](https://github.com/philips-software/amp-devcontainer/commit/afe5830e426c5849c4388f69fc28a943ff0bcdbb))
+
 ## [6.10.2](https://github.com/philips-software/amp-devcontainer/compare/v6.10.1...v6.10.2) (2026-04-22)
 
 
