@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [6.11.0](https://github.com/philips-software/amp-devcontainer/compare/v6.10.3...v6.11.0) (2026-05-13)
+
+
+### Features
+
+* Switch base container to Ubuntu 26.04 ([#1227](https://github.com/philips-software/amp-devcontainer/issues/1227)) ([30a53b3](https://github.com/philips-software/amp-devcontainer/commit/30a53b309ccfee52f2f7f450d8fb6ddca10be51e))
+
 ## [6.10.3](https://github.com/philips-software/amp-devcontainer/compare/v6.10.2...v6.10.3) (2026-05-12)
 
 
