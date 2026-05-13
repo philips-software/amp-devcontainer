@@ -7,7 +7,6 @@
       "BASE_IMAGE": "amp-devcontainer-base:local"
     }
   },
-  "privileged": true,
   "remoteEnv": {
     "CONTAINER_FLAVOR": "rust"
   },

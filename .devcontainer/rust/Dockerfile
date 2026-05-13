@@ -3,8 +3,8 @@
 ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 FROM ${BASE_IMAGE}
 
-ARG CARGO_BINSTALL_VERSION=1.15.11
-ARG RUST_VERSION=1.91.1
+ARG CARGO_BINSTALL_VERSION=1.17.9
+ARG RUST_VERSION=1.94.1
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -19,7 +19,9 @@ RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tm
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
  apt-get update \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | xargs apt-get install -y --no-install-recommends
+ && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | xargs apt-get install -y --no-install-recommends \
+ && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
+                        --slave /usr/bin/c++ c++ /usr/bin/g++-15
 
 # Install rust
 ENV BINSTALL_DISABLE_TELEMETRY=true \
