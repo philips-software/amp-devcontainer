@@ -5,7 +5,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "llvm-vs-code-extensions.vscode-clangd@0.4.0",
+        "llvm-vs-code-extensions.vscode-clangd@0.6.0",
         "marus25.cortex-debug@1.12.1",
         "mhutchie.git-graph@1.30.0",
         "ms-vscode.cmake-tools@1.23.52",
