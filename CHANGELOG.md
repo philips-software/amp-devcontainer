@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ### ⚠ BREAKING CHANGES
 
-* **deps, cpp:** update mull-20 ([#1282](https://github.com/philips-software/amp-devcontainer/issues/1282))
+* Switch base container to Ubuntu 26.04 ([#1227](https://github.com/philips-software/amp-devcontainer/issues/1227))
 
 ### Features
 
