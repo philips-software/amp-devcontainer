@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [7.0.0](https://github.com/philips-software/amp-devcontainer/compare/v6.10.3...v7.0.0) (2026-05-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* Switch base container to Ubuntu 26.04 ([#1227](https://github.com/philips-software/amp-devcontainer/issues/1227))
+
+### Features
+
+* Switch base container to Ubuntu 26.04 ([#1227](https://github.com/philips-software/amp-devcontainer/issues/1227)) ([30a53b3](https://github.com/philips-software/amp-devcontainer/commit/30a53b309ccfee52f2f7f450d8fb6ddca10be51e))
+
+
+### Chores
+
+* **deps, cpp:** Update github.vscode-pull-request-github in devcontainer.json ([#1280](https://github.com/philips-software/amp-devcontainer/issues/1280)) ([c7f5dbc](https://github.com/philips-software/amp-devcontainer/commit/c7f5dbc287b86ff44cfe9b72623c96d54534c956))
+* **deps, cpp:** Update llvm-vs-code-extensions.vscode-clangd in devcontainer-metadata.json ([#1286](https://github.com/philips-software/amp-devcontainer/issues/1286)) ([35617a2](https://github.com/philips-software/amp-devcontainer/commit/35617a26371753d614ce05d8e855caf07e5d61e6))
+* **deps, cpp:** Update mull-20 ([#1282](https://github.com/philips-software/amp-devcontainer/issues/1282)) ([2f093b6](https://github.com/philips-software/amp-devcontainer/commit/2f093b6a9a92686a06516573fb0779c38113bae9))
+* **deps, rust:** Update github.vscode-pull-request-github in devcontainer.json ([#1281](https://github.com/philips-software/amp-devcontainer/issues/1281)) ([16b9609](https://github.com/philips-software/amp-devcontainer/commit/16b9609c1dd0769b28a058cea6177c08476bc4af))
+
 ## [6.10.3](https://github.com/philips-software/amp-devcontainer/compare/v6.10.2...v6.10.3) (2026-05-12)
 
 
