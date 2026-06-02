@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [7.1.0](https://github.com/philips-software/amp-devcontainer/compare/v7.0.0...v7.1.0) (2026-06-02)
+
+
+### Features
+
+* Update clang to 21.1.8 ([#1294](https://github.com/philips-software/amp-devcontainer/issues/1294)) ([2580f8e](https://github.com/philips-software/amp-devcontainer/commit/2580f8e2e6deb91c0246c08cedc6f5b21d1a7736))
+
 ## [7.0.0](https://github.com/philips-software/amp-devcontainer/compare/v6.10.3...v7.0.0) (2026-05-28)
 
 
