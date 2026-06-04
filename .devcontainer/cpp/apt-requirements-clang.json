@@ -1,11 +1,11 @@
 {
-  "clang-20": "1:20.1.8-2ubuntu8",
-  "clangd-20": "1:20.1.8-2ubuntu8",
-  "clang-format-20": "1:20.1.8-2ubuntu8",
-  "clang-tidy-20": "1:20.1.8-2ubuntu8",
-  "clang-tools-20": "1:20.1.8-2ubuntu8",
-  "libclang-rt-20-dev": "1:20.1.8-2ubuntu8",
-  "lld-20": "1:20.1.8-2ubuntu8",
-  "llvm-20": "1:20.1.8-2ubuntu8",
-  "mull-20": "0.34.0"
+  "clang-22": "1:22.1.2-1ubuntu1",
+  "clangd-22": "1:22.1.2-1ubuntu1",
+  "clang-format-22": "1:22.1.2-1ubuntu1",
+  "clang-tidy-22": "1:22.1.2-1ubuntu1",
+  "clang-tools-22": "1:22.1.2-1ubuntu1",
+  "libclang-rt-22-dev": "1:22.1.2-1ubuntu1",
+  "lld-22": "1:22.1.2-1ubuntu1",
+  "llvm-22": "1:22.1.2-1ubuntu1",
+  "mull-22": "0.34.0"
 }
