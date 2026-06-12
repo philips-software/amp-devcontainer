@@ -7,7 +7,7 @@
     "dotenv": "^17.4.2",
     "nodemon": "^3.1.14",
     "otpauth": "^9.5.1",
-    "playwright-bdd": "^8.5.1"
+    "playwright-bdd": "^9.0.0"
   },
   "scripts": {
     "test": "cd $INIT_CWD && npx bddgen && npx playwright test",
