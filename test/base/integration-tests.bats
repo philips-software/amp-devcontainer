@@ -12,3 +12,15 @@ setup() {
   assert_success
   assert_output --partial "OK"
 }
+
+@test "gh is installed and functional" {
+  run gh --version
+  assert_success
+  assert_output --partial "gh version"
+}
+
+@test "gh aw extension is installed" {
+  run gh extension list
+  assert_success
+  assert_output --partial "gh-aw"
+}

@@ -24,6 +24,8 @@ It's time for our quarterly tool version check! This issue serves as a reminder 
 - [ ] [bats-core](https://github.com/bats-core/bats-core)
 - [ ] [bats-support](https://github.com/bats-core/bats-support)
 - [ ] [bats-assert](https://github.com/bats-core/bats-assert)
+- [ ] [gh](https://github.com/cli/cli)
+- [ ] [gh-aw](https://github.com/github/gh-aw)
 
 ### ⚙️ amp-devcontainer-cpp
 

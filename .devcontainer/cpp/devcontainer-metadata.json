@@ -1,4 +1,5 @@
 {
+  "postStartCommand": "gh auth setup-git",
   "remoteEnv": {
     "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
   },
