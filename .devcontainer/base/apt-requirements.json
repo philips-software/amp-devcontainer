@@ -1,6 +1,6 @@
 {
   "bash-completion": "1:2.16.0-8build1",
-  "ca-certificates": "20260223",
+  "ca-certificates": "20260601~26.04.1",
   "git": "1:2.53.0-1ubuntu1",
   "gnupg2": "2.4.8-4ubuntu3",
   "locales": "2.43-2ubuntu2",
