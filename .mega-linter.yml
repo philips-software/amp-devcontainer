@@ -7,6 +7,7 @@ ENABLE:
   - SPELL
   - YAML
 DISABLE_LINTERS:
+  - ACTION_ZIZMOR # Disable zizmor as we run it outside of MegaLinter
   - REPOSITORY_DEVSKIM
   - REPOSITORY_DUSTILOCK
   - REPOSITORY_KICS
