@@ -21,8 +21,7 @@ jobs:
     # set-up correctly.
     container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge
     permissions:
-      contents: write # is needed by peter-evans/create-pull-request to create branches and push commits
-      pull-requests: write # is needed by peter-evans/create-pull-request to create a PR
+      contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
     steps:
       - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
@@ -38,8 +37,10 @@ jobs:
         id: token
         if: github.event_name != 'pull_request'
         with:
-          app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
+          client-id: ${{ vars.FOREST_RELEASER_CLIENT_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
       - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         if: github.event_name != 'pull_request'
         with:
@@ -59,8 +60,7 @@ jobs:
         flavor: ["cpp", "rust"]
         file: ["devcontainer-metadata.json", "devcontainer.json"]
     permissions:
-      contents: write # is needed by peter-evans/create-pull-request to create branches and push commits
-      pull-requests: write # is needed by peter-evans/create-pull-request to create a PR
+      contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
     steps:
       - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
@@ -86,8 +86,10 @@ jobs:
         id: token
         if: github.event_name != 'pull_request'
         with:
-          app-id: ${{ vars.FOREST_RELEASER_APP_ID }}
+          client-id: ${{ vars.FOREST_RELEASER_CLIENT_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
       - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         if: github.event_name != 'pull_request'
         with:
