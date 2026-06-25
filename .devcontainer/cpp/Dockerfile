@@ -7,6 +7,8 @@ ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF
 ARG CCACHE_VERSION=4.13.1
 ARG XWIN_VERSION=0.8.0
+# Whether to install the embedded (ARM none-eabi) toolchain; set to true for the embedded-cpp flavor
+ARG INSTALL_EMBEDDED=false
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
@@ -50,6 +52,7 @@ FROM ${BASE_IMAGE} AS extractor
 ARG CCACHE_MINISIGN_PUBKEY
 ARG CCACHE_VERSION
 ARG XWIN_VERSION
+ARG INSTALL_EMBEDDED
 
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
@@ -61,21 +64,24 @@ RUN --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
     apt-get update && apt-get install --no-install-recommends -y minisign
 
-    ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/15.2.rel1/binrel/arm-gnu-toolchain-15.2.rel1-$(uname -m)-arm-none-eabi.tar.xz"
-    ARM_GNU_TOOLCHAIN_TAR="/tmp/arm-gnu-toolchain.tar.xz"
+    if [[ "${INSTALL_EMBEDDED}" == "true" ]]; then
+        ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/15.2.rel1/binrel/arm-gnu-toolchain-15.2.rel1-$(uname -m)-arm-none-eabi.tar.xz"
+        ARM_GNU_TOOLCHAIN_TAR="/tmp/arm-gnu-toolchain.tar.xz"
 
-    if [[ "$(uname -m)" == "x86_64" ]]; then
-        ARM_GNU_TOOLCHAIN_SHA256="597893282ac8c6ab1a4073977f2362990184599643b4c5ee34870a8215783a16"
-    elif [[ "$(uname -m)" == "aarch64" ]]; then
-        ARM_GNU_TOOLCHAIN_SHA256="d061559d814b205ed30c5b7c577c03317ec447ca51cd5a159d26b12a5bbeb20c"
+        if [[ "$(uname -m)" == "x86_64" ]]; then
+            ARM_GNU_TOOLCHAIN_SHA256="597893282ac8c6ab1a4073977f2362990184599643b4c5ee34870a8215783a16"
+        elif [[ "$(uname -m)" == "aarch64" ]]; then
+            ARM_GNU_TOOLCHAIN_SHA256="d061559d814b205ed30c5b7c577c03317ec447ca51cd5a159d26b12a5bbeb20c"
+        fi
+
+        wget --no-hsts -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
+        echo "${ARM_GNU_TOOLCHAIN_SHA256}  ${ARM_GNU_TOOLCHAIN_TAR}" | sha256sum -c -
+
+        tar xJf "${ARM_GNU_TOOLCHAIN_TAR}" --exclude="*arm-none-eabi-gdb*" --exclude="share"
     fi
-
-    wget --no-hsts -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
-    echo "${ARM_GNU_TOOLCHAIN_SHA256}  ${ARM_GNU_TOOLCHAIN_TAR}" | sha256sum -c -
 
     minisign -P "${CCACHE_MINISIGN_PUBKEY}" -Vm /dl/ccache.tar.xz
 
-    tar xJf "${ARM_GNU_TOOLCHAIN_TAR}" --exclude="*arm-none-eabi-gdb*" --exclude="share"
     tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)-glibc/ccache"
     tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
     cp /dl/llvm.gpg.key /llvm.gpg.key
@@ -88,6 +94,7 @@ FROM ${BASE_IMAGE}
 ARG CLANG_VERSION=22
 ARG CPM_VERSION=0.42.1
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.26
+ARG INSTALL_EMBEDDED
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -139,7 +146,9 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
         xargs apt-get install -y --no-install-recommends
 
     # Install arm-gcc toolchain
-    cp -a /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
+    if [[ "${INSTALL_EMBEDDED}" == "true" ]]; then
+        cp -a /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
+    fi
 EOF
 
 # Install include-what-you-use (iwyu) from source

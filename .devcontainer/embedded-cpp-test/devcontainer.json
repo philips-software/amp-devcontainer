@@ -1,0 +1,13 @@
+{
+  "image": "ghcr.io/philips-software/amp-devcontainer-embedded-cpp:${localEnv:IMAGE_VERSION}",
+  "workspaceFolder": "/workspaces/amp-devcontainer/test/embedded-cpp/workspace",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "cmake.automaticReconfigure": false,
+        "cmake.configureOnOpen": false,
+        "cmake.enableAutomaticKitScan": false
+      }
+    }
+  }
+}

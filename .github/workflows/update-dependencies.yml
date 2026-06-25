@@ -56,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flavor: ["cpp", "rust"]
+        flavor: ["cpp", "embedded-cpp", "rust"]
         file: ["devcontainer-metadata.json", "devcontainer.json"]
     permissions:
       contents: write # is needed by peter-evans/create-pull-request to create branches and push commits
