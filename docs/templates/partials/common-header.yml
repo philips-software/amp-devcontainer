@@ -1,0 +1,13 @@
+---
+colorlinks: true
+footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
+header-includes:
+  - \AtEndDocument{\label{lastpage}}
+lang: "en"
+titlepage: true
+titlepage-color: "0B5ED7"
+titlepage-rule-color: "FFFFFF"
+titlepage-rule-height: 2
+titlepage-text-color: "FFFFFF"
+toc: true
+toc-own-page: true
