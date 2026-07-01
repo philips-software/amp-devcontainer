@@ -95,6 +95,13 @@ The system is decomposed into the following trust boundaries. Data crossing a bo
 | {{ item['custom:title'] }} | {{ utils.reencode(item.description) }} |
 {%- endfor %}
 
+## Trust assumptions
+
+The threat analysis relies on the following assumptions about each trust boundary.
+
+{% for id, item in sbdl.items() if item.type == 'trust_boundary' -%}
+- **{{ item['custom:title'] }}:** {{ utils.reencode(item['custom:assumption']) }}
+{% endfor %}
 # Actors
 
 | Actor | Type | Trust boundary | Description |
@@ -175,8 +182,6 @@ The diagram below shows the system decomposed into its trust boundaries, with th
 
 {{ utils.reencode(threat.description) }}
 
-{{ utils.reencode(threat.remark) }}
-
 **Attack vector**
 
 {{ utils.reencode(cause.description) }}
@@ -218,6 +223,17 @@ The table below ranks all identified threats by their Risk Priority Number (RPN)
 | {{ row.tid }} | {{ row.stride }} | {{ row.s }} | {{ row.o }} | {{ row.d }} | {{ row.rpn }} | {{ row.rpn_post }} | {{ row.risk }} |
 {%- endfor %}
 
+# Control evidence
+
+Each threat's mitigation is backed by objective, reviewable evidence in the repository, supporting audit and regulatory review.
+
+| Threat | Control status | Evidence |
+|--------|----------------|----------|
+{%- for id, threat in sbdl.items() if threat.type == 'threat' %}
+{%- set control = sbdl[threat['fmea:control'][0].identifier] %}
+| {{ threat['custom:threat_id'] }} | {{ control['custom:status'] }} | {{ utils.reencode(control['custom:evidence']) if 'custom:evidence' in control else '—' }} |
+{%- endfor %}
+
 # Residual risk and planned actions
 
 The following actions are planned to further reduce residual risk.
@@ -247,4 +263,4 @@ The following actions are planned to further reduce residual risk.
 | Low              | {{ counts.low }} |
 | **Total**        | **{{ counts.total }}** |
 
-All high-risk threats have implemented, verifiable mitigations. Residual risk is tracked through the project's standard change control process and re-evaluated whenever the model or its source material changes.
+Every identified threat has a documented mitigation with traceable evidence, summarised in the Control evidence section. High-risk threats whose controls are only partially implemented carry planned actions listed under Residual risk and planned actions. Residual risk is tracked through the project's standard change control process and re-evaluated whenever the model or its source material changes.
