@@ -455,7 +455,7 @@ cause_runtime01 is attack_vector {
 }
 
 impact_runtime01 is impact {
-  description is "Host compromise on a developer workstation or CI runner, enabling malicious code injection, build-artifact tampering, and compromise of signing workflows — a direct path into the software supply chain."
+  description is "Host compromise on a developer workstation or CI runner, enabling malicious code injection, build-artifact tampering, and compromise of signing workflows, providing a direct path into the software supply chain."
   severity is 8
   fmea:mode is threat_runtime01_priv_escape
 }
