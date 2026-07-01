@@ -1,15 +1,24 @@
 ---
 title: "Requirements traceability matrix for amp-devcontainer"
 author: ["@rjaegers"]
+colorlinks: true
 date: "{{ sbdl['doc_control']['custom:generated_at'] | strftime('%Y-%m-%d') }}"
 keywords: [Traceability, Requirements, RTM, amp-devcontainer]
 lang: "en"
+titlepage: true
+titlepage-color: "0B5ED7"
+titlepage-text-color: "FFFFFF"
+titlepage-rule-color: "FFFFFF"
+titlepage-rule-height: 2
+toc: true
+toc-own-page: true
+header-includes:
+  - \AtEndDocument{\label{lastpage}}
 {%- if sbdl['doc_control']['custom:is_release'] != 'true' %}
 watermark: "DRAFT"
 {%- endif %}
+footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
 ...
-
-!include-header partials/common-header.yml
 
 {% import "partials/text-utilities.j2" as utils %}
 
