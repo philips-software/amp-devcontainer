@@ -7,8 +7,8 @@ ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF
 ARG CCACHE_VERSION=4.13.1
 ARG XWIN_VERSION=0.8.0
-# Whether to install the embedded (ARM none-eabi) toolchain; set to true for the embedded-cpp flavor
-ARG INSTALL_EMBEDDED=false
+# Whether or not to build the embedded flavor of this container
+ARG BUILD_EMBEDDED_FLAVOR=false
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
@@ -52,7 +52,7 @@ FROM ${BASE_IMAGE} AS extractor
 ARG CCACHE_MINISIGN_PUBKEY
 ARG CCACHE_VERSION
 ARG XWIN_VERSION
-ARG INSTALL_EMBEDDED
+ARG BUILD_EMBEDDED_FLAVOR
 
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
@@ -64,7 +64,7 @@ RUN --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
     apt-get update && apt-get install --no-install-recommends -y minisign
 
-    if [[ "${INSTALL_EMBEDDED}" == "true" ]]; then
+    if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
         ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/15.2.rel1/binrel/arm-gnu-toolchain-15.2.rel1-$(uname -m)-arm-none-eabi.tar.xz"
         ARM_GNU_TOOLCHAIN_TAR="/tmp/arm-gnu-toolchain.tar.xz"
 
@@ -94,7 +94,7 @@ FROM ${BASE_IMAGE}
 ARG CLANG_VERSION=22
 ARG CPM_VERSION=0.42.1
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.26
-ARG INSTALL_EMBEDDED
+ARG BUILD_EMBEDDED_FLAVOR
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -145,8 +145,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
         xargs apt-get install -y --no-install-recommends
 
-    # Install arm-gcc toolchain
-    if [[ "${INSTALL_EMBEDDED}" == "true" ]]; then
+    if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
+        # Install arm-gcc toolchain
         cp -a /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
     fi
 EOF

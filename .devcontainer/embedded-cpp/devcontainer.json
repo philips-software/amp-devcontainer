@@ -5,7 +5,7 @@
     "context": "../..",
     "args": {
       "BASE_IMAGE": "amp-devcontainer-base:local",
-      "INSTALL_EMBEDDED": "true"
+      "BUILD_EMBEDDED_FLAVOR": "true"
     }
   },
   "forwardPorts": [
