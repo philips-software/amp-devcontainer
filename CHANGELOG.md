@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [8.0.0](https://github.com/philips-software/amp-devcontainer/compare/v7.2.1...v8.0.0) (2026-07-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* split-off embedded-cpp from cpp flavor ([#1314](https://github.com/philips-software/amp-devcontainer/issues/1314))
+
+### Features
+
+* Split-off embedded-cpp from cpp flavor ([#1314](https://github.com/philips-software/amp-devcontainer/issues/1314)) ([3d642e3](https://github.com/philips-software/amp-devcontainer/commit/3d642e3c974e9089ebe54fabf50069c55a1a2532))
+
 ## [7.2.1](https://github.com/philips-software/amp-devcontainer/compare/v7.2.0...v7.2.1) (2026-07-01)
 
 
