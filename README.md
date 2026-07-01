@@ -31,7 +31,7 @@ This repository contains [devcontainers](https://docs.github.com/en/codespaces/s
 - **Batteries Included** 🔋: Pre-configured tools for local development and continuous integration.
 - **Developer Experience** 👩‍💻: Minimal set-up time and maximal shift-left.
 - **Multi-platform Support** ⚙️: Compatible with x64 and arm64 hardware on Windows, Linux, and macOS.
-- **Image Flavors** 🍨: Dedicated containers for C++ and Rust development.
+- **Image Flavors** 🍨: Dedicated containers for C++, embedded C++, and Rust development.
 - **IDE Integration** 💻: Fully compatible with GitHub Codespaces and VS Code.
 - **Semantic Versioning** 🔢: Clear versioning strategy for container images.
 - **Secure** 🔒: Emphasis on supply-chain security and compatible with Dependabot.
@@ -54,6 +54,7 @@ The following devcontainers are published towards the [GitHub Container Registry
 
 - [amp-devcontainer-base](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-base); shared base image used by the other flavors
 - [amp-devcontainer-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-cpp); the C++ container
+- [amp-devcontainer-embedded-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-embedded-cpp); the embedded C++ container
 - [amp-devcontainer-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-rust); the Rust container
 
 All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
@@ -68,9 +69,16 @@ It consolidates common tooling (e.g. certificates and test tooling) so that the 
 
 #### amp-devcontainer-cpp
 
-The amp-devcontainer-cpp built from this repository contains compilers and tools to facilitate modern, embedded, C++ development.
-The amp-devcontainer-cpp includes support for host- and cross-compilation using gcc, arm-gcc and clang compilers.
+The amp-devcontainer-cpp built from this repository contains compilers and tools to facilitate modern C++ development.
+The amp-devcontainer-cpp includes support for host- and cross-compilation using gcc and clang compilers.
 Next to the compilers there is support for package management (using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) and [Conan](https://conan.io/)) code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
+
+The default build system is set up to use CMake, Ninja and CCache.
+
+#### amp-devcontainer-embedded-cpp
+
+The amp-devcontainer-embedded-cpp built from this repository contains the same tooling as amp-devcontainer-cpp, extended with support for embedded C++ development.
+On top of the host- and cross-compilation support it adds the arm-gcc (arm-none-eabi) toolchain for cross-compilation towards the ARM Cortex architecture, together with debugging support for micro-controllers (using [cortex-debug](https://github.com/Marus/cortex-debug) and gdb-multiarch).
 
 The default build system is set up to use CMake, Ninja and CCache.
 

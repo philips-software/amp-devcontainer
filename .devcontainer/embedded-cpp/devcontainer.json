@@ -1,0 +1,54 @@
+{
+  "initializeCommand": "docker build -f .devcontainer/base/Dockerfile -t amp-devcontainer-base:local .",
+  "build": {
+    "dockerfile": "../cpp/Dockerfile",
+    "context": "../..",
+    "args": {
+      "BASE_IMAGE": "amp-devcontainer-base:local",
+      "BUILD_EMBEDDED_FLAVOR": "true"
+    }
+  },
+  "forwardPorts": [
+    6080
+  ],
+  "remoteEnv": {
+    "CONTAINER_FLAVOR": "embedded-cpp",
+    "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/desktop-lite:1.2.9": {},
+    "ghcr.io/devcontainers/features/github-cli:1.1.0": {},
+    "ghcr.io/devcontainers/features/node:2.1.0": {}
+  },
+  "postCreateCommand": "npm install && npx playwright install --with-deps",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "cucumberautocomplete.steps": [
+          "test/cpp/features/steps/*.steps.ts"
+        ],
+        "cucumberautocomplete.strictGherkinCompletion": false,
+        "cucumberautocomplete.strictGherkinValidation": false,
+        "cucumberautocomplete.smartSnippets": true,
+        "cucumberautocomplete.onTypeFormat": true,
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true
+      },
+      "extensions": [
+        "alexkrechik.cucumberautocomplete@3.1.0",
+        "github.copilot@1.388.0",
+        "github.vscode-github-actions@0.32.0",
+        "github.vscode-pull-request-github@0.150.0",
+        "jetmartin.bats@0.1.10",
+        "kherring.bats-test-runner@0.1.3",
+        "mhutchie.git-graph@1.30.0",
+        "ms-azuretools.vscode-docker@2.0.0",
+        "ms-playwright.playwright@1.1.19",
+        "ms-vscode.cmake-tools@1.23.52",
+        "ms-vscode.cpptools@1.32.2",
+        "sonarsource.sonarlint-vscode@5.3.0",
+        "usernamehw.errorlens@3.28.0"
+      ]
+    }
+  }
+}
