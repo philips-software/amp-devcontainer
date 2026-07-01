@@ -1,0 +1,958 @@
+#!sbdl
+#
+# Supply-chain security threat model for amp-devcontainer, expressed in SBDL.
+#
+# This model maps the threat model for amp-devcontainer onto SBDL,
+# consolidating the threat model with the requirements model so that a
+# single tool-chain (sbdl) drives all generated documentation.
+#
+# The STRIDE / threat-modelling concepts are mapped onto SBDL base types as follows:
+#
+#   PyTM / STRIDE concept        SBDL custom type      SBDL base type
+#   ---------------------        ----------------      --------------
+#   Trust boundary / zone        trust_boundary        aspect
+#   Actor                        actor                 aspect
+#   External entity              external_entity       aspect
+#   Process / component          process               aspect
+#   Server                       server                aspect
+#   Data store                   datastore             aspect
+#   Data asset / data set        data_asset            aspect
+#   Data flow                    dataflow              aspect
+#   Threat (failure/attack mode) threat                fmea:mode
+#   Attack vector (cause)        attack_vector         fmea:cause
+#   Impact (effect)              impact                fmea:effect
+#   Mitigation (control)         mitigation            fmea:control
+#   Planned mitigation (action)  planned_mitigation    fmea:action-control
+#
+# Modelling threats as an FMEA lets the model carry Severity (on the impact),
+# Occurrence (on the attack vector) and Detectability (on the threat) so that a
+# Risk Priority Number (RPN = S x O x D) can be rendered, mirroring the qualitative
+# High/Medium risk levels from the original model.
+
+# ---------------------------------------------------------------------------
+# Custom types
+# ---------------------------------------------------------------------------
+
+customtype trust_boundary     is aspect    {}
+customtype actor              is aspect    {}
+customtype external_entity    is aspect    {}
+customtype process            is aspect    {}
+customtype server             is aspect    {}
+customtype datastore          is aspect    {}
+customtype data_asset         is aspect    {}
+customtype dataflow           is aspect    {}
+customtype threat             is fmea:mode {}
+customtype attack_vector      is fmea:cause {}
+customtype impact             is fmea:effect {}
+customtype mitigation         is fmea:control {}
+customtype planned_mitigation is fmea:action-control {}
+
+# ---------------------------------------------------------------------------
+# System under analysis
+# ---------------------------------------------------------------------------
+
+system_amp_devcontainer is aspect {
+  custom:title is "amp-devcontainer"
+  description is "The amp-devcontainer project provides secure, supply-chain hardened development containers for regulated software development. Key security features include: pinned dependencies with SHA checksums, signed container images with SBOMs, vulnerability scanning with Trivy, OSSF Scorecard compliance, and comprehensive dependency management via Dependabot. The containers support both x64 and arm64 architectures and include development toolchains for C++ (GCC, Clang, ARM GCC) and Rust, along with security analysis tools."
+  custom:business_criticality is "high"
+  custom:exposure is "external"
+  custom:reviewed_at is "2026-07-01"
+}
+
+# ---------------------------------------------------------------------------
+# Trust boundaries (trust zones)
+# ---------------------------------------------------------------------------
+
+using { parent is system_amp_devcontainer }
+
+tz_public_internet is trust_boundary {
+  custom:title is "Public Internet"
+  description is "The untrusted external network over which all third-party sources are reached and from which unauthenticated attackers operate."
+  custom:assumption is "Treated as fully untrusted; all inbound data is integrity-verified and no confidentiality or authenticity is assumed for anything originating here."
+}
+
+tz_package_registries is trust_boundary {
+  custom:title is "Package Registries"
+  description is "Language and OS package sources such as Ubuntu apt repositories, Python PyPI, and Rust crates.io."
+  custom:assumption is "Registries are reachable and authentic at the transport layer, but individual packages are untrusted until verified against pinned SHA256 checksums."
+}
+
+tz_github_marketplace is trust_boundary {
+  custom:title is "GitHub Marketplace"
+  description is "Third-party GitHub Actions consumed by the build pipeline."
+  custom:assumption is "Actions are untrusted third-party code; only commit-SHA-pinned, reviewed actions are executed and their permissions are minimised."
+}
+
+tz_vendor_sources is trust_boundary {
+  custom:title is "Vendor Binary Sources"
+  description is "Vendor and project download sites providing toolchain binaries and archives fetched during the build."
+  custom:assumption is "Vendor binaries are untrusted until verified by pinned checksum and, where the vendor publishes one, a cryptographic signature."
+}
+
+tz_vscode_marketplace is trust_boundary {
+  custom:title is "VS Code Marketplace"
+  description is "The Visual Studio Code extension marketplace from which development extensions are installed."
+  custom:assumption is "Extensions are untrusted third-party code; only version-pinned extensions from verified publishers are installed."
+}
+
+tz_github_infrastructure is trust_boundary {
+  custom:title is "GitHub Infrastructure"
+  description is "GitHub's hosted infrastructure including Actions runners, Container Registry, and source code repository."
+  custom:assumption is "GitHub authenticates identities and enforces RBAC and 2FA, but account or token compromise is assumed to remain possible."
+}
+
+tz_build_environment is trust_boundary {
+  custom:title is "Container Build Environment"
+  description is "GitHub Actions runners executing container builds with elevated privileges."
+  custom:assumption is "Runners are ephemeral and isolated per build; a single build may be compromised, but compromise must not persist across builds."
+}
+
+tz_container_runtime is trust_boundary {
+  custom:title is "Container Runtime Environment"
+  description is "Developer workstations and CI/CD systems running the devcontainer images."
+  custom:assumption is "Consumers pull only published images and are expected to verify image signatures and provenance before use."
+}
+
+tz_developer_workstation is trust_boundary {
+  custom:title is "Developer Workstation"
+  description is "Local development environments where developers use the containers."
+  custom:assumption is "Host integrity is the developer's responsibility; the container reduces but cannot eliminate risk originating on the host."
+}
+
+using { parent is "" }
+
+# ---------------------------------------------------------------------------
+# Actors
+# ---------------------------------------------------------------------------
+
+actor_developer is actor {
+  custom:title is "Software Developer"
+  description is "Developers using the devcontainer for local development and testing."
+  custom:actor_type is "user"
+  custom:permissions is "Read container images, execute development tools, access source code."
+  parent is tz_developer_workstation
+}
+
+actor_ci_cd_system is actor {
+  custom:title is "CI/CD System"
+  description is "Automated systems using containers for building and testing software."
+  custom:actor_type is "system"
+  custom:permissions is "Pull container images, execute builds, publish artifacts."
+  parent is tz_container_runtime
+}
+
+actor_malicious is actor {
+  custom:title is "Malicious Actor"
+  description is "Threat actor attempting to compromise the supply chain or development environment."
+  custom:actor_type is "third_party"
+  custom:permissions is "None (attempting to gain unauthorized access)."
+  parent is tz_public_internet
+}
+
+actor_maintainer is actor {
+  custom:title is "Project Maintainer"
+  description is "Authorized maintainers with commit and release permissions."
+  custom:actor_type is "administrator"
+  custom:permissions is "Write access to repository, trigger releases, manage security policies."
+  parent is tz_github_infrastructure
+}
+
+# ---------------------------------------------------------------------------
+# External entities
+# ---------------------------------------------------------------------------
+
+ext_package_repos is external_entity {
+  custom:title is "External Package Repositories"
+  description is "Ubuntu apt repositories, Python PyPI, Rust crates.io, and other language and OS package sources."
+  parent is tz_package_registries
+}
+
+ext_github_actions is external_entity {
+  custom:title is "GitHub Actions Marketplace"
+  description is "Third-party GitHub Actions referenced by the build workflows."
+  parent is tz_github_marketplace
+}
+
+ext_vendor_downloads is external_entity {
+  custom:title is "Vendor Binary Downloads"
+  description is "Vendor and project download sites providing toolchain binaries such as compilers, analysers, and ccache."
+  parent is tz_vendor_sources
+}
+
+ext_vscode_marketplace is external_entity {
+  custom:title is "VS Code Extension Marketplace"
+  description is "Marketplace source for the pinned Visual Studio Code extensions installed into the environment."
+  parent is tz_vscode_marketplace
+}
+
+# ---------------------------------------------------------------------------
+# Processes / components
+# ---------------------------------------------------------------------------
+
+proc_github_actions_build is process {
+  custom:title is "GitHub Actions Build Pipeline"
+  description is "Automated pipeline for building, testing, and publishing container images with security scanning."
+  parent is tz_build_environment
+  custom:repo_link is "https://github.com/philips-software/amp-devcontainer/tree/main/.github/workflows"
+}
+
+proc_dependency_mgmt is process {
+  custom:title is "Dependency Management System"
+  description is "Comprehensive dependency pinning including apt packages, Python packages, and binary downloads."
+  parent is tz_github_infrastructure
+}
+
+proc_vscode_extensions is process {
+  custom:title is "VS Code Extensions Configuration"
+  description is "Pinned VS Code extensions with specific versions for development environment setup."
+  parent is tz_container_runtime
+}
+
+# ---------------------------------------------------------------------------
+# Servers
+# ---------------------------------------------------------------------------
+
+srv_dockerfile_cpp is server {
+  custom:title is "C++ Devcontainer Dockerfile"
+  description is "Multi-stage Dockerfile for building the C++ development environment with GCC, Clang, and embedded toolchains."
+  parent is tz_github_infrastructure
+  custom:os is "Ubuntu"
+  custom:hardened is "true"
+  custom:repo_link is "https://github.com/philips-software/amp-devcontainer/blob/main/.devcontainer/cpp/Dockerfile"
+}
+
+srv_dockerfile_rust is server {
+  custom:title is "Rust Devcontainer Dockerfile"
+  description is "Dockerfile for building the Rust development environment with embedded targets and analysis tools."
+  parent is tz_github_infrastructure
+  custom:os is "Ubuntu"
+  custom:hardened is "true"
+  custom:privileged is "true"
+  custom:repo_link is "https://github.com/philips-software/amp-devcontainer/blob/main/.devcontainer/rust/Dockerfile"
+}
+
+# ---------------------------------------------------------------------------
+# Data stores
+# ---------------------------------------------------------------------------
+
+ds_source_repository is datastore {
+  custom:title is "GitHub Source Repository"
+  description is "Git repository containing source code, build configurations, and security policies."
+  custom:store_type is "document"
+  custom:encrypted is "true"
+  parent is tz_github_infrastructure
+}
+
+ds_ghcr_registry is datastore {
+  custom:title is "GitHub Container Registry"
+  description is "OCI-compatible registry storing container images with metadata, SBOMs, and vulnerability scan results."
+  custom:store_type is "object"
+  custom:encrypted is "true"
+  parent is tz_github_infrastructure
+}
+
+ds_build_cache is datastore {
+  custom:title is "GitHub Actions Cache"
+  description is "Build cache storage for Docker layers and build artifacts."
+  custom:store_type is "key_value"
+  parent is tz_build_environment
+}
+
+# ---------------------------------------------------------------------------
+# Data assets
+# ---------------------------------------------------------------------------
+
+data_container_images is data_asset {
+  custom:title is "Container Images"
+  description is "Signed multi-platform container images with embedded development toolchains."
+  custom:classification is "SENSITIVE"
+  custom:sensitivity is "ip"
+}
+
+data_build_artifacts is data_asset {
+  custom:title is "Build Artifacts and SBOMs"
+  description is "Software Bill of Materials, vulnerability scan results, and build provenance."
+  custom:classification is "SENSITIVE"
+  custom:sensitivity is "biz"
+}
+
+data_source_code is data_asset {
+  custom:title is "Source Code and Configuration"
+  description is "Dockerfiles, build scripts, dependency manifests, and security configurations."
+  custom:classification is "SENSITIVE"
+  custom:sensitivity is "ip"
+}
+
+# ---------------------------------------------------------------------------
+# Data flows
+# ---------------------------------------------------------------------------
+
+flow_dependency_download is dataflow {
+  custom:title is "External Dependency Download"
+  description is "Download of packages, binaries, and toolchains from external repositories during build."
+  custom:source is "ext_package_repos"
+  custom:destination is "proc_github_actions_build"
+  custom:protocol is "HTTPS"
+  custom:port is "443"
+  custom:encrypted is "true"
+  related is ext_package_repos, proc_github_actions_build
+}
+
+flow_image_publish is dataflow {
+  custom:title is "Container Image Publication"
+  description is "Publishing of built and signed container images to the registry."
+  custom:source is "proc_github_actions_build"
+  custom:destination is "ds_ghcr_registry"
+  custom:protocol is "HTTPS"
+  custom:port is "443"
+  custom:encrypted is "true"
+  custom:data is "data_container_images"
+  related is proc_github_actions_build, ds_ghcr_registry
+}
+
+flow_image_consumption is dataflow {
+  custom:title is "Container Image Consumption"
+  description is "Pull of container images by developers and CI/CD systems."
+  custom:source is "ds_ghcr_registry"
+  custom:destination is "actor_developer"
+  custom:protocol is "HTTPS"
+  custom:port is "443"
+  custom:encrypted is "true"
+  custom:data is "data_container_images"
+  related is ds_ghcr_registry, actor_developer
+}
+
+flow_source_access is dataflow {
+  custom:title is "Source Code Access"
+  description is "Maintainer access to the source code repository for updates and releases."
+  custom:source is "actor_maintainer"
+  custom:destination is "ds_source_repository"
+  custom:protocol is "HTTPS"
+  custom:port is "443"
+  custom:encrypted is "true"
+  custom:data is "data_source_code"
+  related is actor_maintainer, ds_source_repository
+}
+
+flow_build_trigger is dataflow {
+  custom:title is "Build Trigger"
+  description is "GitHub Actions build triggered by source code changes."
+  custom:source is "ds_source_repository"
+  custom:destination is "proc_github_actions_build"
+  custom:protocol is "HTTPS"
+  custom:port is "443"
+  custom:encrypted is "true"
+  custom:data is "data_source_code"
+  related is ds_source_repository, proc_github_actions_build
+}
+
+# ---------------------------------------------------------------------------
+# Threats (STRIDE), with attack vectors, impacts and mitigations (FMEA)
+# ---------------------------------------------------------------------------
+
+# --- SUPPLY_CHAIN_01: Dependency confusion --------------------------------
+
+threat_sc01_dependency_confusion is threat {
+  custom:title is "Dependency Confusion Attack"
+  custom:threat_id is "SUPPLY_CHAIN_01"
+  custom:stride is "Tampering"
+  custom:risk_level is "High"
+  custom:capec is "CAPEC-439: Manipulation During Distribution"
+  custom:cwe is "CWE-494: Download of Code Without Integrity Check"
+  description is "An attacker uploads malicious packages with names similar to internal dependencies to public repositories, which could be installed during the container build."
+  remark is "Malicious packages could be installed during container build if dependency management is not properly secured. Affects the dependency management system and the GitHub Actions build pipeline."
+  detectability is 4
+  detectability_post is 3
+  aspect is proc_dependency_mgmt
+  fmea:cause is cause_sc01
+  fmea:effect is impact_sc01
+  fmea:control is mit_sc01
+}
+
+cause_sc01 is attack_vector {
+  description is "Public package repositories resolve a malicious same-named package in preference to the intended dependency."
+  occurrence is 4
+  occurrence_post is 2
+  fmea:mode is threat_sc01_dependency_confusion
+}
+
+impact_sc01 is impact {
+  description is "Execution of attacker-controlled code inside the build, potentially propagating to all downstream users including safety-critical systems."
+  severity is 8
+  fmea:mode is threat_sc01_dependency_confusion
+}
+
+mit_sc01 is mitigation {
+  custom:status is "Implemented"
+  custom:evidence is "SHA256-pinned packages and downloads in .devcontainer/**/Dockerfile; dependency validation in the CI build."
+  description is "Mitigations implemented:\n\n- Comprehensive dependency pinning with SHA256 checksums\n- Use of private package repositories where possible\n- Dependency scanning and validation during build\n- Regular security audits with tools like pip-audit"
+  fmea:mode is threat_sc01_dependency_confusion
+}
+
+# --- SUPPLY_CHAIN_02: Compromised base image ------------------------------
+
+threat_sc02_base_image is threat {
+  custom:title is "Compromised Base Image"
+  custom:threat_id is "SUPPLY_CHAIN_02"
+  custom:stride is "Tampering"
+  custom:risk_level is "High"
+  custom:capec is "CAPEC-439: Manipulation During Distribution"
+  custom:cwe is "CWE-829: Inclusion of Functionality from Untrusted Source"
+  description is "The Ubuntu base image contains malicious code or vulnerabilities that propagate to the final container images."
+  remark is "Base images could contain vulnerabilities or malicious code that propagates to final containers, affecting both the C++ and Rust development environments."
+  detectability is 3
+  detectability_post is 2
+  aspect is srv_dockerfile_cpp, srv_dockerfile_rust
+  fmea:cause is cause_sc02
+  fmea:effect is impact_sc02
+  fmea:control is mit_sc02
+}
+
+cause_sc02 is attack_vector {
+  description is "A mutable base image tag is repointed to a tampered image, or the upstream base image is compromised."
+  occurrence is 3
+  occurrence_post is 2
+  fmea:mode is threat_sc02_base_image
+}
+
+impact_sc02 is impact {
+  description is "Malicious functionality embedded in every derived container image and executed on developer and CI systems."
+  severity is 8
+  fmea:mode is threat_sc02_base_image
+}
+
+mit_sc02 is mitigation {
+  custom:status is "Implemented"
+  custom:evidence is "Digest-pinned base images in .devcontainer/**/Dockerfile; Trivy image scanning in .github/workflows/."
+  description is "Mitigations implemented:\n\n- Base images pinned to specific SHA256 digests rather than mutable tags\n- Regular vulnerability scanning of base images with Trivy\n- Multi-stage builds to reduce attack surface\n- Minimal base images where possible"
+  fmea:mode is threat_sc02_base_image
+}
+
+# --- RUNTIME_01: Privileged container escape ------------------------------
+
+threat_runtime01_priv_escape is threat {
+  custom:title is "Privileged Container Escape"
+  custom:threat_id is "RUNTIME_01"
+  custom:stride is "Elevation of Privilege"
+  custom:risk_level is "High"
+  custom:capec is "CAPEC-233: Privilege Escalation"
+  custom:cwe is "CWE-250: Execution with Unnecessary Privileges"
+  description is "The Rust container runs with the privileged flag, creating the potential for a container escape to the host system."
+  remark is "Privileged containers have elevated permissions that could enable escape to the host system, specifically affecting the Rust development environment. Status: under active review and optimization."
+  detectability is 5
+  detectability_post is 3
+  aspect is srv_dockerfile_rust
+  fmea:cause is cause_runtime01
+  fmea:effect is impact_runtime01
+  fmea:control is mit_runtime01
+}
+
+cause_runtime01 is attack_vector {
+  description is "A vulnerability in the privileged container runtime is exploited to break out of container isolation."
+  occurrence is 3
+  occurrence_post is 2
+  fmea:mode is threat_runtime01_priv_escape
+}
+
+impact_runtime01 is impact {
+  description is "Host compromise on a developer workstation or CI runner, enabling malicious code injection, build-artifact tampering, and compromise of signing workflows, providing a direct path into the software supply chain."
+  severity is 8
+  fmea:mode is threat_runtime01_priv_escape
+}
+
+mit_runtime01 is mitigation {
+  custom:status is "Under review"
+  custom:evidence is "Privileged-flag necessity tracked in the Rust Dockerfile; capability-scoping planned (see planned actions)."
+  description is "Mitigations under review:\n\n- Regular review of privileged flag necessity\n- Investigation of specific capabilities instead of full privilege escalation\n- Container runtime security monitoring implementation\n- User namespaces and security profiles evaluation"
+  fmea:mode is threat_runtime01_priv_escape
+}
+
+action_runtime01_priv_review is planned_mitigation {
+  description is "Assess the necessity of the privileged flag on the Rust container and replace it with the minimal set of required capabilities."
+  fmea:cause is cause_runtime01
+}
+
+# --- SUPPLY_CHAIN_03: GitHub Actions runner compromise --------------------
+
+threat_sc03_runner_compromise is threat {
+  custom:title is "GitHub Actions Runner Compromise"
+  custom:threat_id is "SUPPLY_CHAIN_03"
+  custom:stride is "Tampering"
+  custom:risk_level is "High"
+  custom:capec is "CAPEC-187: Malicious Automated Software Update"
+  custom:cwe is "CWE-346: Origin Validation Error"
+  description is "Compromise of a GitHub Actions runner during the build process allows injection of malicious code into the container images."
+  remark is "Compromised GitHub Actions runners could inject malicious code into container images during the build process."
+  detectability is 4
+  detectability_post is 2
+  aspect is proc_github_actions_build
+  fmea:cause is cause_sc03
+  fmea:effect is impact_sc03
+  fmea:control is mit_sc03
+}
+
+cause_sc03 is attack_vector {
+  description is "A malicious or compromised GitHub Action or runner step executes attacker-controlled code within the build environment."
+  occurrence is 2
+  occurrence_post is 1
+  fmea:mode is threat_sc03_runner_compromise
+}
+
+impact_sc03 is impact {
+  description is "Injection of malicious code into signed, published container images consumed by all downstream users."
+  severity is 8
+  fmea:mode is threat_sc03_runner_compromise
+}
+
+mit_sc03 is mitigation {
+  custom:status is "Implemented"
+  custom:evidence is "Commit-SHA-pinned actions and step-security/harden-runner across .github/workflows/; least-privilege GITHUB_TOKEN permissions."
+  description is "Mitigations implemented:\n\n- Step Security harden-runner action for build environment hardening\n- All GitHub Actions pinned to specific commit SHAs\n- Minimal permissions principle implemented\n- Ephemeral, isolated build environments\n- Container image signing and verification with ephemeral keys"
+  fmea:mode is threat_sc03_runner_compromise
+}
+
+# --- DATA_01: Development secrets exposure ---------------------------------
+
+threat_data01_secrets is threat {
+  custom:title is "Development Secrets Exposure"
+  custom:threat_id is "DATA_01"
+  custom:stride is "Information Disclosure"
+  custom:risk_level is "Medium"
+  custom:capec is "CAPEC-204: Lifting Sensitive Data Embedded in Cache"
+  custom:cwe is "CWE-312: Cleartext Storage of Sensitive Information"
+  description is "Accidental inclusion of secrets, API keys, or credentials in container layers or build logs."
+  remark is "Secrets, API keys, or credentials could be accidentally included in container images or exposed in build logs during the build process."
+  detectability is 3
+  detectability_post is 2
+  aspect is proc_github_actions_build
+  fmea:cause is cause_data01
+  fmea:effect is impact_data01
+  fmea:control is mit_data01
+}
+
+cause_data01 is attack_vector {
+  description is "A build step writes a secret into an image layer or emits it to the build log."
+  occurrence is 3
+  occurrence_post is 2
+  fmea:mode is threat_data01_secrets
+}
+
+impact_data01 is impact {
+  description is "Unauthorized access to development systems using leaked credentials."
+  severity is 6
+  fmea:mode is threat_data01_secrets
+}
+
+mit_data01 is mitigation {
+  custom:status is "Implemented"
+  custom:evidence is "GitHub secret scanning; .dockerignore exclusions; secret detection in the CI pipeline."
+  description is "Mitigations implemented:\n\n- GitHub native secrets scanning enabled\n- .dockerignore files to prevent credential inclusion\n- Secret detection in CI/CD pipelines\n- Ephemeral secrets with regular rotation\n- Separation of build-time and runtime secrets"
+  fmea:mode is threat_data01_secrets
+}
+
+# --- SUPPLY_CHAIN_04: Container registry account takeover ------------------
+
+threat_sc04_registry_takeover is threat {
+  custom:title is "Container Registry Account Takeover"
+  custom:threat_id is "SUPPLY_CHAIN_04"
+  custom:stride is "Spoofing"
+  custom:risk_level is "High"
+  custom:capec is "CAPEC-151: Identity Spoofing"
+  custom:cwe is "CWE-287: Improper Authentication"
+  description is "Compromise of a GitHub account or organization leads to malicious container images being published to the registry."
+  remark is "Account compromise could allow attackers to publish malicious container images to the GitHub Container Registry."
+  detectability is 4
+  detectability_post is 2
+  aspect is ds_ghcr_registry
+  fmea:cause is cause_sc04
+  fmea:effect is impact_sc04
+  fmea:control is mit_sc04
+}
+
+cause_sc04 is attack_vector {
+  description is "An attacker obtains publish credentials through phishing, credential theft, or a compromised token."
+  occurrence is 2
+  occurrence_post is 1
+  fmea:mode is threat_sc04_registry_takeover
+}
+
+impact_sc04 is impact {
+  description is "Distribution of malicious images under a trusted identity to all consumers of the registry."
+  severity is 9
+  fmea:mode is threat_sc04_registry_takeover
+}
+
+mit_sc04 is mitigation {
+  custom:status is "Implemented"
+  custom:evidence is "Keyless cosign signing via GitHub OIDC in the release workflow; branch and tag protection; OSSF Scorecard workflow."
+  description is "Mitigations implemented:\n\n- Strong authentication with 2FA/MFA requirements\n- Least privilege access controls and RBAC\n- Container images signed with ephemeral keys using GitHub OIDC\n- Automated vulnerability scanning and detection\n- Registry access logging and monitoring\n- OSSF Scorecard compliance monitoring"
+  fmea:mode is threat_sc04_registry_takeover
+}
+
+# --- VULN_01: Vulnerable dependencies -------------------------------------
+
+threat_vuln01_vuln_deps is threat {
+  custom:title is "Vulnerable Dependencies"
+  custom:threat_id is "VULN_01"
+  custom:stride is "Elevation of Privilege"
+  custom:risk_level is "Medium"
+  custom:capec is "CAPEC-549: Local Execution of Code"
+  custom:cwe is "CWE-1104: Use of Unmaintained Third Party Components"
+  description is "Use of dependencies with known security vulnerabilities, including the acknowledged CVE-2025-50181 and CVE-2025-50182 in Conan."
+  remark is "Known vulnerabilities in dependencies could be exploited for code execution or privilege escalation. Some vulnerabilities such as CVE-2025-50181 and CVE-2025-50182 are acknowledged, tracked, and monitored."
+  detectability is 2
+  detectability_post is 2
+  aspect is proc_dependency_mgmt
+  fmea:cause is cause_vuln01
+  fmea:effect is impact_vuln01
+  fmea:control is mit_vuln01
+}
+
+cause_vuln01 is attack_vector {
+  description is "A known-vulnerable component shipped in the image is exercised by an attacker."
+  occurrence is 5
+  occurrence_post is 3
+  fmea:mode is threat_vuln01_vuln_deps
+}
+
+impact_vuln01 is impact {
+  description is "Code execution or privilege escalation on systems running the affected tooling."
+  severity is 6
+  fmea:mode is threat_vuln01_vuln_deps
+}
+
+mit_vuln01 is mitigation {
+  custom:status is "Implemented"
+  custom:evidence is "Trivy scans with SARIF upload to the Security tab; .github/dependabot.yml; generated SBOM artifacts."
+  description is "Mitigations implemented:\n\n- Automated vulnerability scanning with Trivy (daily scans)\n- Dependabot for automated dependency updates\n- Software Bill of Materials (SBOM) generation and maintenance\n- Regular security audits of dependencies\n- Acknowledged CVE tracking with documented mitigation plans\n- SARIF upload to the GitHub Security tab for visibility"
+  fmea:mode is threat_vuln01_vuln_deps
+}
+
+# --- SUPPLY_CHAIN_05: Malicious VS Code extension -------------------------
+
+threat_sc05_malicious_extension is threat {
+  custom:title is "Malicious VS Code Extension"
+  custom:threat_id is "SUPPLY_CHAIN_05"
+  custom:stride is "Tampering"
+  custom:risk_level is "Medium"
+  custom:capec is "CAPEC-549: Local Execution of Code"
+  custom:cwe is "CWE-829: Inclusion of Functionality from Untrusted Source"
+  description is "A compromised or malicious VS Code extension gains access to the development environment and source code."
+  remark is "Malicious VS Code extensions could access source code, credentials, or compromise the development environment."
+  detectability is 4
+  detectability_post is 3
+  aspect is proc_vscode_extensions
+  fmea:cause is cause_sc05
+  fmea:effect is impact_sc05
+  fmea:control is mit_sc05
+}
+
+cause_sc05 is attack_vector {
+  description is "A pinned extension version is republished with malicious code, or an unvetted extension is installed."
+  occurrence is 3
+  occurrence_post is 2
+  fmea:mode is threat_sc05_malicious_extension
+}
+
+impact_sc05 is impact {
+  description is "Disclosure of source code or credentials and compromise of the developer workstation."
+  severity is 5
+  fmea:mode is threat_sc05_malicious_extension
+}
+
+mit_sc05 is mitigation {
+  custom:status is "Implemented"
+  custom:evidence is "Version-pinned extensions in .devcontainer/**/devcontainer.json under version control."
+  description is "Mitigations implemented:\n\n- All VS Code extensions pinned to specific versions\n- Extension allow-lists in development environments\n- Regular review of extension permissions and source code\n- Use of only trusted extensions from verified publishers\n- Version control of extension configurations"
+  fmea:mode is threat_sc05_malicious_extension
+}
+
+# ---------------------------------------------------------------------------
+# Additional threats from the supply-chain security review
+# ---------------------------------------------------------------------------
+
+# --- SUPPLY_CHAIN_06: Signature verification bypass -----------------------
+
+threat_sc06_sig_bypass is threat {
+  custom:title is "Signature Verification Bypass"
+  custom:threat_id is "SUPPLY_CHAIN_06"
+  custom:stride is "Spoofing"
+  custom:risk_level is "High"
+  custom:capec is "CAPEC-473: Signature Spoof"
+  custom:cwe is "CWE-347: Improper Verification of Cryptographic Signature"
+  description is "Container images are signed at publication, but a consumer that does not verify the signature can be served an unsigned or improperly signed image. The trust assumption that consumers verify signatures is not currently enforced."
+  detectability is 5
+  detectability_post is 3
+  aspect is flow_image_consumption, ds_ghcr_registry
+  fmea:cause is cause_sc06
+  fmea:effect is impact_sc06
+  fmea:control is mit_sc06
+}
+
+cause_sc06 is attack_vector {
+  description is "An attacker publishes or substitutes an unsigned or invalidly signed image and a consumer pulls it without performing cosign verification."
+  occurrence is 3
+  occurrence_post is 2
+  fmea:mode is threat_sc06_sig_bypass
+}
+
+impact_sc06 is impact {
+  description is "A tampered image is trusted and executed on developer and CI systems despite the signing controls, defeating the provenance chain."
+  severity is 8
+  fmea:mode is threat_sc06_sig_bypass
+}
+
+mit_sc06 is mitigation {
+  custom:status is "Partially implemented"
+  custom:evidence is "Keyless cosign signing in the release workflow; consumer verification guidance in docs/SLSA-COMPLIANCE.md; policy enforcement planned."
+  description is "Mitigations:\n\n- Container images signed with cosign using GitHub OIDC\n- Documented, copy-pasteable signature-verification instructions for consumers\n- Verification policy to be enforced in downstream CI and, where applicable, admission control\n- Publication of the expected identity and issuer used for verification"
+  fmea:mode is threat_sc06_sig_bypass
+}
+
+action_sc06_enforce_verification is planned_mitigation {
+  description is "Provide and require a cosign verification step (expected identity and OIDC issuer) for consumers, and add an admission or verification policy in downstream pipelines."
+  fmea:cause is cause_sc06
+}
+
+# --- SUPPLY_CHAIN_07: Build provenance forgery ----------------------------
+
+threat_sc07_provenance_forgery is threat {
+  custom:title is "Build Provenance Forgery"
+  custom:threat_id is "SUPPLY_CHAIN_07"
+  custom:stride is "Tampering"
+  custom:risk_level is "High"
+  custom:capec is "CAPEC-194: Fake the Source of Data"
+  custom:cwe is "CWE-345: Insufficient Verification of Data Authenticity"
+  description is "Forged attestations or manipulated provenance records could make a compromised image appear to have a trustworthy build history, undermining the SBOMs and provenance artifacts the project relies on."
+  detectability is 4
+  detectability_post is 2
+  aspect is proc_github_actions_build, data_build_artifacts
+  fmea:cause is cause_sc07
+  fmea:effect is impact_sc07
+  fmea:control is mit_sc07
+}
+
+cause_sc07 is attack_vector {
+  description is "An attacker forges in-toto or SLSA attestations, or manipulates provenance records, for example by abusing a compromised signing step."
+  occurrence is 2
+  occurrence_post is 1
+  fmea:mode is threat_sc07_provenance_forgery
+}
+
+impact_sc07 is impact {
+  description is "False trust in a compromised image whose provenance appears valid, allowing tampered artifacts to pass supply-chain checks."
+  severity is 8
+  fmea:mode is threat_sc07_provenance_forgery
+}
+
+mit_sc07 is mitigation {
+  custom:status is "Partially implemented"
+  custom:evidence is "SLSA provenance and SBOM attestations signed via GitHub OIDC; artifact retention in the release workflow; verification guidance in docs/SLSA-COMPLIANCE.md."
+  description is "Mitigations:\n\n- SLSA-style build provenance generated for published images\n- in-toto and SBOM attestations signed with ephemeral OIDC keys\n- Immutable retention of attestations alongside the image digest\n- Consumer-side provenance verification documented and to be enforced"
+  fmea:mode is threat_sc07_provenance_forgery
+}
+
+action_sc07_verify_provenance is planned_mitigation {
+  description is "Enforce SLSA provenance verification (trusted builder identity and source repository) in consuming pipelines before an image is promoted."
+  fmea:cause is cause_sc07
+}
+
+# --- SUPPLY_CHAIN_08: Build cache poisoning -------------------------------
+
+threat_sc08_cache_poisoning is threat {
+  custom:title is "Build Cache Poisoning"
+  custom:threat_id is "SUPPLY_CHAIN_08"
+  custom:stride is "Tampering"
+  custom:risk_level is "High"
+  custom:capec is "CAPEC-141: Cache Poisoning"
+  custom:cwe is "CWE-349: Acceptance of Extraneous Untrusted Data With Trusted Data"
+  description is "A malicious pull request or a poisoned cache key writes attacker-controlled content into the GitHub Actions cache, which is then reused by a trusted build across a trust boundary."
+  detectability is 5
+  detectability_post is 3
+  aspect is ds_build_cache
+  fmea:cause is cause_sc08
+  fmea:effect is impact_sc08
+  fmea:control is mit_sc08
+}
+
+cause_sc08 is attack_vector {
+  description is "A workflow triggered by an untrusted fork writes a cache entry that a privileged build later restores, or a shared cache key is reused across trust boundaries."
+  occurrence is 3
+  occurrence_post is 2
+  fmea:mode is threat_sc08_cache_poisoning
+}
+
+impact_sc08 is impact {
+  description is "Malicious artifacts injected into an otherwise trusted build, tampering with the resulting container images."
+  severity is 7
+  fmea:mode is threat_sc08_cache_poisoning
+}
+
+mit_sc08 is mitigation {
+  custom:status is "Partially implemented"
+  custom:evidence is "Scope-limited cache keys per workflow; restriction of cache writes from untrusted fork triggers planned."
+  description is "Mitigations:\n\n- Trust-boundary-specific, scoped cache keys\n- No restore of caches written by untrusted pull-request triggers\n- Content-addressed, integrity-checked cache entries where supported\n- Regular cache eviction and restricted cache-write permissions"
+  fmea:mode is threat_sc08_cache_poisoning
+}
+
+action_sc08_restrict_cache is planned_mitigation {
+  description is "Segregate cache keys by trust boundary and prevent privileged builds from restoring caches populated by untrusted fork workflows."
+  fmea:cause is cause_sc08
+}
+
+# --- SUPPLY_CHAIN_09: Compromised tool download ---------------------------
+
+threat_sc09_tool_download is threat {
+  custom:title is "Compromised Tool Download"
+  custom:threat_id is "SUPPLY_CHAIN_09"
+  custom:stride is "Tampering"
+  custom:risk_level is "High"
+  custom:capec is "CAPEC-185: Malicious Software Download"
+  custom:cwe is "CWE-494: Download of Code Without Integrity Check"
+  description is "Toolchain binaries fetched from vendor download sites, rather than package registries, could be tampered with in transit or at the source and executed during the build."
+  detectability is 4
+  detectability_post is 2
+  aspect is ext_vendor_downloads, proc_dependency_mgmt
+  fmea:cause is cause_sc09
+  fmea:effect is impact_sc09
+  fmea:control is mit_sc09
+}
+
+cause_sc09 is attack_vector {
+  description is "A vendor download is replaced with a malicious binary, or a download without integrity verification is served over a compromised channel."
+  occurrence is 3
+  occurrence_post is 2
+  fmea:mode is threat_sc09_tool_download
+}
+
+impact_sc09 is impact {
+  description is "Execution of attacker-controlled tooling inside the build, contaminating every derived container image."
+  severity is 8
+  fmea:mode is threat_sc09_tool_download
+}
+
+mit_sc09 is mitigation {
+  custom:status is "Implemented"
+  custom:evidence is "SHA256-pinned binary downloads in .devcontainer/**/Dockerfile; ccache release verified against a pinned minisign public key in .devcontainer/cpp/Dockerfile."
+  description is "Mitigations implemented:\n\n- All vendor binary downloads pinned to SHA256 checksums\n- Publisher signature verification where available, for example ccache via minisign\n- Downloads performed over HTTPS from documented, pinned URLs\n- Preference for reproducible, source-referenced builds"
+  fmea:mode is threat_sc09_tool_download
+}
+
+# --- AVAIL_01: Dependency or registry outage ------------------------------
+
+threat_avail01_availability is threat {
+  custom:title is "Dependency or Registry Outage"
+  custom:threat_id is "AVAIL_01"
+  custom:stride is "Denial of Service"
+  custom:risk_level is "Medium"
+  custom:capec is "CAPEC-125: Flooding"
+  custom:cwe is "CWE-400: Uncontrolled Resource Consumption"
+  description is "Unavailability of an upstream package source, the container registry, or CI runners prevents the containers from being built or consumed, stalling development and releases."
+  detectability is 2
+  detectability_post is 2
+  aspect is proc_github_actions_build, ext_package_repos
+  fmea:cause is cause_avail01
+  fmea:effect is impact_avail01
+  fmea:control is mit_avail01
+}
+
+cause_avail01 is attack_vector {
+  description is "An upstream registry or download source becomes unavailable or rate-limited, or CI runner capacity is exhausted."
+  occurrence is 4
+  occurrence_post is 3
+  fmea:mode is threat_avail01_availability
+}
+
+impact_avail01 is impact {
+  description is "Builds and image pulls fail, blocking development, testing, and release of the containers."
+  severity is 5
+  fmea:mode is threat_avail01_availability
+}
+
+mit_avail01 is mitigation {
+  custom:status is "Partially implemented"
+  custom:evidence is "APT snapshot pinning (see ADR 0001); build caching; pinned mirrors and retry logic in the build."
+  description is "Mitigations:\n\n- Pinned apt snapshots reduce reliance on always-current upstreams\n- Build caching limits repeated external fetches\n- Retry and back-off on transient download failures\n- Vendoring of the most critical dependencies where feasible"
+  fmea:mode is threat_avail01_availability
+}
+
+# --- AUDIT_01: Release action repudiation ---------------------------------
+
+threat_audit01_repudiation is threat {
+  custom:title is "Release Action Repudiation"
+  custom:threat_id is "AUDIT_01"
+  custom:stride is "Repudiation"
+  custom:risk_level is "Medium"
+  custom:capec is "CAPEC-268: Audit Log Manipulation"
+  custom:cwe is "CWE-778: Insufficient Logging"
+  description is "Without strong, immutable traceability of who published an image or approved a release, a maintainer could deny having performed an action, or an unauthorised action could go unattributed."
+  detectability is 4
+  detectability_post is 2
+  aspect is ds_source_repository, proc_github_actions_build
+  fmea:cause is cause_audit01
+  fmea:effect is impact_audit01
+  fmea:control is mit_audit01
+}
+
+cause_audit01 is attack_vector {
+  description is "A release or publish action is performed without signed, attributable, tamper-evident records linking it to an authenticated identity."
+  occurrence is 2
+  occurrence_post is 1
+  fmea:mode is threat_audit01_repudiation
+}
+
+impact_audit01 is impact {
+  description is "Loss of accountability for releases, weakening audit readiness and incident response."
+  severity is 5
+  fmea:mode is threat_audit01_repudiation
+}
+
+mit_audit01 is mitigation {
+  custom:status is "Partially implemented"
+  custom:evidence is "Signed commits and protected releases; OIDC-attributed publish steps; provenance and workflow-log retention."
+  description is "Mitigations:\n\n- Signed commits and protected branches and tags\n- Release actions attributed to authenticated identities via GitHub OIDC\n- Immutable retention of build provenance and workflow logs\n- Documented release-approval trail"
+  fmea:mode is threat_audit01_repudiation
+}
+
+# --- TOOL_01: Development tool integrity and qualification -----------------
+
+threat_tool01_tool_integrity is threat {
+  custom:title is "Development Tool Integrity and Qualification"
+  custom:threat_id is "TOOL_01"
+  custom:stride is "Tampering"
+  custom:risk_level is "Medium"
+  custom:capec is "CAPEC-444: Development Alteration"
+  custom:cwe is "CWE-1357: Reliance on Insufficiently Trustworthy Component"
+  description is "Incorrect, tampered, or unqualified compilers, analysers, and build tools in the container could silently produce defective or malicious output, which matters when the devcontainer forms part of the regulated software lifecycle evidence chain."
+  detectability is 4
+  detectability_post is 3
+  aspect is srv_dockerfile_cpp, srv_dockerfile_rust
+  fmea:cause is cause_tool01
+  fmea:effect is impact_tool01
+  fmea:control is mit_tool01
+}
+
+cause_tool01 is attack_vector {
+  description is "A tool is installed at an unintended, tampered, or unqualified version without a recorded, verifiable identity."
+  occurrence is 2
+  occurrence_post is 2
+  fmea:mode is threat_tool01_tool_integrity
+}
+
+impact_tool01 is impact {
+  description is "Defective or malicious build output that undermines confidence in the toolchain used to produce regulated software."
+  severity is 7
+  fmea:mode is threat_tool01_tool_integrity
+}
+
+mit_tool01 is mitigation {
+  custom:status is "Partially implemented"
+  custom:evidence is "Pinned tool versions with checksums in .devcontainer/**/Dockerfile; SBOM enumerates installed tool versions; tool-qualification notes planned."
+  description is "Mitigations:\n\n- Tool versions pinned with integrity-checked downloads\n- SBOM enumerates the exact installed tool versions\n- Reproducible builds so the toolset can be re-derived\n- Documented tool-qualification assumptions for lifecycle evidence"
+  fmea:mode is threat_tool01_tool_integrity
+}
+
+action_tool01_qualification is planned_mitigation {
+  description is "Document tool-qualification assumptions and record the intended, verified versions of safety-relevant tools as lifecycle evidence."
+  fmea:cause is cause_tool01
+}
