@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:26.04@sha256:53958ec7b67c2c9355df922dd08dbf0360611f8c3cdb656875e81873db9ffdba AS extractor
+FROM ubuntu:26.04@sha256:b7f48194d4d8b763a478a621cdc81c27be222ba2206ca3ca6bc42b49685f3d9e AS extractor
 
 ARG BATS_CORE_VERSION=1.13.0
 ARG BATS_SUPPORT_VERSION=0.3.0
@@ -20,7 +20,7 @@ RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
  && tar xzf /bats-support.tar.gz && mv bats-support-*/ bats-support \
  && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert
 
-FROM ubuntu:26.04@sha256:53958ec7b67c2c9355df922dd08dbf0360611f8c3cdb656875e81873db9ffdba
+FROM ubuntu:26.04@sha256:b7f48194d4d8b763a478a621cdc81c27be222ba2206ca3ca6bc42b49685f3d9e
 
 ARG DEBIAN_FRONTEND=noninteractive
 
