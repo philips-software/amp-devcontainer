@@ -422,14 +422,9 @@ impact-sc02 is impact {
 
 mitigation-sc02 is mitigation {
   custom:status is "Implemented"
-  custom:evidence is "Digest-pinned Ubuntu base image in .devcontainer/base/Dockerfile; daily image scanning (Trivy via crazy-max/ghaction-container-scan) in .github/workflows/vulnerability-scan.yml."
-  description is "Mitigations implemented:\n\n- Upstream Ubuntu base image pinned to a specific SHA256 digest\n- Daily vulnerability scanning of published images (Trivy via ghaction-container-scan) with SARIF upload\n- Multi-stage builds to reduce attack surface\n- Minimal base images where possible"
+  custom:evidence is "Digest-pinned Ubuntu base image in .devcontainer/base/Dockerfile; flavor builds reference amp-devcontainer-base by digest via the BASE_IMAGE build-arg in .github/workflows/build-push-test.yml; daily image scanning (Trivy via crazy-max/ghaction-container-scan) in .github/workflows/vulnerability-scan.yml."
+  description is "Mitigations implemented:\n\n- Upstream Ubuntu base image pinned to a specific SHA256 digest\n- Flavor builds reference the internal amp-devcontainer-base by content digest, passed as the BASE_IMAGE build-arg from the base image built in the same pipeline run; the mutable :edge default only applies to un-parameterised ad-hoc local builds\n- Published flavor images are self-contained and carry no mutable base reference\n- Daily vulnerability scanning of published images (Trivy via ghaction-container-scan) with SARIF upload\n- Multi-stage builds to reduce attack surface\n- Minimal base images where possible"
   fmea:mode is threat-sc02-base-image
-}
-
-planned-mitigation-sc02-pin-internal-base is planned-mitigation {
-  description is "Pin the internal amp-devcontainer-base reference used by the flavor Dockerfiles to a specific digest instead of the mutable :edge tag for released builds."
-  fmea:cause is attack-vector-sc02
 }
 
 # --- RUNTIME_01: Privileged container escape ------------------------------
