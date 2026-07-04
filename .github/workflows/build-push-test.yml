@@ -39,7 +39,17 @@ jobs:
     needs: build-push-test-base
     strategy:
       matrix:
-        flavor: [cpp, docs, rust]
+        include:
+          - flavor: cpp
+            dockerfile: .devcontainer/cpp/Dockerfile
+            build-embedded-flavor: "false"
+          - flavor: docs
+            dockerfile: .devcontainer/docs/Dockerfile
+          - flavor: embedded-cpp
+            dockerfile: .devcontainer/cpp/Dockerfile
+            build-embedded-flavor: "true"
+          - flavor: rust
+            dockerfile: .devcontainer/rust/Dockerfile
     uses: ./.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
@@ -52,8 +62,9 @@ jobs:
       acceptance-test-devcontainer-file: .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
       build-args: |
         BASE_IMAGE=${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
+        ${{ matrix.build-embedded-flavor != '' && format('BUILD_EMBEDDED_FLAVOR={0}', matrix.build-embedded-flavor) || '' }}
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
-      dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
+      dockerfile: ${{ matrix.dockerfile }}
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats

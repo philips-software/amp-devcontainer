@@ -1,17 +1,18 @@
 {
   "initializeCommand": "docker build -f .devcontainer/base/Dockerfile -t amp-devcontainer-base:local .",
   "build": {
-    "dockerfile": "Dockerfile",
+    "dockerfile": "../cpp/Dockerfile",
     "context": "../..",
     "args": {
-      "BASE_IMAGE": "amp-devcontainer-base:local"
+      "BASE_IMAGE": "amp-devcontainer-base:local",
+      "BUILD_EMBEDDED_FLAVOR": "true"
     }
   },
   "forwardPorts": [
     6080
   ],
   "remoteEnv": {
-    "CONTAINER_FLAVOR": "cpp",
+    "CONTAINER_FLAVOR": "embedded-cpp",
     "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt"
   },
   "features": {
@@ -36,8 +37,8 @@
       "extensions": [
         "alexkrechik.cucumberautocomplete@3.1.0",
         "github.copilot@1.388.0",
-        "github.vscode-github-actions@0.32.1",
-        "github.vscode-pull-request-github@0.152.0",
+        "github.vscode-github-actions@0.32.0",
+        "github.vscode-pull-request-github@0.150.0",
         "jetmartin.bats@0.1.10",
         "kherring.bats-test-runner@0.1.3",
         "mhutchie.git-graph@1.30.0",
@@ -45,7 +46,7 @@
         "ms-playwright.playwright@1.1.19",
         "ms-vscode.cmake-tools@1.23.52",
         "ms-vscode.cpptools@1.32.2",
-        "sonarsource.sonarlint-vscode@5.4.0",
+        "sonarsource.sonarlint-vscode@5.3.0",
         "usernamehw.errorlens@3.28.0"
       ]
     }

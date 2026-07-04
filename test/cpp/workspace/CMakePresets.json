@@ -48,11 +48,6 @@
       "inherits": "defaults"
     },
     {
-      "name": "gcc-arm-none-eabi",
-      "inherits": "defaults",
-      "toolchainFile": "${sourceDir}/gcc-arm-none-eabi/toolchain.cmake"
-    },
-    {
       "name": "mutation",
       "inherits": "defaults",
       "cacheVariables": {
@@ -117,11 +112,6 @@
       "name": "gcc-sanitizers",
       "configurePreset": "gcc",
       "targets": ["test-asan", "test-threadsan", "test-ubsan"]
-    },
-    {
-      "name": "gcc-arm-none-eabi",
-      "configurePreset": "gcc-arm-none-eabi",
-      "targets": ["test-gcc-arm-none-eabi"]
     },
     {
       "name": "mutation",

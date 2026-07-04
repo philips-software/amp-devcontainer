@@ -27,12 +27,15 @@ It's time for our quarterly tool version check! This issue serves as a reminder 
 
 ### ⚙️ amp-devcontainer-cpp
 
-- [ ] [ARM GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) — *must match GCC version*
 - [ ] [Clang/LLVM](https://apt.llvm.org/)
 - [ ] [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake)
 - [ ] [Mull](https://github.com/mull-project/mull) — *must be compatible with Clang*
 - [ ] [include-what-you-use](https://github.com/include-what-you-use/include-what-you-use) — *must be compatible with Clang*
 - [ ] [xwin](https://github.com/Jake-Shadle/xwin)
+
+### ⚙️ amp-devcontainer-embedded-cpp
+
+- [ ] [ARM GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) — *must match GCC version*
 
 ### 🦀 amp-devcontainer-rust
 
