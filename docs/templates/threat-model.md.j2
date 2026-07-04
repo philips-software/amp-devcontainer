@@ -21,7 +21,7 @@ footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
 ...
 
 {% import "partials/text-utilities.j2" as utils %}
-{%- set system = sbdl['system_amp_devcontainer'] -%}
+{%- set system = sbdl['system-amp-devcontainer'] -%}
 
 # Introduction
 
@@ -81,9 +81,9 @@ The authoritative source of change history is the [Git log](https://github.com/p
 
 | Property              | Value                                        |
 |-----------------------|----------------------------------------------|
-| Business criticality  | {{ system['custom:business_criticality'] }}  |
+| Business criticality  | {{ system['custom:business-criticality'] }}  |
 | Exposure              | {{ system['custom:exposure'] }}              |
-| Last reviewed         | {{ system['custom:reviewed_at'] }}           |
+| Last reviewed         | {{ system['custom:reviewed-at'] }}           |
 
 # Trust boundaries
 
@@ -91,7 +91,7 @@ The system is decomposed into the following trust boundaries. Data crossing a bo
 
 | Trust boundary | Description |
 |----------------|-------------|
-{%- for id, item in sbdl.items() if item.type == 'trust_boundary' %}
+{%- for id, item in sbdl.items() if item.type == 'trust-boundary' %}
 | {{ item['custom:title'] }} | {{ utils.reencode(item.description) }} |
 {%- endfor %}
 
@@ -99,7 +99,7 @@ The system is decomposed into the following trust boundaries. Data crossing a bo
 
 The threat analysis relies on the following assumptions about each trust boundary.
 
-{% for id, item in sbdl.items() if item.type == 'trust_boundary' -%}
+{% for id, item in sbdl.items() if item.type == 'trust-boundary' -%}
 - **{{ item['custom:title'] }}:** {{ utils.reencode(item['custom:assumption']) }}
 {% endfor %}
 # Actors
@@ -107,7 +107,7 @@ The threat analysis relies on the following assumptions about each trust boundar
 | Actor | Type | Trust boundary | Description |
 |-------|------|----------------|-------------|
 {%- for id, item in sbdl.items() if item.type == 'actor' %}
-| {{ item['custom:title'] }} | {{ item['custom:actor_type'] }} | {{ sbdl[item['parent'][0].identifier]['custom:title'] if 'parent' in item else '—' }} | {{ utils.reencode(item.description) }} |
+| {{ item['custom:title'] }} | {{ item['custom:actor-type'] }} | {{ sbdl[item['parent'][0].identifier]['custom:title'] if 'parent' in item else '—' }} | {{ utils.reencode(item.description) }} |
 {%- endfor %}
 
 # Components
@@ -116,8 +116,8 @@ The processes, servers, and external entities that make up the system.
 
 | Component | Kind | Trust boundary | Description |
 |-----------|------|----------------|-------------|
-{%- for id, item in sbdl.items() if item.type in ['process', 'server', 'external_entity'] %}
-| {{ item['custom:title'] }} | {{ item.type | replace('_', ' ') }} | {{ sbdl[item['parent'][0].identifier]['custom:title'] if 'parent' in item else '—' }} | {{ utils.reencode(item.description) }} |
+{%- for id, item in sbdl.items() if item.type in ['process', 'server', 'external-entity'] %}
+| {{ item['custom:title'] }} | {{ item.type | replace('-', ' ') }} | {{ sbdl[item['parent'][0].identifier]['custom:title'] if 'parent' in item else '—' }} | {{ utils.reencode(item.description) }} |
 {%- endfor %}
 
 # Data stores
@@ -125,14 +125,14 @@ The processes, servers, and external entities that make up the system.
 | Data store | Type | Encrypted | Trust boundary | Description |
 |------------|------|-----------|----------------|-------------|
 {%- for id, item in sbdl.items() if item.type == 'datastore' %}
-| {{ item['custom:title'] }} | {{ item['custom:store_type'] }} | {{ 'yes' if item['custom:encrypted'] is defined and item['custom:encrypted'] == 'true' else 'no' }} | {{ sbdl[item['parent'][0].identifier]['custom:title'] if 'parent' in item else '—' }} | {{ utils.reencode(item.description) }} |
+| {{ item['custom:title'] }} | {{ item['custom:store-type'] }} | {{ 'yes' if item['custom:encrypted'] is defined and item['custom:encrypted'] == 'true' else 'no' }} | {{ sbdl[item['parent'][0].identifier]['custom:title'] if 'parent' in item else '—' }} | {{ utils.reencode(item.description) }} |
 {%- endfor %}
 
 # Data assets
 
 | Data asset | Classification | Sensitivity | Description |
 |------------|----------------|-------------|-------------|
-{%- for id, item in sbdl.items() if item.type == 'data_asset' %}
+{%- for id, item in sbdl.items() if item.type == 'data-asset' %}
 | {{ item['custom:title'] }} | {{ item['custom:classification'] }} | {{ item['custom:sensitivity'] }} | {{ utils.reencode(item.description) }} |
 {%- endfor %}
 
@@ -163,12 +163,12 @@ The diagram below shows the system decomposed into its trust boundaries, with th
 {%- set det_post = (threat.detectability_post | int) if 'detectability_post' in threat else detect %}
 {%- set rpn_post = severity * occ_post * det_post %}
 
-## {{ threat['custom:threat_id'] }} — {{ utils.reencode(threat['custom:title']) }}
+## {{ threat['custom:threat-id'] }} — {{ utils.reencode(threat['custom:title']) }}
 
 | Property | Value |
 |----------|-------|
 | STRIDE category | {{ threat['custom:stride'] }} |
-| Qualitative risk | {{ threat['custom:risk_level'] }} |
+| Qualitative risk | {{ threat['custom:risk-level'] }} |
 | Target(s) | {% for a in threat['aspect'] %}{{ sbdl[a.identifier]['custom:title'] }}{% if not loop.last %}, {% endif %}{% endfor %} |
 | Severity (S) | {{ severity }} |
 | Occurrence (O) | {{ occurrence }} |
@@ -209,9 +209,9 @@ The table below ranks all identified threats by their Risk Priority Number (RPN)
 {%- set occ_post = (cause.occurrence_post | int) if 'occurrence_post' in cause else occurrence -%}
 {%- set det_post = (threat.detectability_post | int) if 'detectability_post' in threat else detect -%}
 {%- set _ = ns.rows.append({
-  'tid': threat['custom:threat_id'],
+  'tid': threat['custom:threat-id'],
   'stride': threat['custom:stride'],
-  'risk': threat['custom:risk_level'],
+  'risk': threat['custom:risk-level'],
   's': severity, 'o': occurrence, 'd': detect,
   'rpn': severity * occurrence * detect,
   'rpn_post': severity * occ_post * det_post}) -%}
@@ -231,17 +231,17 @@ Each threat's mitigation is backed by objective, reviewable evidence in the repo
 |--------|----------------|----------|
 {%- for id, threat in sbdl.items() if threat.type == 'threat' %}
 {%- set control = sbdl[threat['fmea:control'][0].identifier] %}
-| {{ threat['custom:threat_id'] }} | {{ control['custom:status'] }} | {{ utils.reencode(control['custom:evidence']) if 'custom:evidence' in control else '—' }} |
+| {{ threat['custom:threat-id'] }} | {{ control['custom:status'] }} | {{ utils.reencode(control['custom:evidence']) if 'custom:evidence' in control else '—' }} |
 {%- endfor %}
 
 # Residual risk and planned actions
 
 The following actions are planned to further reduce residual risk.
 
-{% for id, item in sbdl.items() if item.type == 'planned_mitigation' -%}
+{% for id, item in sbdl.items() if item.type == 'planned-mitigation' -%}
 {%- set linked_cause = sbdl[item['fmea:cause'][0].identifier] if 'fmea:cause' in item else none -%}
 {%- set linked_threat = sbdl[linked_cause['fmea:mode'][0].identifier] if linked_cause is not none and 'fmea:mode' in linked_cause else none -%}
-- **{{ id }}**{% if linked_threat is not none %} (addresses {{ linked_threat['custom:threat_id'] }}){% endif %}: {{ utils.reencode(item.description) }}
+- **{{ id }}**{% if linked_threat is not none %} (addresses {{ linked_threat['custom:threat-id'] }}){% endif %}: {{ utils.reencode(item.description) }}
 {% else -%}
 *No outstanding planned actions; all identified threats have implemented mitigations.*
 {% endfor %}
@@ -250,8 +250,8 @@ The following actions are planned to further reduce residual risk.
 {%- set counts = namespace(high=0, medium=0, low=0, total=0) -%}
 {%- for id, item in sbdl.items() if item.type == 'threat' -%}
 {%- set counts.total = counts.total + 1 -%}
-{%- if item['custom:risk_level'] == 'High' -%}{%- set counts.high = counts.high + 1 -%}
-{%- elif item['custom:risk_level'] == 'Medium' -%}{%- set counts.medium = counts.medium + 1 -%}
+{%- if item['custom:risk-level'] == 'High' -%}{%- set counts.high = counts.high + 1 -%}
+{%- elif item['custom:risk-level'] == 'Medium' -%}{%- set counts.medium = counts.medium + 1 -%}
 {%- else -%}{%- set counts.low = counts.low + 1 -%}
 {%- endif -%}
 {%- endfor %}
