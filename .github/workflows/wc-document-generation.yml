@@ -15,6 +15,7 @@ jobs:
   generate-documents:
     name: Generate Documents
     runs-on: ubuntu-latest
+    container: ghcr.io/philips-software/amp-devcontainer-docs:pr-1335
     permissions:
       contents: read
     steps:
@@ -24,12 +25,6 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-      - name: Install dependencies
-        run: |
-          set -Eeuo pipefail
-
-          sudo apt-get update && sudo apt-get install --no-install-recommends -y plantuml
-          python -m pip install sbdl==1.22.7
       - name: Build & Validate SBDL model
         run: sbdl -m compile test/cpp/integration-tests.bats test/cpp/features/*.feature test/embedded-cpp/integration-tests.bats test/embedded-cpp/features/*.feature > amp-devcontainer.sbdl
       - name: Create document control context
