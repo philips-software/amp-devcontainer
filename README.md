@@ -70,7 +70,7 @@ It consolidates common tooling (e.g. certificates and test tooling) so that the 
 
 #### amp-devcontainer-cpp
 
-The amp-devcontainer-cpp built from this repository contains compilers and tools to facilitate modern C++ development.
+The amp-devcontainer-cpp image built from this repository contains compilers and tools to facilitate modern C++ development.
 The amp-devcontainer-cpp includes support for host- and cross-compilation using gcc and clang compilers.
 Next to the compilers there is support for package management (using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) and [Conan](https://conan.io/)) code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
 
@@ -83,7 +83,7 @@ It includes [sbdl](https://sbdl.dev/) to capture the essence of system compositi
 
 #### amp-devcontainer-embedded-cpp
 
-The amp-devcontainer-embedded-cpp built from this repository contains the same tooling as amp-devcontainer-cpp, extended with support for embedded C++ development.
+The amp-devcontainer-embedded-cpp image built from this repository contains the same tooling as amp-devcontainer-cpp, extended with support for embedded C++ development.
 On top of the host- and cross-compilation support it adds the arm-gcc (arm-none-eabi) toolchain for cross-compilation towards the ARM Cortex architecture, together with debugging support for micro-controllers (using [cortex-debug](https://github.com/Marus/cortex-debug) and gdb-multiarch).
 
 The default build system is set up to use CMake, Ninja and CCache.
