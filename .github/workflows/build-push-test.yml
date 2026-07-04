@@ -39,7 +39,7 @@ jobs:
     needs: build-push-test-base
     strategy:
       matrix:
-        flavor: [cpp, rust]
+        flavor: [cpp, docs, rust]
     uses: ./.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}

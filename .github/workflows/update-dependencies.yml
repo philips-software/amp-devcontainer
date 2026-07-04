@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flavor: ["base", "cpp", "rust"]
+        flavor: [base, cpp, docs, rust]
     # Using our own container is required since we need all package sources
     # set-up correctly.
     container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge
@@ -57,7 +57,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flavor: ["cpp", "rust"]
+        flavor: [cpp, docs, rust]
         file: ["devcontainer-metadata.json", "devcontainer.json"]
     permissions:
       contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here

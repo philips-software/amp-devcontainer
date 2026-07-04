@@ -1,0 +1,16 @@
+{
+  "remoteEnv": {
+    "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "jebbs.plantuml@2.18.1",
+        "mhutchie.git-graph@1.30.0",
+        "ms-vsliveshare.vsliveshare@1.1.122",
+        "sbdl.sbdl@1.8.18",
+        "usernamehw.errorlens@3.28.0"
+      ]
+    }
+  }
+}
