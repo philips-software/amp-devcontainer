@@ -548,14 +548,14 @@ impact_data01 is impact {
 }
 
 mit_data01 is mitigation {
-  custom:status is "Partially implemented"
-  custom:evidence is "Targeted build bind-mounts rather than broad build-context copies in .devcontainer/**/Dockerfile; GitHub secret scanning and push protection; no build-time secrets persisted into image layers."
-  description is "Mitigations:\n\n- Build steps bind-mount only the specific files they need instead of copying the whole repository into a layer\n- GitHub native secret scanning and push protection enabled on the repository\n- Build-time secrets kept out of image layers and workflow logs\n- Separation of build-time and runtime secrets"
+  custom:status is "Implemented"
+  custom:evidence is "Allowlist .dockerignore restricting the build context to .devcontainer/**; targeted build bind-mounts in .devcontainer/**/Dockerfile; GitHub secret scanning and push protection; MegaLinter secret detection (REPOSITORY_GITLEAKS, REPOSITORY_SECRETLINT) in .mega-linter.yml."
+  description is "Mitigations implemented:\n\n- Allowlist .dockerignore excludes everything except .devcontainer/ from the build context, so no source, credentials, caches, or test artifacts enter an image layer\n- Build steps bind-mount only the specific files they need instead of copying the whole repository into a layer\n- GitHub native secret scanning and push protection enabled on the repository\n- Secret detection in CI via MegaLinter (gitleaks, secretlint)\n- Build-time secrets kept out of image layers and workflow logs"
   fmea:mode is threat_data01_secrets
 }
 
-action_data01_dockerignore is planned_mitigation {
-  description is "Add a .dockerignore to exclude sensitive and irrelevant files from the build context, and add explicit secret detection (for example gitleaks) to the CI pipeline."
+action_data01_narrow_context is planned_mitigation {
+  description is "Narrow the declared Docker build context root from the repository root to .devcontainer/ (updating devcontainer.json context, initializeCommand, the Dockerfile bind-mount paths, and the build-push workflows) so the context is minimal by construction rather than filtered by .dockerignore."
   fmea:cause is cause_data01
 }
 
