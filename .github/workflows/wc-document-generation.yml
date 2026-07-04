@@ -41,15 +41,15 @@ jobs:
 
           cat > document-control.sbdl <<SBDL
           #!sbdl
-          doc_control is aspect {
+          doc-control is aspect {
             description is "Document control metadata"
             custom:version is "$(jq -r '.["."]' .release-please-manifest.json)"
-            custom:generated_at is "[@DATE]"
-            custom:git_sha is "[@GIT_COMMIT_HASH]"
-            custom:git_ref is "${GITHUB_REF_NAME}"
-            custom:sbdl_compiler_version is "[@COMPILER_VERSION]"
-            custom:sbdl_dsl_version is "[@DSL_VERSION]"
-            custom:is_release is "${IS_RELEASE}"
+            custom:generated-at is "[@DATE]"
+            custom:git-sha is "[@GIT_COMMIT_HASH]"
+            custom:git-ref is "${GITHUB_REF_NAME}"
+            custom:sbdl-compiler-version is "[@COMPILER_VERSION]"
+            custom:sbdl-dsl-version is "[@DSL_VERSION]"
+            custom:is-release is "${IS_RELEASE}"
           }
           SBDL
       - name: 📄 Generate SRS document
