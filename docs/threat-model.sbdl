@@ -56,7 +56,7 @@ system_amp_devcontainer is aspect {
   description is "The amp-devcontainer project provides secure, supply-chain hardened development containers for regulated software development. Key security features include: pinned dependencies with SHA checksums, signed container images with SBOMs, vulnerability scanning with Trivy, OSSF Scorecard compliance, and comprehensive dependency management via Dependabot. The containers support both x64 and arm64 architectures and include development toolchains for C++ (GCC, Clang, ARM GCC) and Rust, along with security analysis tools."
   custom:business_criticality is "high"
   custom:exposure is "external"
-  custom:reviewed_at is "2026-07-01"
+  custom:reviewed_at is "2026-07-04"
 }
 
 # ---------------------------------------------------------------------------
@@ -227,7 +227,6 @@ srv_dockerfile_rust is server {
   parent is tz_github_infrastructure
   custom:os is "Ubuntu"
   custom:hardened is "true"
-  custom:privileged is "true"
   custom:repo_link is "https://github.com/philips-software/amp-devcontainer/blob/main/.devcontainer/rust/Dockerfile"
 }
 
@@ -384,8 +383,8 @@ impact_sc01 is impact {
 
 mit_sc01 is mitigation {
   custom:status is "Implemented"
-  custom:evidence is "SHA256-pinned packages and downloads in .devcontainer/**/Dockerfile; dependency validation in the CI build."
-  description is "Mitigations implemented:\n\n- Comprehensive dependency pinning with SHA256 checksums\n- Use of private package repositories where possible\n- Dependency scanning and validation during build\n- Regular security audits with tools like pip-audit"
+  custom:evidence is "Version-pinned apt packages in .devcontainer/**/apt-requirements*.json; hash-locked pip installs (--require-hashes) in .devcontainer/cpp/requirements.txt; SHA256-pinned binary downloads in .devcontainer/**/Dockerfile; Dependabot and dependency review in CI."
+  description is "Mitigations implemented:\n\n- Explicit version pinning of apt packages from documented, trusted sources\n- Hash-locked Python dependencies installed with pip --require-hashes\n- SHA256-pinned direct binary downloads\n- Automated dependency updates via Dependabot and dependency review in CI"
   fmea:mode is threat_sc01_dependency_confusion
 }
 
@@ -423,32 +422,37 @@ impact_sc02 is impact {
 
 mit_sc02 is mitigation {
   custom:status is "Implemented"
-  custom:evidence is "Digest-pinned base images in .devcontainer/**/Dockerfile; Trivy image scanning in .github/workflows/."
-  description is "Mitigations implemented:\n\n- Base images pinned to specific SHA256 digests rather than mutable tags\n- Regular vulnerability scanning of base images with Trivy\n- Multi-stage builds to reduce attack surface\n- Minimal base images where possible"
+  custom:evidence is "Digest-pinned Ubuntu base image in .devcontainer/base/Dockerfile; daily image scanning (Trivy via crazy-max/ghaction-container-scan) in .github/workflows/vulnerability-scan.yml."
+  description is "Mitigations implemented:\n\n- Upstream Ubuntu base image pinned to a specific SHA256 digest\n- Daily vulnerability scanning of published images (Trivy via ghaction-container-scan) with SARIF upload\n- Multi-stage builds to reduce attack surface\n- Minimal base images where possible"
   fmea:mode is threat_sc02_base_image
+}
+
+action_sc02_pin_internal_base is planned_mitigation {
+  description is "Pin the internal amp-devcontainer-base reference used by the flavor Dockerfiles to a specific digest instead of the mutable :edge tag for released builds."
+  fmea:cause is cause_sc02
 }
 
 # --- RUNTIME_01: Privileged container escape ------------------------------
 
 threat_runtime01_priv_escape is threat {
-  custom:title is "Privileged Container Escape"
+  custom:title is "Container Runs With Root Privileges"
   custom:threat_id is "RUNTIME_01"
   custom:stride is "Elevation of Privilege"
-  custom:risk_level is "High"
+  custom:risk_level is "Medium"
   custom:capec is "CAPEC-233: Privilege Escalation"
   custom:cwe is "CWE-250: Execution with Unnecessary Privileges"
-  description is "The Rust container runs with the privileged flag, creating the potential for a container escape to the host system."
-  remark is "Privileged containers have elevated permissions that could enable escape to the host system, specifically affecting the Rust development environment. Status: under active review and optimization."
-  detectability is 5
+  description is "The container images do not define a non-root user, so tools and mounted workspace code run as root inside the container, widening the blast radius of any container breakout or malicious workspace content."
+  remark is "None of the flavor Dockerfiles set a non-root USER, so processes run as root. This does not by itself grant host privileges, but it increases impact if container isolation is weakened. Affects both the C++ and Rust development environments. Status: under active review and optimization."
+  detectability is 4
   detectability_post is 3
-  aspect is srv_dockerfile_rust
+  aspect is srv_dockerfile_cpp, srv_dockerfile_rust
   fmea:cause is cause_runtime01
   fmea:effect is impact_runtime01
   fmea:control is mit_runtime01
 }
 
 cause_runtime01 is attack_vector {
-  description is "A vulnerability in the privileged container runtime is exploited to break out of container isolation."
+  description is "Container processes run as root because no non-root user is configured, so a container breakout or malicious mounted content executes with elevated in-container privileges."
   occurrence is 3
   occurrence_post is 2
   fmea:mode is threat_runtime01_priv_escape
@@ -462,13 +466,13 @@ impact_runtime01 is impact {
 
 mit_runtime01 is mitigation {
   custom:status is "Under review"
-  custom:evidence is "Privileged-flag necessity tracked in the Rust Dockerfile; capability-scoping planned (see planned actions)."
-  description is "Mitigations under review:\n\n- Regular review of privileged flag necessity\n- Investigation of specific capabilities instead of full privilege escalation\n- Container runtime security monitoring implementation\n- User namespaces and security profiles evaluation"
+  custom:evidence is "No privileged or added-capability run flags are set in .devcontainer/**/devcontainer.json; a non-root default USER is not yet configured in the Dockerfiles."
+  description is "Mitigations under review:\n\n- Containers are run without the privileged flag or added capabilities\n- Introduction of a non-root default USER in the flavor images\n- Investigation of least-capability runtime configurations for consumers\n- User namespaces and seccomp/AppArmor profiles evaluation"
   fmea:mode is threat_runtime01_priv_escape
 }
 
 action_runtime01_priv_review is planned_mitigation {
-  description is "Assess the necessity of the privileged flag on the Rust container and replace it with the minimal set of required capabilities."
+  description is "Add a non-root default USER to the flavor images and document the minimal set of capabilities consumers should grant at runtime."
   fmea:cause is cause_runtime01
 }
 
@@ -544,10 +548,15 @@ impact_data01 is impact {
 }
 
 mit_data01 is mitigation {
-  custom:status is "Implemented"
-  custom:evidence is "GitHub secret scanning; .dockerignore exclusions; secret detection in the CI pipeline."
-  description is "Mitigations implemented:\n\n- GitHub native secrets scanning enabled\n- .dockerignore files to prevent credential inclusion\n- Secret detection in CI/CD pipelines\n- Ephemeral secrets with regular rotation\n- Separation of build-time and runtime secrets"
+  custom:status is "Partially implemented"
+  custom:evidence is "Targeted build bind-mounts rather than broad build-context copies in .devcontainer/**/Dockerfile; GitHub secret scanning and push protection; no build-time secrets persisted into image layers."
+  description is "Mitigations:\n\n- Build steps bind-mount only the specific files they need instead of copying the whole repository into a layer\n- GitHub native secret scanning and push protection enabled on the repository\n- Build-time secrets kept out of image layers and workflow logs\n- Separation of build-time and runtime secrets"
   fmea:mode is threat_data01_secrets
+}
+
+action_data01_dockerignore is planned_mitigation {
+  description is "Add a .dockerignore to exclude sensitive and irrelevant files from the build context, and add explicit secret detection (for example gitleaks) to the CI pipeline."
+  fmea:cause is cause_data01
 }
 
 # --- SUPPLY_CHAIN_04: Container registry account takeover ------------------
@@ -584,8 +593,8 @@ impact_sc04 is impact {
 
 mit_sc04 is mitigation {
   custom:status is "Implemented"
-  custom:evidence is "Keyless cosign signing via GitHub OIDC in the release workflow; branch and tag protection; OSSF Scorecard workflow."
-  description is "Mitigations implemented:\n\n- Strong authentication with 2FA/MFA requirements\n- Least privilege access controls and RBAC\n- Container images signed with ephemeral keys using GitHub OIDC\n- Automated vulnerability scanning and detection\n- Registry access logging and monitoring\n- OSSF Scorecard compliance monitoring"
+  custom:evidence is "Build-provenance attestations signed via GitHub OIDC (actions/attest, attest-build-provenance) in .github/workflows/wc-build-push.yml; branch and tag protection; OSSF Scorecard workflow."
+  description is "Mitigations implemented:\n\n- Strong authentication with 2FA/MFA requirements\n- Least privilege access controls and RBAC\n- Container images signed with GitHub artifact attestations using ephemeral OIDC keys\n- Automated vulnerability scanning and detection\n- Registry access logging and monitoring\n- OSSF Scorecard compliance monitoring"
   fmea:mode is threat_sc04_registry_takeover
 }
 
@@ -623,8 +632,8 @@ impact_vuln01 is impact {
 
 mit_vuln01 is mitigation {
   custom:status is "Implemented"
-  custom:evidence is "Trivy scans with SARIF upload to the Security tab; .github/dependabot.yml; generated SBOM artifacts."
-  description is "Mitigations implemented:\n\n- Automated vulnerability scanning with Trivy (daily scans)\n- Dependabot for automated dependency updates\n- Software Bill of Materials (SBOM) generation and maintenance\n- Regular security audits of dependencies\n- Acknowledged CVE tracking with documented mitigation plans\n- SARIF upload to the GitHub Security tab for visibility"
+  custom:evidence is "Daily image scanning (Trivy via crazy-max/ghaction-container-scan) with SARIF upload to the Security tab in .github/workflows/vulnerability-scan.yml; .github/dependabot.yml; SBOM attestation via anchore/sbom-action."
+  description is "Mitigations implemented:\n\n- Automated daily image vulnerability scanning (Trivy via ghaction-container-scan)\n- Dependabot for automated dependency updates\n- Software Bill of Materials (SBOM) attestation generation and maintenance\n- Regular security audits of dependencies\n- Acknowledged CVE tracking with documented mitigation plans\n- SARIF upload to the GitHub Security tab for visibility"
   fmea:mode is threat_vuln01_vuln_deps
 }
 
@@ -690,7 +699,7 @@ threat_sc06_sig_bypass is threat {
 }
 
 cause_sc06 is attack_vector {
-  description is "An attacker publishes or substitutes an unsigned or invalidly signed image and a consumer pulls it without performing cosign verification."
+  description is "An attacker publishes or substitutes an unsigned or invalidly signed image and a consumer pulls it without performing attestation verification."
   occurrence is 3
   occurrence_post is 2
   fmea:mode is threat_sc06_sig_bypass
@@ -704,13 +713,13 @@ impact_sc06 is impact {
 
 mit_sc06 is mitigation {
   custom:status is "Partially implemented"
-  custom:evidence is "Keyless cosign signing in the release workflow; consumer verification guidance in docs/SLSA-COMPLIANCE.md; policy enforcement planned."
-  description is "Mitigations:\n\n- Container images signed with cosign using GitHub OIDC\n- Documented, copy-pasteable signature-verification instructions for consumers\n- Verification policy to be enforced in downstream CI and, where applicable, admission control\n- Publication of the expected identity and issuer used for verification"
+  custom:evidence is "Build-provenance attestations signed via GitHub OIDC (actions/attest) in .github/workflows/wc-build-push.yml; consumer verification guidance in README.md ('Verify image signature'); policy enforcement planned."
+  description is "Mitigations:\n\n- Container images signed with GitHub artifact attestations using ephemeral OIDC keys\n- Documented, copy-pasteable `gh attestation verify` instructions for consumers\n- Verification policy to be enforced in downstream CI and, where applicable, admission control\n- Publication of the expected signer workflow, identity, and issuer used for verification"
   fmea:mode is threat_sc06_sig_bypass
 }
 
 action_sc06_enforce_verification is planned_mitigation {
-  description is "Provide and require a cosign verification step (expected identity and OIDC issuer) for consumers, and add an admission or verification policy in downstream pipelines."
+  description is "Provide and require a `gh attestation verify` step (expected signer workflow and OIDC issuer) for consumers, and add an admission or verification policy in downstream pipelines."
   fmea:cause is cause_sc06
 }
 
@@ -747,7 +756,7 @@ impact_sc07 is impact {
 
 mit_sc07 is mitigation {
   custom:status is "Partially implemented"
-  custom:evidence is "SLSA provenance and SBOM attestations signed via GitHub OIDC; artifact retention in the release workflow; verification guidance in docs/SLSA-COMPLIANCE.md."
+  custom:evidence is "SLSA build-provenance and SBOM attestations signed via GitHub OIDC (actions/attest, attest-build-provenance, anchore/sbom-action) in .github/workflows/wc-build-push.yml, with an in-pipeline `gh attestation verify` step; verification guidance in README.md."
   description is "Mitigations:\n\n- SLSA-style build provenance generated for published images\n- in-toto and SBOM attestations signed with ephemeral OIDC keys\n- Immutable retention of attestations alongside the image digest\n- Consumer-side provenance verification documented and to be enforced"
   fmea:mode is threat_sc07_provenance_forgery
 }
@@ -832,10 +841,15 @@ impact_sc09 is impact {
 }
 
 mit_sc09 is mitigation {
-  custom:status is "Implemented"
-  custom:evidence is "SHA256-pinned binary downloads in .devcontainer/**/Dockerfile; ccache release verified against a pinned minisign public key in .devcontainer/cpp/Dockerfile."
-  description is "Mitigations implemented:\n\n- All vendor binary downloads pinned to SHA256 checksums\n- Publisher signature verification where available, for example ccache via minisign\n- Downloads performed over HTTPS from documented, pinned URLs\n- Preference for reproducible, source-referenced builds"
+  custom:status is "Partially implemented"
+  custom:evidence is "SHA256-pinned binary downloads for most tools in .devcontainer/**/Dockerfile; ccache release verified against a pinned minisign public key in .devcontainer/cpp/Dockerfile; some direct downloads remain unverified (see planned actions)."
+  description is "Mitigations:\n\n- Most vendor binary downloads pinned to SHA256 checksums (ccache, xwin, ARM GNU toolchain, base image, bats)\n- Publisher signature verification where available, for example ccache via minisign\n- Downloads performed over HTTPS from documented, pinned URLs\n- Some direct downloads (CPM.cmake, include-what-you-use, cargo-binstall and the tools it installs, diffoci) are not yet checksum-verified"
   fmea:mode is threat_sc09_tool_download
+}
+
+action_sc09_pin_downloads is planned_mitigation {
+  description is "Add SHA256 verification for the remaining direct downloads (CPM.cmake, include-what-you-use, cargo-binstall and its installed tools, and diffoci) so every fetched binary is integrity-checked."
+  fmea:cause is cause_sc09
 }
 
 # --- AVAIL_01: Dependency or registry outage ------------------------------
@@ -871,8 +885,8 @@ impact_avail01 is impact {
 
 mit_avail01 is mitigation {
   custom:status is "Partially implemented"
-  custom:evidence is "APT snapshot pinning (see ADR 0001); build caching; pinned mirrors and retry logic in the build."
-  description is "Mitigations:\n\n- Pinned apt snapshots reduce reliance on always-current upstreams\n- Build caching limits repeated external fetches\n- Retry and back-off on transient download failures\n- Vendoring of the most critical dependencies where feasible"
+  custom:evidence is "Version-pinned apt packages in .devcontainer/**/apt-requirements*.json; BuildKit cache mounts and GitHub Actions build caching."
+  description is "Mitigations:\n\n- Explicit version pinning of apt packages reduces reliance on always-current upstreams\n- BuildKit cache mounts and Actions caching limit repeated external fetches\n- Integrity-checked, version-pinned downloads can be re-fetched from documented URLs\n- Vendoring of the most critical dependencies where feasible"
   fmea:mode is threat_avail01_availability
 }
 
