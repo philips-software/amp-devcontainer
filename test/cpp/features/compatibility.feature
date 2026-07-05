@@ -19,8 +19,17 @@ Feature: Compatibility
         "amp-devcontainer images *SHALL* be compatible with the
          [OCI image specification](https://github.com/opencontainers/image-spec/blob/main/spec.md)"
         remark is
-        "To guarantee compatibility with container runtimes and container- and image tooling;
-         amp-devcontainer shall be compatible with the OCI image specification."
+        "Compatibility with the OCI Image Specification promotes interoperability
+         across container runtimes and tooling."
+        custom:verification-type is "Hard-gate"
+        custom:verification-rationale is
+        "OCI compatibility is verified through successful consumption and
+         execution of released images using multiple independent OCI-compatible
+         container runtimes (Docker and Podman).
+
+         Successful operation across multiple OCI implementations provides
+         objective evidence that the produced images conform to the
+         interoperability expectations of the OCI Image Specification."
       }
     # @sbdl-end
 

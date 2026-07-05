@@ -134,6 +134,7 @@ jobs:
       runner-labels: ${{ inputs.runner-labels }}
       build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
 
+  # @sbdl test-compat-0001 is test { custom:title is "Docker runtime compatibility"; requirement is req-compat-0001 }
   integration-test-docker:
     name: 🧪
     if: ${{ inputs.integration-test-file }}
@@ -150,6 +151,7 @@ jobs:
       registry: ${{ inputs.registry }}
       test-file: ${{ inputs.integration-test-file }}
 
+  # @sbdl test-compat-0002 is test { custom:title is "Podman runtime compatibility"; requirement is req-compat-0001 }
   integration-test-podman:
     name: 🧪
     if: ${{ inputs.integration-test-file && inputs.integration-test-podman }}

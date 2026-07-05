@@ -31,7 +31,7 @@ jobs:
           sudo apt-get update && sudo apt-get install --no-install-recommends -y plantuml
           python -m pip install sbdl==1.22.7
       - name: Build & Validate SBDL model
-        run: sbdl -m compile test/cpp/integration-tests.bats test/cpp/features/*.feature test/embedded-cpp/integration-tests.bats test/embedded-cpp/features/*.feature > amp-devcontainer.sbdl
+        run: sbdl -m compile .github/workflows/wc-build-push-test.yml test/cpp/integration-tests.bats test/cpp/features/*.feature test/embedded-cpp/integration-tests.bats test/embedded-cpp/features/*.feature > amp-devcontainer.sbdl
       - name: Create document control context
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}

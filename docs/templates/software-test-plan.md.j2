@@ -38,6 +38,7 @@ This document covers the following types of tests:
 
 - **Gherkin verification tests**: Scenario-based tests defined in Gherkin feature files and executed with Playwright. These tests verify behavioral requirements at the system level.
 - **BATS integration tests**: Shell-based integration tests defined in BATS (Bash Automated Testing System) files. These tests verify tool availability, version alignment, and end-to-end compilation and analysis workflows.
+- **Hard-gates**: continuous workflow gates that raise an error when a condition is not met.
 
 ## References
 
@@ -79,6 +80,10 @@ Gherkin scenarios follow the Given-When-Then structure. Each scenario exercises 
 
 BATS tests verify tool presence, version alignment, and end-to-end workflows (compilation, analysis, formatting) by executing shell commands inside the devcontainer. Each test function runs in isolation. A BATS test passes when the test function exits with code 0.
 
+## Hard-gates
+
+Hard-gates are continuous workflow gates defined in the CI pipeline. They raise an error and fail the workflow when a required condition is not met, preventing non-conforming artifacts from being released. A hard-gate passes when its associated workflow job completes without error.
+
 ## Expected results
 
 > **Note**: Structured expected-result data per test is not yet available in the current toolchain. This section will be extended when test result rendering is implemented. Currently, a test is considered passed when it completes without error as described above.
@@ -94,6 +99,18 @@ BATS tests verify tool presence, version alignment, and end-to-end workflows (co
 {%- set req = sbdl[req_ref.identifier] %}
 
 ### {{ req_ref.identifier }}: {{ utils.reencode(utils.strip_gherkin_prefix(req['custom:title'])) }}
+{%- if 'custom:verification-type' in req %}
+
+_Verification type_
+
+{{ utils.reencode(req['custom:verification-type']) }}
+{%- endif %}
+{%- if 'custom:verification-rationale' in req %}
+
+_Verification rationale_
+
+{{ utils.reencode(req['custom:verification-rationale']) }}
+{%- endif %}
 
 {%- set ns_tests = namespace(has_tests=false) -%}
 
