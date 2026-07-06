@@ -2,7 +2,7 @@
 title: "Software requirements specification for amp-devcontainer"
 author: ["@rjaegers"]
 colorlinks: true
-date: "{{ sbdl['doc_control']['custom:generated_at'] | strftime('%Y-%m-%d') }}"
+date: "{{ sbdl['doc-control']['custom:generated-at'] | strftime('%Y-%m-%d') }}"
 keywords: [Software, Requirements, SRS, amp-devcontainer]
 lang: "en"
 titlepage: true
@@ -14,7 +14,7 @@ toc: true
 toc-own-page: true
 header-includes:
   - \AtEndDocument{\label{lastpage}}
-{%- if sbdl['doc_control']['custom:is_release'] != 'true' %}
+{%- if sbdl['doc-control']['custom:is-release'] != 'true' %}
 watermark: "DRAFT"
 {%- endif %}
 footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
