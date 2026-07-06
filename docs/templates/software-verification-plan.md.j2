@@ -156,8 +156,8 @@ _Verification rationale_
 {{ utils.reencode(req['custom:verification-rationale']) }}
 {%- endif %}
 
-{%- set ns_tests = namespace(has_tests=false) -%}
-
+_Verification activities_
+{% set ns_tests = namespace(has_tests=false) -%}
 {%- for test_id, test_elem in sbdl.items() -%}
 {%- if test_elem.type == 'test' -%}
 {%- if 'requirement' in test_elem -%}

@@ -21,7 +21,7 @@ Feature: Compatibility
         remark is
         "Compatibility with the OCI Image Specification promotes interoperability
          across container runtimes and tooling."
-        custom:verification-type is "Hard-gate"
+        custom:verification-type is "CI Verification Gate"
         custom:verification-rationale is
         "OCI compatibility is verified through successful consumption and
          execution of released images using multiple independent OCI-compatible
