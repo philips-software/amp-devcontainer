@@ -4,6 +4,10 @@ ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 FROM ${BASE_IMAGE}
 
 ARG CARGO_BINSTALL_VERSION=1.17.9
+ARG CARGO_BINUTILS_VERSION=0.3.6
+ARG CARGO_MUTANTS_VERSION=25.3.1
+ARG FLIP_LINK_VERSION=0.1.12
+ARG PROBE_RS_TOOLS_VERSION=0.30.0
 ARG RUST_VERSION=1.94.1
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -39,4 +43,39 @@ RUN rustup set profile minimal \
 
 # Install additional rust tools
 RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
- && cargo-binstall -y --locked cargo-binutils@0.3.6 cargo-mutants@25.3.1 flip-link@0.1.12 probe-rs-tools@0.30.0
+ && cargo-binstall -y --locked "cargo-binutils@${CARGO_BINUTILS_VERSION}" "cargo-mutants@${CARGO_MUTANTS_VERSION}" "flip-link@${FLIP_LINK_VERSION}" "probe-rs-tools@${PROBE_RS_TOOLS_VERSION}"
+
+# Annotate tools that Syft cannot detect on its own with a `.note.package` ELF
+# section (systemd ELF package metadata convention, see
+# https://systemd.io/ELF_PACKAGE_METADATA/) so they are included in the SBOM
+# generated for the image.
+RUN <<EOF
+    add_sbom_note() {
+        local name="$1" version="$2" purl="$3"; shift 3
+        local note; note="$(mktemp)"
+        printf '{"name":"%s","version":"%s","purl":"%s"}' "${name}" "${version}" "${purl}" > "${note}"
+
+        local tagged=0 binary
+        for binary in "$@"; do
+            if [ -x "${binary}" ]; then
+                objcopy --add-section .note.package="${note}" \
+                        --set-section-flags .note.package=noload,readonly "${binary}"
+                tagged=1
+            fi
+        done
+
+        rm -f "${note}"
+        [ "${tagged}" -eq 1 ] || { echo "no binaries found to annotate for ${name}" >&2; exit 1; }
+    }
+
+    add_sbom_note cargo-binstall "${CARGO_BINSTALL_VERSION}" "pkg:cargo/cargo-binstall@${CARGO_BINSTALL_VERSION}" \
+        /usr/bin/cargo-binstall
+    add_sbom_note cargo-binutils "${CARGO_BINUTILS_VERSION}" "pkg:cargo/cargo-binutils@${CARGO_BINUTILS_VERSION}" \
+        "${CARGO_HOME}"/bin/cargo-{cov,nm,objcopy,profdata,readobj,size,strip}
+    add_sbom_note cargo-mutants "${CARGO_MUTANTS_VERSION}" "pkg:cargo/cargo-mutants@${CARGO_MUTANTS_VERSION}" \
+        "${CARGO_HOME}/bin/cargo-mutants"
+    add_sbom_note flip-link "${FLIP_LINK_VERSION}" "pkg:cargo/flip-link@${FLIP_LINK_VERSION}" \
+        "${CARGO_HOME}/bin/flip-link"
+    add_sbom_note probe-rs-tools "${PROBE_RS_TOOLS_VERSION}" "pkg:cargo/probe-rs-tools@${PROBE_RS_TOOLS_VERSION}" \
+        "${CARGO_HOME}"/bin/probe-rs "${CARGO_HOME}"/bin/cargo-embed "${CARGO_HOME}"/bin/cargo-flash
+EOF
