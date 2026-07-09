@@ -111,7 +111,6 @@ ENV CCACHE_DIR=/cache/.ccache \
     PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
     PYTHONPYCACHEPREFIX=/cache/.python
 
-# Install the base system with all tool dependencies
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
@@ -166,7 +165,6 @@ RUN --mount=type=cache,target=/cache,sharing=locked \
  && apt-get clean
 
 # Update all tool alternatives to the correct version
-# and patch root's bashrc to include bash-completion
 RUN --mount=type=cache,target=/var/log,sharing=locked \
  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 10 \
                         --slave /usr/bin/g++ g++ /usr/bin/g++-15 \
@@ -178,8 +176,7 @@ RUN --mount=type=cache,target=/var/log,sharing=locked \
                         --slave /usr/bin/mull-reporter mull-reporter /usr/bin/mull-reporter-${CLANG_VERSION} \
                         --slave /usr/lib/mull-ir-frontend mull-ir-frontend /usr/lib/mull-ir-frontend-${CLANG_VERSION} \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
- && mkdir /root/.amp \
- && cp /etc/skel/.bashrc /root/.bashrc
+ && mkdir /root/.amp
 
 # Set up package managers CPM and Conan
 # - Install CPM.cmake to the CMake module path

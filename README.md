@@ -79,7 +79,7 @@ The default build system is set up to use CMake, Ninja and CCache.
 #### amp-devcontainer-docs
 
 The amp-devcontainer-docs image built from this repository contains tooling to generate documentation from repository sources.
-It includes [sbdl](https://sbdl.dev/) to capture the essence of system composition and behaviour in a simple yet powerful domain-specific language, together with [PlantUML](https://plantuml.com/) and [Graphviz](https://graphviz.org/) for rendering diagrams.
+It includes [sbdl](https://sbdl.dev/) to capture the essence of system composition and behavior in a simple yet powerful domain-specific language, together with [PlantUML](https://plantuml.com/) and [Graphviz](https://graphviz.org/) for rendering diagrams.
 
 #### amp-devcontainer-embedded-cpp
 

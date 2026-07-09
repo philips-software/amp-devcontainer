@@ -10,6 +10,8 @@ setup() {
 }
 
 teardown() {
+  rm -rf build
+
   popd
 }
 
@@ -31,6 +33,14 @@ teardown() {
   INSTALLED_VERSION=$(pip --version | to_semver)
 
   assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+}
+
+# bats test_tags=Version,Plantuml
+@test "plantuml version should be aligned with the expected version" {
+  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for plantuml | cut -d. -f1,2)
+  INSTALLED_MAJOR_MINOR_VERSION=$(plantuml -version 2>&1 | to_semver | cut -d. -f1,2)
+
+  assert_equal "$INSTALLED_MAJOR_MINOR_VERSION" "$EXPECTED_MAJOR_MINOR_VERSION"
 }
 
 # bats test_tags=Version,Sbdl
