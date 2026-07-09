@@ -201,24 +201,8 @@ RUN --mount=type=cache,target=/cache,sharing=locked \
 # section (systemd ELF package metadata convention, see
 # https://systemd.io/ELF_PACKAGE_METADATA/) so they are included in the SBOM
 # generated for the image.
-RUN <<EOF
-    add_sbom_note() {
-        local name="$1" version="$2" purl="$3"; shift 3
-        local note; note="$(mktemp)"
-        printf '{"name":"%s","version":"%s","purl":"%s"}' "${name}" "${version}" "${purl}" > "${note}"
-
-        local tagged=0 binary
-        for binary in "$@"; do
-            if [ -x "${binary}" ]; then
-                objcopy --add-section .note.package="${note}" \
-                        --set-section-flags .note.package=noload,readonly "${binary}"
-                tagged=1
-            fi
-        done
-
-        rm -f "${note}"
-        [ "${tagged}" -eq 1 ] || { echo "no binaries found to annotate for ${name}" >&2; exit 1; }
-    }
+RUN --mount=type=bind,source=.devcontainer/scripts/add-sbom-note.sh,target=/tmp/add-sbom-note.sh <<EOF
+    add_sbom_note() { bash /tmp/add-sbom-note.sh "$@"; }
 
     add_sbom_note ccache "${CCACHE_VERSION}" "pkg:generic/ccache@${CCACHE_VERSION}" \
         /usr/local/bin/ccache
