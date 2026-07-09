@@ -33,6 +33,7 @@ jobs:
       image-name: ${{ github.repository }}-base
       integration-test-file: test/base/integration-tests.bats
       integration-test-podman: true
+      tool-inventory-file: .devcontainer/base/tool-inventory.json
 
   build-push-test-flavors:
     name: 🍨 ${{ matrix.flavor }}
@@ -46,14 +47,14 @@ jobs:
             tool-inventory-file: .devcontainer/cpp/tool-inventory.json
           - flavor: docs
             dockerfile: .devcontainer/docs/Dockerfile
-            tool-inventory-file: ""
+            tool-inventory-file: .devcontainer/docs/tool-inventory.json
           - flavor: embedded-cpp
             dockerfile: .devcontainer/cpp/Dockerfile
             build-embedded-flavor: "true"
-            tool-inventory-file: ""
+            tool-inventory-file: .devcontainer/embedded-cpp/tool-inventory.json
           - flavor: rust
             dockerfile: .devcontainer/rust/Dockerfile
-            tool-inventory-file: ""
+            tool-inventory-file: .devcontainer/rust/tool-inventory.json
     uses: ./.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
