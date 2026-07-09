@@ -282,8 +282,8 @@ python-docx==1.2.0 \
     --hash=sha256:3fd478f3250fbbbfd3b94fe1e985955737c145627498896a8a6bf81f4baf66c7 \
     --hash=sha256:7bc9d7b7d8a69c9c02ca09216118c86552704edc23bac179283f2e38f86220ce
     # via docxtpl
-sbdl==1.22.7 \
-    --hash=sha256:2bca97b822031664559842e3d8d5a7aa6d144ba7cf06c485da093a428186acb3
+sbdl==1.25.4 \
+    --hash=sha256:ed1187be064be0737d88750b026d65c457513fdc68c2a1184a2b93bde2ac2177
     # via -r docs/requirements.in
 typing-extensions==4.16.0 \
     --hash=sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8 \
