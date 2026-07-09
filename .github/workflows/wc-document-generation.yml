@@ -15,7 +15,7 @@ jobs:
   generate-documents:
     name: Generate Documents
     runs-on: ubuntu-latest
-    container: ghcr.io/philips-software/amp-devcontainer-docs:pr-1335
+    container: ghcr.io/philips-software/amp-devcontainer-docs:edge
     permissions:
       contents: read
     steps:
