@@ -10,18 +10,20 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 HEALTHCHECK NONE
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
-# Install the base system with all tool dependencies
-# hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=cache,target=/var/log,sharing=locked \
- apt-get update \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | xargs apt-get install -y --no-install-recommends \
- && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
+    --mount=type=cache,target=/var/log,sharing=locked <<EOF
+
+    # Install the base system with all tool dependencies
+    apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | \
+        xargs apt-get install -y --no-install-recommends
+
+    update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
                         --slave /usr/bin/c++ c++ /usr/bin/g++-15
+EOF
 
 # Install rust
 ENV BINSTALL_DISABLE_TELEMETRY=true \

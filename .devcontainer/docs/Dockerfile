@@ -12,7 +12,6 @@ SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 # Set default environment options
 ENV PYTHONPYCACHEPREFIX=/cache/.python
 
-# Install the base system with all tool dependencies
 RUN --mount=type=bind,source=.devcontainer/docs/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=bind,source=.devcontainer/docs/requirements.txt,target=/tmp/requirements.txt \
     --mount=type=cache,target=/cache,sharing=locked \
