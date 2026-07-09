@@ -115,6 +115,18 @@ jobs:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
+      - name: Upload tool inventory to release
+        run: |
+          set -Eeuo pipefail
+          FORMATTED_DIGEST=${DIGEST//:/_}
+          INVENTORY="${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.tool-inventory.json"
+          cp tool-inventory/tool-inventory.json "${INVENTORY}"
+          gh release upload "${REF_NAME}" "${INVENTORY}"
+        env:
+          DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
 
   publish-devcontainer-templates:
     name: 📝 Publish templates
