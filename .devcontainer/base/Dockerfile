@@ -51,6 +51,10 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
    cp -r /src/bats-support /usr/local/bats-support
    cp -r /src/bats-assert /usr/local/bats-assert
 
+   # Retain the bats-core manifest so the tool is captured in the SBOM
+   mkdir -p /usr/local/lib/bats-core
+   cp /src/bats-core/package.json /usr/local/lib/bats-core/package.json
+
    # Generate locale
    sed -i '/C.UTF-8/s/^# //' /etc/locale.gen
    locale-gen

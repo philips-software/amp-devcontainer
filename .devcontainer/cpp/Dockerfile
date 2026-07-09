@@ -9,6 +9,8 @@ ARG CCACHE_VERSION=4.13.1
 ARG XWIN_VERSION=0.8.0
 # Whether or not to build the embedded flavor of this container
 ARG BUILD_EMBEDDED_FLAVOR=false
+# Version of the Arm GNU toolchain used for the embedded flavor
+ARG ARM_GNU_TOOLCHAIN_VERSION=15.2.rel1
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
@@ -53,6 +55,7 @@ ARG CCACHE_MINISIGN_PUBKEY
 ARG CCACHE_VERSION
 ARG XWIN_VERSION
 ARG BUILD_EMBEDDED_FLAVOR
+ARG ARM_GNU_TOOLCHAIN_VERSION
 
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
@@ -65,7 +68,7 @@ RUN --mount=from=downloader,target=/dl \
     apt-get update && apt-get install --no-install-recommends -y minisign
 
     if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
-        ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/15.2.rel1/binrel/arm-gnu-toolchain-15.2.rel1-$(uname -m)-arm-none-eabi.tar.xz"
+        ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_GNU_TOOLCHAIN_VERSION}/binrel/arm-gnu-toolchain-${ARM_GNU_TOOLCHAIN_VERSION}-$(uname -m)-arm-none-eabi.tar.xz"
         ARM_GNU_TOOLCHAIN_TAR="/tmp/arm-gnu-toolchain.tar.xz"
 
         if [[ "$(uname -m)" == "x86_64" ]]; then
@@ -95,6 +98,9 @@ ARG CLANG_VERSION=22
 ARG CPM_VERSION=0.42.1
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.26
 ARG BUILD_EMBEDDED_FLAVOR
+ARG CCACHE_VERSION
+ARG XWIN_VERSION
+ARG ARM_GNU_TOOLCHAIN_VERSION
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -181,7 +187,48 @@ RUN --mount=type=cache,target=/var/log,sharing=locked \
 # Set up package managers CPM and Conan
 # - Install CPM.cmake to the CMake module path
 # - Configure a default profile for Conan and set the CMake generator to Ninja
+#
+# NOTE: CPM.cmake is intentionally absent from the generated SBOM. It is a single
+# CMake module (not an ELF binary), so it cannot carry a `.note.package` ELF
+# section and Syft has no cataloger for standalone `.cmake` files. Its version is
+# pinned and tracked via the CPM_VERSION build argument above.
 RUN --mount=type=cache,target=/cache,sharing=locked \
  wget --no-hsts -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake \
  && conan profile detect \
  && echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
+
+# Annotate tools that Syft cannot detect on its own with a `.note.package` ELF
+# section (systemd ELF package metadata convention, see
+# https://systemd.io/ELF_PACKAGE_METADATA/) so they are included in the SBOM
+# generated for the image.
+RUN <<EOF
+    add_sbom_note() {
+        local name="$1" version="$2" purl="$3"; shift 3
+        local note; note="$(mktemp)"
+        printf '{"name":"%s","version":"%s","purl":"%s"}' "${name}" "${version}" "${purl}" > "${note}"
+
+        local tagged=0 binary
+        for binary in "$@"; do
+            if [ -x "${binary}" ]; then
+                objcopy --add-section .note.package="${note}" \
+                        --set-section-flags .note.package=noload,readonly "${binary}"
+                tagged=1
+            fi
+        done
+
+        rm -f "${note}"
+        [ "${tagged}" -eq 1 ] || { echo "no binaries found to annotate for ${name}" >&2; exit 1; }
+    }
+
+    add_sbom_note ccache "${CCACHE_VERSION}" "pkg:generic/ccache@${CCACHE_VERSION}" \
+        /usr/local/bin/ccache
+    add_sbom_note xwin "${XWIN_VERSION}" "pkg:cargo/xwin@${XWIN_VERSION}" \
+        /usr/local/bin/xwin
+    add_sbom_note include-what-you-use "${INCLUDE_WHAT_YOU_USE_VERSION}" "pkg:generic/include-what-you-use@${INCLUDE_WHAT_YOU_USE_VERSION}" \
+        /usr/local/bin/include-what-you-use
+
+    if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
+        add_sbom_note arm-gnu-toolchain "${ARM_GNU_TOOLCHAIN_VERSION}" "pkg:generic/arm-gnu-toolchain@${ARM_GNU_TOOLCHAIN_VERSION}" \
+            /opt/gcc-arm-none-eabi/bin/arm-none-eabi-{gcc,g++,ld,objcopy,size}
+    fi
+EOF
