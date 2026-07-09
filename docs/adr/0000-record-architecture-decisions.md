@@ -27,7 +27,7 @@ The container's own maintainability requirement states that amp-devcontainer *SH
 
 Chosen option: **Markdown Architectural Decision Records (MADR)**, because it satisfies every decision driver with the least overhead — decisions are captured as plain Markdown in the repository, reviewed through pull requests, and versioned with the code.
 
-Architecture decisions are recorded as one Markdown file per decision under `docs/adr/`, named `NNNN-title-with-dashes.md` and numbered sequentially starting at `0000` (this record). Each record follows the MADR structure: context and problem statement, decision drivers, considered options, the decision outcome, and its consequences. Records are immutable once accepted; a decision that changes is captured in a new record, and the superseded record's status is updated to point to it.
+Architecture decisions are recorded as one Markdown file per decision under `docs/adr/`, named `NNNN-title-with-dashes.md` and numbered sequentially starting at `0000` (this record). Each record follows the MADR structure: context and problem statement, decision drivers, considered options, the decision outcome, and its consequences. Records are treated as immutable once accepted (except for status/metadata); when a decision changes, capture it in a new record, and update the earlier record's status to point to it.
 
 ### Positive Consequences
 
