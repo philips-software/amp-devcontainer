@@ -43,13 +43,17 @@ jobs:
           - flavor: cpp
             dockerfile: .devcontainer/cpp/Dockerfile
             build-embedded-flavor: "false"
+            tool-inventory-file: .devcontainer/cpp/tool-inventory.json
           - flavor: docs
             dockerfile: .devcontainer/docs/Dockerfile
+            tool-inventory-file: ""
           - flavor: embedded-cpp
             dockerfile: .devcontainer/cpp/Dockerfile
             build-embedded-flavor: "true"
+            tool-inventory-file: ""
           - flavor: rust
             dockerfile: .devcontainer/rust/Dockerfile
+            tool-inventory-file: ""
     uses: ./.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
@@ -69,3 +73,4 @@ jobs:
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
       integration-test-podman: true
+      tool-inventory-file: ${{ matrix.tool-inventory-file }}
