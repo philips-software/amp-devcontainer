@@ -21,10 +21,10 @@ teardown() {
 
 # bats test_tags=Version,Graphviz
 @test "graphviz version should be aligned with the expected version" {
-  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for graphviz | cut -d. -f1,2)
-  INSTALLED_MAJOR_MINOR_VERSION=$(dot -V 2>&1 | to_semver | cut -d. -f1,2)
+  EXPECTED_VERSION=$(get_expected_semver_for graphviz)
+  INSTALLED_VERSION=$(dot -V 2>&1 | to_semver)
 
-  assert_equal "$INSTALLED_MAJOR_MINOR_VERSION" "$EXPECTED_MAJOR_MINOR_VERSION"
+  assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
 }
 
 # bats test_tags=Version,Pip
@@ -37,10 +37,10 @@ teardown() {
 
 # bats test_tags=Version,Plantuml
 @test "plantuml version should be aligned with the expected version" {
-  EXPECTED_VERSION=$(get_expected_semver_for plantuml)
-  INSTALLED_VERSION=$(plantuml -version 2>&1 | to_semver)
+  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for plantuml | cut -d. -f1,2)
+  INSTALLED_MAJOR_MINOR_VERSION=$(plantuml -version 2>&1 | to_semver | cut -d. -f1,2)
 
-  assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+  assert_equal "$INSTALLED_MAJOR_MINOR_VERSION" "$EXPECTED_MAJOR_MINOR_VERSION"
 }
 
 # bats test_tags=Version,Sbdl
