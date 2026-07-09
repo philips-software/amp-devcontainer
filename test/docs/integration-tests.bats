@@ -10,6 +10,8 @@ setup() {
 }
 
 teardown() {
+  rm -rf build
+
   popd
 }
 
@@ -29,6 +31,14 @@ teardown() {
 @test "pip version should be aligned with the expected version" {
   EXPECTED_VERSION=$(get_expected_semver_for python3-pip)
   INSTALLED_VERSION=$(pip --version | to_semver)
+
+  assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+}
+
+# bats test_tags=Version,Plantuml
+@test "plantuml version should be aligned with the expected version" {
+  EXPECTED_VERSION=$(get_expected_semver_for plantuml)
+  INSTALLED_VERSION=$(plantuml -version 2>&1 | to_semver)
 
   assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
 }
