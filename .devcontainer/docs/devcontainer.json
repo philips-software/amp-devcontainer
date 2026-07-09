@@ -1,0 +1,31 @@
+{
+  "initializeCommand": "docker build -f .devcontainer/base/Dockerfile -t amp-devcontainer-base:local .",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "../..",
+    "args": {
+      "BASE_IMAGE": "amp-devcontainer-base:local"
+    }
+  },
+  "remoteEnv": {
+    "CONTAINER_FLAVOR": "docs"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true
+      },
+      "extensions": [
+        "github.copilot@1.388.0",
+        "github.vscode-github-actions@0.32.1",
+        "github.vscode-pull-request-github@0.152.0",
+        "jetmartin.bats@0.1.10",
+        "kherring.bats-test-runner@0.1.3",
+        "mhutchie.git-graph@1.30.0",
+        "ms-azuretools.vscode-docker@2.0.0",
+        "usernamehw.errorlens@3.28.0"
+      ]
+    }
+  }
+}

@@ -12,6 +12,7 @@
 |-------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
 | amp-devcontainer-base         | ghcr.io/philips-software/amp-devcontainer-base:{{ amp-devcontainer-base-version }}@{{ amp-devcontainer-base-sha }}                         |
 | amp-devcontainer-cpp          | ghcr.io/philips-software/amp-devcontainer-cpp:{{ amp-devcontainer-cpp-version }}@{{ amp-devcontainer-cpp-sha }}                            |
+| amp-devcontainer-docs         | ghcr.io/philips-software/amp-devcontainer-docs:{{ amp-devcontainer-docs-version }}@{{ amp-devcontainer-docs-sha }}                         |
 | amp-devcontainer-embedded-cpp | ghcr.io/philips-software/amp-devcontainer-embedded-cpp:{{ amp-devcontainer-embedded-cpp-version }}@{{ amp-devcontainer-embedded-cpp-sha }} |
 | amp-devcontainer-rust         | ghcr.io/philips-software/amp-devcontainer-rust:{{ amp-devcontainer-rust-version }}@{{ amp-devcontainer-rust-sha }}                         |
 

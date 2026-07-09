@@ -61,7 +61,7 @@ jobs:
     name: Update Release Notes (🍨 ${{ matrix.flavor }})
     strategy:
       matrix:
-        flavor: [base, cpp, embedded-cpp, rust]
+        flavor: [base, cpp, docs, embedded-cpp, rust]
     runs-on: ubuntu-latest
     permissions:
       # Please note that this is an overly broad scope, but GitHub does not

@@ -43,6 +43,8 @@ jobs:
           - flavor: cpp
             dockerfile: .devcontainer/cpp/Dockerfile
             build-embedded-flavor: "false"
+          - flavor: docs
+            dockerfile: .devcontainer/docs/Dockerfile
           - flavor: embedded-cpp
             dockerfile: .devcontainer/cpp/Dockerfile
             build-embedded-flavor: "true"

@@ -21,6 +21,7 @@ updates:
     directories:
       - .devcontainer/base
       - .devcontainer/cpp
+      - .devcontainer/docs
       - .devcontainer/rust
     schedule:
       interval: weekly
