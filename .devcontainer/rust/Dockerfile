@@ -48,18 +48,16 @@ RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v
 # Annotate tools that Syft cannot detect on its own with a `.note.package` ELF
 # section (systemd ELF package metadata convention, see
 # https://systemd.io/ELF_PACKAGE_METADATA/) so they are included in the SBOM
-# generated for the image.
-RUN --mount=type=bind,source=.devcontainer/scripts/add-sbom-note.sh,target=/tmp/add-sbom-note.sh <<EOF
-    add_sbom_note() { bash /tmp/add-sbom-note.sh "$@"; }
-
-    add_sbom_note cargo-binstall "${CARGO_BINSTALL_VERSION}" "pkg:cargo/cargo-binstall@${CARGO_BINSTALL_VERSION}" \
+# generated for the image. `add-sbom-note` is provided by the base image.
+RUN <<EOF
+    add-sbom-note cargo-binstall "${CARGO_BINSTALL_VERSION}" "pkg:cargo/cargo-binstall@${CARGO_BINSTALL_VERSION}" \
         /usr/bin/cargo-binstall
-    add_sbom_note cargo-binutils "${CARGO_BINUTILS_VERSION}" "pkg:cargo/cargo-binutils@${CARGO_BINUTILS_VERSION}" \
+    add-sbom-note cargo-binutils "${CARGO_BINUTILS_VERSION}" "pkg:cargo/cargo-binutils@${CARGO_BINUTILS_VERSION}" \
         "${CARGO_HOME}"/bin/cargo-{cov,nm,objcopy,profdata,readobj,size,strip}
-    add_sbom_note cargo-mutants "${CARGO_MUTANTS_VERSION}" "pkg:cargo/cargo-mutants@${CARGO_MUTANTS_VERSION}" \
+    add-sbom-note cargo-mutants "${CARGO_MUTANTS_VERSION}" "pkg:cargo/cargo-mutants@${CARGO_MUTANTS_VERSION}" \
         "${CARGO_HOME}/bin/cargo-mutants"
-    add_sbom_note flip-link "${FLIP_LINK_VERSION}" "pkg:cargo/flip-link@${FLIP_LINK_VERSION}" \
+    add-sbom-note flip-link "${FLIP_LINK_VERSION}" "pkg:cargo/flip-link@${FLIP_LINK_VERSION}" \
         "${CARGO_HOME}/bin/flip-link"
-    add_sbom_note probe-rs-tools "${PROBE_RS_TOOLS_VERSION}" "pkg:cargo/probe-rs-tools@${PROBE_RS_TOOLS_VERSION}" \
+    add-sbom-note probe-rs-tools "${PROBE_RS_TOOLS_VERSION}" "pkg:cargo/probe-rs-tools@${PROBE_RS_TOOLS_VERSION}" \
         "${CARGO_HOME}"/bin/probe-rs "${CARGO_HOME}"/bin/cargo-embed "${CARGO_HOME}"/bin/cargo-flash
 EOF

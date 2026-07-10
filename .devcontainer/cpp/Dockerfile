@@ -200,19 +200,17 @@ RUN --mount=type=cache,target=/cache,sharing=locked \
 # Annotate tools that Syft cannot detect on its own with a `.note.package` ELF
 # section (systemd ELF package metadata convention, see
 # https://systemd.io/ELF_PACKAGE_METADATA/) so they are included in the SBOM
-# generated for the image.
-RUN --mount=type=bind,source=.devcontainer/scripts/add-sbom-note.sh,target=/tmp/add-sbom-note.sh <<EOF
-    add_sbom_note() { bash /tmp/add-sbom-note.sh "$@"; }
-
-    add_sbom_note ccache "${CCACHE_VERSION}" "pkg:generic/ccache@${CCACHE_VERSION}" \
+# generated for the image. `add-sbom-note` is provided by the base image.
+RUN <<EOF
+    add-sbom-note ccache "${CCACHE_VERSION}" "pkg:generic/ccache@${CCACHE_VERSION}" \
         /usr/local/bin/ccache
-    add_sbom_note xwin "${XWIN_VERSION}" "pkg:cargo/xwin@${XWIN_VERSION}" \
+    add-sbom-note xwin "${XWIN_VERSION}" "pkg:cargo/xwin@${XWIN_VERSION}" \
         /usr/local/bin/xwin
-    add_sbom_note include-what-you-use "${INCLUDE_WHAT_YOU_USE_VERSION}" "pkg:generic/include-what-you-use@${INCLUDE_WHAT_YOU_USE_VERSION}" \
+    add-sbom-note include-what-you-use "${INCLUDE_WHAT_YOU_USE_VERSION}" "pkg:generic/include-what-you-use@${INCLUDE_WHAT_YOU_USE_VERSION}" \
         /usr/local/bin/include-what-you-use
 
     if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
-        add_sbom_note arm-gnu-toolchain "${ARM_GNU_TOOLCHAIN_VERSION}" "pkg:generic/arm-gnu-toolchain@${ARM_GNU_TOOLCHAIN_VERSION}" \
+        add-sbom-note arm-gnu-toolchain "${ARM_GNU_TOOLCHAIN_VERSION}" "pkg:generic/arm-gnu-toolchain@${ARM_GNU_TOOLCHAIN_VERSION}" \
             /opt/gcc-arm-none-eabi/bin/arm-none-eabi-{gcc,g++,ld,objcopy,size}
     fi
 EOF
