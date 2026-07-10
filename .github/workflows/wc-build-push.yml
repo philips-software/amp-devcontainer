@@ -248,6 +248,8 @@ jobs:
         with:
           image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
+          registry-username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+          registry-password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
       - uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
           subject-name: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
