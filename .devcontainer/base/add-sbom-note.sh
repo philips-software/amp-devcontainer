@@ -17,7 +17,7 @@ shift 3
 
 note="$(mktemp)"
 trap 'rm -f "${note}"' EXIT
-printf '{"name":"%s","version":"%s","purl":"%s"}' "${name}" "${version}" "${purl}" > "${note}"
+jq -n --arg name "${name}" --arg version "${version}" --arg purl "${purl}" '{name: $name, version: $version, purl: $purl}' > "${note}"
 
 tagged=0
 for binary in "$@"; do

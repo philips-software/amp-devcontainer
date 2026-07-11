@@ -52,9 +52,9 @@ setup() {
 
   run cat "$SECTION"
   assert_success
-  assert_output --partial '"name":"example"'
-  assert_output --partial '"version":"1.2.3"'
-  assert_output --partial '"purl":"pkg:generic/example@1.2.3"'
+  assert_output --partial '"name": "example"'
+  assert_output --partial '"version": "1.2.3"'
+  assert_output --partial '"purl": "pkg:generic/example@1.2.3"'
 
   rm -f "$BINARY" "$SECTION"
 }

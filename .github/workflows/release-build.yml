@@ -91,7 +91,7 @@ jobs:
           set -Eeuo pipefail
           FORMATTED_DIGEST=${DIGEST//:/_}
           gh attestation verify --repo "${GH_REPO}" "oci://${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
-          gh release upload "${REF_NAME}" ./*.intoto.jsonl
+          gh release upload --clobber "${REF_NAME}" ./*.intoto.jsonl
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           GH_REPO: ${{ github.repository }}
@@ -121,7 +121,7 @@ jobs:
           FORMATTED_DIGEST=${DIGEST//:/_}
           INVENTORY="${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.tool-inventory.json"
           cp tool-inventory/tool-inventory.json "${INVENTORY}"
-          gh release upload "${REF_NAME}" "${INVENTORY}"
+          gh release upload --clobber "${REF_NAME}" "${INVENTORY}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           GH_TOKEN: ${{ github.token }}

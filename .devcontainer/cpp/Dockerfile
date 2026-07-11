@@ -9,7 +9,6 @@ ARG CCACHE_VERSION=4.13.1
 ARG XWIN_VERSION=0.8.0
 # Whether or not to build the embedded flavor of this container
 ARG BUILD_EMBEDDED_FLAVOR=false
-# Version of the Arm GNU toolchain used for the embedded flavor
 ARG ARM_GNU_TOOLCHAIN_VERSION=15.2.rel1
 
 # Downloader stage for AMD64 architecture
