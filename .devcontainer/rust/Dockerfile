@@ -40,7 +40,7 @@ RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tm
     rustup target add thumbv7em-none-eabi
     rustup target add thumbv7em-none-eabihf
 
-    wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
+    wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin"
     cargo-binstall -y --locked "cargo-binutils@${CARGO_BINUTILS_VERSION}" \
                                "cargo-mutants@${CARGO_MUTANTS_VERSION}" \
                                "flip-link@${FLIP_LINK_VERSION}" \
