@@ -116,6 +116,7 @@ ENV CCACHE_DIR=/cache/.ccache \
     PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
     PYTHONPYCACHEPREFIX=/cache/.python
 
+# hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
@@ -153,54 +154,43 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
         # Install arm-gcc toolchain
         cp -a /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
     fi
-EOF
 
-# Install include-what-you-use (iwyu) from source
-# hadolint ignore=DL3008
-RUN --mount=type=cache,target=/cache,sharing=locked \
-    --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
- apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev \
- && wget --no-hsts -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
- && CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
- && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
- && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
- && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev \
- && apt-get autoremove -y \
- && apt-get clean
+    # Install include-what-you-use (iwyu) from source
+    apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev
+    wget --no-hsts -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp
+    CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build
+    cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install
+    rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}
+    apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev
+    apt-get autoremove -y
+    apt-get clean
 
-# Update all tool alternatives to the correct version
-RUN --mount=type=cache,target=/var/log,sharing=locked \
- update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 10 \
+    # Update all tool alternatives to the correct version
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 10 \
                         --slave /usr/bin/g++ g++ /usr/bin/g++-15 \
-                        --slave /usr/bin/gcov gcov /usr/bin/gcov-15 \
- && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
-                        --slave /usr/bin/c++ c++ /usr/bin/g++-15 \
- && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
- && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/bin/mull-runner-${CLANG_VERSION} 10 \
+                        --slave /usr/bin/gcov gcov /usr/bin/gcov-15
+    update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
+                        --slave /usr/bin/c++ c++ /usr/bin/g++-15
+    update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10
+    update-alternatives --install /usr/bin/mull-runner mull-runner /usr/bin/mull-runner-${CLANG_VERSION} 10 \
                         --slave /usr/bin/mull-reporter mull-reporter /usr/bin/mull-reporter-${CLANG_VERSION} \
-                        --slave /usr/lib/mull-ir-frontend mull-ir-frontend /usr/lib/mull-ir-frontend-${CLANG_VERSION} \
- && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
- && mkdir /root/.amp
+                        --slave /usr/lib/mull-ir-frontend mull-ir-frontend /usr/lib/mull-ir-frontend-${CLANG_VERSION}
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
-# Set up package managers CPM and Conan
-# - Install CPM.cmake to the CMake module path
-# - Configure a default profile for Conan and set the CMake generator to Ninja
-#
-# NOTE: CPM.cmake is intentionally absent from the generated SBOM. It is a single
-# CMake module (not an ELF binary), so it cannot carry a `.note.package` ELF
-# section and Syft has no cataloger for standalone `.cmake` files. Its version is
-# pinned and tracked via the CPM_VERSION build argument above.
-RUN --mount=type=cache,target=/cache,sharing=locked \
- wget --no-hsts -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake \
- && conan profile detect \
- && echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
+    mkdir /root/.amp
 
-# Annotate tools that Syft cannot detect on its own with a `.note.package` ELF
-# section (systemd ELF package metadata convention, see
-# https://systemd.io/ELF_PACKAGE_METADATA/) so they are included in the SBOM
-# generated for the image. `add-sbom-note` is provided by the base image.
-RUN <<EOF
+    # Set up package managers CPM and Conan
+    # - Install CPM.cmake to the CMake module path
+    # - Configure a default profile for Conan and set the CMake generator to Ninja
+    #
+    # NOTE: CPM.cmake is intentionally absent from the generated SBOM. It is a single
+    # CMake module (not an ELF binary), so it cannot carry a `.note.package` ELF
+    # section and Syft has no cataloger for standalone `.cmake` files. Its version is
+    # pinned and tracked via the CPM_VERSION build argument above.
+    wget --no-hsts -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake
+    conan profile detect
+    echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
+
     add-sbom-note ccache "${CCACHE_VERSION}" "pkg:generic/ccache@${CCACHE_VERSION}" \
         /usr/local/bin/ccache
     add-sbom-note xwin "${XWIN_VERSION}" "pkg:cargo/xwin@${XWIN_VERSION}" \
@@ -208,6 +198,10 @@ RUN <<EOF
     add-sbom-note include-what-you-use "${INCLUDE_WHAT_YOU_USE_VERSION}" "pkg:generic/include-what-you-use@${INCLUDE_WHAT_YOU_USE_VERSION}" \
         /usr/local/bin/include-what-you-use
 
+    # Annotate tools that Syft cannot detect on its own with a `.note.package` ELF
+    # section (systemd ELF package metadata convention, see
+    # https://systemd.io/ELF_PACKAGE_METADATA/) so they are included in the SBOM
+    # generated for the image. `add-sbom-note` is provided by the base image.
     if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
         add-sbom-note arm-gnu-toolchain "${ARM_GNU_TOOLCHAIN_VERSION}" "pkg:generic/arm-gnu-toolchain@${ARM_GNU_TOOLCHAIN_VERSION}" \
             /opt/gcc-arm-none-eabi/bin/arm-none-eabi-{gcc,g++,ld,objcopy,size}

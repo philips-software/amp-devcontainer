@@ -16,6 +16,11 @@ HEALTHCHECK NONE
 
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
+ENV BINSTALL_DISABLE_TELEMETRY=true \
+    CARGO_HOME=/usr/local/cargo \
+    RUSTUP_HOME=/usr/local/rustup \
+    PATH=/usr/local/cargo/bin:"$PATH"
+
 RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -27,29 +32,24 @@ RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tm
 
     update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
                         --slave /usr/bin/c++ c++ /usr/bin/g++-15
-EOF
 
-# Install rust
-ENV BINSTALL_DISABLE_TELEMETRY=true \
-    CARGO_HOME=/usr/local/cargo \
-    RUSTUP_HOME=/usr/local/rustup \
-    PATH=/usr/local/cargo/bin:"$PATH"
+    # Install rust
+    rustup set profile minimal
+    rustup default ${RUST_VERSION}
+    rustup component add clippy llvm-tools rustfmt
+    rustup target add thumbv7em-none-eabi
+    rustup target add thumbv7em-none-eabihf
 
-RUN rustup set profile minimal \
- && rustup default ${RUST_VERSION} \
- && rustup component add clippy llvm-tools rustfmt \
- && rustup target add thumbv7em-none-eabi \
- && rustup target add thumbv7em-none-eabihf
+    wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
+    cargo-binstall -y --locked "cargo-binutils@${CARGO_BINUTILS_VERSION}" \
+                               "cargo-mutants@${CARGO_MUTANTS_VERSION}" \
+                               "flip-link@${FLIP_LINK_VERSION}" \
+                               "probe-rs-tools@${PROBE_RS_TOOLS_VERSION}"
 
-# Install additional rust tools
-RUN wget -qO - "https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-$(uname -m)-unknown-linux-gnu.tgz" | tar xz -C "/usr/bin" \
- && cargo-binstall -y --locked "cargo-binutils@${CARGO_BINUTILS_VERSION}" "cargo-mutants@${CARGO_MUTANTS_VERSION}" "flip-link@${FLIP_LINK_VERSION}" "probe-rs-tools@${PROBE_RS_TOOLS_VERSION}"
-
-# Annotate tools that Syft cannot detect on its own with a `.note.package` ELF
-# section (systemd ELF package metadata convention, see
-# https://systemd.io/ELF_PACKAGE_METADATA/) so they are included in the SBOM
-# generated for the image. `add-sbom-note` is provided by the base image.
-RUN <<EOF
+    # Annotate tools that Syft cannot detect on its own with a `.note.package` ELF
+    # section (systemd ELF package metadata convention, see
+    # https://systemd.io/ELF_PACKAGE_METADATA/) so they are included in the SBOM
+    # generated for the image. `add-sbom-note` is provided by the base image.
     add-sbom-note cargo-binstall "${CARGO_BINSTALL_VERSION}" "pkg:cargo/cargo-binstall@${CARGO_BINSTALL_VERSION}" \
         /usr/bin/cargo-binstall
     add-sbom-note cargo-binutils "${CARGO_BINUTILS_VERSION}" "pkg:cargo/cargo-binutils@${CARGO_BINUTILS_VERSION}" \
