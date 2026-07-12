@@ -19,13 +19,13 @@
       "extensions": [
         "github.copilot@1.388.0",
         "github.vscode-github-actions@0.32.1",
-        "github.vscode-pull-request-github@0.154.0",
+        "github.vscode-pull-request-github@0.156.0",
         "jetmartin.bats@0.1.10",
         "kherring.bats-test-runner@0.1.3",
         "mhutchie.git-graph@1.30.0",
         "ms-azuretools.vscode-docker@2.0.0",
-        "rust-lang.rust-analyzer@0.3.2955",
-        "sonarsource.sonarlint-vscode@5.4.0",
+        "rust-lang.rust-analyzer@0.3.2963",
+        "sonarsource.sonarlint-vscode@5.5.0",
         "tamasfe.even-better-toml@0.21.2",
         "usernamehw.errorlens@3.28.0"
       ]
