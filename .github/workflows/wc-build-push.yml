@@ -283,6 +283,7 @@ jobs:
           subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
           show-summary: false
           push-to-registry: true
+      # @sbdl test-sec-0001 is test { custom:title is "Verify attestation"; requirement is req-sec-0002 }
       - name: Verify attestation
         run: gh attestation verify --repo "${GH_REPO}" --signer-workflow philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml "oci://${FULLY_QUALIFIED_IMAGE_NAME}@${DIGEST}"
         env:
