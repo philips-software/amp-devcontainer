@@ -132,6 +132,11 @@ All included tools are preconfigured and necessary plug-ins will be installed at
 This behavior is implemented by appending devcontainer metadata to an image label according to these [specifications](https://containers.dev/implementors/reference/#labels).
 It is possible to override, amend or change the options following this [merge logic](https://containers.dev/implementors/spec/#merge-logic).
 
+The `devcontainer.metadata` label is an array of metadata entries.
+Each flavor only declares its own entry; during the build the base image's metadata array is read and the flavor's entry is appended to it, producing an array such as `[<base>, <flavor>]`.
+This keeps the per-flavor metadata free of duplicated base entries while letting the [merge logic](https://containers.dev/implementors/spec/#merge-logic) combine them, with later entries taking precedence.
+Images built on top of a flavor extend the array further (e.g. `[<base>, <flavor>, <derived>]`), so derived images inherit and can override all inherited metadata.
+
 ## Usage
 
 This chapter describes how to use amp-devcontainer for two common use-cases, and details how to verify the signature of the container images.

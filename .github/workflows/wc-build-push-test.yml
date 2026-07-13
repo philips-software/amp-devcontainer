@@ -12,6 +12,14 @@ on:
         description: Path to the Playwright acceptance tests (directory that contains playwright.config.ts).
         required: false
         type: string
+      base-image:
+        description: >-
+          Reference of the image this build is based on (the image the Dockerfile builds FROM).
+
+          Used to merge the base image's `devcontainer.metadata` label into the built image so
+          that derived images inherit base metadata without duplicating it.
+        required: false
+        type: string
       build-args:
         description: Optional docker build args (newline-separated KEY=VALUE).
         required: false
@@ -134,6 +142,7 @@ jobs:
       DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
       DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     with:
+      base-image: ${{ inputs.base-image }}
       build-args: ${{ inputs.build-args }}
       dockerfile: ${{ inputs.dockerfile }}
       enable-edge-tag: ${{ inputs.enable-edge-tag }}
