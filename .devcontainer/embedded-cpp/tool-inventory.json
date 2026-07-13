@@ -1,0 +1,20 @@
+[
+  "arm-gnu-toolchain",
+  "ccache",
+  "clang-22",
+  "clang-format-22",
+  "clang-tidy-22",
+  "clang-tools-22",
+  "clangd-22",
+  "cmake",
+  "conan",
+  "g++-15",
+  "gcovr",
+  "gdb-multiarch",
+  "include-what-you-use",
+  "lld-22",
+  "llvm-22",
+  "mull-22",
+  "ninja-build",
+  "xwin"
+]

@@ -14,9 +14,14 @@
     "vscode": {
       "settings": {
         "files.insertFinalNewline": true,
-        "files.trimTrailingWhitespace": true
+        "files.trimTrailingWhitespace": true,
+        "[json][yaml]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        }
       },
       "extensions": [
+        "esbenp.prettier-vscode@12.4.0",
         "github.copilot@1.388.0",
         "github.vscode-github-actions@0.32.1",
         "github.vscode-pull-request-github@0.152.0",

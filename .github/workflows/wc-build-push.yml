@@ -15,7 +15,7 @@ on:
   workflow_call:
     inputs:
       build-args:
-        required: false
+        required: true
         type: string
       build-test-runner-labels:
         required: true
@@ -36,6 +36,9 @@ on:
         required: true
         type: string
       runner-labels:
+        required: true
+        type: string
+      tool-inventory-file:
         required: true
         type: string
     outputs:
@@ -248,6 +251,32 @@ jobs:
         with:
           image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
+          output-file: ${{ runner.temp }}/sbom.spdx.json
+      - name: Derive tool inventory from SBOM
+        if: ${{ inputs.tool-inventory-file }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            .github/scripts/generate-tool-inventory.sh
+            ${{ inputs.tool-inventory-file }}
+          sparse-checkout-cone-mode: false
+      - name: Generate tool inventory
+        if: ${{ inputs.tool-inventory-file }}
+        run: |
+          set -Eeuo pipefail
+          bash .github/scripts/generate-tool-inventory.sh \
+            "${SBOM}" "${ALLOWLIST}" "${FLAVOR}" | tee tool-inventory.json
+        env:
+          SBOM: ${{ runner.temp }}/sbom.spdx.json
+          ALLOWLIST: ${{ inputs.tool-inventory-file }}
+          FLAVOR: ${{ needs.sanitize-image-name.outputs.image-basename }}
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ inputs.tool-inventory-file }}
+        with:
+          name: tool-inventory-${{ needs.sanitize-image-name.outputs.image-basename }}
+          path: tool-inventory.json
+          retention-days: 10
       - uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
           subject-name: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}

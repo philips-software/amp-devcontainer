@@ -16,3 +16,44 @@
 | amp-devcontainer-embedded-cpp | ghcr.io/philips-software/amp-devcontainer-embedded-cpp:{{ amp-devcontainer-embedded-cpp-version }}@{{ amp-devcontainer-embedded-cpp-sha }} |
 | amp-devcontainer-rust         | ghcr.io/philips-software/amp-devcontainer-rust:{{ amp-devcontainer-rust-version }}@{{ amp-devcontainer-rust-sha }}                         |
 
+#### :hammer_and_wrench: Included tools
+
+The tables below list the most relevant tools per flavor and their versions, as
+recorded in the image's Software Bill of Materials (SBOM).
+
+<details>
+<summary>amp-devcontainer-base</summary>
+
+{{ amp-devcontainer-base-tools }}
+
+</details>
+
+<details>
+<summary>amp-devcontainer-cpp</summary>
+
+{{ amp-devcontainer-cpp-tools }}
+
+</details>
+
+<details>
+<summary>amp-devcontainer-docs</summary>
+
+{{ amp-devcontainer-docs-tools }}
+
+</details>
+
+<details>
+<summary>amp-devcontainer-embedded-cpp</summary>
+
+{{ amp-devcontainer-embedded-cpp-tools }}
+
+</details>
+
+<details>
+<summary>amp-devcontainer-rust</summary>
+
+{{ amp-devcontainer-rust-tools }}
+
+</details>
+
+
