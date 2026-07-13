@@ -10,7 +10,11 @@
         "rust-lang.rust-analyzer@0.3.2955",
         "tamasfe.even-better-toml@0.21.2",
         "usernamehw.errorlens@3.28.0"
-      ]
+      ],
+      "settings": {
+        "extensions.autoCheckUpdates": false,
+        "extensions.autoUpdate": false
+      }
     }
   }
 }

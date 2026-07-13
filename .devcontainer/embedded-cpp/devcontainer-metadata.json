@@ -20,13 +20,12 @@
           "--compile-commands-dir=${userHome}/.amp"
         ],
         "cmake.copyCompileCommands": "${userHome}/.amp/compile_commands.json",
+        "extensions.autoCheckUpdates": false,
+        "extensions.autoUpdate": false,
         "cortex-debug.gdbPath": "gdb-multiarch",
         "cortex-debug.objdumpPath": "arm-none-eabi-objdump",
         "sonarlint.pathToCompileCommands": "/root/.amp/compile_commands.json",
-        "[c]": {
-          "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
-        },
-        "[cpp]": {
+        "[c][cpp]": {
           "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
         }
       }
