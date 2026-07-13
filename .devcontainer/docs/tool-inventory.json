@@ -1,5 +1,1 @@
-[
-  "graphviz",
-  "plantuml",
-  "sbdl"
-]
+["graphviz", "plantuml", "sbdl"]
