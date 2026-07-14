@@ -12,10 +12,6 @@
       "default": "7.2.1"
     }
   },
-  "optionalPaths": [
-    ".github/dependabot.yml"
-  ],
-  "platforms": [
-    "Any"
-  ]
+  "optionalPaths": [".github/dependabot.yml"],
+  "platforms": ["Any"]
 }

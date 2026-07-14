@@ -38,7 +38,7 @@ jobs:
       # currently provide a more fine-grained permission for release modification.
       contents: write # is needed to modify a release
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -66,6 +66,7 @@ jobs:
     permissions:
       # Please note that this is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
+      actions: read # is needed by actions/download-artifact to fetch the tool inventory
       contents: write # is needed to modify a release
     needs: [build-push-test, apply-release-notes-template]
     env:
@@ -73,7 +74,7 @@ jobs:
       REF_NAME: ${{ github.ref_name }}
       REGISTRY: ghcr.io
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -90,24 +91,42 @@ jobs:
           set -Eeuo pipefail
           FORMATTED_DIGEST=${DIGEST//:/_}
           gh attestation verify --repo "${GH_REPO}" "oci://${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
-          gh release upload "${REF_NAME}" ./*.intoto.jsonl
+          gh release upload --clobber "${REF_NAME}" ./*.intoto.jsonl
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           REPOSITORY_NAME: ${{ github.event.repository.name }}
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: tool-inventory-${{ github.event.repository.name }}-${{ matrix.flavor }}
+          path: tool-inventory
       - name: Update package details in release
         run: |
           set -Eeuo pipefail
+          TOOLS_TABLE=$(jq -r '"| Tool | Version |\n| --- | --- |\n" + ([.tools[] | "| \(.name) | \(.version) |"] | join("\n"))' tool-inventory/tool-inventory.json)
           UPDATED_NOTES=$(gh release view "${REF_NAME}" --json body -q '.body')
           UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-version }}"/"${REF_NAME}"}
           UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-sha }}"/"${DIGEST}"}
+          UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-tools }}"/"${TOOLS_TABLE}"}
           gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
+      - name: Upload tool inventory to release
+        run: |
+          set -Eeuo pipefail
+          FORMATTED_DIGEST=${DIGEST//:/_}
+          INVENTORY="${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.tool-inventory.json"
+          cp tool-inventory/tool-inventory.json "${INVENTORY}"
+          gh release upload --clobber "${REF_NAME}" "${INVENTORY}"
+        env:
+          DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
 
   publish-devcontainer-templates:
     name: 📝 Publish templates
@@ -132,7 +151,7 @@ jobs:
       contents: write # is needed to modify a release
     needs: [generate-documents]
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -154,7 +173,7 @@ jobs:
     permissions:
       pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           disable-sudo-and-containers: true
           egress-policy: audit

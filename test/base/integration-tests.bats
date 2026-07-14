@@ -12,3 +12,49 @@ setup() {
   assert_success
   assert_output --partial "OK"
 }
+
+# bats test_tags=Sbom
+@test "add-sbom-note tool is installed and executable" {
+  run command -v add-sbom-note
+  assert_success
+
+  assert [ -x /usr/local/bin/add-sbom-note ]
+}
+
+# bats test_tags=Sbom
+@test "add-sbom-note fails when required arguments are missing" {
+  run add-sbom-note only-a-name
+  assert_failure
+}
+
+# bats test_tags=Sbom
+@test "add-sbom-note fails when none of the given binaries exist" {
+  run add-sbom-note example 1.2.3 pkg:generic/example@1.2.3 /nonexistent/binary
+
+  assert_failure
+  assert_output --partial "no binaries found to annotate for example"
+}
+
+# bats test_tags=Sbom
+@test "add-sbom-note annotates an ELF binary with a .note.package section" {
+  BINARY=$(mktemp)
+  cp "$(command -v bash)" "$BINARY"
+  chmod +x "$BINARY"
+  # Ubuntu ships some binaries with a pre-existing .note.package section; start
+  # from a clean binary so the test exercises add-sbom-note's own annotation.
+  objcopy --remove-section .note.package "$BINARY" 2> /dev/null || true
+
+  run add-sbom-note example 1.2.3 pkg:generic/example@1.2.3 "$BINARY"
+  assert_success
+
+  SECTION=$(mktemp)
+  objcopy --dump-section .note.package="$SECTION" "$BINARY" /dev/null
+
+  run cat "$SECTION"
+  assert_success
+  assert_output --partial '"name": "example"'
+  assert_output --partial '"version": "1.2.3"'
+  assert_output --partial '"purl": "pkg:generic/example@1.2.3"'
+
+  rm -f "$BINARY" "$SECTION"
+}
