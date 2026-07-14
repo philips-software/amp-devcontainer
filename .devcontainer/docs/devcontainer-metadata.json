@@ -10,7 +10,11 @@
         "ms-vsliveshare.vsliveshare@1.1.122",
         "sbdl.sbdl@1.8.18",
         "usernamehw.errorlens@3.28.0"
-      ]
+      ],
+      "settings": {
+        "extensions.autoCheckUpdates": false,
+        "extensions.autoUpdate": false
+      }
     }
   }
 }
