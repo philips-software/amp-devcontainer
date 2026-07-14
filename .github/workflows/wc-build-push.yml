@@ -250,8 +250,8 @@ jobs:
       - uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
-          registry-username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-          registry-password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
+          registry-username: ${{ inputs.registry == 'ghcr.io' && github.actor || secrets.DOCKER_REGISTRY_USERNAME }}
+          registry-password: ${{ inputs.registry == 'ghcr.io' && github.token || secrets.DOCKER_REGISTRY_PASSWORD }}
           dependency-snapshot: true
           output-file: ${{ runner.temp }}/sbom.spdx.json
       - name: Derive tool inventory from SBOM
