@@ -41,3 +41,8 @@ It's time for our quarterly tool version check! This issue serves as a reminder 
 
 - [ ] [Rust toolchain](https://rust-lang.org/)
 - [ ] [cargo-binstall](https://github.com/cargo-bins/cargo-binstall/releases)
+
+### 🦀 amp-devcontainer-embedded-rust
+
+- [ ] [probe-rs](https://github.com/probe-rs/probe-rs/releases)
+- [ ] [flip-link](https://github.com/knurling-rs/flip-link/releases)

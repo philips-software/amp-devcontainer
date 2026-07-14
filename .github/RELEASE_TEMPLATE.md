@@ -14,6 +14,7 @@
 | amp-devcontainer-cpp          | ghcr.io/philips-software/amp-devcontainer-cpp:{{ amp-devcontainer-cpp-version }}@{{ amp-devcontainer-cpp-sha }}                            |
 | amp-devcontainer-docs         | ghcr.io/philips-software/amp-devcontainer-docs:{{ amp-devcontainer-docs-version }}@{{ amp-devcontainer-docs-sha }}                         |
 | amp-devcontainer-embedded-cpp | ghcr.io/philips-software/amp-devcontainer-embedded-cpp:{{ amp-devcontainer-embedded-cpp-version }}@{{ amp-devcontainer-embedded-cpp-sha }} |
+| amp-devcontainer-embedded-rust | ghcr.io/philips-software/amp-devcontainer-embedded-rust:{{ amp-devcontainer-embedded-rust-version }}@{{ amp-devcontainer-embedded-rust-sha }} |
 | amp-devcontainer-rust         | ghcr.io/philips-software/amp-devcontainer-rust:{{ amp-devcontainer-rust-version }}@{{ amp-devcontainer-rust-sha }}                         |
 
 #### :hammer_and_wrench: Included tools
@@ -46,6 +47,13 @@ recorded in the image's Software Bill of Materials (SBOM).
 <summary>amp-devcontainer-embedded-cpp</summary>
 
 {{ amp-devcontainer-embedded-cpp-tools }}
+
+</details>
+
+<details>
+<summary>amp-devcontainer-embedded-rust</summary>
+
+{{ amp-devcontainer-embedded-rust-tools }}
 
 </details>
 

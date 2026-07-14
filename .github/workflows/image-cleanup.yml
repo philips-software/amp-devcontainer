@@ -25,4 +25,4 @@ jobs:
         with:
           delete-orphaned-images: true
           delete-untagged: true
-          packages: amp-devcontainer,amp-devcontainer-base,amp-devcontainer-cpp,amp-devcontainer-docs,amp-devcontainer-embedded-cpp,amp-devcontainer-rust
+          packages: amp-devcontainer,amp-devcontainer-base,amp-devcontainer-cpp,amp-devcontainer-docs,amp-devcontainer-embedded-cpp,amp-devcontainer-embedded-rust,amp-devcontainer-rust
