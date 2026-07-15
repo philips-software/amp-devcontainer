@@ -49,9 +49,6 @@ if [ -n "${BASE_IMAGE}" ]; then
 fi
 
 # Concatenate base entries with the flavor entry and emit the label value.
-#
-# The sed expression is a workaround for quotes being eaten in arrays when passed
-# through `docker buildx build --label` (e.g. ["x", "y"] -> ["x",y]).
-merged="$(jq -cj --slurpfile flavor "${METADATA_FILE}" '. + $flavor' <<< "${base_metadata}" | sed 's/,"/, "/g')"
+merged="$(jq -cj --slurpfile flavor "${METADATA_FILE}" '. + $flavor' <<< "${base_metadata}")"
 
 echo "devcontainer.metadata=${merged}"
