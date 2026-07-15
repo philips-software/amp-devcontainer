@@ -158,6 +158,7 @@ jobs:
             exit 1
           fi
 
+          # Compare as normalized JSON so the array-quote whitespace workaround is ignored.
           if ! diff <(jq -S . <<< "${expected}") <(jq -S . <<< "${actual}"); then
             echo "error: devcontainer.metadata label on the image does not match the expected merged metadata" >&2
             exit 1
