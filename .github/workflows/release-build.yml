@@ -38,7 +38,7 @@ jobs:
       # currently provide a more fine-grained permission for release modification.
       contents: write # is needed to modify a release
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -61,7 +61,7 @@ jobs:
     name: Update Release Notes (🍨 ${{ matrix.flavor }})
     strategy:
       matrix:
-        flavor: [base, cpp, docs, embedded-cpp, rust]
+        flavor: [base, cpp, docs, embedded-cpp, embedded-rust, rust]
     runs-on: ubuntu-latest
     permissions:
       # Please note that this is an overly broad scope, but GitHub does not
@@ -74,7 +74,7 @@ jobs:
       REF_NAME: ${{ github.ref_name }}
       REGISTRY: ghcr.io
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -151,7 +151,7 @@ jobs:
       contents: write # is needed to modify a release
     needs: [generate-documents]
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -173,7 +173,7 @@ jobs:
     permissions:
       pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           disable-sudo-and-containers: true
           egress-policy: audit

@@ -55,7 +55,12 @@ jobs:
             tool-inventory-file: .devcontainer/embedded-cpp/tool-inventory.json
           - flavor: rust
             dockerfile: .devcontainer/rust/Dockerfile
+            build-embedded-flavor: "false"
             tool-inventory-file: .devcontainer/rust/tool-inventory.json
+          - flavor: embedded-rust
+            dockerfile: .devcontainer/rust/Dockerfile
+            build-embedded-flavor: "true"
+            tool-inventory-file: .devcontainer/embedded-rust/tool-inventory.json
     uses: ./.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}

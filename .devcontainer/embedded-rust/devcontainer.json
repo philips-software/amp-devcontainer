@@ -1,14 +1,15 @@
 {
   "initializeCommand": "docker build -f .devcontainer/base/Dockerfile -t amp-devcontainer-base:local .",
   "build": {
-    "dockerfile": "Dockerfile",
+    "dockerfile": "../rust/Dockerfile",
     "context": "../..",
     "args": {
-      "BASE_IMAGE": "amp-devcontainer-base:local"
+      "BASE_IMAGE": "amp-devcontainer-base:local",
+      "BUILD_EMBEDDED_FLAVOR": "true"
     }
   },
   "remoteEnv": {
-    "CONTAINER_FLAVOR": "docs"
+    "CONTAINER_FLAVOR": "embedded-rust"
   },
   "customizations": {
     "vscode": {
@@ -27,8 +28,12 @@
         "github.vscode-pull-request-github@0.156.0",
         "jetmartin.bats@0.1.10",
         "kherring.bats-test-runner@0.1.3",
+        "marus25.cortex-debug@1.12.1",
         "mhutchie.git-graph@1.30.0",
         "ms-azuretools.vscode-docker@2.0.0",
+        "rust-lang.rust-analyzer@0.3.2963",
+        "sonarsource.sonarlint-vscode@5.5.0",
+        "tamasfe.even-better-toml@0.21.2",
         "usernamehw.errorlens@3.28.0"
       ]
     }

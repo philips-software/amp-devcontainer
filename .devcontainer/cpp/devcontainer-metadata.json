@@ -5,12 +5,14 @@
         "llvm-vs-code-extensions.vscode-clangd@0.6.0",
         "ms-vscode.cmake-tools@1.23.52",
         "ms-vscode.cpptools@1.32.2",
-        "sonarsource.sonarlint-vscode@5.4.0"
+        "sonarsource.sonarlint-vscode@5.5.0"
       ],
       "settings": {
         "C_Cpp.intelliSenseEngine": "disabled",
         "clangd.arguments": ["--compile-commands-dir=${userHome}/.amp"],
         "cmake.copyCompileCommands": "${userHome}/.amp/compile_commands.json",
+        "extensions.autoCheckUpdates": false,
+        "extensions.autoUpdate": false,
         "sonarlint.pathToCompileCommands": "/root/.amp/compile_commands.json",
         "[c][cpp]": {
           "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
