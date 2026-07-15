@@ -1,0 +1,4 @@
+{
+  "image": "ghcr.io/philips-software/amp-devcontainer-embedded-rust:${localEnv:IMAGE_VERSION}",
+  "workspaceFolder": "/workspaces/amp-devcontainer/test/embedded-rust/workspace"
+}

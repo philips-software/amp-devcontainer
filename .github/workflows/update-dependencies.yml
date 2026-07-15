@@ -57,7 +57,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flavor: [cpp, docs, embedded-cpp, rust]
+        flavor: [cpp, docs, embedded-cpp, embedded-rust, rust]
         file: [devcontainer-metadata.json, devcontainer.json]
     permissions:
       contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here

@@ -21,7 +21,7 @@ jobs:
       - uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
         with:
           delete-tags: pr-${{ github.event.pull_request.number }}
-          packages: amp-devcontainer,amp-devcontainer-base,amp-devcontainer-cpp,amp-devcontainer-docs,amp-devcontainer-embedded-cpp,amp-devcontainer-rust
+          packages: amp-devcontainer,amp-devcontainer-base,amp-devcontainer-cpp,amp-devcontainer-docs,amp-devcontainer-embedded-cpp,amp-devcontainer-embedded-rust,amp-devcontainer-rust
 
   cleanup-cache:
     name: 🧹 Cleanup Cache
