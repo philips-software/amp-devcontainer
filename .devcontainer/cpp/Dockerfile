@@ -177,7 +177,9 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
                         --slave /usr/lib/mull-ir-frontend mull-ir-frontend /usr/lib/mull-ir-frontend-${CLANG_VERSION}
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
-    mkdir /root/.amp
+    # Add a dummy compile_commands.json file to the default location so that tools like SonarLint and Clangd can find it.
+    # This file will be overwritten by CMake when a project is built.
+    mkdir /root/.amp && echo '[]' > /root/.amp/compile_commands.json
 
     # Set up package managers CPM and Conan
     # - Install CPM.cmake to the CMake module path
