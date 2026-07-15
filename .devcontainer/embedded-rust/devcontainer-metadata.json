@@ -5,9 +5,9 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "marus25.cortex-debug@1.12.1",
         "mhutchie.git-graph@1.30.0",
         "ms-vsliveshare.vsliveshare@1.1.122",
+        "probe-rs.probe-rs-debugger@0.31.0",
         "rust-lang.rust-analyzer@0.3.2963",
         "tamasfe.even-better-toml@0.21.2",
         "usernamehw.errorlens@3.28.0"
