@@ -11,8 +11,6 @@
         "C_Cpp.intelliSenseEngine": "disabled",
         "clangd.arguments": ["--compile-commands-dir=${userHome}/.amp"],
         "cmake.copyCompileCommands": "${userHome}/.amp/compile_commands.json",
-        "extensions.autoCheckUpdates": false,
-        "extensions.autoUpdate": false,
         "sonarlint.pathToCompileCommands": "/root/.amp/compile_commands.json",
         "[c][cpp]": {
           "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
