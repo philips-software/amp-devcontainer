@@ -51,8 +51,8 @@ fi
 
 # Concatenate base entries with the flavor entry and emit the label value.
 #
-# The sed expression is a workaround for quotes being eaten in arrays when passed
-# through `docker buildx build --label` (e.g. ["x", "y"] -> ["x",y]).
-merged="$(jq -cj --slurpfile flavor "${METADATA_FILE}" '. + $flavor' <<< "${base_metadata}" | sed 's/,"/, "/g')"
+# The gsub expression adds a space after each comma to prevent `docker buildx build --label` to
+# misinterpret the array and produce invalid JSON (e.g. ["x","y"] -> ["x",y]).
+merged="$(jq -cj --slurpfile flavor "${METADATA_FILE}" '. + $flavor | @json | gsub("\",\""; "\", \"")' <<< "${base_metadata}")"
 
 echo "devcontainer.metadata=${merged}"
