@@ -18,8 +18,9 @@ setup() {
   APT_REQUIREMENTS="${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements.json"
 
   while IFS="=" read -r PACKAGE EXPECTED_VERSION; do
-    INSTALLED_VERSION=$(dpkg-query -W -f='${Version}' "${PACKAGE}")
-    assert_equal "${INSTALLED_VERSION}" "${EXPECTED_VERSION}"
+    run dpkg-query -W -f='${Version}' "${PACKAGE}"
+    assert_success
+    assert_equal "${output}" "${EXPECTED_VERSION}"
   done < <(jq -r 'to_entries[] | .key + "=" + .value' "${APT_REQUIREMENTS}")
 }
 
@@ -27,7 +28,10 @@ setup() {
 @test "tools listed in the inventory are present in the image" {
   TOOL_INVENTORY="${BATS_TEST_DIRNAME}/../../.devcontainer/base/tool-inventory.json"
 
-  for TOOL in $(jq -r '.[]' "${TOOL_INVENTORY}"); do
+  run jq -r '.[]' "${TOOL_INVENTORY}"
+  assert_success
+
+  while IFS= read -r TOOL; do
     case "${TOOL}" in
       bats-support | bats-assert)
         assert [ -f "/usr/local/${TOOL}/load.bash" ]
@@ -42,7 +46,7 @@ setup() {
         assert_success
         ;;
     esac
-  done
+  done <<< "${output}"
 }
 
 # bats test_tags=Compatibility

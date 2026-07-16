@@ -43,8 +43,9 @@ if [ -n "${BASE_IMAGE}" ]; then
 
     base_metadata="$(jq -c '
         (if has("config") then . else (to_entries[0].value) end)
-        | .config.Labels["devcontainer.metadata"]
-        | if . == null then [] else fromjson end
+        | (.config.Labels["devcontainer.metadata"] // "") as $raw
+        | if $raw == "" then [] else (try ($raw | fromjson) catch []) end
+        | if type == "array" then . else [] end
     ' <<< "${config}")"
 fi
 
