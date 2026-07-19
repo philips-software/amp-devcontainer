@@ -14,7 +14,9 @@
       ],
       "settings": {
         "C_Cpp.intelliSenseEngine": "disabled",
-        "clangd.arguments": ["--compile-commands-dir=${userHome}/.amp"],
+        "clangd.arguments": [
+          "--compile-commands-dir=${userHome}/.amp"
+        ],
         "cmake.copyCompileCommands": "${userHome}/.amp/compile_commands.json",
         "extensions.autoCheckUpdates": false,
         "extensions.autoUpdate": false,
