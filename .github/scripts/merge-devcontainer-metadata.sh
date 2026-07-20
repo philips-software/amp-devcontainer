@@ -53,6 +53,6 @@ fi
 #
 # The gsub expression adds a space after each comma to prevent `docker buildx build --label` to
 # misinterpret the array and produce invalid JSON (e.g. ["x","y"] -> ["x",y]).
-merged="$(jq -cj --slurpfile flavor "${METADATA_FILE}" '. + $flavor | @json | gsub("\",\""; "\", \")' <<< "${base_metadata}")"
+merged="$(jq -cr --slurpfile flavor "${METADATA_FILE}" '. + $flavor | @json | gsub("\",\""; "\", \"")' <<< "${base_metadata}")"
 
 echo "devcontainer.metadata=${merged}"
