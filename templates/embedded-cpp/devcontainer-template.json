@@ -1,6 +1,6 @@
 {
   "id": "embedded-cpp",
-  "version": "7.2.0",
+  "version": "8.0.0",
   "name": "Embedded C++",
   "description": "A modern, batteries-included software development environment for embedded C++",
   "documentationURL": "https://github.com/philips-software/amp-devcontainer/blob/main/README.md",
@@ -9,9 +9,13 @@
     "imageVersion": {
       "type": "string",
       "description": "amp-devcontainer version",
-      "default": "7.2.0"
+      "default": "8.0.0"
     }
   },
-  "optionalPaths": [".github/dependabot.yml"],
-  "platforms": ["Any"]
+  "optionalPaths": [
+    ".github/dependabot.yml"
+  ],
+  "platforms": [
+    "Any"
+  ]
 }
