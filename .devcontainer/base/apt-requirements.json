@@ -6,6 +6,6 @@
   "gnupg2": "2.4.8-4ubuntu3",
   "locales": "2.43-2ubuntu2",
   "udev": "259.5-0ubuntu3",
-  "wget": "1.25.0-2ubuntu4",
+  "wget": "1.25.0-2ubuntu4.2",
   "xz-utils": "5.8.3-1"
 }
