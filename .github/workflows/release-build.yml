@@ -124,6 +124,7 @@ jobs:
           gh release upload --clobber "${REF_NAME}" "${INVENTORY}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           REPOSITORY_NAME: ${{ github.event.repository.name }}

@@ -8,19 +8,18 @@
 
 #### :ice_cream: Image flavors
 
-| Container                      | Full identifier                                                                                                                               |
-|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| amp-devcontainer-base          | ghcr.io/philips-software/amp-devcontainer-base:{{ amp-devcontainer-base-version }}@{{ amp-devcontainer-base-sha }}                            |
-| amp-devcontainer-cpp           | ghcr.io/philips-software/amp-devcontainer-cpp:{{ amp-devcontainer-cpp-version }}@{{ amp-devcontainer-cpp-sha }}                               |
-| amp-devcontainer-docs          | ghcr.io/philips-software/amp-devcontainer-docs:{{ amp-devcontainer-docs-version }}@{{ amp-devcontainer-docs-sha }}                            |
-| amp-devcontainer-embedded-cpp  | ghcr.io/philips-software/amp-devcontainer-embedded-cpp:{{ amp-devcontainer-embedded-cpp-version }}@{{ amp-devcontainer-embedded-cpp-sha }}    |
-| amp-devcontainer-embedded-rust | ghcr.io/philips-software/amp-devcontainer-embedded-rust:{{ amp-devcontainer-embedded-rust-version }}@{{ amp-devcontainer-embedded-rust-sha }} |
-| amp-devcontainer-rust          | ghcr.io/philips-software/amp-devcontainer-rust:{{ amp-devcontainer-rust-version }}@{{ amp-devcontainer-rust-sha }}                            |
+| Flavor        | Full identifier                                                                                                                                                            |
+|:-------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| base          | <pre><code>ghcr.io/philips-software/amp-devcontainer-base:{{ amp-devcontainer-base-version }}@{{ amp-devcontainer-base-sha }}</code></pre><tr/>                            |
+| cpp           | <pre><code>ghcr.io/philips-software/amp-devcontainer-cpp:{{ amp-devcontainer-cpp-version }}@{{ amp-devcontainer-cpp-sha }}</code></pre><tr/>                               |
+| docs          | <pre><code>ghcr.io/philips-software/amp-devcontainer-docs:{{ amp-devcontainer-docs-version }}@{{ amp-devcontainer-docs-sha }}</code></pre><tr/>                            |
+| embedded-cpp  | <pre><code>ghcr.io/philips-software/amp-devcontainer-embedded-cpp:{{ amp-devcontainer-embedded-cpp-version }}@{{ amp-devcontainer-embedded-cpp-sha }}</code></pre><tr/>    |
+| embedded-rust | <pre><code>ghcr.io/philips-software/amp-devcontainer-embedded-rust:{{ amp-devcontainer-embedded-rust-version }}@{{ amp-devcontainer-embedded-rust-sha }}</code></pre><tr/> |
+| rust          | <pre><code>ghcr.io/philips-software/amp-devcontainer-rust:{{ amp-devcontainer-rust-version }}@{{ amp-devcontainer-rust-sha }}</code></pre>                                 |
 
 #### :hammer_and_wrench: Included tools
 
-The tables below list the most relevant tools per flavor and their versions, as
-recorded in the image's Software Bill of Materials (SBOM).
+The tables below list the most relevant tools per flavor and their versions, as recorded in the image's Software Bill of Materials (SBOM).
 
 <details>
 <summary>amp-devcontainer-base</summary>
