@@ -158,7 +158,9 @@ jobs:
             exit 1
           fi
 
-          # Compare as normalized JSON so the array-quote whitespace workaround is ignored.
+          # Ensure both values are JSON arrays (per spec) and compare normalized JSON so whitespace doesn't matter.
+          jq -e 'type == "array"' <<< "${expected}" > /dev/null
+          jq -e 'type == "array"' <<< "${actual}" > /dev/null
           if ! diff <(jq -S . <<< "${expected}") <(jq -S . <<< "${actual}"); then
             echo "error: devcontainer.metadata label on the image does not match the expected merged metadata" >&2
             exit 1
