@@ -13,6 +13,57 @@ setup() {
   assert_output --partial "OK"
 }
 
+# bats test_tags=Compatibility,Version
+@test "apt packages are installed at their pinned versions" {
+  APT_REQUIREMENTS="${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements.json"
+
+  while IFS="=" read -r PACKAGE EXPECTED_VERSION; do
+    run dpkg-query -W -f='${Version}' "${PACKAGE}"
+    assert_success
+    assert_equal "${output}" "${EXPECTED_VERSION}"
+  done < <(jq -r 'to_entries[] | .key + "=" + .value' "${APT_REQUIREMENTS}")
+}
+
+# bats test_tags=Sbom
+@test "tools listed in the inventory are present in the image" {
+  TOOL_INVENTORY="${BATS_TEST_DIRNAME}/../../.devcontainer/base/tool-inventory.json"
+
+  run jq -r '.[]' "${TOOL_INVENTORY}"
+  assert_success
+
+  while IFS= read -r TOOL; do
+    case "${TOOL}" in
+      bats-support | bats-assert)
+        assert [ -f "/usr/local/${TOOL}/load.bash" ]
+        ;;
+      gnupg2)
+        # The gnupg2 package provides the gpg command
+        run command -v gpg
+        assert_success
+        ;;
+      *)
+        run command -v "${TOOL}"
+        assert_success
+        ;;
+    esac
+  done <<< "${output}"
+}
+
+# bats test_tags=Compatibility
+@test "the C.UTF-8 locale is generated and set as the default" {
+  run locale -a
+  assert_success
+  assert_output --partial "C.utf8"
+
+  assert_equal "${LANG}" "C.UTF-8"
+}
+
+# bats test_tags=Maintainability
+@test "bash-completion is enabled for the root user" {
+  run grep -q "bash_completion" /root/.bashrc
+  assert_success
+}
+
 # bats test_tags=Sbom
 @test "add-sbom-note tool is installed and executable" {
   run command -v add-sbom-note

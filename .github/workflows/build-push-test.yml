@@ -28,6 +28,7 @@ jobs:
       packages: write # is needed to push image manifest when using GitHub Container Registry
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     with:
+      devcontainer-metadata-file: .devcontainer/base/devcontainer-metadata.json
       dockerfile: .devcontainer/base/Dockerfile
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}
       image-name: ${{ github.repository }}-base
@@ -70,6 +71,7 @@ jobs:
     with:
       acceptance-test-path: ${{ (github.actor != 'dependabot[bot]' && matrix.flavor == 'cpp') && 'test/cpp/features' || '' }}
       acceptance-test-devcontainer-file: .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
+      base-image: ${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
       build-args: |
         BASE_IMAGE=${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
         ${{ matrix.build-embedded-flavor != '' && format('BUILD_EMBEDDED_FLAVOR={0}', matrix.build-embedded-flavor) || '' }}

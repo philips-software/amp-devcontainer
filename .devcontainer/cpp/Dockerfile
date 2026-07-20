@@ -178,7 +178,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
     # Add a dummy compile_commands.json file to the default location so that tools like SonarLint and Clangd can find it.
-    # This file will be overwritten by CMake when a project is built.
+    # This file will be overwritten by CMake when a project is configured.
     mkdir /root/.amp && echo '[]' > /root/.amp/compile_commands.json
 
     # Set up package managers CPM and Conan
