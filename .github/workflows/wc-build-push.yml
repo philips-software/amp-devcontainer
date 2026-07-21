@@ -252,7 +252,7 @@ jobs:
           CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - run: |
           set -Eeuo pipefail
-          wget --https-only -qO diffoci https://github.com/reproducible-containers/diffoci/releases/download/v0.1.8/diffoci-v0.1.8.linux-amd64
+          wget -qO diffoci https://github.com/reproducible-containers/diffoci/releases/download/v0.1.8/diffoci-v0.1.8.linux-amd64
           echo "${DIFFOCI_SHA256}  diffoci" | sha256sum --check --strict -
           chmod +x diffoci
           ./diffoci diff --semantic --report-file=container-diff.json "${FROM_CONTAINER}" "${TO_CONTAINER}" || true

@@ -6,6 +6,8 @@ ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 # taken from https://ccache.dev/minisign.pub
 ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF
 ARG CCACHE_VERSION=4.13.1
+ARG CPM_VERSION=0.43.1
+ARG INCLUDE_WHAT_YOU_USE_VERSION=0.26
 ARG XWIN_VERSION=0.8.0
 # Whether or not to build the embedded flavor of this container
 ARG BUILD_EMBEDDED_FLAVOR=false
@@ -42,10 +44,17 @@ ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c673
 # trivy:ignore:AVD-DS-0001
 FROM downloader-${TARGETARCH} AS downloader
 
+ARG CPM_VERSION
+ARG INCLUDE_WHAT_YOU_USE_VERSION
+
 ADD --checksum=sha256:8b2a587ffd672c4687e7581dad4b2f6c1bb2ad6b480cd9771ba2ff48e0b8c75d \
  https://apt.llvm.org/llvm-snapshot.gpg.key /llvm.gpg.key
 ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323fefcf1 \
  https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key /mull.gpg.key
+ADD --checksum=sha256:1c40fc102ce9625d7de7eb14f541cab30cc3138dca627f0b0ec40293ce6c2934 \
+ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake /CPM.cmake
+ADD --checksum=sha256:ca3f157a5e6bf293cfb2fea585b103ec87245d02eaee0b6ab832665e740016eb \
+  https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz /iwyu.tar.gz
 
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
@@ -86,6 +95,8 @@ RUN --mount=from=downloader,target=/dl \
 
     tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)-glibc/ccache"
     tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
+    tar xzf /dl/iwyu.tar.gz
+    cp /dl/CPM.cmake /CPM.cmake
     cp /dl/llvm.gpg.key /llvm.gpg.key
     cp /dl/mull.gpg.key /mull.gpg.key
 EOF
@@ -94,10 +105,9 @@ EOF
 FROM ${BASE_IMAGE}
 
 ARG CLANG_VERSION=22
-ARG CPM_VERSION=0.42.1
-ARG INCLUDE_WHAT_YOU_USE_VERSION=0.26
 ARG BUILD_EMBEDDED_FLAVOR
 ARG CCACHE_VERSION
+ARG INCLUDE_WHAT_YOU_USE_VERSION
 ARG XWIN_VERSION
 ARG ARM_GNU_TOOLCHAIN_VERSION
 
@@ -136,8 +146,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     rm -rf "$(pip cache dir)"
 
     # Install ccache and xwin
-    cp /src/ccache /usr/local/bin/ccache
-    cp /src/xwin /usr/local/bin/xwin
+    install -m 0755 /src/ccache /usr/local/bin/ccache
+    install -m 0755 /src/xwin /usr/local/bin/xwin
 
     # Install clang toolchain and mull mutation testing framework
     cat /src/llvm.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg
@@ -157,10 +167,9 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
 
     # Install include-what-you-use (iwyu) from source
     apt-get update && apt-get install -y --no-install-recommends "libclang-${CLANG_VERSION}-dev" "llvm-${CLANG_VERSION}-dev"
-    wget --no-hsts --https-only -qO - "https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz" | tar xz -C /tmp
-    CC=clang CXX=clang++ cmake -S "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}" -B "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build"
-    cmake --build "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build" --target install
-    rm -rf "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}"
+    CC=clang CXX=clang++ cmake -S "/src/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}" -B "/tmp/include-what-you-use/build"
+    cmake --build "/tmp/include-what-you-use/build" --target install
+    rm -rf "/tmp/include-what-you-use"
     apt-get purge -y "libclang-${CLANG_VERSION}-dev" "llvm-${CLANG_VERSION}-dev"
     apt-get autoremove -y
     apt-get clean
@@ -189,7 +198,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     # CMake module (not an ELF binary), so it cannot carry a `.note.package` ELF
     # section and Syft has no cataloger for standalone `.cmake` files. Its version is
     # pinned and tracked via the CPM_VERSION build argument above.
-    wget --no-hsts --https-only -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ "https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake"
+    cp /src/CPM.cmake /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/
     conan profile detect
     echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
 

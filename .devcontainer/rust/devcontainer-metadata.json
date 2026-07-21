@@ -2,7 +2,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "rust-lang.rust-analyzer@0.3.2963",
+        "rust-lang.rust-analyzer@0.3.2971",
         "tamasfe.even-better-toml@0.21.2"
       ]
     }
