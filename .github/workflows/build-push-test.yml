@@ -44,23 +44,16 @@ jobs:
         include:
           - flavor: cpp
             dockerfile: .devcontainer/cpp/Dockerfile
-            build-embedded-flavor: "false"
-            tool-inventory-file: .devcontainer/cpp/tool-inventory.json
           - flavor: docs
             dockerfile: .devcontainer/docs/Dockerfile
-            tool-inventory-file: .devcontainer/docs/tool-inventory.json
           - flavor: embedded-cpp
             dockerfile: .devcontainer/cpp/Dockerfile
-            build-embedded-flavor: "true"
-            tool-inventory-file: .devcontainer/embedded-cpp/tool-inventory.json
+            build-embedded-flavor: true
           - flavor: rust
             dockerfile: .devcontainer/rust/Dockerfile
-            build-embedded-flavor: "false"
-            tool-inventory-file: .devcontainer/rust/tool-inventory.json
           - flavor: embedded-rust
             dockerfile: .devcontainer/rust/Dockerfile
-            build-embedded-flavor: "true"
-            tool-inventory-file: .devcontainer/embedded-rust/tool-inventory.json
+            build-embedded-flavor: true
     uses: ./.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
@@ -74,11 +67,11 @@ jobs:
       base-image: ${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
       build-args: |
         BASE_IMAGE=${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
-        ${{ matrix.build-embedded-flavor != '' && format('BUILD_EMBEDDED_FLAVOR={0}', matrix.build-embedded-flavor) || '' }}
+        ${{ matrix.build-embedded-flavor && 'BUILD_EMBEDDED_FLAVOR=true' || '' }}
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: ${{ matrix.dockerfile }}
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
       integration-test-podman: true
-      tool-inventory-file: ${{ matrix.tool-inventory-file }}
+      tool-inventory-file: .devcontainer/${{ matrix.flavor }}/tool-inventory.json
