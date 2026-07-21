@@ -76,7 +76,7 @@ RUN --mount=from=downloader,target=/dl \
             ARM_GNU_TOOLCHAIN_SHA256="d061559d814b205ed30c5b7c577c03317ec447ca51cd5a159d26b12a5bbeb20c"
         fi
 
-        wget --no-hsts --max-redirect=0 -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
+        wget --no-hsts --https-only -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
         echo "${ARM_GNU_TOOLCHAIN_SHA256}  ${ARM_GNU_TOOLCHAIN_TAR}" | sha256sum -c -
 
         tar xJf "${ARM_GNU_TOOLCHAIN_TAR}" --exclude="*arm-none-eabi-gdb*" --exclude="share"
@@ -189,7 +189,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     # CMake module (not an ELF binary), so it cannot carry a `.note.package` ELF
     # section and Syft has no cataloger for standalone `.cmake` files. Its version is
     # pinned and tracked via the CPM_VERSION build argument above.
-    wget --no-hsts  --max-redirect=0 -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake
+    wget --no-hsts --https-only -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake
     conan profile detect
     echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
 
