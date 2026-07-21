@@ -264,7 +264,7 @@ jobs:
           CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - run: |
           set -Eeuo pipefail
-          wget -O diffoci https://github.com/reproducible-containers/diffoci/releases/download/v0.1.7/diffoci-v0.1.7.linux-amd64
+          wget --max-redirect=0 -qO diffoci https://github.com/reproducible-containers/diffoci/releases/download/v0.1.8/diffoci-v0.1.8.linux-amd64
           chmod +x diffoci
           ./diffoci diff --semantic --report-file=container-diff.json "${FROM_CONTAINER}" "${TO_CONTAINER}" || true
         env:
