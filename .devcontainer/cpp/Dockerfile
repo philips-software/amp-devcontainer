@@ -49,7 +49,7 @@ ADD --checksum=sha256:8b2a587ffd672c4687e7581dad4b2f6c1bb2ad6b480cd9771ba2ff48e0
  https://apt.llvm.org/llvm-snapshot.gpg.key /llvm.gpg.key
 ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323fefcf1 \
  https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key /mull.gpg.key
-ADD --checksum=sha256:1c40fc102ce9625d7de7eb14f541cab30cc3138dca627f0b0ec40293ce6c2934
+ADD --checksum=sha256:1c40fc102ce9625d7de7eb14f541cab30cc3138dca627f0b0ec40293ce6c2934 \
  https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake /CPM.cmake
 
 # Extractor stage using target architecture specific downloader
