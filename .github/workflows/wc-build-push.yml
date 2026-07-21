@@ -105,7 +105,7 @@ jobs:
       # Merge the base image's devcontainer.metadata array with this flavor's
       # entry so that flavors inherit base metadata without duplicating it.
       - name: Generate image label for devcontainer.metadata
-        uses: philips-software/amp-devcontainer/.github/actions/merge-devcontainer-metadata@fix/package-scripts-as-actions
+        uses: philips-software/amp-devcontainer/.github/actions/merge-devcontainer-metadata@6934e07c72c5cc8d89128a5609981e4eb8737d67 # fix/package-scripts-as-actions
         id: devcontainer-metadata
         with:
           base-image: ${{ inputs.base-image }}
@@ -285,7 +285,7 @@ jobs:
       - name: Generate tool inventory
         if: ${{ inputs.tool-inventory-file != '' }}
         id: generate-tool-inventory
-        uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@fix/package-scripts-as-actions
+        uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@6934e07c72c5cc8d89128a5609981e4eb8737d67 # fix/package-scripts-as-actions
         with:
           sbom: ${{ runner.temp }}/sbom.spdx.json
           allowlist: ${{ inputs.tool-inventory-file }}
