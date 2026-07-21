@@ -8,14 +8,14 @@
 
 #### :ice_cream: Image flavors
 
-| Flavor        | Full identifier                                                                                                                                                            |
+|    Flavor     | Full identifier                                                                                                                                                            |
 |:-------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| base          | <pre><code>ghcr.io/philips-software/amp-devcontainer-base:{{ amp-devcontainer-base-version }}@{{ amp-devcontainer-base-sha }}</code></pre><tr/>                            |
-| cpp           | <pre><code>ghcr.io/philips-software/amp-devcontainer-cpp:{{ amp-devcontainer-cpp-version }}@{{ amp-devcontainer-cpp-sha }}</code></pre><tr/>                               |
-| docs          | <pre><code>ghcr.io/philips-software/amp-devcontainer-docs:{{ amp-devcontainer-docs-version }}@{{ amp-devcontainer-docs-sha }}</code></pre><tr/>                            |
+|     base      | <pre><code>ghcr.io/philips-software/amp-devcontainer-base:{{ amp-devcontainer-base-version }}@{{ amp-devcontainer-base-sha }}</code></pre><tr/>                            |
+|      cpp      | <pre><code>ghcr.io/philips-software/amp-devcontainer-cpp:{{ amp-devcontainer-cpp-version }}@{{ amp-devcontainer-cpp-sha }}</code></pre><tr/>                               |
+|     docs      | <pre><code>ghcr.io/philips-software/amp-devcontainer-docs:{{ amp-devcontainer-docs-version }}@{{ amp-devcontainer-docs-sha }}</code></pre><tr/>                            |
 | embedded-cpp  | <pre><code>ghcr.io/philips-software/amp-devcontainer-embedded-cpp:{{ amp-devcontainer-embedded-cpp-version }}@{{ amp-devcontainer-embedded-cpp-sha }}</code></pre><tr/>    |
 | embedded-rust | <pre><code>ghcr.io/philips-software/amp-devcontainer-embedded-rust:{{ amp-devcontainer-embedded-rust-version }}@{{ amp-devcontainer-embedded-rust-sha }}</code></pre><tr/> |
-| rust          | <pre><code>ghcr.io/philips-software/amp-devcontainer-rust:{{ amp-devcontainer-rust-version }}@{{ amp-devcontainer-rust-sha }}</code></pre>                                 |
+|     rust      | <pre><code>ghcr.io/philips-software/amp-devcontainer-rust:{{ amp-devcontainer-rust-version }}@{{ amp-devcontainer-rust-sha }}</code></pre>                                 |
 
 #### :hammer_and_wrench: Included tools
 
