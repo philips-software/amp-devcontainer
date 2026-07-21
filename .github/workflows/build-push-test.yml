@@ -28,11 +28,13 @@ jobs:
       packages: write # is needed to push image manifest when using GitHub Container Registry
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     with:
+      devcontainer-metadata-file: .devcontainer/base/devcontainer-metadata.json
       dockerfile: .devcontainer/base/Dockerfile
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}
       image-name: ${{ github.repository }}-base
       integration-test-file: test/base/integration-tests.bats
       integration-test-podman: true
+      tool-inventory-file: .devcontainer/base/tool-inventory.json
 
   build-push-test-flavors:
     name: 🍨 ${{ matrix.flavor }}
@@ -43,13 +45,22 @@ jobs:
           - flavor: cpp
             dockerfile: .devcontainer/cpp/Dockerfile
             build-embedded-flavor: "false"
+            tool-inventory-file: .devcontainer/cpp/tool-inventory.json
           - flavor: docs
             dockerfile: .devcontainer/docs/Dockerfile
+            tool-inventory-file: .devcontainer/docs/tool-inventory.json
           - flavor: embedded-cpp
             dockerfile: .devcontainer/cpp/Dockerfile
             build-embedded-flavor: "true"
+            tool-inventory-file: .devcontainer/embedded-cpp/tool-inventory.json
           - flavor: rust
             dockerfile: .devcontainer/rust/Dockerfile
+            build-embedded-flavor: "false"
+            tool-inventory-file: .devcontainer/rust/tool-inventory.json
+          - flavor: embedded-rust
+            dockerfile: .devcontainer/rust/Dockerfile
+            build-embedded-flavor: "true"
+            tool-inventory-file: .devcontainer/embedded-rust/tool-inventory.json
     uses: ./.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
@@ -60,6 +71,7 @@ jobs:
     with:
       acceptance-test-path: ${{ (github.actor != 'dependabot[bot]' && matrix.flavor == 'cpp') && 'test/cpp/features' || '' }}
       acceptance-test-devcontainer-file: .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
+      base-image: ${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
       build-args: |
         BASE_IMAGE=${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
         ${{ matrix.build-embedded-flavor != '' && format('BUILD_EMBEDDED_FLAVOR={0}', matrix.build-embedded-flavor) || '' }}
@@ -69,3 +81,4 @@ jobs:
       image-name: ${{ github.repository }}-${{ matrix.flavor }}
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
       integration-test-podman: true
+      tool-inventory-file: ${{ matrix.tool-inventory-file }}

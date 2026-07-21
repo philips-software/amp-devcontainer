@@ -31,13 +31,18 @@
         "cucumberautocomplete.smartSnippets": true,
         "cucumberautocomplete.onTypeFormat": true,
         "files.insertFinalNewline": true,
-        "files.trimTrailingWhitespace": true
+        "files.trimTrailingWhitespace": true,
+        "[json][yaml]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        }
       },
       "extensions": [
         "alexkrechik.cucumberautocomplete@3.1.0",
+        "esbenp.prettier-vscode@12.4.0",
         "github.copilot@1.388.0",
         "github.vscode-github-actions@0.32.1",
-        "github.vscode-pull-request-github@0.154.0",
+        "github.vscode-pull-request-github@0.156.0",
         "jetmartin.bats@0.1.10",
         "kherring.bats-test-runner@0.1.3",
         "mhutchie.git-graph@1.30.0",
@@ -45,7 +50,7 @@
         "ms-playwright.playwright@1.1.19",
         "ms-vscode.cmake-tools@1.23.52",
         "ms-vscode.cpptools@1.32.2",
-        "sonarsource.sonarlint-vscode@5.4.0",
+        "sonarsource.sonarlint-vscode@5.5.0",
         "usernamehw.errorlens@3.28.0"
       ]
     }

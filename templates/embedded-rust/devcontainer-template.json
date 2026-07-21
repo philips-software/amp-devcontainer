@@ -1,0 +1,21 @@
+{
+  "id": "embedded-rust",
+  "version": "8.0.0",
+  "name": "Embedded Rust",
+  "description": "A modern, batteries-included software development environment for embedded Rust",
+  "documentationURL": "https://github.com/philips-software/amp-devcontainer/blob/main/README.md",
+  "licenseURL": "https://github.com/philips-software/amp-devcontainer/blob/main/LICENSE",
+  "options": {
+    "imageVersion": {
+      "type": "string",
+      "description": "amp-devcontainer version",
+      "default": "8.0.0"
+    }
+  },
+  "optionalPaths": [
+    ".github/dependabot.yml"
+  ],
+  "platforms": [
+    "Any"
+  ]
+}

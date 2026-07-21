@@ -48,6 +48,16 @@
     },
     {
       "type": "json",
+      "path": "templates/embedded-rust/devcontainer-template.json",
+      "jsonpath": "$.version"
+    },
+    {
+      "type": "json",
+      "path": "templates/embedded-rust/devcontainer-template.json",
+      "jsonpath": "$.options.imageVersion.default"
+    },
+    {
+      "type": "json",
       "path": "templates/rust/devcontainer-template.json",
       "jsonpath": "$.version"
     },

@@ -40,6 +40,14 @@ Feature: Security
          guarantees. It enables consumers to verify that the container image hasn't been tampered
          with and that it indeed originates from the expected publisher. This helps mitigate several
          classes of [supply chain threats](https://slsa.dev/spec/v1.0/threats)."
+        custom:verification-type is "CI Verification Gate"
+        custom:verification-rationale is
+        "Cryptographic signing of released container images is verified through successful
+         verification of the signature using the public identity of the publisher.
+
+         Successful verification of the signature provides objective
+         evidence that the container image has not been tampered with and that it indeed originates
+         from the expected publisher."
       }
     # @sbdl-end
 

@@ -56,6 +56,7 @@ The following devcontainers are published towards the [GitHub Container Registry
 - [amp-devcontainer-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-cpp); the C++ container
 - [amp-devcontainer-docs](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-docs); the documentation generation container
 - [amp-devcontainer-embedded-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-embedded-cpp); the embedded C++ container
+- [amp-devcontainer-embedded-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-embedded-rust); the embedded Rust container
 - [amp-devcontainer-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-rust); the Rust container
 
 All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
@@ -88,13 +89,16 @@ On top of the host- and cross-compilation support it adds the arm-gcc (arm-none-
 
 The default build system is set up to use CMake, Ninja and CCache.
 
+#### amp-devcontainer-embedded-rust
+
+The amp-devcontainer-embedded-rust image built from this repository contains the same tooling as amp-devcontainer-rust, extended with support for embedded Rust development.
+On top of the host- and cross-compilation support it adds cross-compilation targets for the ARM Cortex-M architecture, together with flashing and debugging support for micro-controllers (using [probe-rs](https://probe.rs/), [flip-link](https://github.com/knurling-rs/flip-link) and [cortex-debug](https://github.com/Marus/cortex-debug)).
+
 #### amp-devcontainer-rust
 
-The amp-devcontainer-rust image built from this repository contains the Rust ecosystem and additional tools to facilitate, embedded, Rust development.
+The amp-devcontainer-rust image built from this repository contains the Rust ecosystem and additional tools to facilitate Rust development.
 The amp-devcontainer-rust includes support for host- and cross-compilation.
 Next to the Rust ecosystem there is support for code-coverage measurement, mutation testing (using [cargo-mutants](https://mutants.rs/)), fuzzing (using [rust-fuzz](https://rust-fuzz.github.io/book/introduction.html)) and static analysis and formatting (clippy, rustfmt).
-
-For embedded development and flashing and debugging [probe-rs](https://probe.rs/) and [flip-link](https://github.com/knurling-rs/flip-link) are included.
 
 ### Versioning
 
@@ -131,6 +135,11 @@ All containers can be used in Visual Studio Code or GitHub Codespaces without an
 All included tools are preconfigured and necessary plug-ins will be installed at container start.
 This behavior is implemented by appending devcontainer metadata to an image label according to these [specifications](https://containers.dev/implementors/reference/#labels).
 It is possible to override, amend or change the options following this [merge logic](https://containers.dev/implementors/spec/#merge-logic).
+
+The `devcontainer.metadata` label is an array of metadata entries.
+Each flavor only declares its own entry; during the build the base image's metadata array is read and the flavor's entry is appended to it, producing an array such as `[<base>, <flavor>]`.
+This keeps the per-flavor metadata free of duplicated base entries while letting the [merge logic](https://containers.dev/implementors/spec/#merge-logic) combine them, with later entries taking precedence.
+Images built on top of a flavor extend the array further (e.g. `[<base>, <flavor>, <derived>]`), so derived images inherit and can override all inherited metadata.
 
 ## Usage
 

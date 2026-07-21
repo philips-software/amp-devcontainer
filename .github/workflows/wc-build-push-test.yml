@@ -12,6 +12,14 @@ on:
         description: Path to the Playwright acceptance tests (directory that contains playwright.config.ts).
         required: false
         type: string
+      base-image:
+        description: >-
+          Reference of the image this build is based on (the image the Dockerfile builds FROM).
+
+          Used to merge the base image's `devcontainer.metadata` label into the built image so
+          that derived images inherit base metadata without duplicating it.
+        required: false
+        type: string
       build-args:
         description: Optional docker build args (newline-separated KEY=VALUE).
         required: false
@@ -82,6 +90,15 @@ on:
         required: false
         type: string
         default: '["ubuntu-latest"]'
+      tool-inventory-file:
+        description: >-
+          Path to a JSON allowlist of package names used to derive a curated tool
+          inventory from the generated SBOM. When empty, no inventory is produced.
+
+          Examples:
+            '.devcontainer/<flavor>/tool-inventory.json'
+        required: false
+        type: string
     outputs:
       digest:
         value: ${{ jobs.build-push.outputs.digest }}
@@ -125,6 +142,7 @@ jobs:
       DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
       DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     with:
+      base-image: ${{ inputs.base-image }}
       build-args: ${{ inputs.build-args }}
       dockerfile: ${{ inputs.dockerfile }}
       enable-edge-tag: ${{ inputs.enable-edge-tag }}
@@ -133,7 +151,9 @@ jobs:
       devcontainer-metadata-file: ${{ inputs.devcontainer-metadata-file }}
       runner-labels: ${{ inputs.runner-labels }}
       build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
+      tool-inventory-file: ${{ inputs.tool-inventory-file }}
 
+  # @sbdl test-compat-0001 is test { custom:title is "Docker runtime compatibility"; requirement is req-compat-0001 }
   integration-test-docker:
     name: 🧪
     if: ${{ inputs.integration-test-file }}
@@ -150,6 +170,7 @@ jobs:
       registry: ${{ inputs.registry }}
       test-file: ${{ inputs.integration-test-file }}
 
+  # @sbdl test-compat-0002 is test { custom:title is "Podman runtime compatibility"; requirement is req-compat-0001 }
   integration-test-podman:
     name: 🧪
     if: ${{ inputs.integration-test-file && inputs.integration-test-podman }}

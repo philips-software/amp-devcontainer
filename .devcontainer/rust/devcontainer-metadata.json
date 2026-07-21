@@ -1,15 +1,9 @@
 {
-  "remoteEnv": {
-    "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
-  },
   "customizations": {
     "vscode": {
       "extensions": [
-        "mhutchie.git-graph@1.30.0",
-        "ms-vsliveshare.vsliveshare@1.1.122",
-        "rust-lang.rust-analyzer@0.3.2955",
-        "tamasfe.even-better-toml@0.21.2",
-        "usernamehw.errorlens@3.28.0"
+        "rust-lang.rust-analyzer@0.3.2963",
+        "tamasfe.even-better-toml@0.21.2"
       ]
     }
   }

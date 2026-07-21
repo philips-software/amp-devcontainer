@@ -31,7 +31,8 @@ HEALTHCHECK NONE
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # hadolint ignore=DL3008
-RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
+RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add-sbom-note.sh \
+    --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
@@ -50,6 +51,14 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
    bash /src/bats-core/install.sh /usr/local
    cp -r /src/bats-support /usr/local/bats-support
    cp -r /src/bats-assert /usr/local/bats-assert
+
+   # Retain the bats-core manifest so the tool is captured in the SBOM
+   mkdir -p /usr/local/lib/bats-core
+   cp /src/bats-core/package.json /usr/local/lib/bats-core/package.json
+
+   # Install the SBOM annotation helper so downstream flavors can annotate tools
+   # that Syft cannot detect on its own (see .devcontainer/base/add-sbom-note.sh)
+   install -m 0755 /tmp/add-sbom-note.sh /usr/local/bin/add-sbom-note
 
    # Generate locale
    sed -i '/C.UTF-8/s/^# //' /etc/locale.gen
