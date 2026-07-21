@@ -270,7 +270,6 @@ jobs:
           ./diffoci diff --semantic --report-file=container-diff.json "${FROM_CONTAINER}" "${TO_CONTAINER}" || true
         env:
           DIFFOCI_SHA256: 01e6b50c1568c9d61c758ef6da81869f2c26c852698d73dca961b3617effe949
-        env:
           FROM_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
           TO_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
