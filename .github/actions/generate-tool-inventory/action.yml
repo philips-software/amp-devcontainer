@@ -36,6 +36,7 @@ runs:
         persist-credentials: false
         sparse-checkout: ${{ inputs.allowlist }}
         sparse-checkout-cone-mode: false
+        path: ${{ runner.temp }}/allowlist
     - shell: bash
       run: |
         set -Eeuo pipefail
@@ -79,6 +80,6 @@ runs:
         echo "${inventory}" | tee "${OUTPUT_FILE}"
       env:
         SBOM: ${{ inputs.sbom }}
-        ALLOWLIST: ${{ inputs.allowlist }}
+        ALLOWLIST: ${{ runner.temp }}/allowlist/${{ inputs.allowlist }}
         FLAVOR: ${{ inputs.flavor }}
         OUTPUT_FILE: ${{ inputs.output-file }}
