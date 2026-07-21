@@ -85,7 +85,7 @@ RUN --mount=from=downloader,target=/dl \
             ARM_GNU_TOOLCHAIN_SHA256="d061559d814b205ed30c5b7c577c03317ec447ca51cd5a159d26b12a5bbeb20c"
         fi
 
-        wget --no-hsts --https-only -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
+        wget --no-hsts -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
         echo "${ARM_GNU_TOOLCHAIN_SHA256}  ${ARM_GNU_TOOLCHAIN_TAR}" | sha256sum -c -
 
         tar xJf "${ARM_GNU_TOOLCHAIN_TAR}" --exclude="*arm-none-eabi-gdb*" --exclude="share"
