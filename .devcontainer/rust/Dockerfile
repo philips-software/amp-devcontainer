@@ -21,6 +21,8 @@ ARG CARGO_BINSTALL_VERSION
 
 ADD --checksum=sha256:a753a83ea4c79a629790e003822d4e82bec5bf839120f1826969c2401bd9f559 \
   https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-x86_64-unknown-linux-gnu.tgz /cargo-binstall.tgz
+ADD --checksum=sha256:131d12bc7dd4d7c431b8f36447ce630c71e61975af1da6215c317bfde60e8a53 \
+  https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-x86_64-unknown-linux-gnu.tgz.sig /cargo-binstall.tgz.minisig
 
 # Downloader stage for ARM64 architecture
 FROM scratch AS downloader-arm64
@@ -29,6 +31,8 @@ ARG CARGO_BINSTALL_VERSION
 
 ADD --checksum=sha256:f70991d597655bc928444c0ac0dedcbd1d16a9e64d0b1ea544dde2cc710e25f6 \
   https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-aarch64-unknown-linux-gnu.tgz /cargo-binstall.tgz
+ADD --checksum=sha256:3d4ed28844baeeafa5e7df2112e623ae6098cf70b61983054d7ecd5cdbce35bb \
+  https://github.com/cargo-bins/cargo-binstall/releases/download/v${CARGO_BINSTALL_VERSION}/cargo-binstall-aarch64-unknown-linux-gnu.tgz.sig /cargo-binstall.tgz.minisig
 
 # Select downloader stage based on target architecture.
 # Linters don't recognize the TARGETARCH variable, so we ignore warnings here.
