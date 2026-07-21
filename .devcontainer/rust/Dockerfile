@@ -6,13 +6,6 @@ ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 # taken from https://ccache.dev/minisign.pub
 ARG CARGO_BINSTALL_MINISIGN_PUBKEY=RWRk4OqCLGFd42uTAec/I+038vQLmeZzCBOS40LLDVC6qW3SVuDsdcW0
 ARG CARGO_BINSTALL_VERSION=1.21.0
-ARG CARGO_BINUTILS_VERSION=0.3.6
-ARG CARGO_MUTANTS_VERSION=25.3.1
-ARG FLIP_LINK_VERSION=0.1.12
-ARG PROBE_RS_TOOLS_VERSION=0.31.0
-ARG RUST_VERSION=1.94.1
-# Whether or not to build the embedded flavor of this container
-ARG BUILD_EMBEDDED_FLAVOR=false
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
@@ -62,6 +55,15 @@ EOF
 
 # Final development container image
 FROM ${BASE_IMAGE}
+
+ARG CARGO_BINSTALL_VERSION
+ARG CARGO_BINUTILS_VERSION=0.3.6
+ARG CARGO_MUTANTS_VERSION=25.3.1
+ARG FLIP_LINK_VERSION=0.1.12
+ARG PROBE_RS_TOOLS_VERSION=0.31.0
+ARG RUST_VERSION=1.94.1
+# Whether or not to build the embedded flavor of this container
+ARG BUILD_EMBEDDED_FLAVOR=false
 
 ARG DEBIAN_FRONTEND=noninteractive
 
