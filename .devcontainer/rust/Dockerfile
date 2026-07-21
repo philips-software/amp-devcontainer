@@ -37,7 +37,7 @@ RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tm
 
     # Install rust
     rustup set profile minimal
-    rustup default ${RUST_VERSION}
+    rustup default "${RUST_VERSION}"
     rustup component add clippy llvm-tools rustfmt
 
     if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then

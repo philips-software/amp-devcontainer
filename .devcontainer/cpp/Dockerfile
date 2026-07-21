@@ -156,12 +156,12 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     fi
 
     # Install include-what-you-use (iwyu) from source
-    apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev
-    wget --no-hsts --https-only -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp
-    CC=clang CXX=clang++ cmake -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build
-    cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install
-    rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}
-    apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev
+    apt-get update && apt-get install -y --no-install-recommends "libclang-${CLANG_VERSION}-dev" "llvm-${CLANG_VERSION}-dev"
+    wget --no-hsts --https-only -qO - "https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz" | tar xz -C /tmp
+    CC=clang CXX=clang++ cmake -S "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}" -B "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build"
+    cmake --build "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build" --target install
+    rm -rf "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}"
+    apt-get purge -y "libclang-${CLANG_VERSION}-dev" "llvm-${CLANG_VERSION}-dev"
     apt-get autoremove -y
     apt-get clean
 
@@ -172,9 +172,9 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
                         --slave /usr/bin/c++ c++ /usr/bin/g++-15
     update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10
-    update-alternatives --install /usr/bin/mull-runner mull-runner /usr/bin/mull-runner-${CLANG_VERSION} 10 \
-                        --slave /usr/bin/mull-reporter mull-reporter /usr/bin/mull-reporter-${CLANG_VERSION} \
-                        --slave /usr/lib/mull-ir-frontend mull-ir-frontend /usr/lib/mull-ir-frontend-${CLANG_VERSION}
+    update-alternatives --install /usr/bin/mull-runner mull-runner "/usr/bin/mull-runner-${CLANG_VERSION}" 10 \
+                        --slave /usr/bin/mull-reporter mull-reporter "/usr/bin/mull-reporter-${CLANG_VERSION}" \
+                        --slave /usr/lib/mull-ir-frontend mull-ir-frontend "/usr/lib/mull-ir-frontend-${CLANG_VERSION}"
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
     # Add a dummy compile_commands.json file to the default location so that tools like SonarLint and Clangd can find it.
@@ -189,7 +189,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     # CMake module (not an ELF binary), so it cannot carry a `.note.package` ELF
     # section and Syft has no cataloger for standalone `.cmake` files. Its version is
     # pinned and tracked via the CPM_VERSION build argument above.
-    wget --no-hsts --https-only -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake
+    wget --no-hsts --https-only -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ "https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake"
     conan profile detect
     echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
 
