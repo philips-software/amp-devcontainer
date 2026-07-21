@@ -76,7 +76,7 @@ RUN --mount=from=downloader,target=/dl \
             ARM_GNU_TOOLCHAIN_SHA256="d061559d814b205ed30c5b7c577c03317ec447ca51cd5a159d26b12a5bbeb20c"
         fi
 
-        wget --no-hsts --https-only -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
+        wget --no-hsts -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
         echo "${ARM_GNU_TOOLCHAIN_SHA256}  ${ARM_GNU_TOOLCHAIN_TAR}" | sha256sum -c -
 
         tar xJf "${ARM_GNU_TOOLCHAIN_TAR}" --exclude="*arm-none-eabi-gdb*" --exclude="share"
@@ -136,8 +136,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     rm -rf "$(pip cache dir)"
 
     # Install ccache and xwin
-    cp /src/ccache /usr/local/bin/ccache
-    cp /src/xwin /usr/local/bin/xwin
+    install -m 0755 /src/ccache /usr/local/bin/ccache
+    install -m 0755 /src/xwin /usr/local/bin/xwin
 
     # Install clang toolchain and mull mutation testing framework
     cat /src/llvm.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg
@@ -157,7 +157,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
 
     # Install include-what-you-use (iwyu) from source
     apt-get update && apt-get install -y --no-install-recommends "libclang-${CLANG_VERSION}-dev" "llvm-${CLANG_VERSION}-dev"
-    wget --no-hsts --https-only -qO - "https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz" | tar xz -C /tmp
+    wget --no-hsts -qO - "https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz" | tar xz -C /tmp
     CC=clang CXX=clang++ cmake -S "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}" -B "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build"
     cmake --build "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build" --target install
     rm -rf "/tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}"
@@ -189,7 +189,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     # CMake module (not an ELF binary), so it cannot carry a `.note.package` ELF
     # section and Syft has no cataloger for standalone `.cmake` files. Its version is
     # pinned and tracked via the CPM_VERSION build argument above.
-    wget --no-hsts --https-only -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ "https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake"
+    wget --no-hsts -qP /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/ "https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake"
     conan profile detect
     echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
 
