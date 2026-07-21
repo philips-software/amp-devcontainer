@@ -102,26 +102,14 @@ jobs:
         id: metadata
         with:
           images: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+      # Merge the base image's devcontainer.metadata array with this flavor's
+      # entry so that flavors inherit base metadata without duplicating it.
       - name: Generate image label for devcontainer.metadata
-        run: |
-          set -Eeuo pipefail
-
-          if [ -z "${DEVCONTAINER_METADATA_FILE:-}" ] || [ ! -f "${DEVCONTAINER_METADATA_FILE}" ]; then
-            echo "devcontainer-metadata-file input not set or file does not exist, skipping devcontainer.metadata label"
-            echo "label=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          # Merge the base image's devcontainer.metadata array with this flavor's
-          # entry so that flavors inherit base metadata without duplicating it.
-          {
-            echo -n "label="
-            bash .github/scripts/merge-devcontainer-metadata.sh "${BASE_IMAGE:-}" "${DEVCONTAINER_METADATA_FILE}"
-          } >> "$GITHUB_OUTPUT"
-        env:
-          BASE_IMAGE: ${{ inputs.base-image }}
-          DEVCONTAINER_METADATA_FILE: ${{ inputs.devcontainer-metadata-file }}
+        uses: philips-software/amp-devcontainer/.github/actions/merge-devcontainer-metadata@fix/package-scripts-as-actions
         id: devcontainer-metadata
+        with:
+          base-image: ${{ inputs.base-image }}
+          devcontainer-metadata-file: ${{ inputs.devcontainer-metadata-file }}
       - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
         id: devcontainer-epoch
       - run: echo "arch=$(echo "${RUNNER_ARCH}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
@@ -294,30 +282,20 @@ jobs:
           registry-password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
           dependency-snapshot: true
           output-file: ${{ runner.temp }}/sbom.spdx.json
-      - name: Derive tool inventory from SBOM
-        if: ${{ inputs.tool-inventory-file }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-          sparse-checkout: |
-            .github/scripts/generate-tool-inventory.sh
-            ${{ inputs.tool-inventory-file }}
-          sparse-checkout-cone-mode: false
       - name: Generate tool inventory
-        if: ${{ inputs.tool-inventory-file }}
-        run: |
-          set -Eeuo pipefail
-          bash .github/scripts/generate-tool-inventory.sh \
-            "${SBOM}" "${ALLOWLIST}" "${FLAVOR}" | tee tool-inventory.json
-        env:
-          SBOM: ${{ runner.temp }}/sbom.spdx.json
-          ALLOWLIST: ${{ inputs.tool-inventory-file }}
-          FLAVOR: ${{ needs.sanitize-image-name.outputs.image-basename }}
+        if: ${{ inputs.tool-inventory-file != '' }}
+        id: generate-tool-inventory
+        uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@fix/package-scripts-as-actions
+        with:
+          sbom: ${{ runner.temp }}/sbom.spdx.json
+          allowlist: ${{ inputs.tool-inventory-file }}
+          flavor: ${{ needs.sanitize-image-name.outputs.image-basename }}
+          output-file: ${{ runner.temp }}/tool-inventory.json
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: ${{ inputs.tool-inventory-file }}
+        if: ${{ inputs.tool-inventory-file != '' }}
         with:
           name: tool-inventory-${{ needs.sanitize-image-name.outputs.image-basename }}
-          path: tool-inventory.json
+          path: ${{ steps.generate-tool-inventory.outputs.inventory-file }}
           retention-days: 10
       - uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
