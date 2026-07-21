@@ -14,6 +14,9 @@ name: Build & Push
 on:
   workflow_call:
     inputs:
+      base-image:
+        required: true
+        type: string
       build-args:
         required: true
         type: string
@@ -109,9 +112,14 @@ jobs:
             exit 0
           fi
 
-          # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
-          echo "label=devcontainer.metadata=$(jq -cj '[.]' "${DEVCONTAINER_METADATA_FILE}" | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
+          # Merge the base image's devcontainer.metadata array with this flavor's
+          # entry so that flavors inherit base metadata without duplicating it.
+          {
+            echo -n "label="
+            bash .github/scripts/merge-devcontainer-metadata.sh "${BASE_IMAGE:-}" "${DEVCONTAINER_METADATA_FILE}"
+          } >> "$GITHUB_OUTPUT"
         env:
+          BASE_IMAGE: ${{ inputs.base-image }}
           DEVCONTAINER_METADATA_FILE: ${{ inputs.devcontainer-metadata-file }}
         id: devcontainer-metadata
       - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
@@ -133,6 +141,36 @@ jobs:
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
           outputs: type=image,compression=zstd,compression-level=9,force-compression=true,push-by-digest=true,name-canonical=true
+      - name: Verify devcontainer.metadata label on pushed image
+        if: ${{ steps.devcontainer-metadata.outputs.label != '' }}
+        run: |
+          set -Eeuo pipefail
+
+          expected="${LABEL#devcontainer.metadata=}"
+          config="$(docker buildx imagetools inspect "${IMAGE}@${DIGEST}" --format '{{json .Image}}')"
+          actual="$(jq -r '
+            (if has("config") then . else (to_entries[0].value) end)
+            | .config.Labels["devcontainer.metadata"] // empty
+          ' <<< "${config}")"
+
+          if [ -z "${actual}" ]; then
+            echo "error: built image has no devcontainer.metadata label" >&2
+            exit 1
+          fi
+
+          # Ensure both values are JSON arrays (per spec) and compare normalized JSON so whitespace doesn't matter.
+          jq -e 'type == "array"' <<< "${expected}" > /dev/null
+          jq -e 'type == "array"' <<< "${actual}" > /dev/null
+          if ! diff <(jq -S . <<< "${expected}") <(jq -S . <<< "${actual}"); then
+            echo "error: devcontainer.metadata label on the image does not match the expected merged metadata" >&2
+            exit 1
+          fi
+
+          echo "devcontainer.metadata label verified ($(jq 'length' <<< "${actual}") entries)"
+        env:
+          IMAGE: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          LABEL: ${{ steps.devcontainer-metadata.outputs.label }}
       - name: Export digest
         run: |
           set -Eeuo pipefail
