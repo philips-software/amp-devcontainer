@@ -11,7 +11,7 @@ inputs:
   allowlist:
     description: >-
       Path to the flavor's tool allowlist JSON, relative to the caller
-      repository root. The file is sparse-checked-out by this action.
+      repository root.
     required: true
   flavor:
     description: Name of the flavor the inventory is generated for
