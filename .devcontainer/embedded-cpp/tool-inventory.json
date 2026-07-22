@@ -16,5 +16,6 @@
   "llvm-22",
   "mull-22",
   "ninja-build",
+  "xsltproc",
   "xwin"
 ]

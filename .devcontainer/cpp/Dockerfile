@@ -130,6 +130,7 @@ ENV CCACHE_DIR=/cache/.ccache \
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
+    --mount=type=bind,source=.devcontainer/embedded-cpp/apt-requirements-embedded-cpp.json,target=/tmp/apt-requirements-embedded-cpp.json \
     --mount=type=cache,target=/cache,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -161,6 +162,10 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
         xargs apt-get install -y --no-install-recommends
 
     if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
+        # Install dependencies
+        apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-embedded-cpp.json | \
+            xargs apt-get install -y --no-install-recommends
+
         # Install arm-gcc toolchain
         cp -a /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
     fi
