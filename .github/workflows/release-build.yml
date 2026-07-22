@@ -15,6 +15,7 @@ permissions: {}
 jobs:
   build-push-test:
     name: Build → Push → Test
+    if: ${{ !startsWith(github.event.release.tag_name, 'actions-') }}
     uses: ./.github/workflows/build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
@@ -32,6 +33,7 @@ jobs:
 
   apply-release-notes-template:
     name: 📝 Apply Release Template
+    if: ${{ !startsWith(github.event.release.tag_name, 'actions-') }}
     runs-on: ubuntu-latest
     permissions:
       # Please note that this is an overly broad scope, but GitHub does not
@@ -131,12 +133,14 @@ jobs:
 
   publish-devcontainer-templates:
     name: 📝 Publish templates
+    if: ${{ !startsWith(github.event.release.tag_name, 'actions-') }}
     uses: ./.github/workflows/wc-publish-templates.yml
     permissions:
       packages: write # is needed by devcontainers/action to write templates as OCI artifacts
 
   generate-documents:
     name: 📄 Documentation
+    if: ${{ !startsWith(github.event.release.tag_name, 'actions-') }}
     uses: ./.github/workflows/wc-document-generation.yml
     with:
       is-release: true
@@ -170,6 +174,7 @@ jobs:
 
   comment-released-prs:
     name: Comment on released PRs
+    if: ${{ !startsWith(github.event.release.tag_name, 'actions-') }}
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
