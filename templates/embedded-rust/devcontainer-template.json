@@ -1,6 +1,6 @@
 {
   "id": "embedded-rust",
-  "version": "8.0.0",
+  "version": "8.0.1",
   "name": "Embedded Rust",
   "description": "A modern, batteries-included software development environment for embedded Rust",
   "documentationURL": "https://github.com/philips-software/amp-devcontainer/blob/main/README.md",
@@ -9,7 +9,7 @@
     "imageVersion": {
       "type": "string",
       "description": "amp-devcontainer version",
-      "default": "8.0.0"
+      "default": "8.0.1"
     }
   },
   "optionalPaths": [
