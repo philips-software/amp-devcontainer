@@ -1,0 +1,63 @@
+---
+name: Merge devcontainer.metadata
+description: >-
+  Assemble the devcontainer.metadata image label for a flavor by concatenating
+  the base image's existing metadata array with the flavor's own metadata entry.
+
+inputs:
+  base-image:
+    description: Reference of the image this flavor is built FROM (may be empty)
+    required: false
+    default: ""
+  devcontainer-metadata-file:
+    description: Path to the flavor's devcontainer-metadata.json (may be absent)
+    required: false
+    default: ""
+
+outputs:
+  label:
+    description: >-
+      The `devcontainer.metadata=<json-array>` label value, or empty when no
+      metadata file is provided.
+    value: ${{ steps.merge.outputs.label }}
+
+runs:
+  using: composite
+  steps:
+    - id: merge
+      shell: bash
+      run: |
+        set -Eeuo pipefail
+
+        if [ -z "${DEVCONTAINER_METADATA_FILE:-}" ] || [ ! -f "${DEVCONTAINER_METADATA_FILE}" ]; then
+          echo "devcontainer-metadata-file input not set or file does not exist, skipping devcontainer.metadata label"
+          echo "label=" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        # Extract the base image's existing devcontainer.metadata array. Falls back
+        # to an empty array when no base image is given or it carries no such label.
+        base_metadata="[]"
+        if [ -n "${BASE_IMAGE:-}" ]; then
+          # `.Image` is the image config for single-platform references and a map of
+          # `platform -> config` for multi-platform references; the label is identical
+          # across platforms, so any entry works.
+          config="$(docker buildx imagetools inspect "${BASE_IMAGE}" --format '{{json .Image}}')"
+          base_metadata="$(jq -c '
+            (if has("config") then . else (to_entries[0].value) end)
+            | (.config.Labels["devcontainer.metadata"] // "") as $raw
+            | if $raw == "" then [] else (try ($raw | fromjson) catch []) end
+            | if type == "array" then . else [] end
+          ' <<< "${config}")"
+        fi
+
+        # Concatenate base entries with the flavor entry and emit the label value.
+        # The gsub adds a space after each comma so `docker buildx build --label`
+        # does not misinterpret the array and produce invalid JSON (e.g.
+        # ["x","y"] -> ["x",y]).
+        merged="$(jq -cr --slurpfile flavor "${DEVCONTAINER_METADATA_FILE}" '. + $flavor | @json | gsub("\",\""; "\", \"")' <<< "${base_metadata}")"
+
+        echo "label=devcontainer.metadata=${merged}" >> "$GITHUB_OUTPUT"
+      env:
+        BASE_IMAGE: ${{ inputs.base-image }}
+        DEVCONTAINER_METADATA_FILE: ${{ inputs.devcontainer-metadata-file }}
