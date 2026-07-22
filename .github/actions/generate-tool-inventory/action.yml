@@ -29,14 +29,6 @@ outputs:
 runs:
   using: composite
   steps:
-    # The allowlist lives in the caller repository; check out just that file so
-    # the action is self-contained and callers need no separate checkout step.
-    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      with:
-        persist-credentials: false
-        sparse-checkout: ${{ inputs.allowlist }}
-        sparse-checkout-cone-mode: false
-        path: ${{ runner.temp }}/allowlist
     - shell: bash
       run: |
         set -Eeuo pipefail
@@ -80,6 +72,6 @@ runs:
         echo "${inventory}" | tee "${OUTPUT_FILE}"
       env:
         SBOM: ${{ inputs.sbom }}
-        ALLOWLIST: ${{ runner.temp }}/allowlist/${{ inputs.allowlist }}
+        ALLOWLIST: ${{ inputs.allowlist }}
         FLAVOR: ${{ inputs.flavor }}
         OUTPUT_FILE: ${{ inputs.output-file }}

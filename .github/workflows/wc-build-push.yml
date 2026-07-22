@@ -282,6 +282,12 @@ jobs:
           registry-password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
           dependency-snapshot: true
           output-file: ${{ runner.temp }}/sbom.spdx.json
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        if: ${{ inputs.tool-inventory-file != '' }}
+        with:
+          persist-credentials: false
+          sparse-checkout: ${{ inputs.tool-inventory-file }}
+          sparse-checkout-cone-mode: false
       - name: Generate tool inventory
         if: ${{ inputs.tool-inventory-file != '' }}
         id: generate-tool-inventory
