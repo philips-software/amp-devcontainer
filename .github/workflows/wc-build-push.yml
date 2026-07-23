@@ -188,7 +188,7 @@ jobs:
       packages: write # is needed to push image manifest when using GitHub Container Registry
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     outputs:
-      digest: ${{ steps.inspect-manifest.outputs.digest }}
+      digest: ${{ steps.extract-digest.outputs.digest }}
       version: ${{ steps.metadata.outputs.version }}
     steps:
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -242,14 +242,10 @@ jobs:
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
         shell: bash
         working-directory: ${{ runner.temp }}/digests
-      - name: Inspect manifest and extract digest
-        id: inspect-manifest
-        run: |
-          set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect "${CONTAINER}" --format '{{json .}}')
-          echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
-        env:
-          CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
+      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@524d96e6086501fc3373250d58d5eac002c69429
+        id: extract-digest
+        with:
+          container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - run: |
           set -Eeuo pipefail
           wget -qO diffoci https://github.com/reproducible-containers/diffoci/releases/download/v0.1.8/diffoci-v0.1.8.linux-amd64
@@ -277,7 +273,7 @@ jobs:
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
       - uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
-          image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
+          image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.extract-digest.outputs.digest }}
           registry-username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
           registry-password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
           dependency-snapshot: true
@@ -306,14 +302,14 @@ jobs:
       - uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
           subject-name: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
-          subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
+          subject-digest: ${{ steps.extract-digest.outputs.digest }}
           show-summary: false
           push-to-registry: true
       # @sbdl test-sec-0001 is test { custom:title is "Verify attestation"; requirement is req-sec-0002 }
       - name: Verify attestation
         run: gh attestation verify --repo "${GH_REPO}" --signer-workflow philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml "oci://${FULLY_QUALIFIED_IMAGE_NAME}@${DIGEST}"
         env:
-          DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          DIGEST: ${{ steps.extract-digest.outputs.digest }}
           FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
