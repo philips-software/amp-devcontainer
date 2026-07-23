@@ -20,6 +20,6 @@ runs:
         CONTAINER: ${{ inputs.container }}
       run: |
         set -Eeuo pipefail
-        output=$(docker buildx imagetools inspect "${CONTAINER}" --format '{{json .}}')
-        echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
+        digest="$(docker buildx imagetools inspect "${CONTAINER}" --format '{{json .}}' | jq -er '.manifest.digest // .manifests[0].digest')"
+        echo "digest=${digest}" >> "$GITHUB_OUTPUT"
       shell: bash
