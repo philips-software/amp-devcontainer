@@ -130,7 +130,7 @@ ENV CCACHE_DIR=/cache/.ccache \
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
-    --mount=type=bind,source=.devcontainer/embedded-cpp/apt-requirements-embedded-cpp.json,target=/tmp/apt-requirements-embedded-cpp.json \
+    --mount=type=bind,source=.devcontainer/embedded-cpp/apt-requirements.json,target=/tmp/apt-requirements-embedded-cpp.json \
     --mount=type=cache,target=/cache,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
