@@ -80,14 +80,10 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - name: Inspect manifest and extract digest
-        id: inspect-manifest
-        run: |
-          set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect "${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}:${REF_NAME}" --format '{{json .}}')
-          echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
-        env:
-          GH_REPO: ${{ github.repository }}
+      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@refactor/extract-inspect-manifest-digest-action
+        id: extract-digest
+        with:
+          container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}:${{ github.ref_name }}
       - name: Upload provenance to release
         run: |
           set -Eeuo pipefail
@@ -95,7 +91,7 @@ jobs:
           gh attestation verify --repo "${GH_REPO}" "oci://${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
           gh release upload --clobber "${REF_NAME}" ./*.intoto.jsonl
         env:
-          DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          DIGEST: ${{ steps.extract-digest.outputs.digest }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
@@ -114,7 +110,7 @@ jobs:
           UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-tools }}"/"${TOOLS_TABLE}"}
           gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
         env:
-          DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          DIGEST: ${{ steps.extract-digest.outputs.digest }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
       - name: Upload tool inventory to release
@@ -125,7 +121,7 @@ jobs:
           cp tool-inventory/tool-inventory.json "${INVENTORY}"
           gh release upload --clobber "${REF_NAME}" "${INVENTORY}"
         env:
-          DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          DIGEST: ${{ steps.extract-digest.outputs.digest }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
