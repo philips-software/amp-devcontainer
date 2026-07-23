@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-      - uses: ./.github/actions/update-apt-packages
+      - uses: philips-software/amp-devcontainer/.github/actions/update-apt-packages@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions/v1.1.0
         id: update-packages
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements*.json
@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-      - uses: ./.github/actions/update-vscode-extensions
+      - uses: philips-software/amp-devcontainer/.github/actions/update-vscode-extensions@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions/v1.1.0
         id: update-extensions
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/${{ matrix.file }}
