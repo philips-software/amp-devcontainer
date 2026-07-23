@@ -80,7 +80,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@refactor/extract-inspect-manifest-digest-action
+      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@524d96e6086501fc3373250d58d5eac002c69429
         id: extract-digest
         with:
           container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}:${{ github.ref_name }}
