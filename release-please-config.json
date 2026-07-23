@@ -27,7 +27,7 @@
     ".github/actions": {
       "package-name": "actions",
       "release-type": "simple",
-      "tag-separator": "-"
+      "tag-separator": "/"
     }
   },
   "plugins": ["sentence-case"],
