@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flavor: [base, cpp, docs, rust]
+        flavor: [base, cpp, docs, embedded-cpp, rust]
     # Using our own container is required since we need all package sources
     # set-up correctly.
     container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge
