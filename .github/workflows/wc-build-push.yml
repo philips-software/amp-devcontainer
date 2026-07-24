@@ -85,7 +85,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
@@ -278,7 +278,7 @@ jobs:
           registry-password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
           dependency-snapshot: true
           output-file: ${{ runner.temp }}/sbom.spdx.json
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: ${{ inputs.tool-inventory-file != '' }}
         with:
           persist-credentials: false
@@ -299,7 +299,7 @@ jobs:
           name: tool-inventory-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: ${{ steps.generate-tool-inventory.outputs.inventory-file }}
           retention-days: 10
-      - uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+      - uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
         with:
           subject-name: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           subject-digest: ${{ steps.extract-digest.outputs.digest }}
