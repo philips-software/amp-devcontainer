@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [8.1.0](https://github.com/philips-software/amp-devcontainer/compare/v8.0.1...v8.1.0) (2026-07-24)
+
+
+### Features
+
+* Add xsltproc to embedded-cpp flavor ([#1380](https://github.com/philips-software/amp-devcontainer/issues/1380)) ([4bdf17b](https://github.com/philips-software/amp-devcontainer/commit/4bdf17bc71b34eb978b731b2cfd651b807a0be6e))
+* Release .github/actions independent from the containers ([#1376](https://github.com/philips-software/amp-devcontainer/issues/1376)) ([3f6a8f2](https://github.com/philips-software/amp-devcontainer/commit/3f6a8f22bb74295932956d9d080e8848727f2069))
+
+
+### Bug Fixes
+
+* Don't checkout in generate-tool-inventory ([#1377](https://github.com/philips-software/amp-devcontainer/issues/1377)) ([2582be9](https://github.com/philips-software/amp-devcontainer/commit/2582be9ee414a3351f540484780e81bb20073907))
+
+
+### Chores
+
+* **main:** Release actions 1.1.0 ([#1378](https://github.com/philips-software/amp-devcontainer/issues/1378)) ([370c48c](https://github.com/philips-software/amp-devcontainer/commit/370c48c32a438aafb841c2b1f9f442f21919c2a9))
+* Pin re-usable actions to released version ([#1375](https://github.com/philips-software/amp-devcontainer/issues/1375)) ([0f31ce4](https://github.com/philips-software/amp-devcontainer/commit/0f31ce45c55b61cb62b9a866d5a2062edf890a39))
+
 ## [8.0.1](https://github.com/philips-software/amp-devcontainer/compare/v8.0.0...v8.0.1) (2026-07-22)
 
 
