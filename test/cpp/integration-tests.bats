@@ -145,7 +145,7 @@ teardown() {
 
   run ctest --preset coverage
   assert_success
-  assert_output --partial "100% tests passed, 0 tests failed out of 1"
+  assert_output --partial "100% tests passed out of 1"
 
   run gcovr --exclude=.*/_deps/.*
   assert_success
