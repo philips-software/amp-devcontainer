@@ -3,7 +3,7 @@
     "vscode": {
       "extensions": [
         "probe-rs.probe-rs-debugger@0.31.0",
-        "rust-lang.rust-analyzer@0.3.2971",
+        "rust-lang.rust-analyzer@0.3.2981",
         "tamasfe.even-better-toml@0.21.2"
       ]
     }
