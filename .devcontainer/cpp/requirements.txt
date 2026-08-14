@@ -168,9 +168,9 @@ colorlog==6.10.1 \
     --hash=sha256:2d7e8348291948af66122cff006c9f8da6255d224e7cf8e37d8de2df3bad8c9c \
     --hash=sha256:eb4ae5cb65fe7fec7773c2306061a8e63e02efc2c72eba9d27b0fa23c94f1321
     # via gcovr
-conan==2.31.0 \
-    --hash=sha256:2bce901a0ada11934c4654e6b182f9349df0ed9e51124e399448bc132fa6b791 \
-    --hash=sha256:b9e3aead50bd2a9b442a0a5f8c54a6f273ba036cf06dbb673fd78932d8790990
+conan==2.31.2 \
+    --hash=sha256:87a8ae0b492c4fd4291d4146bf80522a00d6157637bed7ec055787e1a51f75d6 \
+    --hash=sha256:d820e9f5ac44eca1567874f6a7c83586c16a3df5ebca006d9c0c6933fbb375b1
     # via -r cpp/requirements.in
 distro==1.9.0 \
     --hash=sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed \
