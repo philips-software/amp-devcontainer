@@ -6,7 +6,8 @@
       "settings": {
         "cmake.automaticReconfigure": false,
         "cmake.configureOnOpen": false,
-        "cmake.enableAutomaticKitScan": false
+        "cmake.enableAutomaticKitScan": false,
+        "security.workspace.trust.enabled": false
       }
     }
   }
