@@ -22,6 +22,22 @@ export class CodespacePage {
   }
 
   /**
+   * Handles the workspace trust prompt shown when the Codespace loads.
+   *
+   * VS Code asks to trust the authors of the workspace before extensions and
+   * tasks are allowed to run. The dialog is dismissed by trusting the authors so
+   * the Codespace becomes fully functional. The prompt is optional: when it does
+   * not appear (e.g. trust was already granted) this method is a no-op.
+   */
+  async trustWorkspace() {
+    const trustButton = this.page.getByRole('button', { name: 'Trust Folder & Continue' });
+
+    await trustButton.click({ timeout: 60 * 1000 }).catch(() => {
+      // Trust was already granted or the prompt was not shown; nothing to do.
+    });
+  }
+
+  /**
    * Wait for the extensions to be active in the Codespace.
    *
    * This method is used to verify that the extensions in `extensions` are active in the Codespace.
