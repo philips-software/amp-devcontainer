@@ -20,7 +20,7 @@ jobs:
       security-events: write # is needed by github/codeql-action/upload-sarif to upload sarif files
       id-token: write # is needed by ossf/scorecard-action to authenticate with OIDC
     steps:
-      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+      - uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           disable-sudo: true
           egress-policy: audit
@@ -33,6 +33,6 @@ jobs:
           results_format: sarif
           repo_token: ${{ secrets.SCORECARD_TOKEN }}
           publish_results: true
-      - uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
+      - uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
         with:
           sarif_file: results.sarif
