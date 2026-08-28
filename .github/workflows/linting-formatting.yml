@@ -26,7 +26,7 @@ jobs:
       pull-requests: write # is needed by oxsecurity/megalinter and reviewdog/action-suggester to post PR comments
       security-events: write # is needed by oxsecurity/megalinter for uploading sarif files
     steps:
-      - uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -44,7 +44,7 @@ jobs:
           APPLY_FIXES: all
           VALIDATE_ALL_CODEBASE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+      - uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
         if: success() || failure()
         with:
           sarif_file: megalinter-reports/megalinter-report.sarif
