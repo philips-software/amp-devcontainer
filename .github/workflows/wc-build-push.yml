@@ -241,7 +241,7 @@ jobs:
           # the image they pushed; refuse to create a manifest from anything else.
           sources=()
           for digest in *; do
-            if [[ ! "${digest}" =~ ^[0-9a-f]{64}$ ]]; then
+            if [[ ! -f "${digest}" || ! "${digest}" =~ ^[0-9a-f]{64}$ ]]; then
               echo "error: unexpected entry '${digest}' in the digest directory" >&2
               exit 1
             fi
