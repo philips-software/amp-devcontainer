@@ -7,10 +7,11 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 HEALTHCHECK NONE
 
-SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
-
 # Set default environment options
 ENV PYTHONPYCACHEPREFIX=/cache/.python
+
+# The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
+SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 RUN --mount=type=bind,source=.devcontainer/docs/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=bind,source=.devcontainer/docs/requirements.txt,target=/tmp/requirements.txt \

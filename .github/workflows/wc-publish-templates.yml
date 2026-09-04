@@ -2,7 +2,8 @@
 name: Publish Templates
 
 on:
-  workflow_call:
+  # Explicit empty mapping; the SchemaStore used by V8R linter rejects empty mappings.
+  workflow_call: {}
 
 permissions: {}
 

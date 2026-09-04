@@ -69,12 +69,13 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 HEALTHCHECK NONE
 
-SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
-
 ENV BINSTALL_DISABLE_TELEMETRY=true \
     CARGO_HOME=/usr/local/cargo \
     RUSTUP_HOME=/usr/local/rustup \
     PATH=/usr/local/cargo/bin:"$PATH"
+
+# The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
+SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
