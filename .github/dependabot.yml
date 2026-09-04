@@ -44,6 +44,14 @@ updates:
           - patch
     commit-message:
       prefix: "test(deps)"
+  - package-ecosystem: npm
+    cooldown:
+      default-days: 7
+    directory: .github/actions/update-vscode-extensions
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci(deps)"
   - package-ecosystem: pip
     cooldown:
       default-days: 7
