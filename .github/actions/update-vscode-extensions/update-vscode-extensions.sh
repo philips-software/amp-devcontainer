@@ -9,6 +9,10 @@ fi
 
 # Only adopt a version once it has been public for at least this many days
 COOLDOWN_DAYS="${COOLDOWN_DAYS:-7}"
+if ! [[ "$COOLDOWN_DAYS" =~ ^[0-9]+$ ]]; then
+    echo "::error::COOLDOWN_DAYS must be a non-negative integer, got: $COOLDOWN_DAYS" >&2
+    exit 1
+fi
 COOLDOWN_CUTOFF=$(date -u -d "-${COOLDOWN_DAYS} days" +"%Y-%m-%dT%H:%M:%S.000Z")
 
 UPDATE_DETAILS_MARKDOWN=

@@ -64,6 +64,7 @@ jobs:
         with:
           persist-credentials: false
       # TODO: revert to a pinned philips-software/amp-devcontainer/.github/actions/update-vscode-extensions@<sha> # actions/vX.Y.Z once this PR's action changes are released
+      # continue-on-error is intentional: a single bad file shouldn't block a PR for the rest; see the trailing "Fail if..." step
       - uses: ./.github/actions/update-vscode-extensions
         id: update-extensions
         continue-on-error: true
