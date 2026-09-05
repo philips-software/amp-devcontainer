@@ -2,11 +2,26 @@
 
 set -Eeuo pipefail
 
-FILE=${1:?"Usage: $0 <input-file>"}
-JSON=$(cat "$FILE")
-EXTENSIONS=
+if [[ $# -eq 0 ]]; then
+    echo "Usage: $0 <input-file> [input-file...]" >&2
+    exit 1
+fi
+
+# Only adopt a version once it has been public for at least this many days
+COOLDOWN_DAYS="${COOLDOWN_DAYS:-7}"
+if ! [[ "$COOLDOWN_DAYS" =~ ^[0-9]+$ ]]; then
+    echo "::error::COOLDOWN_DAYS must be a non-negative integer, got: $COOLDOWN_DAYS" >&2
+    exit 1
+fi
+COOLDOWN_CUTOFF=$(date -u -d "-${COOLDOWN_DAYS} days" +"%Y-%m-%dT%H:%M:%S.000Z")
+
 UPDATE_DETAILS_MARKDOWN=
 UPDATED_EXTENSIONS_JSON="[]"
+FAILED_FILES=()
+# Caches each extension's marketplace query result for this run, since the same extension is
+# often pinned in multiple files - this also cuts down on repeat calls that risk hitting a
+# transient marketplace error or rate limit.
+declare -A VERSION_CACHE
 
 prevent_github_backlinks() {
     # Prevent GitHub from creating backlinks to issues by replacing the URL with a non-redirecting one
@@ -18,67 +33,125 @@ prevent_github_at_mentions() {
     sed 's| @| [at]|g'
 }
 
+# Queries the marketplace for one extension's non-prerelease versions, retrying a few times
+# with backoff since this call has intermittently returned a non-JSON/empty response.
+query_marketplace() {
+    local NAME=${1:?}
+    local ATTEMPT ALL_VERSIONS_JSON
+
+    for ATTEMPT in 1 2 3; do
+        if ALL_VERSIONS_JSON=$("${VSCE_BIN:-vsce}" show --json "$NAME" | jq '[ .versions[] | select(.properties) | select(any(.properties[].key; contains("Microsoft.VisualStudio.Code.PreRelease")) | not) ]'); then
+            echo "$ALL_VERSIONS_JSON"
+            return 0
+        fi
+        echo "::warning::Attempt $ATTEMPT/3 to query the marketplace for $NAME failed" >&2
+        sleep $((ATTEMPT * 2))
+    done
+    return 1
+}
+
 get_github_releasenotes() {
     local GITHUB_URL=${1:?}
     local CURRENT_VERSION_DATE=${2:?}
+    local ADOPTED_VERSION_DATE=${3:?}
 
-    # Fetch all releases newer than the current version's publish date
-    # This approach works regardless of versioning scheme (semver, date-based, etc.)
+    # Fetch releases between the current version's publish date and the adopted version's,
+    # so notes for versions still stuck in cooldown aren't shown as if they were adopted
     gh release list --exclude-drafts --exclude-pre-releases -R "$GITHUB_URL" \
         --json tagName,publishedAt \
-        --jq ".[] | select(.publishedAt > \"$CURRENT_VERSION_DATE\") | .tagName" | \
+        --jq ".[] | select(.publishedAt > \"$CURRENT_VERSION_DATE\" and .publishedAt <= \"$ADOPTED_VERSION_DATE\") | .tagName" | \
     while read -r TAG; do
         printf "%s\n\n" "$(gh release view --json body --jq '.body' -R "$GITHUB_URL" "$TAG")"
     done
 }
 
-while IFS= read -r EXTENSION; do
-    [[ -z "$EXTENSION" ]] && continue
+# Resolves every pinned extension in $FILE to the latest version that is both non-prerelease and
+# past the cooldown period, rewrites the file, and appends a per-flavor markdown section to the
+# global summary so PR reviewers can trace which container each change applies to.
+process_file() {
+    local FILE=${1:?}
+    JSON=$(cat "$FILE")
+    FLAVOR=$(basename "$(dirname "$FILE")")
+    FILE_EXTENSIONS=
+    FILE_UPDATE_DETAILS_MARKDOWN=
 
-    NAME="${EXTENSION%%@*}"
-    CURRENT_VERSION="${EXTENSION#*@}"
+    while IFS= read -r EXTENSION; do
+        [[ -z "$EXTENSION" ]] && continue
 
-    # Fetch all non-prerelease versions with their dates
-    ALL_VERSIONS_JSON=$(vsce show --json "$NAME" | jq '[ .versions[] | select(.properties) | select(any(.properties[].key; contains("Microsoft.VisualStudio.Code.PreRelease")) | not) ]')
-    LATEST_NON_PRERELEASE_VERSION_JSON=$(echo "$ALL_VERSIONS_JSON" | jq '.[0]')
-    LATEST_NON_PRERELEASE_VERSION=$(echo "$LATEST_NON_PRERELEASE_VERSION_JSON" | jq -r '.version')
+        NAME="${EXTENSION%%@*}"
+        CURRENT_VERSION="${EXTENSION#*@}"
 
-    if [[ $CURRENT_VERSION != "$LATEST_NON_PRERELEASE_VERSION" ]];
-    then
-        GITHUB_URL=$(echo "$LATEST_NON_PRERELEASE_VERSION_JSON" | jq -r '.properties | map(select(.key == "Microsoft.VisualStudio.Services.Links.GitHub"))[] | .value')
-
-        if [[ -n "$GITHUB_URL" && "$GITHUB_URL" != "null" ]]; then
-            # Get the publish date of the current version for date-based release matching
-            CURRENT_VERSION_DATE=$(echo "$ALL_VERSIONS_JSON" | jq -r --arg version "$CURRENT_VERSION" 'map(select(.version == $version))[0].lastUpdated // empty')
-
-            if [[ -n "$CURRENT_VERSION_DATE" ]]; then
-                RELEASE_DETAILS=$(get_github_releasenotes "$GITHUB_URL" "$CURRENT_VERSION_DATE" | prevent_github_backlinks | prevent_github_at_mentions)
-            else
-                echo "::warning::Could not find publish date for $NAME@$CURRENT_VERSION, skipping release notes"
-                RELEASE_DETAILS=""
-            fi
-            UPDATE_DETAILS_MARKDOWN=$(printf "Updates \`%s\` from %s to %s\n<details>\n<summary>Release notes</summary>\n<blockquote>\n\n%s\n</blockquote>\n</details>\n\n%s" "$NAME" "$CURRENT_VERSION" "$LATEST_NON_PRERELEASE_VERSION" "$RELEASE_DETAILS" "$UPDATE_DETAILS_MARKDOWN")
+        # Fetch all non-prerelease versions with their dates, reusing an earlier result for the
+        # same extension name if another file in this run already resolved it
+        if [[ -v VERSION_CACHE["$NAME"] ]]; then
+            ALL_VERSIONS_JSON="${VERSION_CACHE[$NAME]}"
         else
-            UPDATE_DETAILS_MARKDOWN=$(printf "Updates \`%s\` from %s to %s\n\n%s" "$NAME" "$CURRENT_VERSION" "$LATEST_NON_PRERELEASE_VERSION" "$UPDATE_DETAILS_MARKDOWN")
+            if ! ALL_VERSIONS_JSON=$(query_marketplace "$NAME"); then
+                # A shell function invoked as the condition of `if` is exempt from `set -e`, so a
+                # failure here must be checked explicitly to correctly abort this file.
+                echo "::error::Failed to query the marketplace for $NAME, aborting $FILE"
+                return 1
+            fi
+            VERSION_CACHE["$NAME"]="$ALL_VERSIONS_JSON"
+        fi
+        LATEST_ELIGIBLE_VERSION_JSON=$(echo "$ALL_VERSIONS_JSON" | jq --arg cutoff "$COOLDOWN_CUTOFF" '[ .[] | select(.lastUpdated <= $cutoff) ][0]')
+        LATEST_ELIGIBLE_VERSION=$(echo "$LATEST_ELIGIBLE_VERSION_JSON" | jq -r '.version // empty')
+
+        if [[ -z "$LATEST_ELIGIBLE_VERSION" ]]; then
+            echo "::warning::No version of $NAME has cleared the ${COOLDOWN_DAYS}-day cooldown yet, skipping"
+            FILE_EXTENSIONS="\"$NAME@$CURRENT_VERSION\",$FILE_EXTENSIONS"
+            continue
         fi
 
-        UPDATED_EXTENSIONS_JSON=$(echo "$UPDATED_EXTENSIONS_JSON" | jq -c --arg name "$NAME" '. += [$name]')
+        if [[ $CURRENT_VERSION != "$LATEST_ELIGIBLE_VERSION" ]];
+        then
+            GITHUB_URL=$(echo "$LATEST_ELIGIBLE_VERSION_JSON" | jq -r '.properties | map(select(.key == "Microsoft.VisualStudio.Services.Links.GitHub"))[] | .value')
+
+            if [[ -n "$GITHUB_URL" && "$GITHUB_URL" != "null" ]]; then
+                # Get the publish dates to bound release notes to what's actually being adopted
+                CURRENT_VERSION_DATE=$(echo "$ALL_VERSIONS_JSON" | jq -r --arg version "$CURRENT_VERSION" 'map(select(.version == $version))[0].lastUpdated // empty')
+                ADOPTED_VERSION_DATE=$(echo "$LATEST_ELIGIBLE_VERSION_JSON" | jq -r '.lastUpdated // empty')
+
+                if [[ -n "$CURRENT_VERSION_DATE" && -n "$ADOPTED_VERSION_DATE" ]]; then
+                    RELEASE_DETAILS=$(get_github_releasenotes "$GITHUB_URL" "$CURRENT_VERSION_DATE" "$ADOPTED_VERSION_DATE" | prevent_github_backlinks | prevent_github_at_mentions)
+                else
+                    echo "::warning::Could not find publish date for $NAME@$CURRENT_VERSION, skipping release notes"
+                    RELEASE_DETAILS=""
+                fi
+                FILE_UPDATE_DETAILS_MARKDOWN=$(printf "Updates \`%s\` from %s to %s\n<details>\n<summary>Release notes</summary>\n<blockquote>\n\n%s\n</blockquote>\n</details>\n\n%s" "$NAME" "$CURRENT_VERSION" "$LATEST_ELIGIBLE_VERSION" "$RELEASE_DETAILS" "$FILE_UPDATE_DETAILS_MARKDOWN")
+            else
+                FILE_UPDATE_DETAILS_MARKDOWN=$(printf "Updates \`%s\` from %s to %s\n\n%s" "$NAME" "$CURRENT_VERSION" "$LATEST_ELIGIBLE_VERSION" "$FILE_UPDATE_DETAILS_MARKDOWN")
+            fi
+
+            UPDATED_EXTENSIONS_JSON=$(echo "$UPDATED_EXTENSIONS_JSON" | jq -c --arg name "$NAME" 'if index($name) then . else . + [$name] end')
+        fi
+
+        FILE_EXTENSIONS="\"$NAME@$LATEST_ELIGIBLE_VERSION\",$FILE_EXTENSIONS"
+    done < <(echo "$JSON" | jq -r '.customizations.vscode.extensions | flatten[]')
+
+    if [[ -n "$FILE_EXTENSIONS" ]]; then
+        FILE_EXTENSIONS=$(echo "[${FILE_EXTENSIONS::-1}]" | jq 'sort_by(. | ascii_downcase)')
+    else
+        FILE_EXTENSIONS="[]"
     fi
 
-    EXTENSIONS="\"$NAME@$LATEST_NON_PRERELEASE_VERSION\",$EXTENSIONS"
-done < <(echo "$JSON" | jq -r '.customizations.vscode.extensions | flatten[]')
+    echo "$JSON" | jq '.customizations.vscode.extensions = $extensions' --argjson extensions "$FILE_EXTENSIONS" > "$FILE"
 
-if [[ -n "$EXTENSIONS" ]]; then
-    EXTENSIONS=$(echo "[${EXTENSIONS::-1}]" | jq 'sort_by(. | ascii_downcase)')
-else
-    EXTENSIONS="[]"
-fi
+    echo "::group::📄 Changes to $FILE"
+    git diff --color=always -- "$FILE" || true
+    echo "::endgroup::"
 
-echo "$JSON" | jq '.customizations.vscode.extensions = $extensions' --argjson extensions "$EXTENSIONS" > "$FILE"
+    if [[ -n "$FILE_UPDATE_DETAILS_MARKDOWN" ]]; then
+        UPDATE_DETAILS_MARKDOWN="${UPDATE_DETAILS_MARKDOWN}$(printf "### 🍨 %s — %s\n\n%s\n" "$FLAVOR" "$(basename "$FILE")" "$FILE_UPDATE_DETAILS_MARKDOWN")"
+    fi
+}
 
-echo "::group::📄 Changes to $FILE"
-git diff --color=always -- "$FILE" || true
-echo "::endgroup::"
+for FILE in "$@"; do
+    if ! process_file "$FILE"; then
+        echo "::error::Failed to update VS Code extensions in $FILE"
+        FAILED_FILES+=("$FILE")
+    fi
+done
 
 echo "::group::VS Code Extensions Update Details"
 echo "$UPDATE_DETAILS_MARKDOWN"
@@ -90,4 +163,9 @@ echo "$UPDATE_DETAILS_MARKDOWN" > "${MARKDOWN_SUMMARY_FILE}"
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
     echo "markdown-summary-file=${MARKDOWN_SUMMARY_FILE}" >> "${GITHUB_OUTPUT}"
     echo "updated-dependencies=${UPDATED_EXTENSIONS_JSON}" >> "${GITHUB_OUTPUT}"
+fi
+
+if [[ ${#FAILED_FILES[@]} -gt 0 ]]; then
+    echo "::error::Failed to update VS Code extensions in: ${FAILED_FILES[*]}"
+    exit 1
 fi

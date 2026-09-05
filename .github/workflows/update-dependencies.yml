@@ -52,13 +52,8 @@ jobs:
           sign-commits: true
 
   update-vscode-extensions:
-    name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} Extensions (🍨 ${{ matrix.flavor }}, ${{ matrix.file }})
+    name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} Extensions
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        flavor: [base, cpp, docs, embedded-cpp, embedded-rust, rust]
-        file: [devcontainer-metadata.json, devcontainer.json]
     permissions:
       contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
     steps:
@@ -68,10 +63,25 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: philips-software/amp-devcontainer/.github/actions/update-vscode-extensions@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions/v1.1.0
+      # TODO: revert to a pinned philips-software/amp-devcontainer/.github/actions/update-vscode-extensions@<sha> # actions/vX.Y.Z once this PR's action changes are released
+      # continue-on-error is intentional: a single bad file shouldn't block a PR for the rest; see the trailing "Fail if..." step
+      - uses: ./.github/actions/update-vscode-extensions
         id: update-extensions
+        continue-on-error: true
         with:
-          input-file: .devcontainer/${{ matrix.flavor }}/${{ matrix.file }}
+          input-file: |
+            .devcontainer/base/devcontainer.json
+            .devcontainer/base/devcontainer-metadata.json
+            .devcontainer/cpp/devcontainer.json
+            .devcontainer/cpp/devcontainer-metadata.json
+            .devcontainer/docs/devcontainer.json
+            .devcontainer/docs/devcontainer-metadata.json
+            .devcontainer/embedded-cpp/devcontainer.json
+            .devcontainer/embedded-cpp/devcontainer-metadata.json
+            .devcontainer/embedded-rust/devcontainer.json
+            .devcontainer/embedded-rust/devcontainer-metadata.json
+            .devcontainer/rust/devcontainer.json
+            .devcontainer/rust/devcontainer-metadata.json
       - name: Generate PR body
         run: |
           {
@@ -93,10 +103,13 @@ jobs:
       - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         if: github.event_name != 'pull_request'
         with:
-          commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
-          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions-${{ matrix.file }}
+          commit-message: "Update VS Code extensions across devcontainers"
+          branch: feature/amp-devcontainer/update-vscode-extensions
           body-path: ${{ runner.temp }}/pull-request-body.md
-          title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
+          title: "chore(deps): update VS Code extensions across devcontainers"
           labels: dependencies,vscode-extensions
           token: ${{ steps.token.outputs.token }}
           sign-commits: true
+      - name: Fail if any file could not be updated
+        if: steps.update-extensions.outcome == 'failure'
+        run: exit 1
