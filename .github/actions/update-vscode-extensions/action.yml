@@ -4,7 +4,7 @@ description: Updates version-pinned VS Code Extensions in JSON files
 
 inputs:
   cooldown-days:
-    default: 7
+    default: "7"
     description: Minimum number of days a new extension version must be published before it is adopted
     required: false
   input-file:
