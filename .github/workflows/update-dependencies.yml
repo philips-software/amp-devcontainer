@@ -63,7 +63,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: philips-software/amp-devcontainer/.github/actions/update-vscode-extensions@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions/v1.1.0
+      # TODO: revert to a pinned philips-software/amp-devcontainer/.github/actions/update-vscode-extensions@<sha> # actions/vX.Y.Z once this PR's action changes are released
+      - uses: ./.github/actions/update-vscode-extensions
         id: update-extensions
         continue-on-error: true
         with:
