@@ -28,12 +28,13 @@ prevent_github_at_mentions() {
 get_github_releasenotes() {
     local GITHUB_URL=${1:?}
     local CURRENT_VERSION_DATE=${2:?}
+    local ADOPTED_VERSION_DATE=${3:?}
 
-    # Fetch all releases newer than the current version's publish date
-    # This approach works regardless of versioning scheme (semver, date-based, etc.)
+    # Fetch releases between the current version's publish date and the adopted version's,
+    # so notes for versions still stuck in cooldown aren't shown as if they were adopted
     gh release list --exclude-drafts --exclude-pre-releases -R "$GITHUB_URL" \
         --json tagName,publishedAt \
-        --jq ".[] | select(.publishedAt > \"$CURRENT_VERSION_DATE\") | .tagName" | \
+        --jq ".[] | select(.publishedAt > \"$CURRENT_VERSION_DATE\" and .publishedAt <= \"$ADOPTED_VERSION_DATE\") | .tagName" | \
     while read -r TAG; do
         printf "%s\n\n" "$(gh release view --json body --jq '.body' -R "$GITHUB_URL" "$TAG")"
     done
@@ -76,11 +77,12 @@ process_file() {
             GITHUB_URL=$(echo "$LATEST_ELIGIBLE_VERSION_JSON" | jq -r '.properties | map(select(.key == "Microsoft.VisualStudio.Services.Links.GitHub"))[] | .value')
 
             if [[ -n "$GITHUB_URL" && "$GITHUB_URL" != "null" ]]; then
-                # Get the publish date of the current version for date-based release matching
+                # Get the publish dates to bound release notes to what's actually being adopted
                 CURRENT_VERSION_DATE=$(echo "$ALL_VERSIONS_JSON" | jq -r --arg version "$CURRENT_VERSION" 'map(select(.version == $version))[0].lastUpdated // empty')
+                ADOPTED_VERSION_DATE=$(echo "$LATEST_ELIGIBLE_VERSION_JSON" | jq -r '.lastUpdated // empty')
 
-                if [[ -n "$CURRENT_VERSION_DATE" ]]; then
-                    RELEASE_DETAILS=$(get_github_releasenotes "$GITHUB_URL" "$CURRENT_VERSION_DATE" | prevent_github_backlinks | prevent_github_at_mentions)
+                if [[ -n "$CURRENT_VERSION_DATE" && -n "$ADOPTED_VERSION_DATE" ]]; then
+                    RELEASE_DETAILS=$(get_github_releasenotes "$GITHUB_URL" "$CURRENT_VERSION_DATE" "$ADOPTED_VERSION_DATE" | prevent_github_backlinks | prevent_github_at_mentions)
                 else
                     echo "::warning::Could not find publish date for $NAME@$CURRENT_VERSION, skipping release notes"
                     RELEASE_DETAILS=""
