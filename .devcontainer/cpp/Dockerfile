@@ -115,8 +115,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 HEALTHCHECK NONE
 
-SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
-
 # Set default environment options
 ENV CCACHE_DIR=/cache/.ccache \
     CMAKE_EXPORT_COMPILE_COMMANDS="On" \
@@ -125,6 +123,9 @@ ENV CCACHE_DIR=/cache/.ccache \
     CPM_SOURCE_CACHE=/cache/.cpm \
     PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
     PYTHONPYCACHEPREFIX=/cache/.python
+
+# The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
+SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
