@@ -18,6 +18,10 @@ COOLDOWN_CUTOFF=$(date -u -d "-${COOLDOWN_DAYS} days" +"%Y-%m-%dT%H:%M:%S.000Z")
 UPDATE_DETAILS_MARKDOWN=
 UPDATED_EXTENSIONS_JSON="[]"
 FAILED_FILES=()
+# Caches each extension's marketplace query result for this run, since the same extension is
+# often pinned in multiple files - this also cuts down on repeat calls that risk hitting a
+# transient marketplace error or rate limit.
+declare -A VERSION_CACHE
 
 prevent_github_backlinks() {
     # Prevent GitHub from creating backlinks to issues by replacing the URL with a non-redirecting one
@@ -27,6 +31,23 @@ prevent_github_backlinks() {
 
 prevent_github_at_mentions() {
     sed 's| @| [at]|g'
+}
+
+# Queries the marketplace for one extension's non-prerelease versions, retrying a few times
+# with backoff since this call has intermittently returned a non-JSON/empty response.
+query_marketplace() {
+    local NAME=${1:?}
+    local ATTEMPT ALL_VERSIONS_JSON
+
+    for ATTEMPT in 1 2 3; do
+        if ALL_VERSIONS_JSON=$("${VSCE_BIN:-vsce}" show --json "$NAME" | jq '[ .versions[] | select(.properties) | select(any(.properties[].key; contains("Microsoft.VisualStudio.Code.PreRelease")) | not) ]'); then
+            echo "$ALL_VERSIONS_JSON"
+            return 0
+        fi
+        echo "::warning::Attempt $ATTEMPT/3 to query the marketplace for $NAME failed" >&2
+        sleep $((ATTEMPT * 2))
+    done
+    return 1
 }
 
 get_github_releasenotes() {
@@ -60,12 +81,18 @@ process_file() {
         NAME="${EXTENSION%%@*}"
         CURRENT_VERSION="${EXTENSION#*@}"
 
-        # Fetch all non-prerelease versions with their dates
-        if ! ALL_VERSIONS_JSON=$("${VSCE_BIN:-vsce}" show --json "$NAME" | jq '[ .versions[] | select(.properties) | select(any(.properties[].key; contains("Microsoft.VisualStudio.Code.PreRelease")) | not) ]'); then
-            # A shell function invoked as the condition of `if` is exempt from `set -e`, so a
-            # failure here must be checked explicitly to correctly abort this file.
-            echo "::error::Failed to query the marketplace for $NAME, aborting $FILE"
-            return 1
+        # Fetch all non-prerelease versions with their dates, reusing an earlier result for the
+        # same extension name if another file in this run already resolved it
+        if [[ -v VERSION_CACHE["$NAME"] ]]; then
+            ALL_VERSIONS_JSON="${VERSION_CACHE[$NAME]}"
+        else
+            if ! ALL_VERSIONS_JSON=$(query_marketplace "$NAME"); then
+                # A shell function invoked as the condition of `if` is exempt from `set -e`, so a
+                # failure here must be checked explicitly to correctly abort this file.
+                echo "::error::Failed to query the marketplace for $NAME, aborting $FILE"
+                return 1
+            fi
+            VERSION_CACHE["$NAME"]="$ALL_VERSIONS_JSON"
         fi
         LATEST_ELIGIBLE_VERSION_JSON=$(echo "$ALL_VERSIONS_JSON" | jq --arg cutoff "$COOLDOWN_CUTOFF" '[ .[] | select(.lastUpdated <= $cutoff) ][0]')
         LATEST_ELIGIBLE_VERSION=$(echo "$LATEST_ELIGIBLE_VERSION_JSON" | jq -r '.version // empty')
