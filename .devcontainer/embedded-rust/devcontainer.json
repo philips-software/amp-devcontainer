@@ -25,14 +25,14 @@
         "esbenp.prettier-vscode@12.4.0",
         "github.copilot@1.388.0",
         "github.vscode-github-actions@0.32.3",
-        "github.vscode-pull-request-github@0.162.0",
+        "github.vscode-pull-request-github@0.164.0",
         "jetmartin.bats@0.1.10",
         "kherring.bats-test-runner@0.1.3",
         "marus25.cortex-debug@1.12.1",
         "mhutchie.git-graph@1.30.0",
         "ms-azuretools.vscode-docker@2.0.0",
-        "rust-lang.rust-analyzer@0.3.3025",
-        "sonarsource.sonarlint-vscode@5.8.1",
+        "rust-lang.rust-analyzer@0.3.3033",
+        "sonarsource.sonarlint-vscode@5.9.1",
         "tamasfe.even-better-toml@0.21.2",
         "usernamehw.errorlens@3.28.0"
       ]
