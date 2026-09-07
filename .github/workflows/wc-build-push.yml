@@ -263,7 +263,7 @@ jobs:
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
         shell: bash
         working-directory: ${{ runner.temp }}/digests
-      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@524d96e6086501fc3373250d58d5eac002c69429
+      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
         id: extract-digest
         with:
           container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
@@ -282,7 +282,7 @@ jobs:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions/v1.1.0
+      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
         id: container-size-diff
         with:
           from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
