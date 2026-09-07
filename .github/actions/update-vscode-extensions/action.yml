@@ -3,17 +3,21 @@ name: Update VS Code Extensions
 description: Updates version-pinned VS Code Extensions in JSON files
 
 inputs:
+  cooldown-days:
+    default: "7"
+    description: Minimum number of days a new extension version must be published before it is adopted
+    required: false
   input-file:
-    description: Input file in JSON format containing a list of version pinned VS Code Extensions under `customizations.vscode.extensions`
+    description: Input file(s) in JSON format (space or newline separated) containing a list of version pinned VS Code Extensions under `customizations.vscode.extensions`
     required: true
 
 outputs:
-  updated-dependencies:
-    description: JSON array with the names of the updated dependencies
-    value: ${{ steps.update-extensions.outputs.updated-dependencies }}
   markdown-summary-file:
     description: Path to a file containing the markdown summary of update result
     value: ${{ steps.update-extensions.outputs.markdown-summary-file }}
+  updated-dependencies:
+    description: JSON array with the names of the updated dependencies
+    value: ${{ steps.update-extensions.outputs.updated-dependencies }}
 
 runs:
   using: composite
@@ -21,12 +25,18 @@ runs:
     - run: |
         sudo apt-get update
         sudo apt-get install --no-install-recommends -y jq
-        sudo npm install -g @vscode/vsce
+      shell: bash
+    - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      with:
+        node-version: 22.x
+    - run: npm ci --ignore-scripts --prefix "${GITHUB_ACTION_PATH}"
       shell: bash
     - run: |
-        "${GITHUB_ACTION_PATH}/update-vscode-extensions.sh" "${INPUT_FILE}"
+        "${GITHUB_ACTION_PATH}/update-vscode-extensions.sh" ${INPUT_FILE}
       id: update-extensions
       shell: bash
       env:
-        INPUT_FILE: ${{ inputs.input-file }}
+        COOLDOWN_DAYS: ${{ inputs.cooldown-days }}
         GH_TOKEN: ${{ github.token }}
+        INPUT_FILE: ${{ inputs.input-file }}
+        VSCE_BIN: ${{ github.action_path }}/node_modules/.bin/vsce
