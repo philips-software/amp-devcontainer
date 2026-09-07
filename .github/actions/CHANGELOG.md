@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/philips-software/amp-devcontainer/compare/actions-v1.1.0...actions/v1.2.0) (2026-09-07)
+
+
+### Features
+
+* Group vs code extension updates in a single pull request ([#1439](https://github.com/philips-software/amp-devcontainer/issues/1439)) ([4f484e4](https://github.com/philips-software/amp-devcontainer/commit/4f484e4803400ea43e72cb1fcc7dbc8ccd33b23a))
+
 ## [1.1.0](https://github.com/philips-software/amp-devcontainer/compare/actions-v1.0.0...actions-v1.1.0) (2026-07-22)
 
 
