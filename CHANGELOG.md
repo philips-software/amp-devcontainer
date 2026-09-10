@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [8.2.0](https://github.com/philips-software/amp-devcontainer/compare/v8.1.1...v8.2.0) (2026-09-10)
+
+
+### Features
+
+* Group vs code extension updates in a single pull request ([#1439](https://github.com/philips-software/amp-devcontainer/issues/1439)) ([4f484e4](https://github.com/philips-software/amp-devcontainer/commit/4f484e4803400ea43e72cb1fcc7dbc8ccd33b23a))
+
+
+### Chores
+
+* **deps, base:** Update gnupg2 ([#1441](https://github.com/philips-software/amp-devcontainer/issues/1441)) ([f262d46](https://github.com/philips-software/amp-devcontainer/commit/f262d46aa36f966dc569f7411af573a75cd0ba1e))
+* **deps, base:** Update locales ([#1459](https://github.com/philips-software/amp-devcontainer/issues/1459)) ([797e5ef](https://github.com/philips-software/amp-devcontainer/commit/797e5efd6870b3e5ea9cdcbf896ec80305059a56))
+* **deps:** Bump cmake from 4.4.2 to 4.4.3 in /.devcontainer ([#1454](https://github.com/philips-software/amp-devcontainer/issues/1454)) ([418c81b](https://github.com/philips-software/amp-devcontainer/commit/418c81ba21a7f104bd3749e72d16e7112f1b48e6))
+* **deps:** Update VS Code extensions across devcontainers ([#1457](https://github.com/philips-software/amp-devcontainer/issues/1457)) ([4ef16b6](https://github.com/philips-software/amp-devcontainer/commit/4ef16b63ca31eed81300d87c62286ed0548bd0c8))
+* **main:** Release actions 1.2.0 ([#1453](https://github.com/philips-software/amp-devcontainer/issues/1453)) ([eccf76d](https://github.com/philips-software/amp-devcontainer/commit/eccf76dc2da974d3e49531784bf4df2d0e8bbbaa))
+
 ## [8.1.1](https://github.com/philips-software/amp-devcontainer/compare/v8.1.0...v8.1.1) (2026-09-05)
 
 
