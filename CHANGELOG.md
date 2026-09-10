@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [8.1.1](https://github.com/philips-software/amp-devcontainer/compare/v8.1.0...v8.1.1) (2026-09-05)
+
+
+### Bug Fixes
+
+* Scope digest artifacts per image so shared name prefixes don't collide ([#1432](https://github.com/philips-software/amp-devcontainer/issues/1432)) ([ff485e1](https://github.com/philips-software/amp-devcontainer/commit/ff485e10511bae206a24c8cb118a4eadbcb9276b))
+
+
+### Chores
+
+* **deps, embedded-rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1428](https://github.com/philips-software/amp-devcontainer/issues/1428)) ([5d4b2fb](https://github.com/philips-software/amp-devcontainer/commit/5d4b2fbbc618c98616926c834dfaaca408ce76bb))
+* **deps, embedded-rust:** Update rust-lang.rust-analyzer in devcontainer.json ([#1430](https://github.com/philips-software/amp-devcontainer/issues/1430)) ([fe6c340](https://github.com/philips-software/amp-devcontainer/commit/fe6c340da9a88b7c3e6ebba9d5fb0e27ee817196))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer-metadata.json ([#1427](https://github.com/philips-software/amp-devcontainer/issues/1427)) ([cc20124](https://github.com/philips-software/amp-devcontainer/commit/cc20124961602d9a3d8529c9d1cdbd283ab7e715))
+* **deps, rust:** Update rust-lang.rust-analyzer in devcontainer.json ([#1429](https://github.com/philips-software/amp-devcontainer/issues/1429)) ([9402e17](https://github.com/philips-software/amp-devcontainer/commit/9402e17cab73bc0af6e2fb17050a239689684175))
+
 ## [8.1.0](https://github.com/philips-software/amp-devcontainer/compare/v8.0.1...v8.1.0) (2026-08-25)
 
 
