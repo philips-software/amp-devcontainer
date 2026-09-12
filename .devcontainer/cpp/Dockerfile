@@ -8,6 +8,8 @@ ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06
 ARG CCACHE_VERSION=4.13.1
 ARG CPM_VERSION=0.43.1
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.26
+ARG LLVM_VERSION=22.1.2
+ARG LLVM_MAJOR_VERSION=22
 ARG XWIN_VERSION=0.8.0
 # Whether or not to build the embedded flavor of this container
 ARG BUILD_EMBEDDED_FLAVOR=false
@@ -46,6 +48,7 @@ FROM downloader-${TARGETARCH} AS downloader
 
 ARG CPM_VERSION
 ARG INCLUDE_WHAT_YOU_USE_VERSION
+ARG LLVM_VERSION
 
 ADD --checksum=sha256:8b2a587ffd672c4687e7581dad4b2f6c1bb2ad6b480cd9771ba2ff48e0b8c75d \
  https://apt.llvm.org/llvm-snapshot.gpg.key /llvm.gpg.key
@@ -55,6 +58,8 @@ ADD --checksum=sha256:1c40fc102ce9625d7de7eb14f541cab30cc3138dca627f0b0ec40293ce
  https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake /CPM.cmake
 ADD --checksum=sha256:ca3f157a5e6bf293cfb2fea585b103ec87245d02eaee0b6ab832665e740016eb \
   https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz /iwyu.tar.gz
+ADD --checksum=sha256:6550bcc308bf972f7f956001b73f6478da3d22f1ebd4b01653c978a6c7ff3698 \
+  https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/clang+llvm-${LLVM_VERSION}-x86_64-pc-windows-msvc.tar.xz /llvm-windows.tar.xz
 
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
@@ -96,6 +101,7 @@ RUN --mount=from=downloader,target=/dl \
     tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)-glibc/ccache"
     tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
     tar xzf /dl/iwyu.tar.gz
+    tar xJf /dl/llvm-windows.tar.xz --strip-components=6 --wildcards '*/lib/clang/*/lib/windows/clang_rt.asan*'
     cp /dl/CPM.cmake /CPM.cmake
     cp /dl/llvm.gpg.key /llvm.gpg.key
     cp /dl/mull.gpg.key /mull.gpg.key
@@ -104,7 +110,7 @@ EOF
 # Final development container image
 FROM ${BASE_IMAGE}
 
-ARG CLANG_VERSION=22
+ARG LLVM_MAJOR_VERSION
 ARG BUILD_EMBEDDED_FLAVOR
 ARG CCACHE_VERSION
 ARG INCLUDE_WHAT_YOU_USE_VERSION
@@ -121,7 +127,7 @@ ENV CCACHE_DIR=/cache/.ccache \
     CMAKE_GENERATOR="Ninja" \
     CONAN_HOME=/opt/conan \
     CPM_SOURCE_CACHE=/cache/.cpm \
-    PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
+    PATH="$PATH:/usr/lib/llvm-${LLVM_MAJOR_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
     PYTHONPYCACHEPREFIX=/cache/.python
 
 # The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
@@ -156,11 +162,19 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     cat /src/mull.gpg.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg
 
     UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2)
-    #echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm-snapshot.list > /dev/null
+    #echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${LLVM_MAJOR_VERSION} main" | tee /etc/apt/sources.list.d/llvm-snapshot.list > /dev/null
     echo "deb [signed-by=/usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/mull-project/mull-stable/deb/ubuntu ${UBUNTU_CODENAME} main" | tee /etc/apt/sources.list.d/mull-project-mull-stable.list > /dev/null
     echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
         xargs apt-get install -y --no-install-recommends
+
+    # Install Windows (x86_64) LLVM/Clang runtime libraries to support fuzzing and sanitizers
+    CLANG_INSTALLED_VERSION=$(clang --version | grep -oP 'clang version \K[0-9]+\.[0-9]+\.[0-9]+')
+    if [ "${CLANG_INSTALLED_VERSION}" != "${LLVM_VERSION}" ]; then
+      echo "Clang ${CLANG_INSTALLED_VERSION} does not match LLVM_VERSION ${LLVM_VERSION}; update the Windows LLVM runtime" >&2
+      exit 1
+    fi
+    install -m 0644 -D -t "$(clang --print-resource-dir)/lib/windows" /tmp/windows-asan/*
 
     if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
         # Install dependencies
@@ -172,11 +186,11 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     fi
 
     # Install include-what-you-use (iwyu) from source
-    apt-get update && apt-get install -y --no-install-recommends "libclang-${CLANG_VERSION}-dev" "llvm-${CLANG_VERSION}-dev"
+    apt-get update && apt-get install -y --no-install-recommends "libclang-${LLVM_MAJOR_VERSION}-dev" "llvm-${LLVM_MAJOR_VERSION}-dev"
     CC=clang CXX=clang++ cmake -S "/src/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}" -B "/tmp/include-what-you-use/build"
     cmake --build "/tmp/include-what-you-use/build" --target install
     rm -rf "/tmp/include-what-you-use"
-    apt-get purge -y "libclang-${CLANG_VERSION}-dev" "llvm-${CLANG_VERSION}-dev"
+    apt-get purge -y "libclang-${LLVM_MAJOR_VERSION}-dev" "llvm-${LLVM_MAJOR_VERSION}-dev"
     apt-get autoremove -y
     apt-get clean
 
@@ -187,9 +201,9 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
                         --slave /usr/bin/c++ c++ /usr/bin/g++-15
     update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10
-    update-alternatives --install /usr/bin/mull-runner mull-runner "/usr/bin/mull-runner-${CLANG_VERSION}" 10 \
-                        --slave /usr/bin/mull-reporter mull-reporter "/usr/bin/mull-reporter-${CLANG_VERSION}" \
-                        --slave /usr/lib/mull-ir-frontend mull-ir-frontend "/usr/lib/mull-ir-frontend-${CLANG_VERSION}"
+    update-alternatives --install /usr/bin/mull-runner mull-runner "/usr/bin/mull-runner-${LLVM_MAJOR_VERSION}" 10 \
+                        --slave /usr/bin/mull-reporter mull-reporter "/usr/bin/mull-reporter-${LLVM_MAJOR_VERSION}" \
+                        --slave /usr/lib/mull-ir-frontend mull-ir-frontend "/usr/lib/mull-ir-frontend-${LLVM_MAJOR_VERSION}"
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
     # Add a dummy compile_commands.json file to the default location so that tools like SonarLint and Clangd can find it.
