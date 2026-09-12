@@ -203,6 +203,13 @@ teardown() {
   build_and_run_with_sanitizers clang
 }
 
+@test "sanitizers should build and link with clang-cl" {
+  install_win_sdk_when_ci_unset
+
+  cmake --preset clang-cl
+  cmake --build --preset clang-cl-sanitizers
+}
+
 @test "using Conan as package manager should resolve external dependencies" {
   pushd package-managers/conan
 
