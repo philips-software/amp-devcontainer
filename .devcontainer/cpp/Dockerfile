@@ -101,7 +101,7 @@ RUN --mount=from=downloader,target=/dl \
     tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)-glibc/ccache"
     tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
     tar xzf /dl/iwyu.tar.gz
-    tar xJf /dl/llvm-windows.tar.xz --strip-components=6 --wildcards '*/lib/clang/*/lib/windows/clang_rt.asan*'
+    tar xJf /dl/llvm-windows.tar.xz --strip-components=6 --wildcards '*/lib/clang/*/lib/windows/clang_rt.*'
     cp /dl/CPM.cmake /CPM.cmake
     cp /dl/llvm.gpg.key /llvm.gpg.key
     cp /dl/mull.gpg.key /mull.gpg.key
@@ -175,7 +175,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
       echo "Clang ${CLANG_INSTALLED_VERSION} does not match LLVM_VERSION ${LLVM_VERSION}; update the Windows LLVM runtime" >&2
       exit 1
     fi
-    install -m 0644 -D -t "$(clang --print-resource-dir)/lib/windows" /tmp/windows-asan/*
+    install -m 0644 -D -t "$(clang --print-resource-dir)/lib/windows" /src/clang_rt.*
 
     if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
         # Install dependencies
