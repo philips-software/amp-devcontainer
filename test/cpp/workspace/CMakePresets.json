@@ -30,6 +30,14 @@
       }
     },
     {
+      "name": "clang-windows",
+      "inherits": "defaults",
+      "toolchainFile": "${sourceDir}/clang-windows/toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
       "name": "coverage",
       "inherits": "defaults",
       "cacheVariables": {
@@ -109,6 +117,28 @@
       "configurePreset": "clang",
       "targets": [
         "test-clang-tidy"
+      ]
+    },
+    {
+      "name": "clang-windows",
+      "configurePreset": "clang-windows",
+      "targets": [
+        "test-clang-windows"
+      ]
+    },
+    {
+      "name": "clang-windows-fuzzing",
+      "configurePreset": "clang-windows",
+      "targets": [
+        "test-fuzzing"
+      ]
+    },
+    {
+      "name": "clang-windows-sanitizers",
+      "configurePreset": "clang-windows",
+      "targets": [
+        "test-asan",
+        "test-ubsan"
       ]
     },
     {

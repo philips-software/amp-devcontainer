@@ -9,6 +9,7 @@ include(GoogleTest)
 
 add_subdirectory(clang-cl)
 add_subdirectory(clang-tools)
+add_subdirectory(clang-windows)
 add_subdirectory(fuzzing)
 add_subdirectory(gcc)
 add_subdirectory(package-managers)

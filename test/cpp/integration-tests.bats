@@ -72,7 +72,7 @@ teardown() {
   done
 }
 
-@test "valid code input should result in working executable using host compiler" {
+@test "valid code input should result in a working executable using the host compiler" {
   # @sbdl test-comp-0001 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   cmake --preset gcc
   cmake --build --preset gcc
@@ -82,12 +82,20 @@ teardown() {
   assert_output "Hello World!"
 }
 
-@test "valid code input should result in Windows executable using clang-cl compiler" {
+@test "valid code input should result in a Windows executable using the clang-cl driver" {
   # @sbdl test-comp-0003 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0003 }
   install_win_sdk_when_ci_unset
 
   cmake --preset clang-cl
   cmake --build --preset clang-cl
+}
+
+@test "valid code input should result in a Windows executable using the clang driver" {
+  # @sbdl test-comp-0007 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0003 }
+  install_win_sdk_when_ci_unset
+
+  cmake --preset clang-windows
+  cmake --build --preset clang-windows
 }
 
 @test "compilation database should be generated on CMake configure" {
@@ -203,16 +211,32 @@ teardown() {
   build_and_run_with_sanitizers clang
 }
 
-@test "sanitizers should build and link with clang-cl" {
+@test "sanitizers should build and link with the clang-cl driver targeting Windows" {
   install_win_sdk_when_ci_unset
 
   cmake --preset clang-cl
   cmake --build --preset clang-cl-sanitizers
 }
 
-@test "fuzzing should build and link with clang-cl" {
+@test "fuzzing should build and link with the clang-cl driver targeting Windows" {
+  install_win_sdk_when_ci_unset
+
   cmake --preset clang-cl
   cmake --build --preset clang-cl-fuzzing
+}
+
+@test "sanitizers should build and link with the clang driver targeting Windows" {
+  install_win_sdk_when_ci_unset
+
+  cmake --preset clang-windows
+  cmake --build --preset clang-windows-sanitizers
+}
+
+@test "fuzzing should build and link with the clang driver targeting Windows" {
+  install_win_sdk_when_ci_unset
+
+  cmake --preset clang-windows
+  cmake --build --preset clang-windows-fuzzing
 }
 
 @test "using Conan as package manager should resolve external dependencies" {
