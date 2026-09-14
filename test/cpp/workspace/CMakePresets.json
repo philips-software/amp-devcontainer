@@ -66,11 +66,25 @@
       ]
     },
     {
+      "name": "clang-cl-fuzzing",
+      "configurePreset": "clang-cl",
+      "targets": [
+        "test-fuzzing"
+      ]
+    },
+    {
       "name": "clang-cl-sanitizers",
       "configurePreset": "clang-cl",
       "targets": [
         "test-asan",
         "test-ubsan"
+      ]
+    },
+    {
+      "name": "clang-fuzzing",
+      "configurePreset": "clang",
+      "targets": [
+        "test-fuzzing"
       ]
     },
     {
@@ -109,13 +123,6 @@
       "configurePreset": "cpm",
       "targets": [
         "test-cpm"
-      ]
-    },
-    {
-      "name": "fuzzing",
-      "configurePreset": "clang",
-      "targets": [
-        "test-fuzzing"
       ]
     },
     {

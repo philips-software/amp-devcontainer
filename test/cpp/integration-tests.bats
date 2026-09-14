@@ -164,7 +164,7 @@ teardown() {
 @test "crashes should be detected when fuzzing an executable" {
   # @sbdl test-sda-0006 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0005 }
   cmake --preset clang
-  cmake --build --preset fuzzing
+  cmake --build --preset clang-fuzzing
 
   run build/clang/fuzzing/test-fuzzing
   assert_failure
@@ -208,6 +208,11 @@ teardown() {
 
   cmake --preset clang-cl
   cmake --build --preset clang-cl-sanitizers
+}
+
+@test "fuzzing should build and link with clang-cl" {
+  cmake --preset clang-cl
+  cmake --build --preset clang-cl-fuzzing
 }
 
 @test "using Conan as package manager should resolve external dependencies" {
@@ -286,7 +291,7 @@ function get_expected_semver_for() {
 }
 
 function install_win_sdk() {
-  xwin --http-retry 2 --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
+  xwin --http-retry 2 --accept-license --manifest-version 17 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --include-debug-symbols --preserve-ms-arch-notation
   ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
 }
 

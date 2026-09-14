@@ -18,5 +18,15 @@ find_program(CMAKE_C_COMPILER NAMES clang-cl REQUIRED)
 find_program(CMAKE_CXX_COMPILER NAMES clang-cl REQUIRED)
 find_program(CMAKE_AR NAMES llvm-lib REQUIRED)
 
-add_compile_options(--target=x86_64-pc-windows-msvc -fuse-ld=lld /winsdkdir ${WINDOWS_SDK_ROOT}/sdk /vctoolsdir ${WINDOWS_SDK_ROOT}/crt)
-add_link_options(/machine:x64 /manifest:no -libpath:${WINDOWS_SDK_ROOT}/sdk/lib/um/x64 -libpath:${WINDOWS_SDK_ROOT}/sdk/lib/ucrt/x64 -libpath:${WINDOWS_SDK_ROOT}/crt/lib/x64)
+# Link through the compiler driver so that driver options work as they do on other platforms.
+# CMAKE_USER_MAKE_RULES_OVERRIDE holds a single file, so hand any existing one to link-rules.cmake.
+if(NOT CMAKE_USER_MAKE_RULES_OVERRIDE STREQUAL "${CMAKE_CURRENT_LIST_DIR}/link-rules.cmake")
+    set(PROJECT_MAKE_RULES_OVERRIDE "${CMAKE_USER_MAKE_RULES_OVERRIDE}")
+endif()
+set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_LIST_DIR}/link-rules.cmake)
+
+set(TARGET_OPTIONS --target=x86_64-pc-windows-msvc -fuse-ld=lld /winsdkdir ${WINDOWS_SDK_ROOT}/sdk /vctoolsdir ${WINDOWS_SDK_ROOT}/crt)
+
+add_compile_options(${TARGET_OPTIONS})
+# Compile flags are repeated on the link line, where most of them serve no purpose.
+add_link_options(${TARGET_OPTIONS} -Xlinker /manifest:no -Wno-unused-command-line-argument)
