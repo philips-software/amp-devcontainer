@@ -69,128 +69,87 @@
     {
       "name": "clang-cl",
       "configurePreset": "clang-cl",
-      "targets": [
-        "test-clang-cl"
-      ]
+      "targets": ["test-clang-cl"]
     },
     {
       "name": "clang-cl-fuzzing",
       "configurePreset": "clang-cl",
-      "targets": [
-        "test-fuzzing"
-      ]
+      "targets": ["test-fuzzing"]
     },
     {
       "name": "clang-cl-sanitizers",
       "configurePreset": "clang-cl",
-      "targets": [
-        "test-asan",
-        "test-ubsan"
-      ]
+      "targets": ["test-asan", "test-ubsan"]
     },
     {
       "name": "clang-fuzzing",
       "configurePreset": "clang",
-      "targets": [
-        "test-fuzzing"
-      ]
+      "targets": ["test-fuzzing"]
     },
     {
       "name": "clang-iwyu",
       "configurePreset": "clang",
-      "targets": [
-        "test-clang-iwyu"
-      ]
+      "targets": ["test-clang-iwyu"]
     },
     {
       "name": "clang-sanitizers",
       "configurePreset": "clang",
-      "targets": [
-        "test-asan",
-        "test-memsan",
-        "test-threadsan",
-        "test-ubsan"
-      ]
+      "targets": ["test-asan", "test-memsan", "test-threadsan", "test-ubsan"]
     },
     {
       "name": "clang-tidy",
       "configurePreset": "clang",
-      "targets": [
-        "test-clang-tidy"
-      ]
+      "targets": ["test-clang-tidy"]
     },
     {
       "name": "clang-windows",
       "configurePreset": "clang-windows",
-      "targets": [
-        "test-clang-windows"
-      ]
+      "targets": ["test-clang-windows"]
     },
     {
       "name": "clang-windows-fuzzing",
       "configurePreset": "clang-windows",
-      "targets": [
-        "test-fuzzing"
-      ]
+      "targets": ["test-fuzzing"]
     },
     {
       "name": "clang-windows-sanitizers",
       "configurePreset": "clang-windows",
-      "targets": [
-        "test-asan",
-        "test-ubsan"
-      ]
+      "targets": ["test-asan", "test-ubsan"]
     },
     {
       "name": "coverage",
       "configurePreset": "coverage",
-      "targets": [
-        "test-coverage"
-      ]
+      "targets": ["test-coverage"]
     },
     {
       "name": "cpm",
       "configurePreset": "cpm",
-      "targets": [
-        "test-cpm"
-      ]
+      "targets": ["test-cpm"]
     },
     {
       "name": "gcc",
       "configurePreset": "gcc",
-      "targets": [
-        "test-gcc"
-      ]
+      "targets": ["test-gcc"]
     },
     {
       "name": "gcc-fail",
       "configurePreset": "gcc",
-      "targets": [
-        "test-gcc-fail"
-      ]
+      "targets": ["test-gcc-fail"]
     },
     {
       "name": "gcc-lld",
       "configurePreset": "gcc",
-      "targets": [
-        "test-gcc-lld"
-      ]
+      "targets": ["test-gcc-lld"]
     },
     {
       "name": "gcc-sanitizers",
       "configurePreset": "gcc",
-      "targets": [
-        "test-asan",
-        "test-threadsan",
-        "test-ubsan"
-      ]
+      "targets": ["test-asan", "test-threadsan", "test-ubsan"]
     },
     {
       "name": "mutation",
       "configurePreset": "mutation",
-      "targets": [
-        "test-mutation"
-      ]
+      "targets": ["test-mutation"]
     }
   ],
   "testPresets": [
