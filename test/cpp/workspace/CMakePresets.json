@@ -30,6 +30,14 @@
       }
     },
     {
+      "name": "clang-windows",
+      "inherits": "defaults",
+      "toolchainFile": "${sourceDir}/clang-windows/toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
       "name": "coverage",
       "inherits": "defaults",
       "cacheVariables": {
@@ -64,6 +72,21 @@
       "targets": ["test-clang-cl"]
     },
     {
+      "name": "clang-cl-fuzzing",
+      "configurePreset": "clang-cl",
+      "targets": ["test-fuzzing"]
+    },
+    {
+      "name": "clang-cl-sanitizers",
+      "configurePreset": "clang-cl",
+      "targets": ["test-asan", "test-ubsan"]
+    },
+    {
+      "name": "clang-fuzzing",
+      "configurePreset": "clang",
+      "targets": ["test-fuzzing"]
+    },
+    {
       "name": "clang-iwyu",
       "configurePreset": "clang",
       "targets": ["test-clang-iwyu"]
@@ -79,6 +102,21 @@
       "targets": ["test-clang-tidy"]
     },
     {
+      "name": "clang-windows",
+      "configurePreset": "clang-windows",
+      "targets": ["test-clang-windows"]
+    },
+    {
+      "name": "clang-windows-fuzzing",
+      "configurePreset": "clang-windows",
+      "targets": ["test-fuzzing"]
+    },
+    {
+      "name": "clang-windows-sanitizers",
+      "configurePreset": "clang-windows",
+      "targets": ["test-asan", "test-ubsan"]
+    },
+    {
       "name": "coverage",
       "configurePreset": "coverage",
       "targets": ["test-coverage"]
@@ -87,11 +125,6 @@
       "name": "cpm",
       "configurePreset": "cpm",
       "targets": ["test-cpm"]
-    },
-    {
-      "name": "fuzzing",
-      "configurePreset": "clang",
-      "targets": ["test-fuzzing"]
     },
     {
       "name": "gcc",

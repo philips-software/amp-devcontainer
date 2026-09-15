@@ -72,7 +72,7 @@ teardown() {
   done
 }
 
-@test "valid code input should result in working executable using host compiler" {
+@test "valid code input should result in a working executable using the host compiler" {
   # @sbdl test-comp-0001 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   cmake --preset gcc
   cmake --build --preset gcc
@@ -82,12 +82,24 @@ teardown() {
   assert_output "Hello World!"
 }
 
-@test "valid code input should result in Windows executable using clang-cl compiler" {
+@test "valid code input should result in a Windows executable using the clang-cl driver" {
   # @sbdl test-comp-0003 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0003 }
   install_win_sdk_when_ci_unset
 
   cmake --preset clang-cl
   cmake --build --preset clang-cl
+
+  assert_windows_executable build/clang-cl/clang-cl/test-clang-cl.exe
+}
+
+@test "valid code input should result in a Windows executable using the clang driver" {
+  # @sbdl test-comp-0007 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0003 }
+  install_win_sdk_when_ci_unset
+
+  cmake --preset clang-windows
+  cmake --build --preset clang-windows
+
+  assert_windows_executable build/clang-windows/clang-windows/test-clang-windows.exe
 }
 
 @test "compilation database should be generated on CMake configure" {
@@ -164,7 +176,7 @@ teardown() {
 @test "crashes should be detected when fuzzing an executable" {
   # @sbdl test-sda-0006 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0005 }
   cmake --preset clang
-  cmake --build --preset fuzzing
+  cmake --build --preset clang-fuzzing
 
   run build/clang/fuzzing/test-fuzzing
   assert_failure
@@ -201,6 +213,42 @@ teardown() {
 
 @test "sanitizers should detect undefined or suspicious behavior in code compiled with clang" {
   build_and_run_with_sanitizers clang
+}
+
+@test "sanitizers should build and link with the clang-cl driver targeting Windows" {
+  install_win_sdk_when_ci_unset
+
+  cmake --preset clang-cl
+  cmake --build --preset clang-cl-sanitizers
+
+  assert_windows_sanitizer_executables clang-cl
+}
+
+@test "fuzzing should build and link with the clang-cl driver targeting Windows" {
+  install_win_sdk_when_ci_unset
+
+  cmake --preset clang-cl
+  cmake --build --preset clang-cl-fuzzing
+
+  assert_windows_fuzzing_executable clang-cl
+}
+
+@test "sanitizers should build and link with the clang driver targeting Windows" {
+  install_win_sdk_when_ci_unset
+
+  cmake --preset clang-windows
+  cmake --build --preset clang-windows-sanitizers
+
+  assert_windows_sanitizer_executables clang-windows
+}
+
+@test "fuzzing should build and link with the clang driver targeting Windows" {
+  install_win_sdk_when_ci_unset
+
+  cmake --preset clang-windows
+  cmake --build --preset clang-windows-fuzzing
+
+  assert_windows_fuzzing_executable clang-windows
 }
 
 @test "using Conan as package manager should resolve external dependencies" {
@@ -259,6 +307,54 @@ function build_and_run_with_sanitizers() {
   assert_output --partial "ThreadSanitizer: data race"
 }
 
+# The cross-compiled binaries cannot be executed on the container host, so assert on their contents.
+function assert_windows_executable() {
+  local BINARY=${1:?}
+
+  assert [ -e ${BINARY} ]
+
+  run llvm-readobj --file-headers ${BINARY}
+  assert_success
+  assert_output --partial "Format: COFF-x86-64"
+  assert_output --partial "Machine: IMAGE_FILE_MACHINE_AMD64"
+  assert_output --partial "Subsystem: IMAGE_SUBSYSTEM_WINDOWS_CUI"
+}
+
+function assert_imports() {
+  local BINARY=${1:?}
+  local LIBRARY=${2:?}
+
+  run llvm-readobj --coff-imports ${BINARY}
+  assert_success
+  assert_output --partial "Name: ${LIBRARY}"
+}
+
+function assert_contains() {
+  local BINARY=${1:?}
+  local TEXT=${2:?}
+
+  run grep --text --count "${TEXT}" ${BINARY}
+  assert_success
+}
+
+function assert_windows_sanitizer_executables() {
+  local PRESET=${1:?}
+
+  assert_windows_executable build/${PRESET}/sanitizers/test-asan.exe
+  assert_imports build/${PRESET}/sanitizers/test-asan.exe clang_rt.asan_dynamic-x86_64.dll
+
+  assert_windows_executable build/${PRESET}/sanitizers/test-ubsan.exe
+  assert_contains build/${PRESET}/sanitizers/test-ubsan.exe UndefinedBehaviorSanitizer
+}
+
+function assert_windows_fuzzing_executable() {
+  local PRESET=${1:?}
+
+  assert_windows_executable build/${PRESET}/fuzzing/test-fuzzing.exe
+  assert_imports build/${PRESET}/fuzzing/test-fuzzing.exe clang_rt.asan_dynamic-x86_64.dll
+  assert_contains build/${PRESET}/fuzzing/test-fuzzing.exe libFuzzer
+}
+
 function to_semver() {
   grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1
 }
@@ -279,7 +375,7 @@ function get_expected_semver_for() {
 }
 
 function install_win_sdk() {
-  xwin --http-retry 2 --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
+  xwin --http-retry 2 --accept-license --manifest-version 17 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --include-debug-symbols --preserve-ms-arch-notation
   ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
 }
 
