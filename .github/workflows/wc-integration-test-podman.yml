@@ -72,6 +72,7 @@ jobs:
             --network=host \
             -v "${WORKSPACE}:${WORKSPACE}" \
             -w "${WORKSPACE}" \
+            -e CI \
             -e IMAGE_BASENAME="${IMAGE_BASENAME}" \
             -e TEST_FILE="${TEST_FILE}" \
             -e RUNNER_ARCH="${RUNNER_ARCH}" \
