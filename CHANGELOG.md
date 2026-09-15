@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [8.3.0](https://github.com/philips-software/amp-devcontainer/compare/v8.2.0...v8.3.0) (2026-09-15)
+
+
+### Features
+
+* Add support for sanitization and fuzzing in the Windows cross-compilation scenario ([#1463](https://github.com/philips-software/amp-devcontainer/issues/1463)) ([3ebfe7c](https://github.com/philips-software/amp-devcontainer/commit/3ebfe7cac6a70bfb8894b014587d181448c85397))
+
 ## [8.2.0](https://github.com/philips-software/amp-devcontainer/compare/v8.1.1...v8.2.0) (2026-09-10)
 
 
