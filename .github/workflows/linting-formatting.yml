@@ -34,17 +34,17 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: zizmorcore/zizmor-action@70fb788f84895a7701f5643d103d587e460b5c99 # v0.6.3
+      - uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
         with:
           persona: pedantic
       # flavors/dotnet is the smallest flavor of MegaLinter that contains the linters
       # we are interested in.
-      - uses: oxsecurity/megalinter/flavors/dotnet@15e5b45552097e318c93de385779ce3b1084052c # v10.0.0
+      - uses: oxsecurity/megalinter/flavors/dotnet@9949bad031045f366be2467e00e8371a7328a2e2 # v10.1.0
         env:
           APPLY_FIXES: all
           VALIDATE_ALL_CODEBASE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
+      - uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
         if: success() || failure()
         with:
           sarif_file: megalinter-reports/megalinter-report.sarif
