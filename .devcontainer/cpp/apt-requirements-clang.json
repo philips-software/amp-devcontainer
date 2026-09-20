@@ -7,5 +7,5 @@
   "libclang-rt-22-dev": "1:22.1.2-1ubuntu1",
   "lld-22": "1:22.1.2-1ubuntu1",
   "llvm-22": "1:22.1.2-1ubuntu1",
-  "mull-22": "0.34.0"
+  "mull-22": "0.34.1"
 }
