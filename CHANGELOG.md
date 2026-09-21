@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [8.3.0](https://github.com/philips-software/amp-devcontainer/compare/v8.2.0...v8.3.0) (2026-09-21)
+
+
+### Features
+
+* Add support for sanitization and fuzzing in the Windows cross-compilation scenario ([#1463](https://github.com/philips-software/amp-devcontainer/issues/1463)) ([3ebfe7c](https://github.com/philips-software/amp-devcontainer/commit/3ebfe7cac6a70bfb8894b014587d181448c85397))
+
+
+### Chores
+
+* **deps, cpp:** Update mull-22 ([#1470](https://github.com/philips-software/amp-devcontainer/issues/1470)) ([5118426](https://github.com/philips-software/amp-devcontainer/commit/51184269b370b11bda1132ad70c3fb31ea4c4279))
+* **deps:** Bump ubuntu from `513c074` to `9559ceb` in amp-devcontainer-base ([#1467](https://github.com/philips-software/amp-devcontainer/issues/1467)) ([dd2bf5e](https://github.com/philips-software/amp-devcontainer/commit/dd2bf5e1a0496bc430d983b302a3a4785c731d78))
+
 ## [8.2.0](https://github.com/philips-software/amp-devcontainer/compare/v8.1.1...v8.2.0) (2026-09-10)
 
 
