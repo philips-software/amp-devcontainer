@@ -60,10 +60,7 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
 
   update-release-notes:
-    name: Update Release Notes (🍨 ${{ matrix.flavor }})
-    strategy:
-      matrix:
-        flavor: [base, cpp, docs, embedded-cpp, embedded-rust, rust]
+    name: 📝 Update Release Notes
     runs-on: ubuntu-latest
     permissions:
       # Please note that this is an overly broad scope, but GitHub does not
@@ -72,7 +69,6 @@ jobs:
       contents: write # is needed to modify a release
     needs: [build-push-test, apply-release-notes-template]
     env:
-      CONTAINER_FLAVOR: ${{ matrix.flavor }}
       REF_NAME: ${{ github.ref_name }}
       REGISTRY: ghcr.io
     steps:
@@ -80,48 +76,33 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
-        id: extract-digest
-        with:
-          container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}:${{ github.ref_name }}
-      - name: Upload provenance to release
-        run: |
-          set -Eeuo pipefail
-          FORMATTED_DIGEST=${DIGEST//:/_}
-          gh attestation verify --repo "${GH_REPO}" "oci://${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
-          gh release upload --clobber "${REF_NAME}" ./*.intoto.jsonl
-        env:
-          DIGEST: ${{ steps.extract-digest.outputs.digest }}
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY_OWNER: ${{ github.repository_owner }}
-          REPOSITORY_NAME: ${{ github.event.repository.name }}
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: tool-inventory-${{ github.event.repository.name }}-${{ matrix.flavor }}
-          path: tool-inventory
-      - name: Update package details in release
+          pattern: tool-inventory-${{ github.event.repository.name }}-*
+      - name: Update release notes for all container flavors
+        # Flavors are processed one at a time so release-note edits can't race each other.
         run: |
           set -Eeuo pipefail
-          TOOLS_TABLE=$(jq -r '"| Tool | Version |\n| --- | --- |\n" + ([.tools[] | "| \(.name) | \(.version) |"] | join("\n"))' tool-inventory/tool-inventory.json)
-          UPDATED_NOTES=$(gh release view "${REF_NAME}" --json body -q '.body')
-          UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-version }}"/"${REF_NAME}"}
-          UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-sha }}"/"${DIGEST}"}
-          UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-tools }}"/"${TOOLS_TABLE}"}
-          gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
+          for FLAVOR in base cpp docs embedded-cpp embedded-rust rust; do
+            DIGEST=$(docker buildx imagetools inspect "${REGISTRY}/${GH_REPO}-${FLAVOR}:${REF_NAME}" --format '{{json .}}' | jq -er '.manifest.digest // .manifests[0].digest')
+            FORMATTED_DIGEST=${DIGEST//:/_}
+
+            gh attestation verify --repo "${GH_REPO}" "oci://${REGISTRY}/${GH_REPO}-${FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
+            gh release upload --clobber "${REF_NAME}" "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
+
+            TOOL_INVENTORY="tool-inventory-${REPOSITORY_NAME}-${FLAVOR}/tool-inventory.json"
+            TOOLS_TABLE=$(jq -r '"| Tool | Version |\n| --- | --- |\n" + ([.tools[] | "| \(.name) | \(.version) |"] | join("\n"))' "${TOOL_INVENTORY}")
+            UPDATED_NOTES=$(gh release view "${REF_NAME}" --json body -q '.body')
+            UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${FLAVOR}-version }}"/"${REF_NAME}"}
+            UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${FLAVOR}-sha }}"/"${DIGEST}"}
+            UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${FLAVOR}-tools }}"/"${TOOLS_TABLE}"}
+            gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
+
+            INVENTORY="${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${FLAVOR}_${FORMATTED_DIGEST}.tool-inventory.json"
+            cp "${TOOL_INVENTORY}" "${INVENTORY}"
+            gh release upload --clobber "${REF_NAME}" "${INVENTORY}"
+          done
         env:
-          DIGEST: ${{ steps.extract-digest.outputs.digest }}
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
-      - name: Upload tool inventory to release
-        run: |
-          set -Eeuo pipefail
-          FORMATTED_DIGEST=${DIGEST//:/_}
-          INVENTORY="${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.tool-inventory.json"
-          cp tool-inventory/tool-inventory.json "${INVENTORY}"
-          gh release upload --clobber "${REF_NAME}" "${INVENTORY}"
-        env:
-          DIGEST: ${{ steps.extract-digest.outputs.digest }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
