@@ -44,7 +44,7 @@ jobs:
           APPLY_FIXES: all
           VALIDATE_ALL_CODEBASE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
+      - uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4.38.1
         if: success() || failure()
         with:
           sarif_file: megalinter-reports/megalinter-report.sarif
@@ -54,6 +54,6 @@ jobs:
           name: Linter Report
           path: |
             megalinter-reports
-      - uses: reviewdog/action-suggester@2558ba17e65a9039e73764a73009fc05fef28a46 # v1.24.3
+      - uses: reviewdog/action-suggester@9d84de0d37e5b9e8de5ddec1e63ac29ef0026991 # v1.26.0
         with:
           tool_name: MegaLinter
