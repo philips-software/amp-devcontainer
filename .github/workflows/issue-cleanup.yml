@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: "30 1 * * *"
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:

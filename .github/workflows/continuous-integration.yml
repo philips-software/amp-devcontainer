@@ -15,7 +15,7 @@ permissions: {}
 jobs:
   build-push-test:
     name: Build → Push → Test
-    uses: ./.github/workflows/build-push-test.yml
+    uses: $/.github/workflows/build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
       artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
@@ -33,7 +33,7 @@ jobs:
   dependency-review:
     name: 🔍 Dependency Review
     needs: build-push-test
-    uses: ./.github/workflows/wc-dependency-review.yml
+    uses: $/.github/workflows/wc-dependency-review.yml
     permissions:
       contents: read
       pull-requests: write # is needed by actions/dependency-review-action to write PR summaries
@@ -63,6 +63,6 @@ jobs:
 
   generate-documents:
     name: 📄 Documentation
-    uses: ./.github/workflows/wc-document-generation.yml
+    uses: $/.github/workflows/wc-document-generation.yml
     permissions:
       contents: read

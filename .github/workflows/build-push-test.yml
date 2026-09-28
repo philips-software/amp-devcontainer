@@ -18,7 +18,7 @@ permissions: {}
 jobs:
   build-push-test-base:
     name: 🍨 base
-    uses: ./.github/workflows/wc-build-push-test.yml
+    uses: $/.github/workflows/wc-build-push-test.yml
     permissions: &build-push-test-permissions
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
       artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
@@ -54,7 +54,7 @@ jobs:
           - flavor: embedded-rust
             dockerfile: .devcontainer/rust/Dockerfile
             build-embedded-flavor: true
-    uses: ./.github/workflows/wc-build-push-test.yml
+    uses: $/.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
       TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}

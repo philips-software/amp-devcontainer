@@ -129,7 +129,7 @@ permissions: {}
 jobs:
   build-push:
     name: 🛠️
-    uses: ./.github/workflows/wc-build-push.yml
+    uses: $/.github/workflows/wc-build-push.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
       artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
@@ -158,7 +158,7 @@ jobs:
     name: 🧪
     if: ${{ inputs.integration-test-file }}
     needs: build-push
-    uses: ./.github/workflows/wc-integration-test-docker.yml
+    uses: $/.github/workflows/wc-integration-test-docker.yml
     permissions:
       contents: read
     secrets: *docker-secrets
@@ -175,7 +175,7 @@ jobs:
     name: 🧪
     if: ${{ inputs.integration-test-file && inputs.integration-test-podman }}
     needs: build-push
-    uses: ./.github/workflows/wc-integration-test-podman.yml
+    uses: $/.github/workflows/wc-integration-test-podman.yml
     permissions:
       contents: read
     secrets: *docker-secrets
@@ -185,7 +185,7 @@ jobs:
     name: 🏗️
     if: ${{ inputs.acceptance-test-devcontainer-file && inputs.acceptance-test-path }}
     needs: build-push
-    uses: ./.github/workflows/wc-acceptance-test.yml
+    uses: $/.github/workflows/wc-acceptance-test.yml
     permissions:
       contents: read
     secrets:
