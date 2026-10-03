@@ -5,7 +5,7 @@ ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 # Public minisign key for verifying ccache releases,
 # taken from https://ccache.dev/minisign.pub
 ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF
-ARG CCACHE_VERSION=4.13.1
+ARG CCACHE_VERSION=4.14.1
 ARG CPM_VERSION=0.43.1
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.26
 ARG LLVM_VERSION=22.1.2
@@ -21,9 +21,9 @@ FROM scratch AS downloader-amd64
 ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
-ADD --checksum=sha256:dd9fc188e738add3c12509063bb082b05e77a9a71fa85a20e01230044aa410f1 \
+ADD --checksum=sha256:ad63d19f5d09ea13f749651653a561c98a59994e673504a4266617b8754218f7 \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz /ccache.tar.xz
-ADD --checksum=sha256:fdf00b1eadebf437e898ca3c0c94fd3e8d03b9e2bbe4f3d74ac6df2fecbf0a74 \
+ADD --checksum=sha256:ef15107f651825c3d7b54f977e4a0f8ddcc9979a50193e7c418e3b213606dfbf \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
 ADD --checksum=sha256:d870eb4b2f390878af6da1ccd3cf321d22fcb72720984853b4be732ae597fc88 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
@@ -34,9 +34,9 @@ FROM scratch AS downloader-arm64
 ARG CCACHE_VERSION
 ARG XWIN_VERSION
 
-ADD --checksum=sha256:4cf4b05d9c381b3a60f1f10189f45ad9402bbc58979dbdc4901659c7f5e42dc8 \
+ADD --checksum=sha256:4e8f16aa3b55acc57dc24ab3b997bf2bcef049a3bde1c97e38b07397e4ed4f6d \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz /ccache.tar.xz
-ADD --checksum=sha256:24b50ebf8ce5ec9e5e56af298ddb17699a46f0d9bb035d7c824500270a5cde74 \
+ADD --checksum=sha256:49bd15599d807b2f11c3788d7609011cc24270d29939abf5cd28c14d2825c3f0 \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
 ADD --checksum=sha256:6d56d28537a86f37aa3d041318898f25ee3100c6b6ec332ad873c28faf37be23 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
