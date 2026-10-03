@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [8.4.0](https://github.com/philips-software/amp-devcontainer/compare/v8.3.0...v8.4.0) (2026-10-03)
+
+
+### Features
+
+* Update xwin to v0.10.0 ([#1479](https://github.com/philips-software/amp-devcontainer/issues/1479)) ([a9e62f9](https://github.com/philips-software/amp-devcontainer/commit/a9e62f99b66d0dce715374809e8010c1908f3be1))
+
 ## [8.3.0](https://github.com/philips-software/amp-devcontainer/compare/v8.2.0...v8.3.0) (2026-09-21)
 
 
