@@ -10,7 +10,7 @@ ARG CPM_VERSION=0.43.1
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.26
 ARG LLVM_VERSION=22.1.2
 ARG LLVM_MAJOR_VERSION=22
-ARG XWIN_VERSION=0.8.0
+ARG XWIN_VERSION=0.10.0
 # Whether or not to build the embedded flavor of this container
 ARG BUILD_EMBEDDED_FLAVOR=false
 ARG ARM_GNU_TOOLCHAIN_VERSION=15.2.rel1
@@ -25,7 +25,7 @@ ADD --checksum=sha256:ad63d19f5d09ea13f749651653a561c98a59994e673504a4266617b875
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz /ccache.tar.xz
 ADD --checksum=sha256:ef15107f651825c3d7b54f977e4a0f8ddcc9979a50193e7c418e3b213606dfbf \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
-ADD --checksum=sha256:8a354e12475dd154d0a2d3084eefd2c105f872ec8062965baaa7e9f2f76fe611 \
+ADD --checksum=sha256:d870eb4b2f390878af6da1ccd3cf321d22fcb72720984853b4be732ae597fc88 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Downloader stage for ARM64 architecture
@@ -38,7 +38,7 @@ ADD --checksum=sha256:4e8f16aa3b55acc57dc24ab3b997bf2bcef049a3bde1c97e38b07397e4
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz /ccache.tar.xz
 ADD --checksum=sha256:49bd15599d807b2f11c3788d7609011cc24270d29939abf5cd28c14d2825c3f0 \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
-ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c67368aeab \
+ADD --checksum=sha256:6d56d28537a86f37aa3d041318898f25ee3100c6b6ec332ad873c28faf37be23 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Select downloader stage based on target architecture.
