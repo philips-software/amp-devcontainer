@@ -7,7 +7,7 @@
       "extensions": [
         "mhutchie.git-graph@1.30.0",
         "ms-vsliveshare.vsliveshare@1.1.122",
-        "usernamehw.errorlens@3.28.0"
+        "usernamehw.errorlens@3.29.0"
       ],
       "settings": {
         "extensions.autoCheckUpdates": false,

@@ -3,7 +3,7 @@
     "vscode": {
       "extensions": [
         "jebbs.plantuml@2.18.1",
-        "sbdl.sbdl@1.8.18"
+        "sbdl.sbdl@1.10.2"
       ]
     }
   }
