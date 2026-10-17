@@ -64,7 +64,7 @@ permissions: {}
 jobs:
   sanitize-image-name:
     name: 🧼
-    uses: ./.github/workflows/wc-sanitize-image-name.yml
+    uses: $/.github/workflows/wc-sanitize-image-name.yml
     with:
       image-name: ${{ inputs.image-name }}
       registry: ${{ inputs.registry }}

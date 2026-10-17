@@ -7,6 +7,10 @@ on:
     - cron: "30 2 * * 0"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
