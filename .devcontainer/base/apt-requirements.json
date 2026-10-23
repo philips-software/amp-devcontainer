@@ -1,11 +1,11 @@
 {
   "bash-completion": "1:2.16.0-8build1",
   "binutils": "2.46-3ubuntu2",
-  "ca-certificates": "20260601~26.04.1",
+  "ca-certificates": "20260816ubuntu0.26.04.1",
   "git": "1:2.53.0-1ubuntu1.1",
   "gnupg2": "2.4.8-4ubuntu3.1",
   "locales": "2.43-2ubuntu2.4",
   "udev": "259.9-0ubuntu0.1",
   "wget": "1.25.0-2ubuntu4.4",
-  "xz-utils": "5.8.3-1"
+  "xz-utils": "5.8.3-1ubuntu0.1"
 }
