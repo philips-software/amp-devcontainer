@@ -1,7 +1,9 @@
 # amp-devcontainer
 
 <!-- markdownlint-disable -->
+
 [![Linting & Formatting](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml) [![Continuous Integration](https://github.com/philips-software/amp-devcontainer/actions/workflows/continuous-integration.yml/badge.svg?branch=main)](https://github.com/philips-software/amp-devcontainer/actions/workflows/continuous-integration.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/philips-software/amp-devcontainer/badge)](https://securityscorecards.dev/viewer/?uri=github.com/philips-software/amp-devcontainer)
+
 <!-- markdownlint enable -->
 
 ## Table of Contents
@@ -109,7 +111,7 @@ Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<mino
 The latest build on the default branch is tagged with `edge` and pull request builds are tagged with `pr-<number>`.
 
 | Branch       | Tag                        |
-|--------------|----------------------------|
+| ------------ | -------------------------- |
 | Default      | `edge`                     |
 | Pull Request | `pr-<number>`              |
 | Release      | `v<major>.<minor>.<patch>` |
@@ -140,6 +142,7 @@ The `devcontainer.metadata` label is an array of metadata entries.
 Each flavor only declares its own entry; during the build the base image's metadata array is read and the flavor's entry is appended to it, producing an array such as `[<base>, <flavor>]`.
 This keeps the per-flavor metadata free of duplicated base entries while letting the [merge logic](https://containers.dev/implementors/spec/#merge-logic) combine them, with later entries taking precedence.
 Images built on top of a flavor extend the array further (e.g. `[<base>, <flavor>, <derived>]`), so derived images inherit and can override all inherited metadata.
+The base image renames Ubuntu's UID/GID `1000:1000` account to `code` and selects it as the devcontainer's `containerUser`.
 
 ## Usage
 
@@ -147,7 +150,7 @@ This chapter describes how to use amp-devcontainer for two common use-cases, and
 
 > [!IMPORTANT]
 > While the following examples use the `latest` tag, it is recommended to pin to a specific version using vX.Y.Z. Or better yet, a specific SHA.
-> See the 🔖 Packages section on the  [releases](https://github.com/philips-software/amp-devcontainer/releases) page for the unambiguous identifier corresponding to a specific release.
+> See the 🔖 Packages section on the [releases](https://github.com/philips-software/amp-devcontainer/releases) page for the unambiguous identifier corresponding to a specific release.
 
 ### Verify image signature
 
@@ -183,7 +186,7 @@ The resulting containers can be used in a `.devcontainer.json` file or in a `.de
 
 ```json
 {
-    "image": "ghcr.io/philips-software/amp-devcontainer-<🍨 flavor>:latest"
+  "image": "ghcr.io/philips-software/amp-devcontainer-<🍨 flavor>:latest"
 }
 ```
 
@@ -214,7 +217,9 @@ This project uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.htm
 ### Build & Test
 
 <!-- markdownlint-disable -->
+
 [![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/philips-software/amp-devcontainer)
+
 <!-- markdownlint enable -->
 
 If you already have VS Code and a OCI compatible container engine installed, you can click the badge above or

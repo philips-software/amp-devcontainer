@@ -13,6 +13,33 @@ setup() {
   assert_output --partial "OK"
 }
 
+@test "default developer account is code with UID and GID 1000" {
+  run id -u code
+  assert_success
+  assert_output "1000"
+
+  run id -g code
+  assert_success
+  assert_output "1000"
+
+  run id -gn code
+  assert_success
+  assert_output "code"
+
+  run getent passwd ubuntu
+  assert_failure
+
+  run getent group ubuntu
+  assert_failure
+}
+
+@test "devcontainer metadata selects code as the container user" {
+  METADATA="${BATS_TEST_DIRNAME}/../../.devcontainer/base/devcontainer-metadata.json"
+
+  run jq -e '.containerUser == "code"' "${METADATA}"
+  assert_success
+}
+
 # bats test_tags=Compatibility,Version
 @test "apt packages are installed at their pinned versions" {
   APT_REQUIREMENTS="${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements.json"
@@ -59,8 +86,8 @@ setup() {
 }
 
 # bats test_tags=Maintainability
-@test "bash-completion is enabled for the root user" {
-  run grep -q "bash_completion" /root/.bashrc
+@test "bash-completion is enabled for the code user" {
+  run grep -q "bash_completion" /home/code/.bashrc
   assert_success
 }
 

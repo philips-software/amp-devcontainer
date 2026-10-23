@@ -15,6 +15,13 @@ teardown() {
   popd
 }
 
+@test "python cache directory is writable by the code user" {
+  run runuser -u code -- touch /cache/.python/.write-test
+  assert_success
+
+  rm -f /cache/.python/.write-test
+}
+
 ## This section contains tests for version correctness of the installed tools.
 #  Comparing the versions of the installed tools with the expected versions as
 #  pinned in the flavor's apt- and pip-requirements.

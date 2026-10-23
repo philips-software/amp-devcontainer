@@ -15,6 +15,15 @@ teardown() {
   popd
 }
 
+@test "Rust toolchain directories are writable by the code user" {
+  WRITE_TESTS=("${CARGO_HOME}/.write-test" "${RUSTUP_HOME}/.write-test")
+
+  run runuser -u code -- touch "${WRITE_TESTS[@]}"
+  assert_success
+
+  rm -f "${WRITE_TESTS[@]}"
+}
+
 @test "valid code input should result in working executable targeting the host architecture" {
   rustc --out-dir build rust/hello.rs
 

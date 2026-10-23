@@ -70,9 +70,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 HEALTHCHECK NONE
 
 ENV BINSTALL_DISABLE_TELEMETRY=true \
-    CARGO_HOME=/usr/local/cargo \
-    RUSTUP_HOME=/usr/local/rustup \
-    PATH=/usr/local/cargo/bin:"$PATH"
+    CARGO_HOME=/home/code/.cargo \
+    RUSTUP_HOME=/home/code/.rustup \
+    PATH=/home/code/.cargo/bin:"$PATH"
 
 # The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
@@ -111,6 +111,8 @@ RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tm
                                    "probe-rs-tools@${PROBE_RS_TOOLS_VERSION}"
     fi
 
+    chown -R code:code "${CARGO_HOME}" "${RUSTUP_HOME}"
+
     # Annotate tools that Syft cannot detect on its own with a `.note.package` ELF
     # section (systemd ELF package metadata convention, see
     # https://systemd.io/ELF_PACKAGE_METADATA/) so they are included in the SBOM
@@ -129,3 +131,5 @@ RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tm
             "${CARGO_HOME}"/bin/probe-rs "${CARGO_HOME}"/bin/cargo-embed "${CARGO_HOME}"/bin/cargo-flash
     fi
 EOF
+
+USER code

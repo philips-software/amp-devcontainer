@@ -209,7 +209,11 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
 
     # Add a dummy compile_commands.json file to the default location so that tools like SonarLint and Clangd can find it.
     # This file will be overwritten by CMake when a project is configured.
-    mkdir /root/.amp && echo '[]' > /root/.amp/compile_commands.json
+    install -d -m 0755 -o code -g code /home/code/.amp
+    echo '[]' > /home/code/.amp/compile_commands.json
+    chown code:code /home/code/.amp/compile_commands.json
+
+    install -d -m 0755 -o code -g code /cache/.ccache /cache/.cpm /cache/.python
 
     # Set up package managers CPM and Conan
     # - Install CPM.cmake to the CMake module path
@@ -222,6 +226,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     cp /src/CPM.cmake /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/
     conan profile detect
     echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
+    chown -R code:code /opt/conan
 
     add-sbom-note ccache "${CCACHE_VERSION}" "pkg:generic/ccache@${CCACHE_VERSION}" \
         /usr/local/bin/ccache
@@ -239,3 +244,5 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
             /opt/gcc-arm-none-eabi/bin/arm-none-eabi-{gcc,g++,ld,objcopy,size}
     fi
 EOF
+
+USER code

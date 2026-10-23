@@ -29,6 +29,10 @@ RUN --mount=type=bind,source=.devcontainer/docs/apt-requirements.json,target=/tm
     find / -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
     rm -rf "$(pip cache dir)"
 
+    install -d -m 0755 -o code -g code /cache/.python
+
     # Update python alternative to the correct version
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 EOF
+
+USER code

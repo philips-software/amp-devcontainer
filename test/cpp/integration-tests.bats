@@ -17,6 +17,21 @@ setup() {
   pushd ${BATS_TEST_DIRNAME}/workspace
 }
 
+@test "C++ configuration and cache directories are writable by the code user" {
+  WRITE_TESTS=(
+    /home/code/.amp/.write-test
+    /opt/conan/.write-test
+    /cache/.ccache/.write-test
+    /cache/.cpm/.write-test
+    /cache/.python/.write-test
+  )
+
+  run runuser -u code -- touch "${WRITE_TESTS[@]}"
+  assert_success
+
+  rm -f "${WRITE_TESTS[@]}"
+}
+
 teardown() {
   rm -rf build crash-* $(conan config home)/p
 
@@ -191,7 +206,7 @@ teardown() {
 }
 
 @test "clangd should start with a specified compile commands path" {
-  run timeout 1s clangd --compile-commands-dir=/root/.amp
+  run timeout 1s clangd --compile-commands-dir=/home/code/.amp
   refute_output --partial "Path specified by --compile-commands-dir does not exist. The argument will be ignored."
 }
 
