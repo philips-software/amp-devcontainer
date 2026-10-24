@@ -36,4 +36,4 @@ EOF
 # Create runtime directories outside the BuildKit cache mount so they persist in the image.
 RUN install -d -m 0755 -o code -g code /cache/.python
 
-USER code
+USER 1000:1000

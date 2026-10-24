@@ -132,4 +132,4 @@ RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tm
     fi
 EOF
 
-USER code
+USER 1000:1000
