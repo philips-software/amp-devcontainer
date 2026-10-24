@@ -44,7 +44,7 @@ RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add
       xargs apt-get install -y --no-install-recommends
 
    # Include the Cisco Umbrella PKI Root Certificate
-   cp /src/cisco-umbrella-root.crt /usr/local/share/ca-certificates/
+   install -m 0644 /src/cisco-umbrella-root.crt /usr/local/share/ca-certificates/
    update-ca-certificates
 
    # Install bats
