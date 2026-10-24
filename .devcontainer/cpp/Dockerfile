@@ -248,6 +248,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
 EOF
 
 # Create runtime directories outside the BuildKit cache mount so they persist in the image.
-RUN install -d -m 0755 -o code -g code /cache/.ccache /cache/.cpm /cache/.python /winsdk
+RUN install -d -m 0755 -o code -g code /cache/.ccache /cache/.cpm /cache/.python /home/code/.winsdk \
+ && ln -s /home/code/.winsdk /winsdk
 
 USER 1000:1000
