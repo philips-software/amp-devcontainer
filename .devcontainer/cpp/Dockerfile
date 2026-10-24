@@ -213,8 +213,6 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     echo '[]' > /home/code/.amp/compile_commands.json
     chown code:code /home/code/.amp/compile_commands.json
 
-    install -d -m 0755 -o code -g code /cache/.ccache /cache/.cpm /cache/.python
-
     # Set up package managers CPM and Conan
     # - Install CPM.cmake to the CMake module path
     # - Configure a default profile for Conan and set the CMake generator to Ninja
@@ -244,5 +242,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
             /opt/gcc-arm-none-eabi/bin/arm-none-eabi-{gcc,g++,ld,objcopy,size}
     fi
 EOF
+
+# Create runtime directories outside the BuildKit cache mount so they persist in the image.
+RUN install -d -m 0755 -o code -g code /cache/.ccache /cache/.cpm /cache/.python
 
 USER code
