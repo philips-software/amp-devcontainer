@@ -7,7 +7,7 @@ setup_file() {
 }
 
 teardown_file() {
-  rm -rf ${BATS_TEST_DIRNAME}/.xwin-hash/ /winsdk
+  rm -rf ${BATS_TEST_DIRNAME}/.xwin-hash/
 }
 
 setup() {
@@ -24,9 +24,11 @@ setup() {
     /cache/.ccache/.write-test
     /cache/.cpm/.write-test
     /cache/.python/.write-test
+    /winsdk/.write-test
   )
 
-  run runuser -u code -- touch "${WRITE_TESTS[@]}"
+  assert_equal "$(id -un)" code
+  run touch "${WRITE_TESTS[@]}"
   assert_success
 
   rm -f "${WRITE_TESTS[@]}"
@@ -390,8 +392,7 @@ function get_expected_semver_for() {
 }
 
 function install_win_sdk() {
-  xwin --http-retry 2 --accept-license --manifest-version 17 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --include-debug-symbols --preserve-ms-arch-notation
-  ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
+  xwin --http-retry 2 --accept-license --manifest-version 17 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --output /winsdk --include-debug-symbols --preserve-ms-arch-notation
 }
 
 function install_win_sdk_when_ci_unset() {

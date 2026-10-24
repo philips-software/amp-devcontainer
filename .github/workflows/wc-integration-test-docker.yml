@@ -39,6 +39,8 @@ jobs:
     runs-on: ${{ matrix.runner }}
     container:
       image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
+      # Actions need access to runner-owned command files; the tests run as code below.
+      options: --user 0
       credentials:
         username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
         password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
@@ -54,7 +56,10 @@ jobs:
           persist-credentials: false
       - run: echo "arch=$(echo "${RUNNER_ARCH}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
         id: runner-arch
-      - run: bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-${RUNNER_ARCH}.xml"
+      - run: |
+          set -Eeuo pipefail
+          chown -R code:code "${GITHUB_WORKSPACE}"
+          runuser -u code -- bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-${RUNNER_ARCH}.xml"
         env:
           IMAGE_BASENAME: ${{ inputs.image-basename }}
           TEST_FILE: ${{ inputs.test-file }}

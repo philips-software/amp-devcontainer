@@ -16,7 +16,8 @@ teardown() {
 }
 
 @test "python cache directory is writable by the code user" {
-  run runuser -u code -- touch /cache/.python/.write-test
+  assert_equal "$(id -un)" code
+  run touch /cache/.python/.write-test
   assert_success
 
   rm -f /cache/.python/.write-test

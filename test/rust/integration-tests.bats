@@ -18,7 +18,8 @@ teardown() {
 @test "Rust toolchain directories are writable by the code user" {
   WRITE_TESTS=("${CARGO_HOME}/.write-test" "${RUSTUP_HOME}/.write-test")
 
-  run runuser -u code -- touch "${WRITE_TESTS[@]}"
+  assert_equal "$(id -un)" code
+  run touch "${WRITE_TESTS[@]}"
   assert_success
 
   rm -f "${WRITE_TESTS[@]}"
