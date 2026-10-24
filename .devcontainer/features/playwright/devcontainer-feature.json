@@ -1,0 +1,16 @@
+{
+  "id": "playwright",
+  "version": "1.0.0",
+  "name": "Playwright acceptance-test dependencies",
+  "description": "Installs Chromium OS dependencies for local acceptance tests, without downloading browsers.",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "1.64.0",
+      "description": "Playwright version; keep aligned with package-lock.json."
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/node"
+  ]
+}
