@@ -7,7 +7,7 @@ setup_file() {
 }
 
 teardown_file() {
-  rm -rf ${BATS_TEST_DIRNAME}/.xwin-hash/ /winsdk
+  rm -rf ${BATS_TEST_DIRNAME}/.xwin-hash/
 }
 
 setup() {
@@ -15,6 +15,23 @@ setup() {
   load '/usr/local/bats-assert/load'
 
   pushd ${BATS_TEST_DIRNAME}/workspace
+}
+
+@test "C++ configuration and cache directories are writable by the code user" {
+  WRITE_TESTS=(
+    /home/code/.amp/.write-test
+    /opt/conan/.write-test
+    /cache/.ccache/.write-test
+    /cache/.cpm/.write-test
+    /cache/.python/.write-test
+    /winsdk/.write-test
+  )
+
+  assert_equal "$(id -un)" code
+  run touch "${WRITE_TESTS[@]}"
+  assert_success
+
+  rm -f "${WRITE_TESTS[@]}"
 }
 
 teardown() {
@@ -191,7 +208,7 @@ teardown() {
 }
 
 @test "clangd should start with a specified compile commands path" {
-  run timeout 1s clangd --compile-commands-dir=/root/.amp
+  run timeout 1s clangd --compile-commands-dir=/home/code/.amp
   refute_output --partial "Path specified by --compile-commands-dir does not exist. The argument will be ignored."
 }
 
@@ -375,8 +392,8 @@ function get_expected_semver_for() {
 }
 
 function install_win_sdk() {
-  xwin --http-retry 2 --accept-license --manifest-version 17 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --include-debug-symbols --preserve-ms-arch-notation
-  ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
+  # xwin renames unpacked files into the SDK, so both paths must share a filesystem.
+  xwin --http-retry 2 --accept-license --manifest-version 17 --cache-dir /home/code/.xwin-cache splat --output /home/code/.winsdk --include-debug-symbols --preserve-ms-arch-notation
 }
 
 function install_win_sdk_when_ci_unset() {

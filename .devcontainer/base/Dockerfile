@@ -44,7 +44,7 @@ RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add
       xargs apt-get install -y --no-install-recommends
 
    # Include the Cisco Umbrella PKI Root Certificate
-   cp /src/cisco-umbrella-root.crt /usr/local/share/ca-certificates/
+   install -m 0644 /src/cisco-umbrella-root.crt /usr/local/share/ca-certificates/
    update-ca-certificates
 
    # Install bats
@@ -64,6 +64,19 @@ RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add
    sed -i '/C.UTF-8/s/^# //' /etc/locale.gen
    locale-gen
 
-   # Patch root's bashrc to include bash-completion
+   # Rename Ubuntu's default account while preserving its UID and GID.
+   usermod --login code --home /home/code --move-home ubuntu
+   groupmod --new-name code ubuntu
+   test "$(id -u code)" -eq 1000
+   test "$(id -g code)" -eq 1000
+
+   # Ensure the developer account has a bashrc with bash-completion enabled.
+   install -d -m 0755 -o code -g code /home/code
+   cp /etc/skel/.bashrc /home/code/.bashrc
+   chown code:code /home/code/.bashrc
+
+   # Keep root's bashrc configured for image build and maintenance commands.
    cp /etc/skel/.bashrc /root/.bashrc
 EOF
+
+USER 1000:1000

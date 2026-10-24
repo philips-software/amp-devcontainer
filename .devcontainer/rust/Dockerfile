@@ -35,6 +35,8 @@ FROM downloader-${TARGETARCH} AS downloader
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
 
+USER 0:0
+
 ARG CARGO_BINSTALL_VERSION
 ARG CARGO_BINSTALL_MINISIGN_PUBKEY
 
@@ -56,6 +58,8 @@ EOF
 # Final development container image
 FROM ${BASE_IMAGE}
 
+USER 0:0
+
 ARG CARGO_BINSTALL_VERSION
 ARG CARGO_BINUTILS_VERSION=0.3.6
 ARG CARGO_MUTANTS_VERSION=25.3.1
@@ -70,9 +74,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 HEALTHCHECK NONE
 
 ENV BINSTALL_DISABLE_TELEMETRY=true \
-    CARGO_HOME=/usr/local/cargo \
-    RUSTUP_HOME=/usr/local/rustup \
-    PATH=/usr/local/cargo/bin:"$PATH"
+    CARGO_HOME=/home/code/.cargo \
+    RUSTUP_HOME=/home/code/.rustup \
+    PATH=/home/code/.cargo/bin:"$PATH"
 
 # The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
@@ -111,6 +115,8 @@ RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tm
                                    "probe-rs-tools@${PROBE_RS_TOOLS_VERSION}"
     fi
 
+    chown -R code:code "${CARGO_HOME}" "${RUSTUP_HOME}"
+
     # Annotate tools that Syft cannot detect on its own with a `.note.package` ELF
     # section (systemd ELF package metadata convention, see
     # https://systemd.io/ELF_PACKAGE_METADATA/) so they are included in the SBOM
@@ -129,3 +135,5 @@ RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tm
             "${CARGO_HOME}"/bin/probe-rs "${CARGO_HOME}"/bin/cargo-embed "${CARGO_HOME}"/bin/cargo-flash
     fi
 EOF
+
+USER 1000:1000
