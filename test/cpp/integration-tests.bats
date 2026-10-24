@@ -392,7 +392,8 @@ function get_expected_semver_for() {
 }
 
 function install_win_sdk() {
-  xwin --http-retry 2 --accept-license --manifest-version 17 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --output /home/code/.winsdk --include-debug-symbols --preserve-ms-arch-notation
+  # xwin renames unpacked files into the SDK, so both paths must share a filesystem.
+  xwin --http-retry 2 --accept-license --manifest-version 17 --cache-dir /home/code/.xwin-cache splat --output /home/code/.winsdk --include-debug-symbols --preserve-ms-arch-notation
 }
 
 function install_win_sdk_when_ci_unset() {
