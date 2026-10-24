@@ -35,6 +35,8 @@ FROM downloader-${TARGETARCH} AS downloader
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
 
+USER 0:0
+
 ARG CARGO_BINSTALL_VERSION
 ARG CARGO_BINSTALL_MINISIGN_PUBKEY
 
@@ -55,6 +57,8 @@ EOF
 
 # Final development container image
 FROM ${BASE_IMAGE}
+
+USER 0:0
 
 ARG CARGO_BINSTALL_VERSION
 ARG CARGO_BINUTILS_VERSION=0.3.6

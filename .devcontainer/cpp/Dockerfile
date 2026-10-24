@@ -64,6 +64,8 @@ ADD --checksum=sha256:6550bcc308bf972f7f956001b73f6478da3d22f1ebd4b01653c978a6c7
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
 
+USER 0:0
+
 ARG CCACHE_MINISIGN_PUBKEY
 ARG CCACHE_VERSION
 ARG XWIN_VERSION
@@ -109,6 +111,8 @@ EOF
 
 # Final development container image
 FROM ${BASE_IMAGE}
+
+USER 0:0
 
 ARG LLVM_VERSION
 ARG LLVM_MAJOR_VERSION

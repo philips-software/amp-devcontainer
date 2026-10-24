@@ -78,3 +78,5 @@ RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add
    # Keep root's bashrc configured for image build and maintenance commands.
    cp /etc/skel/.bashrc /root/.bashrc
 EOF
+
+USER 1000:1000
