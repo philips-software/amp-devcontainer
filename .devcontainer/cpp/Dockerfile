@@ -225,7 +225,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     # CMake module (not an ELF binary), so it cannot carry a `.note.package` ELF
     # section and Syft has no cataloger for standalone `.cmake` files. Its version is
     # pinned and tracked via the CPM_VERSION build argument above.
-    cp /src/CPM.cmake /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/
+    install -m 0644 /src/CPM.cmake /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/
     conan profile detect
     echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
     chown -R code:code /opt/conan
