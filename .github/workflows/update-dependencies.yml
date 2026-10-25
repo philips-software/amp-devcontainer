@@ -20,7 +20,7 @@ jobs:
     # Using our own container is required since we need all package sources
     # set-up correctly.
     container:
-      image: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge
+      image: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge # zizmor: ignore[unpinned-images]
       options: --user 0
     permissions:
       contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here

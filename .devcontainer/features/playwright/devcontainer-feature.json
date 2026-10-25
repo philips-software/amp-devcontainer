@@ -10,7 +10,5 @@
       "description": "Playwright version; keep aligned with package-lock.json."
     }
   },
-  "installsAfter": [
-    "ghcr.io/devcontainers/features/node"
-  ]
+  "installsAfter": ["ghcr.io/devcontainers/features/node"]
 }
