@@ -55,6 +55,8 @@ RUN --mount=from=downloader,target=/dl \
     tar xzf /dl/cargo-binstall.tgz
 EOF
 
+USER 1000:1000
+
 # Final development container image
 FROM ${BASE_IMAGE}
 

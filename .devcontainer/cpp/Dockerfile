@@ -109,6 +109,8 @@ RUN --mount=from=downloader,target=/dl \
     cp /dl/mull.gpg.key /mull.gpg.key
 EOF
 
+USER 1000:1000
+
 # Final development container image
 FROM ${BASE_IMAGE}
 
