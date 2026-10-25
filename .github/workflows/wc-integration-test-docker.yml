@@ -60,6 +60,7 @@ jobs:
           set -Eeuo pipefail
           chown -R code:code "${GITHUB_WORKSPACE}"
           runuser -u code -- bats --formatter junit "${TEST_FILE}" | tee "test-report-${IMAGE_BASENAME}-${RUNNER_ARCH}.xml"
+        shell: bash
         env:
           IMAGE_BASENAME: ${{ inputs.image-basename }}
           TEST_FILE: ${{ inputs.test-file }}
