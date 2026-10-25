@@ -10,7 +10,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 HEALTHCHECK NONE
 
 # Set default environment options
-ENV PYTHONPYCACHEPREFIX=/cache/.python
+ENV PYTHONPYCACHEPREFIX=/home/code/.cache/python
 
 # The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
@@ -21,6 +21,8 @@ RUN --mount=type=bind,source=.devcontainer/docs/apt-requirements.json,target=/tm
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked <<EOF
+
+    export PYTHONPYCACHEPREFIX=/cache/.python
 
     # Install the base system with all tool dependencies
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | \
@@ -36,6 +38,6 @@ RUN --mount=type=bind,source=.devcontainer/docs/apt-requirements.json,target=/tm
 EOF
 
 # Create runtime directories outside the BuildKit cache mount so they persist in the image.
-RUN install -d -m 0755 -o code -g code /cache/.python
+RUN install -d -m 0755 -o code -g code /home/code/.cache /home/code/.cache/python
 
 USER 1000:1000

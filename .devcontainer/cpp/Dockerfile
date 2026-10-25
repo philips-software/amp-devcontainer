@@ -129,13 +129,13 @@ ARG DEBIAN_FRONTEND=noninteractive
 HEALTHCHECK NONE
 
 # Set default environment options
-ENV CCACHE_DIR=/cache/.ccache \
+ENV CCACHE_DIR=/home/code/.cache/ccache \
     CMAKE_EXPORT_COMPILE_COMMANDS="On" \
     CMAKE_GENERATOR="Ninja" \
-    CONAN_HOME=/opt/conan \
-    CPM_SOURCE_CACHE=/cache/.cpm \
+    CONAN_HOME=/home/code/.conan2 \
+    CPM_SOURCE_CACHE=/home/code/.cache/cpm \
     PATH="$PATH:/usr/lib/llvm-${LLVM_MAJOR_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
-    PYTHONPYCACHEPREFIX=/cache/.python
+    PYTHONPYCACHEPREFIX=/home/code/.cache/python
 
 # The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
@@ -150,6 +150,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
     --mount=from=extractor,target=/src <<EOF
+
+    export PYTHONPYCACHEPREFIX=/cache/.python
 
     # Install the base system with all tool dependencies
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
@@ -230,7 +232,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     install -m 0644 /src/CPM.cmake /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/
     conan profile detect
     echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
-    chown -R code:code /opt/conan
+    chown -R code:code "${CONAN_HOME}"
 
     add-sbom-note ccache "${CCACHE_VERSION}" "pkg:generic/ccache@${CCACHE_VERSION}" \
         /usr/local/bin/ccache
@@ -250,7 +252,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
 EOF
 
 # Create runtime directories outside the BuildKit cache mount so they persist in the image.
-RUN install -d -m 0755 -o code -g code /cache/.ccache /cache/.cpm /cache/.python /home/code/.winsdk \
+RUN install -d -m 0755 -o code -g code /home/code/.cache /home/code/.cache/ccache /home/code/.cache/cpm /home/code/.cache/python /home/code/.winsdk \
  && ln -s /home/code/.winsdk /winsdk
 
 USER 1000:1000

@@ -20,10 +20,11 @@ setup() {
 @test "C++ configuration and cache directories are writable by the code user" {
   WRITE_TESTS=(
     /home/code/.amp/.write-test
-    /opt/conan/.write-test
-    /cache/.ccache/.write-test
-    /cache/.cpm/.write-test
-    /cache/.python/.write-test
+    /home/code/.conan2/.write-test
+    /home/code/.cache/.write-test
+    /home/code/.cache/ccache/.write-test
+    /home/code/.cache/cpm/.write-test
+    /home/code/.cache/python/.write-test
     /winsdk/.write-test
   )
 

@@ -17,10 +17,10 @@ teardown() {
 
 @test "python cache directory is writable by the code user" {
   assert_equal "$(id -un)" code
-  run touch /cache/.python/.write-test
+  run touch /home/code/.cache/.write-test /home/code/.cache/python/.write-test
   assert_success
 
-  rm -f /cache/.python/.write-test
+  rm -f /home/code/.cache/.write-test /home/code/.cache/python/.write-test
 }
 
 ## This section contains tests for version correctness of the installed tools.
