@@ -12,6 +12,7 @@ jobs:
   cleanup-images:
     name: 🧹 Clean Images
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       packages: write # is needed by dataaxiom/ghcr-cleanup-action to delete untagged and orphaned images
     steps:

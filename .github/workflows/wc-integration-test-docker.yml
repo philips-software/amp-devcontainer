@@ -37,6 +37,7 @@ jobs:
       matrix:
         runner: ${{ fromJson(inputs.build-test-runner-labels) }}
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
     container:
       image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
       # Actions need access to runner-owned command files; the tests run as code below.

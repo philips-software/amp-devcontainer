@@ -34,6 +34,7 @@ jobs:
   test:
     name: Acceptance Test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment: acceptance-testing
     steps:
       - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1

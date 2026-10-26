@@ -76,6 +76,7 @@ jobs:
       matrix:
         runner: ${{ fromJson(inputs.build-test-runner-labels) }}
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
     needs: sanitize-image-name
     permissions:
       contents: read
@@ -180,6 +181,7 @@ jobs:
   merge-image:
     name: 🔗 Merge Image
     runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 15
     needs:
       - build-push
       - sanitize-image-name

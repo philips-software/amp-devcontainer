@@ -20,6 +20,7 @@ jobs:
   linter:
     name: 🧹 Lint & Format
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       actions: read # is needed by zizmorcore/zizmor-action

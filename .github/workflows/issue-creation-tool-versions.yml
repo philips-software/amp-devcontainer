@@ -12,6 +12,7 @@ jobs:
   create-issue:
     name: Create tool version evaluation issue
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read # is needed to checkout the repository
       issues: write # is needed by gh cli to create/close/pin/unpin issues

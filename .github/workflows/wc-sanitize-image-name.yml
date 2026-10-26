@@ -30,6 +30,7 @@ jobs:
   sanitize:
     name: Sanitize Image Name
     runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 5
     outputs:
       image-basename: ${{ steps.sanitize-image-name.outputs.sanitized-basename }}
       image-name: ${{ steps.sanitize-image-name.outputs.sanitized-image-name }}
