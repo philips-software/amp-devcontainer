@@ -39,7 +39,8 @@ jobs:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
     container:
-      image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
+      # The caller supplies the immutable digest produced by the build workflow.
+      image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }} # zizmor: ignore[unpinned-images]
       # Actions need access to runner-owned command files; the tests run as code below.
       options: --user 0
       credentials:
