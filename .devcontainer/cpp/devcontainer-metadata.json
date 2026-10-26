@@ -13,7 +13,7 @@
           "--compile-commands-dir=${userHome}/.amp"
         ],
         "cmake.copyCompileCommands": "${userHome}/.amp/compile_commands.json",
-        "sonarlint.pathToCompileCommands": "/root/.amp/compile_commands.json",
+        "sonarlint.pathToCompileCommands": "/home/code/.amp/compile_commands.json",
         "[c][cpp]": {
           "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
         }
