@@ -1,0 +1,6 @@
+# The container builds only consume files under .devcontainer/ (bind-mounted by
+# the Dockerfiles); all other build inputs are fetched from checksum-pinned URLs.
+# Exclude everything else from the build context so that no source, credentials,
+# caches, or test artifacts can ever be copied into an image layer.
+*
+!.devcontainer/

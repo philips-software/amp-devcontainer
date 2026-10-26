@@ -1,0 +1,266 @@
+---
+title: "Threat model for amp-devcontainer"
+author: ["@rjaegers"]
+colorlinks: true
+date: "{{ sbdl['doc-control']['custom:generated-at'] | strftime('%Y-%m-%d') }}"
+keywords: [Threat, Model, Security, STRIDE, FMEA, amp-devcontainer]
+lang: "en"
+titlepage: true
+titlepage-color: "0B5ED7"
+titlepage-text-color: "FFFFFF"
+titlepage-rule-color: "FFFFFF"
+titlepage-rule-height: 2
+toc: true
+toc-own-page: true
+header-includes:
+  - \AtEndDocument{\label{lastpage}}
+{%- if sbdl['doc-control']['custom:is-release'] != 'true' %}
+watermark: "DRAFT"
+{%- endif %}
+footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
+...
+
+{% import "partials/text-utilities.j2" as utils %}
+{%- set system = sbdl['system-amp-devcontainer'] -%}
+
+# Introduction
+
+## Purpose
+
+This document describes the security threat model for amp-devcontainer.
+It identifies the assets, trust boundaries, and data flows of the system, enumerates the credible threats against it, and records the mitigations that reduce the associated risk to an acceptable level.
+
+## Scope
+
+This threat model covers the supply chain and runtime security of the amp-devcontainer container images, their build pipeline, and their distribution.
+The following is in scope:
+
+- The container build pipeline and its execution environment
+- Dependency acquisition, pinning, and integrity verification
+- Container image signing, publication, and consumption
+- The runtime posture of the released container images
+
+The following is out of scope:
+
+- Application-level software built using the containers
+- Security of third-party services beyond the project's control
+- Physical security of developer workstations
+
+## Methodology
+
+Threats are identified using the [STRIDE](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats) classification (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege).
+
+Each threat is quantified using a Failure Mode and Effects Analysis (FMEA) style Risk Priority Number (RPN):
+
+$$RPN = S \times O \times D$$
+
+where *Severity* ($S$) is a property of the threat's impact, *Occurrence* ($O$) is a property of its attack vector, and *Detectability* ($D$) is a property of the threat itself. Each factor is rated on a scale of 1 (low) to 10 (high). A residual RPN is computed from the post-mitigation occurrence and detectability values to show the effect of the implemented controls.
+
+The complete model — assets, boundaries, data flows, threats, and mitigations — is expressed in [sbdl](https://sbdl.dev) using custom types layered on the built-in FMEA types, and is versioned alongside the source code. This document is generated from that single source of truth, exactly as the requirements documents are.
+
+## References
+
+| Identifier | Title                                                                                                                                  |
+|------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| STRIDE     | [The STRIDE Threat Model](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)                        |
+| FMEA       | [Failure Mode and Effects Analysis](https://en.wikipedia.org/wiki/Failure_mode_and_effects_analysis)                                    |
+| CAPEC      | [Common Attack Pattern Enumeration and Classification](https://capec.mitre.org/)                                                        |
+| CWE        | [Common Weakness Enumeration](https://cwe.mitre.org/)                                                                                   |
+| SLSA       | [Supply-chain Levels for Software Artifacts v1.0](https://slsa.dev/spec/v1.0/levels)                                                    |
+
+## Document Control
+
+{% include "partials/document-control.md.j2" with context %}
+
+This document is generated from a formal model defined in [sbdl](https://sbdl.dev) and versioned alongside the source code in Git.
+The authoritative source of change history is the [Git log](https://github.com/philips-software/amp-devcontainer/commits/) of the source material from which the model is built.
+
+# System overview
+
+{{ utils.reencode(system.description) }}
+
+| Property              | Value                                        |
+|-----------------------|----------------------------------------------|
+| Business criticality  | {{ system['custom:business-criticality'] }}  |
+| Exposure              | {{ system['custom:exposure'] }}              |
+| Last reviewed         | {{ system['custom:reviewed-at'] }}           |
+
+# Trust boundaries
+
+The system is decomposed into the following trust boundaries. Data crossing a boundary is subject to the threats analysed in this document.
+
+| Trust boundary | Description |
+|----------------|-------------|
+{%- for id, item in sbdl.items() if item.type == 'trust-boundary' %}
+| {{ item['custom:title'] }} | {{ utils.reencode(item.description) }} |
+{%- endfor %}
+
+## Trust assumptions
+
+The threat analysis relies on the following assumptions about each trust boundary.
+
+{% for id, item in sbdl.items() if item.type == 'trust-boundary' -%}
+- **{{ item['custom:title'] }}:** {{ utils.reencode(item['custom:assumption']) }}
+{% endfor %}
+# Actors
+
+| Actor | Type | Trust boundary | Description |
+|-------|------|----------------|-------------|
+{%- for id, item in sbdl.items() if item.type == 'actor' %}
+| {{ item['custom:title'] }} | {{ item['custom:actor-type'] }} | {{ sbdl[item['parent'][0].identifier]['custom:title'] if 'parent' in item else '—' }} | {{ utils.reencode(item.description) }} |
+{%- endfor %}
+
+# Components
+
+The processes, servers, and external entities that make up the system.
+
+| Component | Kind | Trust boundary | Description |
+|-----------|------|----------------|-------------|
+{%- for id, item in sbdl.items() if item.type in ['process', 'server', 'external-entity'] %}
+| {{ item['custom:title'] }} | {{ item.type | replace('-', ' ') }} | {{ sbdl[item['parent'][0].identifier]['custom:title'] if 'parent' in item else '—' }} | {{ utils.reencode(item.description) }} |
+{%- endfor %}
+
+# Data stores
+
+| Data store | Type | Encrypted | Trust boundary | Description |
+|------------|------|-----------|----------------|-------------|
+{%- for id, item in sbdl.items() if item.type == 'datastore' %}
+| {{ item['custom:title'] }} | {{ item['custom:store-type'] }} | {{ 'yes' if item['custom:encrypted'] is defined and item['custom:encrypted'] == 'true' else 'no' }} | {{ sbdl[item['parent'][0].identifier]['custom:title'] if 'parent' in item else '—' }} | {{ utils.reencode(item.description) }} |
+{%- endfor %}
+
+# Data assets
+
+| Data asset | Classification | Sensitivity | Description |
+|------------|----------------|-------------|-------------|
+{%- for id, item in sbdl.items() if item.type == 'data-asset' %}
+| {{ item['custom:title'] }} | {{ item['custom:classification'] }} | {{ item['custom:sensitivity'] }} | {{ utils.reencode(item.description) }} |
+{%- endfor %}
+
+# Data flows
+
+| Data flow | Source | Destination | Protocol | Port | Encrypted | Data asset |
+|-----------|--------|-------------|----------|------|-----------|------------|
+{%- for id, item in sbdl.items() if item.type == 'dataflow' %}
+| {{ item['custom:title'] }} | {{ sbdl[item['custom:source']]['custom:title'] }} | {{ sbdl[item['custom:destination']]['custom:title'] }} | {{ item['custom:protocol'] }} | {{ item['custom:port'] }} | {{ 'yes' if item['custom:encrypted'] == 'true' else 'no' }} | {{ sbdl[item['custom:data']]['custom:title'] if 'custom:data' in item else '—' }} |
+{%- endfor %}
+
+# Data flow diagram
+
+The diagram below shows the system decomposed into its trust boundaries, with the components, actors, and data stores placed within them, and the data flows linking their sources and destinations. It is generated automatically from the same SBDL model using SBDL's `aspect-diagram` rendering.
+
+![Data flow diagram for amp-devcontainer, showing trust boundaries, components, actors, data stores, and the data flows between them.](threat-model-dfd.png)
+
+# Threat analysis
+{%- for id, threat in sbdl.items() if threat.type == 'threat' %}
+{%- set effect = sbdl[threat['fmea:effect'][0].identifier] %}
+{%- set cause = sbdl[threat['fmea:cause'][0].identifier] %}
+{%- set control = sbdl[threat['fmea:control'][0].identifier] %}
+{%- set severity = effect.severity | int %}
+{%- set occurrence = cause.occurrence | int %}
+{%- set detect = threat.detectability | int %}
+{%- set rpn = severity * occurrence * detect %}
+{%- set occ_post = (cause.occurrence_post | int) if 'occurrence_post' in cause else occurrence %}
+{%- set det_post = (threat.detectability_post | int) if 'detectability_post' in threat else detect %}
+{%- set rpn_post = severity * occ_post * det_post %}
+
+## {{ threat['custom:threat-id'] }} — {{ utils.reencode(threat['custom:title']) }}
+
+| Property | Value |
+|----------|-------|
+| STRIDE category | {{ threat['custom:stride'] }} |
+| Qualitative risk | {{ threat['custom:risk-level'] }} |
+| Target(s) | {% for a in threat['aspect'] %}{{ sbdl[a.identifier]['custom:title'] }}{% if not loop.last %}, {% endif %}{% endfor %} |
+| Severity (S) | {{ severity }} |
+| Occurrence (O) | {{ occurrence }} |
+| Detectability (D) | {{ detect }} |
+| **RPN (S × O × D)** | **{{ rpn }}** |
+| Residual RPN | {{ rpn_post }} |
+| Weakness (CWE) | {{ threat['custom:cwe'] }} |
+| Attack pattern (CAPEC) | {{ threat['custom:capec'] }} |
+
+**Description**
+
+{{ utils.reencode(threat.description) }}
+
+**Attack vector**
+
+{{ utils.reencode(cause.description) }}
+
+**Impact**
+
+{{ utils.reencode(effect.description) }}
+
+**Mitigation** ({{ control['custom:status'] }})
+
+{{ utils.reencode(control.description) }}
+{%- endfor %}
+
+# FMEA risk summary
+
+The table below ranks all identified threats by their Risk Priority Number (RPN). Higher values indicate higher priority for mitigation.
+
+{%- set ns = namespace(rows=[]) -%}
+{%- for id, threat in sbdl.items() if threat.type == 'threat' -%}
+{%- set effect = sbdl[threat['fmea:effect'][0].identifier] -%}
+{%- set cause = sbdl[threat['fmea:cause'][0].identifier] -%}
+{%- set severity = effect.severity | int -%}
+{%- set occurrence = cause.occurrence | int -%}
+{%- set detect = threat.detectability | int -%}
+{%- set occ_post = (cause.occurrence_post | int) if 'occurrence_post' in cause else occurrence -%}
+{%- set det_post = (threat.detectability_post | int) if 'detectability_post' in threat else detect -%}
+{%- set _ = ns.rows.append({
+  'tid': threat['custom:threat-id'],
+  'stride': threat['custom:stride'],
+  'risk': threat['custom:risk-level'],
+  's': severity, 'o': occurrence, 'd': detect,
+  'rpn': severity * occurrence * detect,
+  'rpn_post': severity * occ_post * det_post}) -%}
+{%- endfor %}
+
+| Threat | STRIDE | S | O | D | RPN | Residual RPN | Risk |
+|--------|--------|---|---|---|-----|--------------|------|
+{%- for row in ns.rows | sort(attribute='rpn', reverse=true) %}
+| {{ row.tid }} | {{ row.stride }} | {{ row.s }} | {{ row.o }} | {{ row.d }} | {{ row.rpn }} | {{ row.rpn_post }} | {{ row.risk }} |
+{%- endfor %}
+
+# Control evidence
+
+Each threat's mitigation is backed by objective, reviewable evidence in the repository, supporting audit and regulatory review.
+
+| Threat | Control status | Evidence |
+|--------|----------------|----------|
+{%- for id, threat in sbdl.items() if threat.type == 'threat' %}
+{%- set control = sbdl[threat['fmea:control'][0].identifier] %}
+| {{ threat['custom:threat-id'] }} | {{ control['custom:status'] }} | {{ utils.reencode(control['custom:evidence']) if 'custom:evidence' in control else '—' }} |
+{%- endfor %}
+
+# Residual risk and planned actions
+
+The following actions are planned to further reduce residual risk.
+
+{% for id, item in sbdl.items() if item.type == 'planned-mitigation' -%}
+{%- set linked_cause = sbdl[item['fmea:cause'][0].identifier] if 'fmea:cause' in item else none -%}
+{%- set linked_threat = sbdl[linked_cause['fmea:mode'][0].identifier] if linked_cause is not none and 'fmea:mode' in linked_cause else none -%}
+- **{{ id }}**{% if linked_threat is not none %} (addresses {{ linked_threat['custom:threat-id'] }}){% endif %}: {{ utils.reencode(item.description) }}
+{% else -%}
+*No outstanding planned actions; all identified threats have implemented mitigations.*
+{% endfor %}
+# Risk summary
+
+{%- set counts = namespace(high=0, medium=0, low=0, total=0) -%}
+{%- for id, item in sbdl.items() if item.type == 'threat' -%}
+{%- set counts.total = counts.total + 1 -%}
+{%- if item['custom:risk-level'] == 'High' -%}{%- set counts.high = counts.high + 1 -%}
+{%- elif item['custom:risk-level'] == 'Medium' -%}{%- set counts.medium = counts.medium + 1 -%}
+{%- else -%}{%- set counts.low = counts.low + 1 -%}
+{%- endif -%}
+{%- endfor %}
+
+| Qualitative risk | Count |
+|------------------|-------|
+| High             | {{ counts.high }} |
+| Medium           | {{ counts.medium }} |
+| Low              | {{ counts.low }} |
+| **Total**        | **{{ counts.total }}** |
+
+Every identified threat has a documented mitigation with traceable evidence, summarised in the Control evidence section. High-risk threats whose controls are only partially implemented carry planned actions listed under Residual risk and planned actions. Residual risk is tracked through the project's standard change control process and re-evaluated whenever the model or its source material changes.
