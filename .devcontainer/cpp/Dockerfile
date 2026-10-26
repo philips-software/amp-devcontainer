@@ -158,7 +158,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
         xargs apt-get install -y --no-install-recommends
 
     # Install some tools via pip to get more recent versions, clean up afterwards
-    python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt
+    python3 -m pip install --break-system-packages --require-hashes --only-binary :all: --no-cache-dir --no-compile -r /tmp/requirements.txt
     find / -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
     rm -rf "$(pip cache dir)"
 

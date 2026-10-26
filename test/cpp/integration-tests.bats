@@ -154,7 +154,7 @@ teardown() {
   # @sbdl test-sda-0003 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0001 }
   run clang-format clang-tools/unformatted.cpp
   assert_success
-  assert_output "int main() {}"
+  assert_output "int main() { return 0; }"
 }
 
 @test "coverage information should be generated when running a testsuite" {

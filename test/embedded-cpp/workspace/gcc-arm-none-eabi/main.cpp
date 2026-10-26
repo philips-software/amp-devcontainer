@@ -3,4 +3,4 @@
     while (true);
 }
 
-int main() {}
+int main() { return 0; }
