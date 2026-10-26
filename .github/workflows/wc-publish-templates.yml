@@ -11,6 +11,7 @@ jobs:
   publish-devcontainer-templates:
     name: 📝 Publish templates
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       packages: write # is needed by devcontainers/action to write templates as OCI artifacts
     steps:

@@ -13,6 +13,7 @@ jobs:
   update-apt-dependencies:
     name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} OS (🍨 ${{ matrix.flavor }})
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -56,6 +57,7 @@ jobs:
   update-vscode-extensions:
     name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} Extensions
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
     steps:
