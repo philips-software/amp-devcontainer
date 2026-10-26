@@ -1,0 +1,5 @@
+{
+  "graphviz": "14.1.2-1ubuntu1",
+  "plantuml": "1:1.2020.2+ds-6build1",
+  "python3-pip": "25.1.1+dfsg-1ubuntu2"
+}

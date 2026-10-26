@@ -15,38 +15,22 @@ teardown() {
   popd
 }
 
+@test "Rust toolchain directories are writable by the code user" {
+  WRITE_TESTS=("${CARGO_HOME}/.write-test" "${RUSTUP_HOME}/.write-test")
+
+  assert_equal "$(id -un)" code
+  run touch "${WRITE_TESTS[@]}"
+  assert_success
+
+  rm -f "${WRITE_TESTS[@]}"
+}
+
 @test "valid code input should result in working executable targeting the host architecture" {
   rustc --out-dir build rust/hello.rs
 
   run build/hello
   assert_success
   assert_output "Hello, world!"
-}
-
-@test "valid code input should result in working elf executable targeting the cortex-m architecture" {
-  pushd cortex-m
-
-  cargo build
-
-  run cargo readobj --bin hello-cortex -- --file-headers
-  assert_output --partial "Class:                             ELF32"
-  assert_output --partial "Type:                              EXEC"
-  assert_output --partial "Machine:                           ARM"
-
-  popd
-}
-
-@test "valid code input should result in working elf executable targeting the cortex-mf architecture" {
-  pushd cortex-mf
-
-  cargo build
-
-  run cargo readobj --bin hello-cortex -- --file-headers
-  assert_output --partial "Class:                             ELF32"
-  assert_output --partial "Type:                              EXEC"
-  assert_output --partial "Machine:                           ARM"
-
-  popd
 }
 
 @test "using cargo run should result in working executable" {

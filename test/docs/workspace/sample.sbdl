@@ -1,0 +1,5 @@
+#!sbdl
+req-doc-0001 is requirement {
+  custom:title is "Sample requirement"
+  description is "A sample requirement used to validate the sbdl toolchain"
+}

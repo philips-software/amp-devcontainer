@@ -15,6 +15,7 @@ permissions: {}
 jobs:
   build-push-test:
     name: Build → Push → Test
+    if: ${{ !startsWith(github.ref_name, 'actions/') }}
     uses: ./.github/workflows/build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
@@ -32,17 +33,18 @@ jobs:
 
   apply-release-notes-template:
     name: 📝 Apply Release Template
+    if: ${{ !startsWith(github.ref_name, 'actions/') }}
     runs-on: ubuntu-latest
     permissions:
       # Please note that this is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
       contents: write # is needed to modify a release
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Amend release description
@@ -58,65 +60,64 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
 
   update-release-notes:
-    name: Update Release Notes (🍨 ${{ matrix.flavor }})
-    strategy:
-      matrix:
-        flavor: [base, cpp, embedded-cpp, rust]
+    name: 📝 Update Release Notes
     runs-on: ubuntu-latest
     permissions:
       # Please note that this is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
+      actions: read # is needed by actions/download-artifact to fetch the tool inventory
       contents: write # is needed to modify a release
     needs: [build-push-test, apply-release-notes-template]
     env:
-      CONTAINER_FLAVOR: ${{ matrix.flavor }}
       REF_NAME: ${{ github.ref_name }}
       REGISTRY: ghcr.io
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo: true
           egress-policy: audit
-      - name: Inspect manifest and extract digest
-        id: inspect-manifest
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: tool-inventory-${{ github.event.repository.name }}-*
+      - name: Update release notes for all container flavors
+        # Flavors are processed one at a time so release-note edits can't race each other.
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect "${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}:${REF_NAME}" --format '{{json .}}')
-          echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
+          for FLAVOR in base cpp docs embedded-cpp embedded-rust rust; do
+            DIGEST=$(docker buildx imagetools inspect "${REGISTRY}/${GH_REPO}-${FLAVOR}:${REF_NAME}" --format '{{json .}}' | jq -er '.manifest.digest // .manifests[0].digest')
+            FORMATTED_DIGEST=${DIGEST//:/_}
+
+            gh attestation verify --repo "${GH_REPO}" "oci://${REGISTRY}/${GH_REPO}-${FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
+            gh release upload --clobber "${REF_NAME}" "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
+
+            TOOL_INVENTORY="tool-inventory-${REPOSITORY_NAME}-${FLAVOR}/tool-inventory.json"
+            TOOLS_TABLE=$(jq -r '"| Tool | Version |\n| --- | --- |\n" + ([.tools[] | "| \(.name) | \(.version) |"] | join("\n"))' "${TOOL_INVENTORY}")
+            UPDATED_NOTES=$(gh release view "${REF_NAME}" --json body -q '.body')
+            UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${FLAVOR}-version }}"/"${REF_NAME}"}
+            UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${FLAVOR}-sha }}"/"${DIGEST}"}
+            UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${FLAVOR}-tools }}"/"${TOOLS_TABLE}"}
+            gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
+
+            INVENTORY="${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${FLAVOR}_${FORMATTED_DIGEST}.tool-inventory.json"
+            cp "${TOOL_INVENTORY}" "${INVENTORY}"
+            gh release upload --clobber "${REF_NAME}" "${INVENTORY}"
+          done
         env:
-          GH_REPO: ${{ github.repository }}
-      - name: Upload provenance to release
-        run: |
-          set -Eeuo pipefail
-          FORMATTED_DIGEST=${DIGEST//:/_}
-          gh attestation verify --repo "${GH_REPO}" "oci://${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
-          gh release upload "${REF_NAME}" ./*.intoto.jsonl
-        env:
-          DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           REPOSITORY_NAME: ${{ github.event.repository.name }}
-      - name: Update package details in release
-        run: |
-          set -Eeuo pipefail
-          UPDATED_NOTES=$(gh release view "${REF_NAME}" --json body -q '.body')
-          UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-version }}"/"${REF_NAME}"}
-          UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-sha }}"/"${DIGEST}"}
-          gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
-        env:
-          DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
 
   publish-devcontainer-templates:
     name: 📝 Publish templates
+    if: ${{ !startsWith(github.ref_name, 'actions/') }}
     uses: ./.github/workflows/wc-publish-templates.yml
     permissions:
       packages: write # is needed by devcontainers/action to write templates as OCI artifacts
 
   generate-documents:
     name: 📄 Documentation
+    if: ${{ !startsWith(github.ref_name, 'actions/') }}
     uses: ./.github/workflows/wc-document-generation.yml
     with:
       is-release: true
@@ -132,11 +133,11 @@ jobs:
       contents: write # is needed to modify a release
     needs: [generate-documents]
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: documents
       - name: Upload documents to release
@@ -150,11 +151,12 @@ jobs:
 
   comment-released-prs:
     name: Comment on released PRs
+    if: ${{ !startsWith(github.ref_name, 'actions/') }}
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit

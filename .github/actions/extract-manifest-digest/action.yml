@@ -1,0 +1,25 @@
+---
+name: 🔍 Extract Manifest Digest
+description: Inspect a container image manifest and extract its (index) digest.
+
+inputs:
+  container:
+    description: Fully qualified container image reference (including tag) to inspect.
+    required: true
+
+outputs:
+  digest:
+    description: The digest of the (multi-arch) image manifest.
+    value: ${{ steps.extract-digest.outputs.digest }}
+
+runs:
+  using: composite
+  steps:
+    - id: extract-digest
+      env:
+        CONTAINER: ${{ inputs.container }}
+      run: |
+        set -Eeuo pipefail
+        digest="$(docker buildx imagetools inspect "${CONTAINER}" --format '{{json .}}' | jq -er '.manifest.digest // .manifests[0].digest')"
+        echo "digest=${digest}" >> "$GITHUB_OUTPUT"
+      shell: bash

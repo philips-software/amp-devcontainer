@@ -1,0 +1,8 @@
+[
+  "cargo-binstall",
+  "cargo-binutils",
+  "cargo-mutants",
+  "g++-15",
+  "rust",
+  "rustup"
+]

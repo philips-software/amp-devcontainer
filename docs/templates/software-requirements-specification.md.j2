@@ -26,35 +26,51 @@ footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
 
 ## Purpose
 
-This document describes the software system requirements for amp-devcontainer.
+This document defines the software system requirements for amp-devcontainer.
+It establishes the functional and non-functional requirements the system shall satisfy and provides the basis for verification, traceability, and change control activities throughout the software lifecycle.
+
+## Abstract
+
+amp-devcontainer is a set of Development Containers ([devcontainers](https://containers.dev/)) tailored towards modern software development.
+
+The containers may be used for both local development and continuous integration workflows.
+
+amp-devcontainer is intended as a general-purpose development environment and is not tied to a specific regulated use case.
+The project follows a "qualification-friendly by design" philosophy, emphasizing reproducibility, transparency, configuration control, traceability, supply-chain security controls, and automated generation of objective verification evidence to support organizations in assessing and qualifying the tool for their intended use.
+
+Objective evidence may include automated verification results, software bills of materials (SBOMs), build provenance, cryptographic attestations, and traceability artifacts generated as part of the software lifecycle.
 
 ## Scope
 
-This document covers the requirements for the amp-devcontainer project: a set of devcontainers tailored towards modern, embedded, software development.
+This document defines requirements for the amp-devcontainer container images, supporting build system, and associated lifecycle controls.
+The requirements defined in this document address the amp-devcontainer project itself and shall not be interpreted as qualification evidence for any specific use of the containers within a regulated software development lifecycle.
 
-The following is in scope:
+The following are in scope:
 
-- Container image flavors for C++ and Rust development
-- Tooling for compilation, debugging, static and dynamic analysis
-- Compatibility with IDEs, container runtimes, and ci/cd systems
-- Security properties of released container images
-- Maintainability of the container images and their build system
+- Container image flavors for document generation, C++ and Rust development
+- Compilation, debugging, static analysis, and dynamic analysis tooling provided by the containers
+- Compatibility with supported development environments, container runtimes, and continuous integration systems
+- Security characteristics of released container images and associated supply-chain artifacts
+- Build, release, and maintenance capabilities of the project
 
-The following is out of scope:
+The following are out of scope:
 
-- Application-level software built using the containers
-- Deployment of end-user products
-- Requirements for third-party tools and dependencies included in the containers
+- Application software developed using the containers
+- Validation or qualification of the containers for a specific intended use within a regulated development process
+- Deployment and operation of end-user products
+- Requirements governing third-party tools and dependencies outside of the project's control
 
 ## References
 
-| Identifier | Title                                                                                                                                    |
-|------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| RFC 2119   | [Key words for use in RFCs to Indicate Requirement Levels](https://www.rfc-editor.org/rfc/rfc2119)                                       |
-| OCI        | [Open Container Initiative Image Specification](https://github.com/opencontainers/image-spec/blob/main/spec.md)                          |
-| SLSA       | [Supply-chain Levels for Software Artifacts v1.0](https://slsa.dev/spec/v1.0/levels)                                                     |
-| SemVer     | [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)                                                                         |
-| DevC       | [Development Containers Specification](https://containers.dev/)                                                                           |
+| Identifier | Title                                                                                                           |
+|------------|-----------------------------------------------------------------------------------------------------------------|
+| DevC       | [Development Containers Specification](https://containers.dev/)                                                 |
+| in-toto    | [Supply Chain Integrity Framework](https://in-toto.io/)                                                         |
+| OCI        | [Open Container Initiative Image Specification](https://github.com/opencontainers/image-spec/blob/main/spec.md) |
+| RFC 2119   | [Key words for use in RFCs to Indicate Requirement Levels](https://www.rfc-editor.org/rfc/rfc2119)              |
+| SemVer     | [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)                                                |
+| SLSA       | [Supply-chain Levels for Software Artifacts v1.0](https://slsa.dev/spec/v1.0/levels)                            |
+| SPDX       | [Software Package Data Exchange Specification v2.3](https://spdx.github.io/spdx-spec/v2.3/)                     |
 
 ## Document Control
 
@@ -69,21 +85,21 @@ Changes to requirements are tracked at the individual requirement level through 
 
 The key words *MUST*, *MUST NOT*, *REQUIRED*, *SHALL*, *SHALL NOT*, *SHOULD*, *SHOULD NOT*, *RECOMMENDED*, *MAY*, and *OPTIONAL* in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
 
-## Abstract
-
-amp-devcontainer is a set of [devcontainers](https://containers.dev/) tailored towards modern, embedded, software development.
-
-The containers may be used both for local development and continuous integration (ci).
-
 ## Terminology and Abbreviations
 
 | Term                        | Description/Definition                                                                                                                                         |
 |-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ARM                         | A family of RISC architectures for computer processors and micro controllers, formerly an acronym for Advanced RISC Machines and originally Acorn RISC Machine |
+| Attestation                 | Cryptographically signed statement about an artifact                                                                                                           |
 | Continuous Delivery (cd)    | Extends ci by automating the release of validated code, extending test automation to ensure that code is production-ready                                      |
 | Continuous Integration (ci) | The practice of continuously integrating developers' work to a shared code-base; including automation for build and test                                       |
 | ELF                         | Executable and Linkable Format, formerly named Extensible Linking Format                                                                                       |
+| OCI                         | Open Container Initiative                                                                                                                                      |
+| Provenance                  | Verifiable metadata describing how a software artifact was built                                                                                               |
 | RISC                        | Reduced Instruction Set Computer                                                                                                                               |
+| SBOM                        | Software Bill of Materials                                                                                                                                     |
+| SLSA                        | Supply-chain Levels for Software Artifacts                                                                                                                     |
+| SPDX                        | Software Package Data Exchange                                                                                                                                 |
 
 # Requirements
 
@@ -100,7 +116,11 @@ The containers may be used both for local development and continuous integration
 
 ### {{ req_ref.identifier }}: {{ utils.reencode(utils.strip_gherkin_prefix(req['custom:title'])) }}
 
+_Requirement_
+
 {{ utils.reencode(req.description) }}
+
+_Rationale_
 
 {{ utils.reencode(req.remark) }}
 

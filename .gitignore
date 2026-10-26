@@ -1,4 +1,5 @@
 .features-gen/
+.megalinter_github_conf/
 .xwin-cache/
 .xwin-hash/
 build/

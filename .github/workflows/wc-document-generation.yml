@@ -15,23 +15,18 @@ jobs:
   generate-documents:
     name: Generate Documents
     runs-on: ubuntu-latest
+    container: ghcr.io/philips-software/amp-devcontainer-docs:v8.0.0@sha256:86151248390ef9061fc98f872a5cc18bffd90ac201b169c2ad208e484dd06415
     permissions:
       contents: read
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           egress-policy: audit
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Install dependencies
-        run: |
-          set -Eeuo pipefail
-
-          sudo apt-get update && sudo apt-get install --no-install-recommends -y graphviz plantuml
-          python -m pip install sbdl==1.22.7
       - name: Build & Validate SBDL model
-        run: sbdl -m compile test/cpp/integration-tests.bats test/cpp/features/*.feature test/embedded-cpp/integration-tests.bats test/embedded-cpp/features/*.feature > amp-devcontainer.sbdl
+        run: sbdl -m compile -r . > amp-devcontainer.sbdl
       - name: Create document control context
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}
@@ -54,8 +49,8 @@ jobs:
           SBDL
       - name: 📄 Generate SRS document
         run: sbdl -m template-fill --set-config template_extensions_file docs/templates/jinja-extensions.py --template docs/templates/software-requirements-specification.md.j2 amp-devcontainer.sbdl document-control.sbdl > software-requirements-specification.md
-      - name: 🧪 Generate STP document
-        run: sbdl -m template-fill --set-config template_extensions_file docs/templates/jinja-extensions.py --template docs/templates/software-test-plan.md.j2 amp-devcontainer.sbdl document-control.sbdl > software-test-plan.md
+      - name: 🧪 Generate SVP document
+        run: sbdl -m template-fill --set-config template_extensions_file docs/templates/jinja-extensions.py --template docs/templates/software-verification-plan.md.j2 amp-devcontainer.sbdl document-control.sbdl > software-verification-plan.md
       - name: 🧩 Generate RTM document
         run: sbdl -m template-fill --set-config template_extensions_file docs/templates/jinja-extensions.py --template docs/templates/requirements-traceability-matrix.md.j2 amp-devcontainer.sbdl document-control.sbdl > requirements-traceability-matrix.md
       - name: 🛡️ Generate Threat Model document
@@ -66,10 +61,10 @@ jobs:
         uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
         with:
           args: --template eisvogel --syntax-highlighting idiomatic --number-sections --output software-requirements-specification.pdf software-requirements-specification.md
-      - name: 🧪 Generate STP PDF
+      - name: 🧪 Generate SVP PDF
         uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
         with:
-          args: --template eisvogel --syntax-highlighting idiomatic --number-sections --output software-test-plan.pdf software-test-plan.md
+          args: --template eisvogel --syntax-highlighting idiomatic --number-sections --output software-verification-plan.pdf software-verification-plan.md
       - name: 🧩 Generate RTM PDF
         uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
         with:
@@ -78,7 +73,7 @@ jobs:
         uses: docker://pandoc/extra:3.9.0.0-ubuntu@sha256:72afa9c8d3300e5f10c9c4330e101725687f2179bffd912fb859c6d2ae85de62
         with:
           args: --template eisvogel --syntax-highlighting idiomatic --number-sections --output threat-model.pdf threat-model.md
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: documents
           path: |

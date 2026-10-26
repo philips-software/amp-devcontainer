@@ -36,11 +36,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: acceptance-testing
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo: false # Playwright requires root privileges to install browsers
           egress-policy: audit
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       # Create a GitHub Codespace and communicate the image version via a Codespace secret (should be a Codespace environment variable).
@@ -65,10 +65,10 @@ jobs:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.8.0
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npx playwright install --with-deps
       - name: Wait for Codespace to be active
         run: |
@@ -100,7 +100,7 @@ jobs:
           GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
           GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
           PLAYWRIGHT_JUNIT_OUTPUT_NAME: ${{ github.workspace }}/test-report-acceptance-${{ inputs.image-basename }}.xml
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: test-results-acceptance-${{ inputs.image-basename }}

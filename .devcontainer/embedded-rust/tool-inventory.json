@@ -1,0 +1,10 @@
+[
+  "cargo-binstall",
+  "cargo-binutils",
+  "cargo-mutants",
+  "flip-link",
+  "g++-15",
+  "probe-rs-tools",
+  "rust",
+  "rustup"
+]

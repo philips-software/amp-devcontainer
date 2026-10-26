@@ -14,3 +14,4 @@
 - [ ] I have added tests for new behavior, and have not broken any existing tests
 - [ ] I have added or updated relevant documentation
 - [ ] I have verified that all added components are accounted for in the SBOM
+- [ ] I understand the image size delta and agree the functionality justifies it

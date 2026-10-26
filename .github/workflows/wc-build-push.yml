@@ -14,8 +14,11 @@ name: Build & Push
 on:
   workflow_call:
     inputs:
+      base-image:
+        required: true
+        type: string
       build-args:
-        required: false
+        required: true
         type: string
       build-test-runner-labels:
         required: true
@@ -36,6 +39,9 @@ on:
         required: true
         type: string
       runner-labels:
+        required: true
+        type: string
+      tool-inventory-file:
         required: true
         type: string
     outputs:
@@ -75,47 +81,40 @@ jobs:
       contents: read
       packages: write # is needed by docker/build-push-action to push images when using GitHub Container Registry
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
         with:
           cache-binary: false
-      - uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
-      - uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
+      - uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         env:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         id: metadata
         with:
           images: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+      # Merge the base image's devcontainer.metadata array with this flavor's
+      # entry so that flavors inherit base metadata without duplicating it.
       - name: Generate image label for devcontainer.metadata
-        run: |
-          set -Eeuo pipefail
-
-          if [ -z "${DEVCONTAINER_METADATA_FILE:-}" ] || [ ! -f "${DEVCONTAINER_METADATA_FILE}" ]; then
-            echo "devcontainer-metadata-file input not set or file does not exist, skipping devcontainer.metadata label"
-            echo "label=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
-          echo "label=devcontainer.metadata=$(jq -cj '[.]' "${DEVCONTAINER_METADATA_FILE}" | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
-        env:
-          DEVCONTAINER_METADATA_FILE: ${{ inputs.devcontainer-metadata-file }}
+        uses: philips-software/amp-devcontainer/.github/actions/merge-devcontainer-metadata@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions/v1.1.0
         id: devcontainer-metadata
+        with:
+          base-image: ${{ inputs.base-image }}
+          devcontainer-metadata-file: ${{ inputs.devcontainer-metadata-file }}
       - run: echo "git-commit-epoch=$(git log -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
         id: devcontainer-epoch
       - run: echo "arch=$(echo "${RUNNER_ARCH}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
         id: devcontainer-arch
-      - uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         id: build-and-push
         env:
           SOURCE_DATE_EPOCH: ${{ steps.devcontainer-epoch.outputs.git-commit-epoch }}
@@ -130,6 +129,36 @@ jobs:
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
           outputs: type=image,compression=zstd,compression-level=9,force-compression=true,push-by-digest=true,name-canonical=true
+      - name: Verify devcontainer.metadata label on pushed image
+        if: ${{ steps.devcontainer-metadata.outputs.label != '' }}
+        run: |
+          set -Eeuo pipefail
+
+          expected="${LABEL#devcontainer.metadata=}"
+          config="$(docker buildx imagetools inspect "${IMAGE}@${DIGEST}" --format '{{json .Image}}')"
+          actual="$(jq -r '
+            (if has("config") then . else (to_entries[0].value) end)
+            | .config.Labels["devcontainer.metadata"] // empty
+          ' <<< "${config}")"
+
+          if [ -z "${actual}" ]; then
+            echo "error: built image has no devcontainer.metadata label" >&2
+            exit 1
+          fi
+
+          # Ensure both values are JSON arrays (per spec) and compare normalized JSON so whitespace doesn't matter.
+          jq -e 'type == "array"' <<< "${expected}" > /dev/null
+          jq -e 'type == "array"' <<< "${actual}" > /dev/null
+          if ! diff <(jq -S . <<< "${expected}") <(jq -S . <<< "${actual}"); then
+            echo "error: devcontainer.metadata label on the image does not match the expected merged metadata" >&2
+            exit 1
+          fi
+
+          echo "devcontainer.metadata label verified ($(jq 'length' <<< "${actual}") entries)"
+        env:
+          IMAGE: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          LABEL: ${{ steps.devcontainer-metadata.outputs.label }}
       - name: Export digest
         run: |
           set -Eeuo pipefail
@@ -137,9 +166,13 @@ jobs:
           touch "${RUNNER_TEMP}/digests/${DIGEST#sha256:}"
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      # Separate the architecture from the image basename with '@', a character that a
+      # sanitized basename can never contain, so the pattern used by the merge job below
+      # cannot also match the digests of an image whose basename starts with this one
+      # (e.g. 'ci' and 'ci-docgen').
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-${{ steps.devcontainer-arch.outputs.arch }}
+          name: digests-${{ needs.sanitize-image-name.outputs.image-basename }}@${{ steps.devcontainer-arch.outputs.arch }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -159,27 +192,27 @@ jobs:
       packages: write # is needed to push image manifest when using GitHub Container Registry
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     outputs:
-      digest: ${{ steps.inspect-manifest.outputs.digest }}
+      digest: ${{ steps.extract-digest.outputs.digest }}
       version: ${{ steps.metadata.outputs.version }}
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: ${{ runner.temp }}/digests
-          pattern: digests-${{ needs.sanitize-image-name.outputs.image-basename }}-*
+          pattern: digests-${{ needs.sanitize-image-name.outputs.image-basename }}@*
           merge-multiple: true
-      - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
         with:
           cache-binary: false
-      - uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
-      - uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
+      - uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         id: metadata
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
@@ -196,6 +229,7 @@ jobs:
       - name: Create manifest list and push
         run: |
           set -Eeuo pipefail
+          shopt -s nullglob
 
           readarray -t lines <<< "$DOCKER_METADATA_OUTPUT_ANNOTATIONS"
           annotations=()
@@ -203,61 +237,100 @@ jobs:
             annotations+=(--annotation "$line")
           done
 
+          # The build jobs export one file per architecture, named after the digest of
+          # the image they pushed; refuse to create a manifest from anything else.
+          sources=()
+          for digest in *; do
+            if [[ ! -f "${digest}" || ! "${digest}" =~ ^[0-9a-f]{64}$ ]]; then
+              echo "error: unexpected entry '${digest}' in the digest directory" >&2
+              exit 1
+            fi
+            sources+=("${CONTAINER}@sha256:${digest}")
+          done
+
+          if [ "${#sources[@]}" -eq 0 ]; then
+            echo "error: no digests found for ${CONTAINER}" >&2
+            exit 1
+          fi
+
           # shellcheck disable=SC2046
           docker buildx imagetools create \
             "${annotations[@]}" \
             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${METADATA_JSON}") \
-            $(printf "${CONTAINER}@sha256:%s " *)
+            "${sources[@]}"
         env:
           CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
         shell: bash
         working-directory: ${{ runner.temp }}/digests
-      - name: Inspect manifest and extract digest
-        id: inspect-manifest
-        run: |
-          set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect "${CONTAINER}" --format '{{json .}}')
-          echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
-        env:
-          CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
+      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
+        id: extract-digest
+        with:
+          container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
       - run: |
           set -Eeuo pipefail
-          wget -O diffoci https://github.com/reproducible-containers/diffoci/releases/download/v0.1.7/diffoci-v0.1.7.linux-amd64
+          wget -qO diffoci https://github.com/reproducible-containers/diffoci/releases/download/v0.1.8/diffoci-v0.1.8.linux-amd64
+          echo "${DIFFOCI_SHA256}  diffoci" | sha256sum --check --strict -
           chmod +x diffoci
           ./diffoci diff --semantic --report-file=container-diff.json "${FROM_CONTAINER}" "${TO_CONTAINER}" || true
         env:
+          DIFFOCI_SHA256: 01e6b50c1568c9d61c758ef6da81869f2c26c852698d73dca961b3617effe949
           FROM_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
           TO_CONTAINER: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@2c922780888f6612f2f4029da7b75f76ee07eaf9 # v7.2.0
+      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
         id: container-size-diff
         with:
           from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
           to-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
-      - uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+      - uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
           header: container-size-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
-      - uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+      - uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
-          image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.inspect-manifest.outputs.digest }}
+          image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.extract-digest.outputs.digest }}
+          registry-username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+          registry-password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
           dependency-snapshot: true
-      - uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+          output-file: ${{ runner.temp }}/sbom.spdx.json
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: ${{ inputs.tool-inventory-file != '' }}
+        with:
+          persist-credentials: false
+          sparse-checkout: ${{ inputs.tool-inventory-file }}
+          sparse-checkout-cone-mode: false
+      - name: Generate tool inventory
+        if: ${{ inputs.tool-inventory-file != '' }}
+        id: generate-tool-inventory
+        uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions/v1.1.0
+        with:
+          sbom: ${{ runner.temp }}/sbom.spdx.json
+          allowlist: ${{ inputs.tool-inventory-file }}
+          flavor: ${{ needs.sanitize-image-name.outputs.image-basename }}
+          output-file: ${{ runner.temp }}/tool-inventory.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ inputs.tool-inventory-file != '' }}
+        with:
+          name: tool-inventory-${{ needs.sanitize-image-name.outputs.image-basename }}
+          path: ${{ steps.generate-tool-inventory.outputs.inventory-file }}
+          retention-days: 10
+      - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-name: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
-          subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
+          subject-digest: ${{ steps.extract-digest.outputs.digest }}
           show-summary: false
           push-to-registry: true
+      # @sbdl test-sec-0001 is test { custom:title is "Verify attestation"; requirement is req-sec-0002 }
       - name: Verify attestation
         run: gh attestation verify --repo "${GH_REPO}" --signer-workflow philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml "oci://${FULLY_QUALIFIED_IMAGE_NAME}@${DIGEST}"
         env:
-          DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          DIGEST: ${{ steps.extract-digest.outputs.digest }}
           FULLY_QUALIFIED_IMAGE_NAME: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}

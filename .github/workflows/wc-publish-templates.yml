@@ -2,7 +2,8 @@
 name: Publish Templates
 
 on:
-  workflow_call:
+  # Explicit empty mapping; the SchemaStore used by V8R linter rejects empty mappings.
+  workflow_call: {}
 
 permissions: {}
 
@@ -13,19 +14,19 @@ jobs:
     permissions:
       packages: write # is needed by devcontainers/action to write templates as OCI artifacts
     steps:
-      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
-      - uses: devcontainers/action@1082abd5d2bf3a11abccba70eef98df068277772 # v1.4.3
+      - uses: devcontainers/action@bef2cf2d1a019b00b45e184f83035e01bd1972f3 # v1.4.4
         with:
           disable-repo-tagging: true
           publish-templates: true

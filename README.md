@@ -1,7 +1,9 @@
 # amp-devcontainer
 
 <!-- markdownlint-disable -->
+
 [![Linting & Formatting](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml) [![Continuous Integration](https://github.com/philips-software/amp-devcontainer/actions/workflows/continuous-integration.yml/badge.svg?branch=main)](https://github.com/philips-software/amp-devcontainer/actions/workflows/continuous-integration.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/philips-software/amp-devcontainer/badge)](https://securityscorecards.dev/viewer/?uri=github.com/philips-software/amp-devcontainer)
+
 <!-- markdownlint enable -->
 
 ## Table of Contents
@@ -31,7 +33,7 @@ This repository contains [devcontainers](https://docs.github.com/en/codespaces/s
 - **Batteries Included** 🔋: Pre-configured tools for local development and continuous integration.
 - **Developer Experience** 👩‍💻: Minimal set-up time and maximal shift-left.
 - **Multi-platform Support** ⚙️: Compatible with x64 and arm64 hardware on Windows, Linux, and macOS.
-- **Image Flavors** 🍨: Dedicated containers for C++, embedded C++, and Rust development.
+- **Image Flavors** 🍨: Dedicated containers for C++, embedded C++, Rust, and documentation generation.
 - **IDE Integration** 💻: Fully compatible with GitHub Codespaces and VS Code.
 - **Semantic Versioning** 🔢: Clear versioning strategy for container images.
 - **Secure** 🔒: Emphasis on supply-chain security and compatible with Dependabot.
@@ -54,7 +56,9 @@ The following devcontainers are published towards the [GitHub Container Registry
 
 - [amp-devcontainer-base](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-base); shared base image used by the other flavors
 - [amp-devcontainer-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-cpp); the C++ container
+- [amp-devcontainer-docs](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-docs); the documentation generation container
 - [amp-devcontainer-embedded-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-embedded-cpp); the embedded C++ container
+- [amp-devcontainer-embedded-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-embedded-rust); the embedded Rust container
 - [amp-devcontainer-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-rust); the Rust container
 
 All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
@@ -69,26 +73,34 @@ It consolidates common tooling (e.g. certificates and test tooling) so that the 
 
 #### amp-devcontainer-cpp
 
-The amp-devcontainer-cpp built from this repository contains compilers and tools to facilitate modern C++ development.
+The amp-devcontainer-cpp image built from this repository contains compilers and tools to facilitate modern C++ development.
 The amp-devcontainer-cpp includes support for host- and cross-compilation using gcc and clang compilers.
 Next to the compilers there is support for package management (using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) and [Conan](https://conan.io/)) code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
 
 The default build system is set up to use CMake, Ninja and CCache.
 
+#### amp-devcontainer-docs
+
+The amp-devcontainer-docs image built from this repository contains tooling to generate documentation from repository sources.
+It includes [sbdl](https://sbdl.dev/) to capture the essence of system composition and behavior in a simple yet powerful domain-specific language, together with [PlantUML](https://plantuml.com/) and [Graphviz](https://graphviz.org/) for rendering diagrams.
+
 #### amp-devcontainer-embedded-cpp
 
-The amp-devcontainer-embedded-cpp built from this repository contains the same tooling as amp-devcontainer-cpp, extended with support for embedded C++ development.
+The amp-devcontainer-embedded-cpp image built from this repository contains the same tooling as amp-devcontainer-cpp, extended with support for embedded C++ development.
 On top of the host- and cross-compilation support it adds the arm-gcc (arm-none-eabi) toolchain for cross-compilation towards the ARM Cortex architecture, together with debugging support for micro-controllers (using [cortex-debug](https://github.com/Marus/cortex-debug) and gdb-multiarch).
 
 The default build system is set up to use CMake, Ninja and CCache.
 
+#### amp-devcontainer-embedded-rust
+
+The amp-devcontainer-embedded-rust image built from this repository contains the same tooling as amp-devcontainer-rust, extended with support for embedded Rust development.
+On top of the host- and cross-compilation support it adds cross-compilation targets for the ARM Cortex-M architecture, together with flashing and debugging support for micro-controllers (using [probe-rs](https://probe.rs/), [flip-link](https://github.com/knurling-rs/flip-link) and [cortex-debug](https://github.com/Marus/cortex-debug)).
+
 #### amp-devcontainer-rust
 
-The amp-devcontainer-rust built from this repository contains the Rust ecosystem and additional tools to facilitate, embedded, Rust development.
+The amp-devcontainer-rust image built from this repository contains the Rust ecosystem and additional tools to facilitate Rust development.
 The amp-devcontainer-rust includes support for host- and cross-compilation.
 Next to the Rust ecosystem there is support for code-coverage measurement, mutation testing (using [cargo-mutants](https://mutants.rs/)), fuzzing (using [rust-fuzz](https://rust-fuzz.github.io/book/introduction.html)) and static analysis and formatting (clippy, rustfmt).
-
-For embedded development and flashing and debugging [probe-rs](https://probe.rs/) and [flip-link](https://github.com/knurling-rs/flip-link) are included.
 
 ### Versioning
 
@@ -99,7 +111,7 @@ Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<mino
 The latest build on the default branch is tagged with `edge` and pull request builds are tagged with `pr-<number>`.
 
 | Branch       | Tag                        |
-|--------------|----------------------------|
+| ------------ | -------------------------- |
 | Default      | `edge`                     |
 | Pull Request | `pr-<number>`              |
 | Release      | `v<major>.<minor>.<patch>` |
@@ -126,13 +138,19 @@ All included tools are preconfigured and necessary plug-ins will be installed at
 This behavior is implemented by appending devcontainer metadata to an image label according to these [specifications](https://containers.dev/implementors/reference/#labels).
 It is possible to override, amend or change the options following this [merge logic](https://containers.dev/implementors/spec/#merge-logic).
 
+The `devcontainer.metadata` label is an array of metadata entries.
+Each flavor only declares its own entry; during the build the base image's metadata array is read and the flavor's entry is appended to it, producing an array such as `[<base>, <flavor>]`.
+This keeps the per-flavor metadata free of duplicated base entries while letting the [merge logic](https://containers.dev/implementors/spec/#merge-logic) combine them, with later entries taking precedence.
+Images built on top of a flavor extend the array further (e.g. `[<base>, <flavor>, <derived>]`), so derived images inherit and can override all inherited metadata.
+The base image renames Ubuntu's UID/GID `1000:1000` account to `code` and selects it as the devcontainer's `containerUser`.
+
 ## Usage
 
 This chapter describes how to use amp-devcontainer for two common use-cases, and details how to verify the signature of the container images.
 
 > [!IMPORTANT]
 > While the following examples use the `latest` tag, it is recommended to pin to a specific version using vX.Y.Z. Or better yet, a specific SHA.
-> See the 🔖 Packages section on the  [releases](https://github.com/philips-software/amp-devcontainer/releases) page for the unambiguous identifier corresponding to a specific release.
+> See the 🔖 Packages section on the [releases](https://github.com/philips-software/amp-devcontainer/releases) page for the unambiguous identifier corresponding to a specific release.
 
 ### Verify image signature
 
@@ -168,7 +186,7 @@ The resulting containers can be used in a `.devcontainer.json` file or in a `.de
 
 ```json
 {
-    "image": "ghcr.io/philips-software/amp-devcontainer-<🍨 flavor>:latest"
+  "image": "ghcr.io/philips-software/amp-devcontainer-<🍨 flavor>:latest"
 }
 ```
 
@@ -199,7 +217,9 @@ This project uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.htm
 ### Build & Test
 
 <!-- markdownlint-disable -->
+
 [![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/philips-software/amp-devcontainer)
+
 <!-- markdownlint enable -->
 
 If you already have VS Code and a OCI compatible container engine installed, you can click the badge above or

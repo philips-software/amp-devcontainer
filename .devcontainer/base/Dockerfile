@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:26.04@sha256:b7f48194d4d8b763a478a621cdc81c27be222ba2206ca3ca6bc42b49685f3d9e AS extractor
+FROM ubuntu:26.04@sha256:f144425ff09be612d6d9ad965196e9cdc23dae1f42110a8a11a3e9a8198759f7 AS extractor
 
 ARG BATS_CORE_VERSION=1.13.0
 ARG BATS_SUPPORT_VERSION=0.3.0
@@ -20,7 +20,7 @@ RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
  && tar xzf /bats-support.tar.gz && mv bats-support-*/ bats-support \
  && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert
 
-FROM ubuntu:26.04@sha256:b7f48194d4d8b763a478a621cdc81c27be222ba2206ca3ca6bc42b49685f3d9e
+FROM ubuntu:26.04@sha256:f144425ff09be612d6d9ad965196e9cdc23dae1f42110a8a11a3e9a8198759f7
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -31,7 +31,8 @@ HEALTHCHECK NONE
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # hadolint ignore=DL3008
-RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
+RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add-sbom-note.sh \
+    --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
@@ -43,7 +44,7 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
       xargs apt-get install -y --no-install-recommends
 
    # Include the Cisco Umbrella PKI Root Certificate
-   cp /src/cisco-umbrella-root.crt /usr/local/share/ca-certificates/
+   install -m 0644 /src/cisco-umbrella-root.crt /usr/local/share/ca-certificates/
    update-ca-certificates
 
    # Install bats
@@ -51,10 +52,31 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
    cp -r /src/bats-support /usr/local/bats-support
    cp -r /src/bats-assert /usr/local/bats-assert
 
+   # Retain the bats-core manifest so the tool is captured in the SBOM
+   mkdir -p /usr/local/lib/bats-core
+   cp /src/bats-core/package.json /usr/local/lib/bats-core/package.json
+
+   # Install the SBOM annotation helper so downstream flavors can annotate tools
+   # that Syft cannot detect on its own (see .devcontainer/base/add-sbom-note.sh)
+   install -m 0755 /tmp/add-sbom-note.sh /usr/local/bin/add-sbom-note
+
    # Generate locale
    sed -i '/C.UTF-8/s/^# //' /etc/locale.gen
    locale-gen
 
-   # Patch root's bashrc to include bash-completion
+   # Rename Ubuntu's default account while preserving its UID and GID.
+   usermod --login code --home /home/code --move-home ubuntu
+   groupmod --new-name code ubuntu
+   test "$(id -u code)" -eq 1000
+   test "$(id -g code)" -eq 1000
+
+   # Ensure the developer account has a bashrc with bash-completion enabled.
+   install -d -m 0755 -o code -g code /home/code
+   cp /etc/skel/.bashrc /home/code/.bashrc
+   chown code:code /home/code/.bashrc
+
+   # Keep root's bashrc configured for image build and maintenance commands.
    cp /etc/skel/.bashrc /root/.bashrc
 EOF
+
+USER 1000:1000

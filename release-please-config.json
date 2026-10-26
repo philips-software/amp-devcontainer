@@ -17,11 +17,17 @@
       "hidden": false
     }
   ],
-  "include-component-in-tag": false,
+  "separate-pull-requests": true,
   "packages": {
     ".": {
+      "include-component-in-tag": false,
       "package-name": "amp-devcontainer",
       "release-type": "simple"
+    },
+    ".github/actions": {
+      "package-name": "actions",
+      "release-type": "simple",
+      "tag-separator": "/"
     }
   },
   "plugins": ["sentence-case"],
@@ -44,6 +50,16 @@
     {
       "type": "json",
       "path": "templates/embedded-cpp/devcontainer-template.json",
+      "jsonpath": "$.options.imageVersion.default"
+    },
+    {
+      "type": "json",
+      "path": "templates/embedded-rust/devcontainer-template.json",
+      "jsonpath": "$.version"
+    },
+    {
+      "type": "json",
+      "path": "templates/embedded-rust/devcontainer-template.json",
       "jsonpath": "$.options.imageVersion.default"
     },
     {
