@@ -29,7 +29,8 @@ RUN --mount=type=bind,source=.devcontainer/docs/apt-requirements.json,target=/tm
         xargs apt-get install -y --no-install-recommends
 
     # Install some tools via pip to get more recent versions, clean up afterwards
-    python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt
+    # SBDL publishes only source archives; its reviewed setuptools packaging is version- and hash-locked.
+    python3 -m pip install --break-system-packages --require-hashes --only-binary :all: --no-binary sbdl --no-cache-dir --no-compile -r /tmp/requirements.txt
     find / -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
     rm -rf "$(pip cache dir)"
 
