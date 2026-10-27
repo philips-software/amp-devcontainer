@@ -28,19 +28,11 @@ jobs:
           persist-credentials: false
       - name: Build & Validate SBDL model
         run: |
-          mapfile -d '' -t sbdl_sources < <(
-            find test .github/workflows \
-              -type f \
-              ! -path 'test/docs/workspace/sample.sbdl' \
-              -print0 | sort -z
-          )
+          set -Eeuo pipefail
 
-          if ((${#sbdl_sources[@]} == 0)); then
-            echo "error: no SBDL source files found" >&2
-            exit 1
-          fi
-
-          sbdl -m compile "${sbdl_sources[@]}" > amp-devcontainer.sbdl
+          rm test/docs/workspace/sample.sbdl
+          sbdl -m compile -r . > "${RUNNER_TEMP}/amp-devcontainer.sbdl"
+          mv "${RUNNER_TEMP}/amp-devcontainer.sbdl" amp-devcontainer.sbdl
       - name: Create document control context
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}
