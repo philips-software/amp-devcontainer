@@ -163,7 +163,7 @@ _Verification activities_
 {%- if 'requirement' in test_elem -%}
 {%- for test_req_ref in test_elem.requirement if test_req_ref.identifier == req_ref.identifier -%}
 {%- set ns_tests.has_tests = true %}
-- **{{ test_id }}**: {{ utils.reencode(utils.strip_bats_syntax(test_elem['custom:title'])) }}
+- <a id="{{ req_ref.identifier }}-{{ test_id }}"></a> **{{ test_id }}**: {{ utils.reencode(utils.strip_bats_syntax(test_elem['custom:title'])) }}
   Source: {% if test_elem.reference is defined and test_elem.reference %}`{{ test_elem.reference }}`{% else %}Unavailable{% endif %}
 {%- endfor -%}
 {%- endif -%}
