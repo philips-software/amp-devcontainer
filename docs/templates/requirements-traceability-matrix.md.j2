@@ -26,7 +26,7 @@ footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
 
 ## Purpose
 
-This document provides a requirements traceability matrix (RTM) for amp-devcontainer. It maps each requirement to its associated verification tests, providing evidence of test coverage across the system.
+This document provides a requirements traceability matrix (RTM) for amp-devcontainer. It maps each requirement to its declared verification tests and their source locations. A trace link does not establish that a test was executed or passed.
 
 ## Abstract
 
@@ -40,18 +40,19 @@ This document is generated from a formal model defined in [sbdl](https://sbdl.de
 The authoritative source of change history is the [Git log](https://github.com/philips-software/amp-devcontainer/commits/) of the source material from which the model is built.
 
 # Traceability Matrix
+
+Requirements and tests are identified by their stable IDs. Full requirement descriptions are listed in the *Software Requirements Specification (SRS)*. Full test descriptions are listed under the corresponding requirement in the *Software Verification Plan (SVP)*.
+
 {%- for id, item in sbdl.items() %}
 {%- if item.type == 'aspect' and 'custom:title' in item %}
 
 ## {{ utils.reencode(utils.strip_gherkin_prefix(item['custom:title'])) }}
 
-| Requirement | Test | Status |
-|-------------|------|--------|
+| Requirement ID | Test ID | Source | Traceability |
+|-------------|------|--------|--------------|
 
 {%- if 'requirement' in item %}
 {%- for req_ref in item.requirement %}
-{%- set req = sbdl[req_ref.identifier] %}
-{%- set req_name = utils.reencode(utils.strip_gherkin_prefix(req['custom:title'])) | trim %}
 
 {%- set ns_tests = namespace(test_list=[]) -%}
 
@@ -67,11 +68,10 @@ The authoritative source of change history is the [Git log](https://github.com/p
 
 {%- if ns_tests.test_list -%}
 {%- for test_id in ns_tests.test_list %}
-{%- set test_name = utils.strip_bats_syntax(sbdl[test_id]['custom:title']) | trim %}
-| {{ utils.display_short(req_name) }} | {{ test_id }}: {{ utils.display_short(test_name) }} | Traced |
+| {{ req_ref.identifier }} | {{ test_id }} | {% if sbdl[test_id].reference is defined and sbdl[test_id].reference %}`{{ sbdl[test_id].reference }}`{% else %}Unavailable{% endif %} | Traced |
 {%- endfor -%}
 {%- else %}
-| {{ utils.display_short(req_name) }} | — | **Not covered** |
+| {{ req_ref.identifier }} | — | — | **Untraced** |
 {%- endif -%}
 
 {%- endfor %}
@@ -79,7 +79,7 @@ The authoritative source of change history is the [Git log](https://github.com/p
 {%- endif %}
 {%- endfor %}
 
-# Coverage Summary
+# Declared Traceability Summary
 
 {%- set ns_summary = namespace(total_reqs=0, covered_reqs=0, total_tests=0) -%}
 

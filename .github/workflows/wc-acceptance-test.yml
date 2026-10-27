@@ -4,13 +4,16 @@ name: Acceptance Test
 on:
   workflow_call:
     inputs:
-      image-basename:
+      acceptance-test-path:
+        required: true
+        type: string
+      acceptance-test-tag:
         required: true
         type: string
       devcontainer-file:
         required: true
         type: string
-      acceptance-test-path:
+      image-basename:
         required: true
         type: string
     secrets:
@@ -94,9 +97,18 @@ jobs:
           done
         env:
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
-      - run: cd "${ACCEPTANCE_TEST_PATH}" && npm test
+      - name: Run matching acceptance scenarios
+        run: |
+          set -Eeuo pipefail
+          if [[ -z "${ACCEPTANCE_TEST_TAG}" ]]; then
+            echo "ACCEPTANCE_TEST_TAG must identify the target flavor." >&2
+            exit 1
+          fi
+          cd "${ACCEPTANCE_TEST_PATH}"
+          npm test
         env:
           ACCEPTANCE_TEST_PATH: ${{ inputs.acceptance-test-path }}
+          ACCEPTANCE_TEST_TAG: ${{ inputs.acceptance-test-tag }}
           GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
           GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
           GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
