@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.0](https://github.com/philips-software/amp-devcontainer/compare/actions/v1.2.0...actions/v2.0.0) (2026-10-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* add code container user to replace root ([#1501](https://github.com/philips-software/amp-devcontainer/issues/1501))
+
+### Features
+
+* Add code container user to replace root ([#1501](https://github.com/philips-software/amp-devcontainer/issues/1501)) ([adf549b](https://github.com/philips-software/amp-devcontainer/commit/adf549ba6b0df1cdab12789e91e90cc54979eb8c))
+
+
+### Chores
+
+* Fix sonarqube findings ([#1505](https://github.com/philips-software/amp-devcontainer/issues/1505)) ([66681b4](https://github.com/philips-software/amp-devcontainer/commit/66681b43ace8a0ae5869f9fdde32dd05f62f1ea1))
+
 ## [1.2.0](https://github.com/philips-software/amp-devcontainer/compare/actions-v1.1.0...actions/v1.2.0) (2026-09-07)
 
 

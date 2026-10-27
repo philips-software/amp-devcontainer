@@ -64,7 +64,7 @@ permissions: {}
 jobs:
   sanitize-image-name:
     name: 🧼
-    uses: ./.github/workflows/wc-sanitize-image-name.yml
+    uses: $/.github/workflows/wc-sanitize-image-name.yml
     with:
       image-name: ${{ inputs.image-name }}
       registry: ${{ inputs.registry }}
@@ -76,6 +76,7 @@ jobs:
       matrix:
         runner: ${{ fromJson(inputs.build-test-runner-labels) }}
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
     needs: sanitize-image-name
     permissions:
       contents: read
@@ -105,7 +106,7 @@ jobs:
       # Merge the base image's devcontainer.metadata array with this flavor's
       # entry so that flavors inherit base metadata without duplicating it.
       - name: Generate image label for devcontainer.metadata
-        uses: philips-software/amp-devcontainer/.github/actions/merge-devcontainer-metadata@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions/v1.1.0
+        uses: philips-software/amp-devcontainer/.github/actions/merge-devcontainer-metadata@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions-v1.1.0
         id: devcontainer-metadata
         with:
           base-image: ${{ inputs.base-image }}
@@ -180,6 +181,7 @@ jobs:
   merge-image:
     name: 🔗 Merge Image
     runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 15
     needs:
       - build-push
       - sanitize-image-name
@@ -308,7 +310,7 @@ jobs:
       - name: Generate tool inventory
         if: ${{ inputs.tool-inventory-file != '' }}
         id: generate-tool-inventory
-        uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions/v1.1.0
+        uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions-v1.1.0
         with:
           sbom: ${{ runner.temp }}/sbom.spdx.json
           allowlist: ${{ inputs.tool-inventory-file }}

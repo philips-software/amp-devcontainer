@@ -37,6 +37,7 @@ jobs:
       matrix:
         runner: ${{ fromJson(inputs.build-test-runner-labels) }}
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:
@@ -68,11 +69,13 @@ jobs:
         id: runner-arch
       - name: Run integration tests using Podman
         run: |
+          set -Eeuo pipefail
           podman run --rm \
+            --userns=keep-id:uid=1000,gid=1000 \
+            --user 1000:1000 \
             --network=host \
             -v "${WORKSPACE}:${WORKSPACE}" \
             -w "${WORKSPACE}" \
-            -e CI \
             -e IMAGE_BASENAME="${IMAGE_BASENAME}" \
             -e TEST_FILE="${TEST_FILE}" \
             -e RUNNER_ARCH="${RUNNER_ARCH}" \

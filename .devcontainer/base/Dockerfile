@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:26.04@sha256:9559ceb7c21e528e233e8dff26a0fb2682f4094cce06176eeb075d87a22b31de AS extractor
+FROM ubuntu:26.04@sha256:f144425ff09be612d6d9ad965196e9cdc23dae1f42110a8a11a3e9a8198759f7 AS extractor
 
 ARG BATS_CORE_VERSION=1.13.0
 ARG BATS_SUPPORT_VERSION=0.3.0
@@ -20,7 +20,7 @@ RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
  && tar xzf /bats-support.tar.gz && mv bats-support-*/ bats-support \
  && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert
 
-FROM ubuntu:26.04@sha256:9559ceb7c21e528e233e8dff26a0fb2682f4094cce06176eeb075d87a22b31de
+FROM ubuntu:26.04@sha256:f144425ff09be612d6d9ad965196e9cdc23dae1f42110a8a11a3e9a8198759f7
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -44,7 +44,7 @@ RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add
       xargs apt-get install -y --no-install-recommends
 
    # Include the Cisco Umbrella PKI Root Certificate
-   cp /src/cisco-umbrella-root.crt /usr/local/share/ca-certificates/
+   install -m 0644 /src/cisco-umbrella-root.crt /usr/local/share/ca-certificates/
    update-ca-certificates
 
    # Install bats
@@ -64,6 +64,19 @@ RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add
    sed -i '/C.UTF-8/s/^# //' /etc/locale.gen
    locale-gen
 
-   # Patch root's bashrc to include bash-completion
+   # Rename Ubuntu's default account while preserving its UID and GID.
+   usermod --login code --home /home/code --move-home ubuntu
+   groupmod --new-name code ubuntu
+   test "$(id -u code)" -eq 1000
+   test "$(id -g code)" -eq 1000
+
+   # Ensure the developer account has a bashrc with bash-completion enabled.
+   install -d -m 0755 -o code -g code /home/code
+   cp /etc/skel/.bashrc /home/code/.bashrc
+   chown code:code /home/code/.bashrc
+
+   # Keep root's bashrc configured for image build and maintenance commands.
    cp /etc/skel/.bashrc /root/.bashrc
 EOF
+
+USER 1000:1000

@@ -15,7 +15,7 @@ permissions: {}
 jobs:
   build-push-test:
     name: Build → Push → Test
-    uses: ./.github/workflows/build-push-test.yml
+    uses: $/.github/workflows/build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
       artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
@@ -33,7 +33,7 @@ jobs:
   dependency-review:
     name: 🔍 Dependency Review
     needs: build-push-test
-    uses: ./.github/workflows/wc-dependency-review.yml
+    uses: $/.github/workflows/wc-dependency-review.yml
     permissions:
       contents: read
       pull-requests: write # is needed by actions/dependency-review-action to write PR summaries
@@ -41,6 +41,7 @@ jobs:
   publish-test-results:
     name: 📊 Publish Test Results
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       checks: write # is needed by EnricoMi/publish-unit-test-result-action to add a check run with test results
       pull-requests: write # is needed by EnricoMi/publish-unit-test-result-action to annotate PRs
@@ -55,7 +56,7 @@ jobs:
         with:
           merge-multiple: true
           pattern: test-results-*
-      - uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+      - uses: EnricoMi/publish-unit-test-result-action@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
         with:
           action_fail: true
           action_fail_on_inconclusive: true
@@ -63,6 +64,6 @@ jobs:
 
   generate-documents:
     name: 📄 Documentation
-    uses: ./.github/workflows/wc-document-generation.yml
+    uses: $/.github/workflows/wc-document-generation.yml
     permissions:
       contents: read

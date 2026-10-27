@@ -6,12 +6,17 @@ on:
     - cron: 0 0 1 */3 *
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: false
+
 permissions: {}
 
 jobs:
   create-issue:
     name: Create tool version evaluation issue
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read # is needed to checkout the repository
       issues: write # is needed by gh cli to create/close/pin/unpin issues

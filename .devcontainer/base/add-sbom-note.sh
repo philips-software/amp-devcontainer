@@ -21,11 +21,11 @@ jq -n --arg name "${name}" --arg version "${version}" --arg purl "${purl}" '{nam
 
 tagged=0
 for binary in "$@"; do
-    if [ -x "${binary}" ]; then
+    if [[ -x "${binary}" ]]; then
         objcopy --add-section .note.package="${note}" \
                 --set-section-flags .note.package=noload,readonly "${binary}"
         tagged=1
     fi
 done
 
-[ "${tagged}" -eq 1 ] || { echo "no binaries found to annotate for ${name}" >&2; exit 1; }
+[[ "${tagged}" -eq 1 ]] || { echo "no binaries found to annotate for ${name}" >&2; exit 1; }

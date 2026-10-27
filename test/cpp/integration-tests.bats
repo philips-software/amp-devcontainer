@@ -3,11 +3,7 @@
 bats_require_minimum_version 1.5.0
 
 setup_file() {
-  install_win_sdk_when_ci_set
-}
-
-teardown_file() {
-  rm -rf ${BATS_TEST_DIRNAME}/.xwin-hash/ /winsdk
+  install_win_sdk
 }
 
 setup() {
@@ -72,6 +68,23 @@ teardown() {
   done
 }
 
+@test "C++ configuration and cache directories are writable by the code user" {
+  WRITE_TESTS=(
+    /home/code/.amp/.write-test
+    /home/code/.conan2/.write-test
+    /home/code/.cache/.write-test
+    /home/code/.cache/ccache/.write-test
+    /home/code/.cache/cpm/.write-test
+    /home/code/.cache/python/.write-test
+    /winsdk/.write-test
+  )
+
+  assert_equal "$(id -un)" code
+  touch "${WRITE_TESTS[@]}"
+
+  rm -f "${WRITE_TESTS[@]}"
+}
+
 @test "valid code input should result in a working executable using the host compiler" {
   # @sbdl test-comp-0001 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   cmake --preset gcc
@@ -84,8 +97,6 @@ teardown() {
 
 @test "valid code input should result in a Windows executable using the clang-cl driver" {
   # @sbdl test-comp-0003 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0003 }
-  install_win_sdk_when_ci_unset
-
   cmake --preset clang-cl
   cmake --build --preset clang-cl
 
@@ -94,8 +105,6 @@ teardown() {
 
 @test "valid code input should result in a Windows executable using the clang driver" {
   # @sbdl test-comp-0007 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0003 }
-  install_win_sdk_when_ci_unset
-
   cmake --preset clang-windows
   cmake --build --preset clang-windows
 
@@ -120,8 +129,6 @@ teardown() {
 
 @test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
   # @sbdl test-comp-0006 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0004 }
-  install_win_sdk_when_ci_unset
-
   configure_and_build_with_ccache clang-cl
 }
 
@@ -147,7 +154,7 @@ teardown() {
   # @sbdl test-sda-0003 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0001 }
   run clang-format clang-tools/unformatted.cpp
   assert_success
-  assert_output "int main() {}"
+  assert_output "int main() { return 0; }"
 }
 
 @test "coverage information should be generated when running a testsuite" {
@@ -191,7 +198,7 @@ teardown() {
 }
 
 @test "clangd should start with a specified compile commands path" {
-  run timeout 1s clangd --compile-commands-dir=/root/.amp
+  run timeout 1s clangd --compile-commands-dir=/home/code/.amp
   refute_output --partial "Path specified by --compile-commands-dir does not exist. The argument will be ignored."
 }
 
@@ -216,8 +223,6 @@ teardown() {
 }
 
 @test "sanitizers should build and link with the clang-cl driver targeting Windows" {
-  install_win_sdk_when_ci_unset
-
   cmake --preset clang-cl
   cmake --build --preset clang-cl-sanitizers
 
@@ -225,8 +230,6 @@ teardown() {
 }
 
 @test "fuzzing should build and link with the clang-cl driver targeting Windows" {
-  install_win_sdk_when_ci_unset
-
   cmake --preset clang-cl
   cmake --build --preset clang-cl-fuzzing
 
@@ -234,8 +237,6 @@ teardown() {
 }
 
 @test "sanitizers should build and link with the clang driver targeting Windows" {
-  install_win_sdk_when_ci_unset
-
   cmake --preset clang-windows
   cmake --build --preset clang-windows-sanitizers
 
@@ -243,8 +244,6 @@ teardown() {
 }
 
 @test "fuzzing should build and link with the clang driver targeting Windows" {
-  install_win_sdk_when_ci_unset
-
   cmake --preset clang-windows
   cmake --build --preset clang-windows-fuzzing
 
@@ -375,24 +374,6 @@ function get_expected_semver_for() {
 }
 
 function install_win_sdk() {
-  xwin --http-retry 2 --accept-license --manifest-version 17 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --include-debug-symbols --preserve-ms-arch-notation
-  ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
-}
-
-function install_win_sdk_when_ci_unset() {
-  # When running tests locally we typically run them one by one,
-  # and want to install the Win SDK only for each test that requires it.
-
-  if [[ -z "${CI}" ]]; then
-    install_win_sdk
-  fi
-}
-
-function install_win_sdk_when_ci_set() {
-  # When running on a CI environment we run all tests in a single batch,
-  # and only want to install the Win SKD once.
-
-  if [[ -n "${CI}" ]]; then
-    install_win_sdk
-  fi
+  # xwin renames unpacked files into the SDK, so both paths must share a filesystem.
+  xwin --http-retry 2 --accept-license --manifest-version 18 --cache-dir /home/code/.xwin-cache splat --output /home/code/.winsdk --include-debug-symbols --preserve-ms-arch-notation
 }

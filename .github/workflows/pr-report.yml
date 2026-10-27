@@ -5,11 +5,16 @@ on:
   pull_request:
     types: [closed]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
   add-pr-report:
     name: 📊 Add PR Report
+    timeout-minutes: 5
     permissions:
       contents: read
       checks: read # is needed by philips-software/pull-request-report-action to fetch check run information

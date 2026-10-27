@@ -5,12 +5,17 @@ on:
   pull_request:
     types: [closed]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
   delete-images:
     name: 🗑️ Delete PR Images
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       packages: write # is needed by dataaxiom/ghcr-cleanup-action to delete images
     steps:
@@ -26,6 +31,7 @@ jobs:
   cleanup-cache:
     name: 🧹 Cleanup Cache
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       actions: write # is needed to delete workflow run caches
     steps:
