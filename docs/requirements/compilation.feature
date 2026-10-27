@@ -29,6 +29,13 @@ Feature: Compilation
       }
     # @sbdl-end
 
+    @flavor:cpp
+    Scenario: Compile valid source code into working software targeting the container host architecture
+      Given build configuration "gcc" is selected
+      And build preset "gcc" is selected
+      When the selected target is built
+      Then the output should contain "Build finished with exit code 0"
+
   Rule: Compile for ARM Cortex target architecture
     # @sbdl-begin
       req-comp-0002 is requirement {
@@ -42,13 +49,6 @@ Feature: Compilation
          micro-controllers based on the ARM Cortex architecture."
       }
     # @sbdl-end
-
-    @flavor:cpp
-    Scenario: Compile valid source code into working software targeting the container host architecture
-      Given build configuration "gcc" is selected
-      And build preset "gcc" is selected
-      When the selected target is built
-      Then the output should contain "Build finished with exit code 0"
 
   Rule: Compile for Microsoft® Windows operating system
     # @sbdl-begin
