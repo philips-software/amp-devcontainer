@@ -41,20 +41,18 @@ The authoritative source of change history is the [Git log](https://github.com/p
 
 # Traceability Matrix
 
-Tests are identified by their stable IDs. Full test descriptions are listed under the corresponding requirement in the *Software Verification Plan (SVP)*.
+Requirements and tests are identified by their stable IDs. Full requirement descriptions are listed in the *Software Requirements Specification (SRS)*. Full test descriptions are listed under the corresponding requirement in the *Software Verification Plan (SVP)*.
 
 {%- for id, item in sbdl.items() %}
 {%- if item.type == 'aspect' and 'custom:title' in item %}
 
 ## {{ utils.reencode(utils.strip_gherkin_prefix(item['custom:title'])) }}
 
-| Requirement | Test | Source | Traceability |
+| Requirement ID | Test ID | Source | Traceability |
 |-------------|------|--------|--------------|
 
 {%- if 'requirement' in item %}
 {%- for req_ref in item.requirement %}
-{%- set req = sbdl[req_ref.identifier] %}
-{%- set req_name = utils.reencode(utils.strip_gherkin_prefix(req['custom:title'])) | trim %}
 
 {%- set ns_tests = namespace(test_list=[]) -%}
 
@@ -70,10 +68,10 @@ Tests are identified by their stable IDs. Full test descriptions are listed unde
 
 {%- if ns_tests.test_list -%}
 {%- for test_id in ns_tests.test_list %}
-| {{ utils.display_short(req_name) }} | {{ test_id }} | {% if sbdl[test_id].reference is defined and sbdl[test_id].reference %}`{{ sbdl[test_id].reference }}`{% else %}Unavailable{% endif %} | Traced |
+| {{ req_ref.identifier }} | {{ test_id }} | {% if sbdl[test_id].reference is defined and sbdl[test_id].reference %}`{{ sbdl[test_id].reference }}`{% else %}Unavailable{% endif %} | Traced |
 {%- endfor -%}
 {%- else %}
-| {{ utils.display_short(req_name) }} | — | — | **Untraced** |
+| {{ req_ref.identifier }} | — | — | **Untraced** |
 {%- endif -%}
 
 {%- endfor %}
