@@ -26,7 +26,7 @@ footer-right: "\\thepage \\hspace{1pt} of \\pageref*{lastpage}"
 
 ## Purpose
 
-This document provides a requirements traceability matrix (RTM) for amp-devcontainer. It maps each requirement to its associated verification tests, providing evidence of test coverage across the system.
+This document provides a requirements traceability matrix (RTM) for amp-devcontainer. It maps each requirement to its declared verification tests and their source locations. A trace link does not establish that a test was executed or passed.
 
 ## Abstract
 
@@ -45,8 +45,8 @@ The authoritative source of change history is the [Git log](https://github.com/p
 
 ## {{ utils.reencode(utils.strip_gherkin_prefix(item['custom:title'])) }}
 
-| Requirement | Test | Status |
-|-------------|------|--------|
+| Requirement | Test | Source | Traceability |
+|-------------|------|--------|--------------|
 
 {%- if 'requirement' in item %}
 {%- for req_ref in item.requirement %}
@@ -68,10 +68,10 @@ The authoritative source of change history is the [Git log](https://github.com/p
 {%- if ns_tests.test_list -%}
 {%- for test_id in ns_tests.test_list %}
 {%- set test_name = utils.strip_bats_syntax(sbdl[test_id]['custom:title']) | trim %}
-| {{ utils.display_short(req_name) }} | {{ test_id }}: {{ utils.display_short(test_name) }} | Traced |
+| {{ utils.display_short(req_name) }} | {{ test_id }}: {{ utils.display_short(test_name) }} | {% if sbdl[test_id].reference is defined and sbdl[test_id].reference %}`{{ sbdl[test_id].reference }}`{% else %}Unavailable{% endif %} | Traced |
 {%- endfor -%}
 {%- else %}
-| {{ utils.display_short(req_name) }} | — | **Not covered** |
+| {{ utils.display_short(req_name) }} | — | — | **Untraced** |
 {%- endif -%}
 
 {%- endfor %}
@@ -79,7 +79,7 @@ The authoritative source of change history is the [Git log](https://github.com/p
 {%- endif %}
 {%- endfor %}
 
-# Coverage Summary
+# Declared Traceability Summary
 
 {%- set ns_summary = namespace(total_reqs=0, covered_reqs=0, total_tests=0) -%}
 
