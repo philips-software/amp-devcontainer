@@ -40,6 +40,9 @@ This document is generated from a formal model defined in [sbdl](https://sbdl.de
 The authoritative source of change history is the [Git log](https://github.com/philips-software/amp-devcontainer/commits/) of the source material from which the model is built.
 
 # Traceability Matrix
+
+Tests are identified by their stable IDs. Full test descriptions are listed under the corresponding requirement in the *Software Verification Plan (SVP)*.
+
 {%- for id, item in sbdl.items() %}
 {%- if item.type == 'aspect' and 'custom:title' in item %}
 
@@ -67,7 +70,7 @@ The authoritative source of change history is the [Git log](https://github.com/p
 
 {%- if ns_tests.test_list -%}
 {%- for test_id in ns_tests.test_list %}
-| {{ utils.display_short(req_name) }} | [{{ test_id }}](software-verification-plan.md#{{ req_ref.identifier }}-{{ test_id }}) | {% if sbdl[test_id].reference is defined and sbdl[test_id].reference %}`{{ sbdl[test_id].reference }}`{% else %}Unavailable{% endif %} | Traced |
+| {{ utils.display_short(req_name) }} | {{ test_id }} | {% if sbdl[test_id].reference is defined and sbdl[test_id].reference %}`{{ sbdl[test_id].reference }}`{% else %}Unavailable{% endif %} | Traced |
 {%- endfor -%}
 {%- else %}
 | {{ utils.display_short(req_name) }} | — | — | **Untraced** |
