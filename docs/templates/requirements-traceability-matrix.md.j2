@@ -67,8 +67,7 @@ The authoritative source of change history is the [Git log](https://github.com/p
 
 {%- if ns_tests.test_list -%}
 {%- for test_id in ns_tests.test_list %}
-{%- set test_name = utils.strip_bats_syntax(sbdl[test_id]['custom:title']) | trim %}
-| {{ utils.display_short(req_name) }} | {{ test_id }}: {{ utils.display_short(test_name) }} | {% if sbdl[test_id].reference is defined and sbdl[test_id].reference %}`{{ sbdl[test_id].reference }}`{% else %}Unavailable{% endif %} | Traced |
+| {{ utils.display_short(req_name) }} | [{{ test_id }}](software-verification-plan.md#{{ req_ref.identifier }}-{{ test_id }}) | {% if sbdl[test_id].reference is defined and sbdl[test_id].reference %}`{{ sbdl[test_id].reference }}`{% else %}Unavailable{% endif %} | Traced |
 {%- endfor -%}
 {%- else %}
 | {{ utils.display_short(req_name) }} | — | — | **Untraced** |
