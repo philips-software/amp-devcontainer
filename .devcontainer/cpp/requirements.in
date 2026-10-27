@@ -1,3 +1,6 @@
-cmake==4.4.3
-conan==2.32.0
+cmake==4.4.4
+conan==2.33.0
 gcovr==8.6
+
+# Constraints to address pip-audit findings on transitive dependencies
+certifi>=2026.10.19  # GHSA-6q48-6c7w-9gw2

@@ -36,42 +36,42 @@ prevent_github_at_mentions() {
 # Queries the marketplace for one extension's non-prerelease versions, retrying a few times
 # with backoff since this call has intermittently returned a non-JSON/empty response.
 query_marketplace() {
-    local NAME=${1:?}
-    local ATTEMPT ALL_VERSIONS_JSON
+    local name=${1:?}
+    local attempt all_versions_json
 
-    for ATTEMPT in 1 2 3; do
-        if ALL_VERSIONS_JSON=$("${VSCE_BIN:-vsce}" show --json "$NAME" | jq '[ .versions[] | select(.properties) | select(any(.properties[].key; contains("Microsoft.VisualStudio.Code.PreRelease")) | not) ]'); then
-            echo "$ALL_VERSIONS_JSON"
+    for attempt in 1 2 3; do
+        if all_versions_json=$("${VSCE_BIN:-vsce}" show --json "$name" | jq '[ .versions[] | select(.properties) | select(any(.properties[].key; contains("Microsoft.VisualStudio.Code.PreRelease")) | not) ]'); then
+            echo "$all_versions_json"
             return 0
         fi
-        echo "::warning::Attempt $ATTEMPT/3 to query the marketplace for $NAME failed" >&2
-        sleep $((ATTEMPT * 2))
+        echo "::warning::Attempt $attempt/3 to query the marketplace for $name failed" >&2
+        sleep $((attempt * 2))
     done
     return 1
 }
 
 get_github_releasenotes() {
-    local GITHUB_URL=${1:?}
-    local CURRENT_VERSION_DATE=${2:?}
-    local ADOPTED_VERSION_DATE=${3:?}
+    local github_url=${1:?}
+    local current_version_date=${2:?}
+    local adopted_version_date=${3:?}
 
     # Fetch releases between the current version's publish date and the adopted version's,
     # so notes for versions still stuck in cooldown aren't shown as if they were adopted
-    gh release list --exclude-drafts --exclude-pre-releases -R "$GITHUB_URL" \
+    gh release list --exclude-drafts --exclude-pre-releases -R "$github_url" \
         --json tagName,publishedAt \
-        --jq ".[] | select(.publishedAt > \"$CURRENT_VERSION_DATE\" and .publishedAt <= \"$ADOPTED_VERSION_DATE\") | .tagName" | \
+        --jq ".[] | select(.publishedAt > \"$current_version_date\" and .publishedAt <= \"$adopted_version_date\") | .tagName" | \
     while read -r TAG; do
-        printf "%s\n\n" "$(gh release view --json body --jq '.body' -R "$GITHUB_URL" "$TAG")"
+        printf "%s\n\n" "$(gh release view --json body --jq '.body' -R "$github_url" "$TAG")"
     done
 }
 
-# Resolves every pinned extension in $FILE to the latest version that is both non-prerelease and
+# Resolves every pinned extension in the input file to the latest version that is both non-prerelease and
 # past the cooldown period, rewrites the file, and appends a per-flavor markdown section to the
 # global summary so PR reviewers can trace which container each change applies to.
 process_file() {
-    local FILE=${1:?}
-    JSON=$(cat "$FILE")
-    FLAVOR=$(basename "$(dirname "$FILE")")
+    local file=${1:?}
+    JSON=$(cat "$file")
+    FLAVOR=$(basename "$(dirname "$file")")
     FILE_EXTENSIONS=
     FILE_UPDATE_DETAILS_MARKDOWN=
 
@@ -89,7 +89,7 @@ process_file() {
             if ! ALL_VERSIONS_JSON=$(query_marketplace "$NAME"); then
                 # A shell function invoked as the condition of `if` is exempt from `set -e`, so a
                 # failure here must be checked explicitly to correctly abort this file.
-                echo "::error::Failed to query the marketplace for $NAME, aborting $FILE"
+                echo "::error::Failed to query the marketplace for $NAME, aborting $file" >&2
                 return 1
             fi
             VERSION_CACHE["$NAME"]="$ALL_VERSIONS_JSON"
@@ -135,20 +135,20 @@ process_file() {
         FILE_EXTENSIONS="[]"
     fi
 
-    echo "$JSON" | jq '.customizations.vscode.extensions = $extensions' --argjson extensions "$FILE_EXTENSIONS" > "$FILE"
+    echo "$JSON" | jq '.customizations.vscode.extensions = $extensions' --argjson extensions "$FILE_EXTENSIONS" > "$file"
 
-    echo "::group::📄 Changes to $FILE"
-    git diff --color=always -- "$FILE" || true
+    echo "::group::📄 Changes to $file"
+    git diff --color=always -- "$file" || true
     echo "::endgroup::"
 
     if [[ -n "$FILE_UPDATE_DETAILS_MARKDOWN" ]]; then
-        UPDATE_DETAILS_MARKDOWN="${UPDATE_DETAILS_MARKDOWN}$(printf "### 🍨 %s — %s\n\n%s\n" "$FLAVOR" "$(basename "$FILE")" "$FILE_UPDATE_DETAILS_MARKDOWN")"
+        UPDATE_DETAILS_MARKDOWN="${UPDATE_DETAILS_MARKDOWN}$(printf "### 🍨 %s — %s\n\n%s\n" "$FLAVOR" "$(basename "$file")" "$FILE_UPDATE_DETAILS_MARKDOWN")"
     fi
 }
 
 for FILE in "$@"; do
     if ! process_file "$FILE"; then
-        echo "::error::Failed to update VS Code extensions in $FILE"
+        echo "::error::Failed to update VS Code extensions in $FILE" >&2
         FAILED_FILES+=("$FILE")
     fi
 done
@@ -166,6 +166,6 @@ if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
 fi
 
 if [[ ${#FAILED_FILES[@]} -gt 0 ]]; then
-    echo "::error::Failed to update VS Code extensions in: ${FAILED_FILES[*]}"
+    echo "::error::Failed to update VS Code extensions in: ${FAILED_FILES[*]}" >&2
     exit 1
 fi

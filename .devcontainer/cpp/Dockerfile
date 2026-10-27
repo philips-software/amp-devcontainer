@@ -8,7 +8,9 @@ ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06
 ARG CCACHE_VERSION=4.13.1
 ARG CPM_VERSION=0.43.1
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.26
-ARG XWIN_VERSION=0.8.0
+ARG LLVM_VERSION=22.1.2
+ARG LLVM_MAJOR_VERSION=22
+ARG XWIN_VERSION=0.10.0
 # Whether or not to build the embedded flavor of this container
 ARG BUILD_EMBEDDED_FLAVOR=false
 ARG ARM_GNU_TOOLCHAIN_VERSION=15.2.rel1
@@ -23,7 +25,7 @@ ADD --checksum=sha256:dd9fc188e738add3c12509063bb082b05e77a9a71fa85a20e01230044a
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz /ccache.tar.xz
 ADD --checksum=sha256:fdf00b1eadebf437e898ca3c0c94fd3e8d03b9e2bbe4f3d74ac6df2fecbf0a74 \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
-ADD --checksum=sha256:8a354e12475dd154d0a2d3084eefd2c105f872ec8062965baaa7e9f2f76fe611 \
+ADD --checksum=sha256:d870eb4b2f390878af6da1ccd3cf321d22fcb72720984853b4be732ae597fc88 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Downloader stage for ARM64 architecture
@@ -36,7 +38,7 @@ ADD --checksum=sha256:4cf4b05d9c381b3a60f1f10189f45ad9402bbc58979dbdc4901659c7f5
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz /ccache.tar.xz
 ADD --checksum=sha256:24b50ebf8ce5ec9e5e56af298ddb17699a46f0d9bb035d7c824500270a5cde74 \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
-ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c67368aeab \
+ADD --checksum=sha256:6d56d28537a86f37aa3d041318898f25ee3100c6b6ec332ad873c28faf37be23 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Select downloader stage based on target architecture.
@@ -46,6 +48,7 @@ FROM downloader-${TARGETARCH} AS downloader
 
 ARG CPM_VERSION
 ARG INCLUDE_WHAT_YOU_USE_VERSION
+ARG LLVM_VERSION
 
 ADD --checksum=sha256:8b2a587ffd672c4687e7581dad4b2f6c1bb2ad6b480cd9771ba2ff48e0b8c75d \
  https://apt.llvm.org/llvm-snapshot.gpg.key /llvm.gpg.key
@@ -55,9 +58,13 @@ ADD --checksum=sha256:1c40fc102ce9625d7de7eb14f541cab30cc3138dca627f0b0ec40293ce
  https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake /CPM.cmake
 ADD --checksum=sha256:ca3f157a5e6bf293cfb2fea585b103ec87245d02eaee0b6ab832665e740016eb \
   https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz /iwyu.tar.gz
+ADD --checksum=sha256:6550bcc308bf972f7f956001b73f6478da3d22f1ebd4b01653c978a6c7ff3698 \
+  https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/clang+llvm-${LLVM_VERSION}-x86_64-pc-windows-msvc.tar.xz /llvm-windows.tar.xz
 
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
+
+USER 0:0
 
 ARG CCACHE_MINISIGN_PUBKEY
 ARG CCACHE_VERSION
@@ -96,15 +103,21 @@ RUN --mount=from=downloader,target=/dl \
     tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)-glibc/ccache"
     tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
     tar xzf /dl/iwyu.tar.gz
+    tar xJf /dl/llvm-windows.tar.xz --strip-components=6 --wildcards '*/lib/clang/*/lib/windows/clang_rt.*'
     cp /dl/CPM.cmake /CPM.cmake
     cp /dl/llvm.gpg.key /llvm.gpg.key
     cp /dl/mull.gpg.key /mull.gpg.key
 EOF
 
+USER 1000:1000
+
 # Final development container image
 FROM ${BASE_IMAGE}
 
-ARG CLANG_VERSION=22
+USER 0:0
+
+ARG LLVM_VERSION
+ARG LLVM_MAJOR_VERSION
 ARG BUILD_EMBEDDED_FLAVOR
 ARG CCACHE_VERSION
 ARG INCLUDE_WHAT_YOU_USE_VERSION
@@ -116,13 +129,13 @@ ARG DEBIAN_FRONTEND=noninteractive
 HEALTHCHECK NONE
 
 # Set default environment options
-ENV CCACHE_DIR=/cache/.ccache \
+ENV CCACHE_DIR=/home/code/.cache/ccache \
     CMAKE_EXPORT_COMPILE_COMMANDS="On" \
     CMAKE_GENERATOR="Ninja" \
-    CONAN_HOME=/opt/conan \
-    CPM_SOURCE_CACHE=/cache/.cpm \
-    PATH="$PATH:/usr/lib/llvm-${CLANG_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
-    PYTHONPYCACHEPREFIX=/cache/.python
+    CONAN_HOME=/home/code/.conan2 \
+    CPM_SOURCE_CACHE=/home/code/.cache/cpm \
+    PATH="$PATH:/usr/lib/llvm-${LLVM_MAJOR_VERSION}/bin:/opt/gcc-arm-none-eabi/bin" \
+    PYTHONPYCACHEPREFIX=/home/code/.cache/python
 
 # The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
@@ -138,12 +151,14 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     --mount=type=cache,target=/var/log,sharing=locked \
     --mount=from=extractor,target=/src <<EOF
 
+    export PYTHONPYCACHEPREFIX=/cache/.python
+
     # Install the base system with all tool dependencies
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
         xargs apt-get install -y --no-install-recommends
 
     # Install some tools via pip to get more recent versions, clean up afterwards
-    python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt
+    python3 -m pip install --break-system-packages --require-hashes --only-binary :all: --no-cache-dir --no-compile -r /tmp/requirements.txt
     find / -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
     rm -rf "$(pip cache dir)"
 
@@ -156,11 +171,19 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     cat /src/mull.gpg.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg
 
     UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2)
-    #echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm-snapshot.list > /dev/null
+    #echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${LLVM_MAJOR_VERSION} main" | tee /etc/apt/sources.list.d/llvm-snapshot.list > /dev/null
     echo "deb [signed-by=/usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/mull-project/mull-stable/deb/ubuntu ${UBUNTU_CODENAME} main" | tee /etc/apt/sources.list.d/mull-project-mull-stable.list > /dev/null
     echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
         xargs apt-get install -y --no-install-recommends
+
+    # Install Windows (x86_64) LLVM/Clang runtime libraries to support fuzzing and sanitizers
+    CLANG_INSTALLED_VERSION=$(clang --version | grep -oP 'clang version \K[0-9]+\.[0-9]+\.[0-9]+')
+    if [ "${CLANG_INSTALLED_VERSION}" != "${LLVM_VERSION}" ]; then
+      echo "Clang ${CLANG_INSTALLED_VERSION} does not match LLVM_VERSION ${LLVM_VERSION}; update the Windows LLVM runtime" >&2
+      exit 1
+    fi
+    install -m 0644 -D -t "$(clang --print-resource-dir)/lib/windows" /src/clang_rt.*
 
     if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
         # Install dependencies
@@ -172,11 +195,11 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     fi
 
     # Install include-what-you-use (iwyu) from source
-    apt-get update && apt-get install -y --no-install-recommends "libclang-${CLANG_VERSION}-dev" "llvm-${CLANG_VERSION}-dev"
+    apt-get update && apt-get install -y --no-install-recommends "libclang-${LLVM_MAJOR_VERSION}-dev" "llvm-${LLVM_MAJOR_VERSION}-dev"
     CC=clang CXX=clang++ cmake -S "/src/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}" -B "/tmp/include-what-you-use/build"
     cmake --build "/tmp/include-what-you-use/build" --target install
     rm -rf "/tmp/include-what-you-use"
-    apt-get purge -y "libclang-${CLANG_VERSION}-dev" "llvm-${CLANG_VERSION}-dev"
+    apt-get purge -y "libclang-${LLVM_MAJOR_VERSION}-dev" "llvm-${LLVM_MAJOR_VERSION}-dev"
     apt-get autoremove -y
     apt-get clean
 
@@ -187,14 +210,16 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
                         --slave /usr/bin/c++ c++ /usr/bin/g++-15
     update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10
-    update-alternatives --install /usr/bin/mull-runner mull-runner "/usr/bin/mull-runner-${CLANG_VERSION}" 10 \
-                        --slave /usr/bin/mull-reporter mull-reporter "/usr/bin/mull-reporter-${CLANG_VERSION}" \
-                        --slave /usr/lib/mull-ir-frontend mull-ir-frontend "/usr/lib/mull-ir-frontend-${CLANG_VERSION}"
+    update-alternatives --install /usr/bin/mull-runner mull-runner "/usr/bin/mull-runner-${LLVM_MAJOR_VERSION}" 10 \
+                        --slave /usr/bin/mull-reporter mull-reporter "/usr/bin/mull-reporter-${LLVM_MAJOR_VERSION}" \
+                        --slave /usr/lib/mull-ir-frontend mull-ir-frontend "/usr/lib/mull-ir-frontend-${LLVM_MAJOR_VERSION}"
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
     # Add a dummy compile_commands.json file to the default location so that tools like SonarLint and Clangd can find it.
     # This file will be overwritten by CMake when a project is configured.
-    mkdir /root/.amp && echo '[]' > /root/.amp/compile_commands.json
+    install -d -m 0755 -o code -g code /home/code/.amp
+    echo '[]' > /home/code/.amp/compile_commands.json
+    chown code:code /home/code/.amp/compile_commands.json
 
     # Set up package managers CPM and Conan
     # - Install CPM.cmake to the CMake module path
@@ -204,9 +229,10 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     # CMake module (not an ELF binary), so it cannot carry a `.note.package` ELF
     # section and Syft has no cataloger for standalone `.cmake` files. Its version is
     # pinned and tracked via the CPM_VERSION build argument above.
-    cp /src/CPM.cmake /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/
+    install -m 0644 /src/CPM.cmake /usr/local/lib/python*/dist-packages/cmake/data/share/cmake-*/Modules/
     conan profile detect
     echo -e "\n[conf]\ntools.cmake.cmaketoolchain:generator=Ninja" >> "$(conan profile path default)"
+    chown -R code:code "${CONAN_HOME}"
 
     add-sbom-note ccache "${CCACHE_VERSION}" "pkg:generic/ccache@${CCACHE_VERSION}" \
         /usr/local/bin/ccache
@@ -224,3 +250,9 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
             /opt/gcc-arm-none-eabi/bin/arm-none-eabi-{gcc,g++,ld,objcopy,size}
     fi
 EOF
+
+# Create runtime directories outside the BuildKit cache mount so they persist in the image.
+RUN install -d -m 0755 -o code -g code /home/code/.cache /home/code/.cache/ccache /home/code/.cache/cpm /home/code/.cache/python /home/code/.winsdk \
+ && ln -s /home/code/.winsdk /winsdk
+
+USER 1000:1000

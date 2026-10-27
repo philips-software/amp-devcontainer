@@ -51,6 +51,14 @@ teardown() {
   assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
 }
 
+@test "python cache directory is writable by the code user" {
+  assert_equal "$(id -un)" code
+  run touch /home/code/.cache/.write-test /home/code/.cache/python/.write-test
+  assert_success
+
+  rm -f /home/code/.cache/.write-test /home/code/.cache/python/.write-test
+}
+
 ## This section contains tests for the functional correctness of the installed tools.
 
 # bats test_tags=Functional,Plantuml

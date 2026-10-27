@@ -1,5 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
-import path from 'path';
+import path from 'node:path';
 
 type CommandAndPrompt = {
   command: string,

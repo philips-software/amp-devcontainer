@@ -7,23 +7,30 @@ on:
     - cron: "30 2 * * 0"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
   update-apt-dependencies:
     name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} OS (🍨 ${{ matrix.flavor }})
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
         flavor: [base, cpp, docs, embedded-cpp, rust]
     # Using our own container is required since we need all package sources
     # set-up correctly.
-    container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge
+    container:
+      image: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge # zizmor: ignore[unpinned-images]
+      options: --user 0
     permissions:
       contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
     steps:
-      - uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -33,7 +40,7 @@ jobs:
         id: update-packages
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements*.json
-      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         id: token
         if: github.event_name != 'pull_request'
         with:
@@ -54,10 +61,11 @@ jobs:
   update-vscode-extensions:
     name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} Extensions
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
     steps:
-      - uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -91,7 +99,7 @@ jobs:
           } >> "${RUNNER_TEMP}/pull-request-body.md"
         env:
           MARKDOWN_SUMMARY_FILE: ${{ steps.update-extensions.outputs.markdown-summary-file }}
-      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         id: token
         if: github.event_name != 'pull_request'
         with:

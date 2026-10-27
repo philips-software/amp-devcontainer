@@ -5,16 +5,21 @@ on:
   pull_request:
     types: [closed]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
   delete-images:
     name: 🗑️ Delete PR Images
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       packages: write # is needed by dataaxiom/ghcr-cleanup-action to delete images
     steps:
-      - uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo: true
           egress-policy: audit
@@ -26,10 +31,11 @@ jobs:
   cleanup-cache:
     name: 🧹 Cleanup Cache
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       actions: write # is needed to delete workflow run caches
     steps:
-      - uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit

@@ -5,17 +5,22 @@ on:
   schedule:
     - cron: "30 1 * * *"
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
   close-issues:
     name: ♻️ Close Stale Issues & PRs
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       issues: write # is needed by actions/stale to close/comment on issues
       pull-requests: write # is needed by actions/stale to close/comment on PRs
     steps:
-      - uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
