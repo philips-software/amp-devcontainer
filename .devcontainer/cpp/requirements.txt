@@ -8,7 +8,7 @@ certifi==2026.10.19 \
     --hash=sha256:035c1e85572b141bf1c3a3eff0e33a8eb74917522f2559075ff8d2fea780a1ae \
     --hash=sha256:42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b
     # via
-    #   -r .devcontainer/cpp/requirements.in
+    #   -r cpp/requirements.in
     #   requests
 charset-normalizer==3.5.2 \
     --hash=sha256:01077390b03f7988f11d700a2194e69b119741a86b1a638b1db88891e3eced8e \
@@ -204,7 +204,7 @@ cmake==4.4.4 \
     --hash=sha256:ed50c732a82ac04f6e5606a0677ddfb49dda9ee130f9d4163c5df217e478417e \
     --hash=sha256:f337d18e33b116cabae9a7a8ff423fc0bc3f389da0acefeb724e1397128dcc34 \
     --hash=sha256:f773a0544c66370408f451acd487c2c643b0dfebb48c5d64f3638bc1bb820238
-    # via -r .devcontainer/cpp/requirements.in
+    # via -r cpp/requirements.in
 colorama==0.4.6 \
     --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
     --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
@@ -216,7 +216,7 @@ colorlog==6.12.0 \
 conan==2.33.0 \
     --hash=sha256:2e0f890b736d42049f40ef5b96225bac5866cd71a504ca3eca620b25d8333a72 \
     --hash=sha256:42da05f6cd12e0404d38463b2fa1f6ae3f809700fbbf8b704d0c597f0175ae87
-    # via -r .devcontainer/cpp/requirements.in
+    # via -r cpp/requirements.in
 distro==1.9.0 \
     --hash=sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed \
     --hash=sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2
@@ -225,10 +225,10 @@ fasteners==0.20 \
     --hash=sha256:55dce8792a41b56f727ba6e123fcaee77fd87e638a6863cec00007bfea84c8d8 \
     --hash=sha256:9422c40d1e350e4259f509fb2e608d6bc43c0136f79a00db1b49046029d0b3b7
     # via conan
-gcovr==8.6 \
-    --hash=sha256:b2e7042abca9321cadbab8a06eb34d19f801b831557b28cdc30a029313de8b9e \
-    --hash=sha256:dbf9d87c38042752ad6f530aa8210427e22b526611bb7b7bfed0e81977d1f1ef
-    # via -r .devcontainer/cpp/requirements.in
+gcovr==8.7 \
+    --hash=sha256:2a68612c5981c388537f2e236c231a5d788b8bd9e406d13ced662c97b17e9784 \
+    --hash=sha256:cfb9b2c373cc5be4b1cbe53250a5e4446fe6d4723c6900d3f41aa83540c8ddc8
+    # via -r cpp/requirements.in
 idna==3.20 \
     --hash=sha256:a7db850025b95ded1eae8a46181a1a6c56c92c96f0e2b005d9ff8dc0210cab44 \
     --hash=sha256:ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c
