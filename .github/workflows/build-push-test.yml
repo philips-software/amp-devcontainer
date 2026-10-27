@@ -63,6 +63,7 @@ jobs:
     permissions: *build-push-test-permissions
     with:
       acceptance-test-path: ${{ (github.actor != 'dependabot[bot]' && matrix.flavor == 'cpp') && 'test/cpp/features' || '' }}
+      acceptance-test-tag: '@flavor:${{ matrix.flavor }}'
       acceptance-test-devcontainer-file: .devcontainer/${{ matrix.flavor }}-test/devcontainer.json
       base-image: ${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
       build-args: |

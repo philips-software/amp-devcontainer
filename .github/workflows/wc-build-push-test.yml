@@ -12,6 +12,10 @@ on:
         description: Path to the Playwright acceptance tests (directory that contains playwright.config.ts).
         required: false
         type: string
+      acceptance-test-tag:
+        description: Playwright-BDD tag expression used to select acceptance scenarios.
+        required: false
+        type: string
       base-image:
         description: >-
           Reference of the image this build is based on (the image the Dockerfile builds FROM).
@@ -197,3 +201,4 @@ jobs:
       image-basename: ${{ needs.build-push.outputs.image-basename }}
       devcontainer-file: ${{ inputs.acceptance-test-devcontainer-file }}
       acceptance-test-path: ${{ inputs.acceptance-test-path }}
+      acceptance-test-tag: ${{ inputs.acceptance-test-tag }}
