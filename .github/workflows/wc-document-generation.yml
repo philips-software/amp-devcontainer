@@ -27,7 +27,14 @@ jobs:
         with:
           persist-credentials: false
       - name: Build & Validate SBDL model
-        run: sbdl -m compile -r . > amp-devcontainer.sbdl
+        run: |
+          sbdl -m compile -r \
+            test/cpp \
+            test/embedded-cpp \
+            test/rust/integration-tests.bats \
+            .github/workflows/wc-build-push-test.yml \
+            .github/workflows/wc-build-push.yml \
+            > amp-devcontainer.sbdl
       - name: Create document control context
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}
