@@ -4,6 +4,7 @@
   "cargo-mutants",
   "flip-link",
   "g++-15",
+  "gdb-multiarch",
   "probe-rs-tools",
   "rust",
   "rustup"

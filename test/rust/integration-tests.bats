@@ -34,6 +34,25 @@ teardown() {
   assert_output "Hello, world!"
 }
 
+@test "gdb-multiarch should set a breakpoint and inspect a Rust variable" {
+  # @sbdl test-debug-0002 is test { custom:title is [[[[@-LINE]]]]; requirement is req-debug-0001 }
+  rustc -g -C opt-level=0 --out-dir build rust/debug.rs
+
+  run gdb-multiarch --batch -ex "break main" -ex run -ex next -ex "print value" -ex continue --args build/debug
+  assert_success
+  assert_output --partial "42"
+}
+
+@test "rust-gdb should pretty-print Rust collection types" {
+  # @sbdl test-debug-0003 is test { custom:title is [[[[@-LINE]]]]; requirement is req-debug-0001 }
+  rustc -g -C opt-level=0 --out-dir build rust/pretty-print.rs
+
+  run rust-gdb --batch -ex "break main" -ex run -ex next -ex "print values" -ex continue --args build/pretty-print
+  assert_success
+  assert_output --partial "Vec(size=3)"
+  assert_output --partial "{17, 29, 43}"
+}
+
 @test "using cargo run should result in working executable" {
   # @sbdl test-comp-0009 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   pushd cargo

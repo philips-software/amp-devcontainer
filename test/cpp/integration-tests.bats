@@ -95,6 +95,16 @@ teardown() {
   assert_output "Hello World!"
 }
 
+@test "gdb-multiarch should set a breakpoint and inspect a C++ variable" {
+  # @sbdl test-debug-0001 is test { custom:title is [[[[@-LINE]]]]; requirement is req-debug-0001 }
+  cmake --preset gcc
+  cmake --build --preset gcc
+
+  run gdb-multiarch --batch -ex "break main" -ex run -ex next -ex "print value" -ex continue --args build/gcc/gcc/test-debug
+  assert_success
+  assert_output --partial '$1 = 42'
+}
+
 @test "valid code input should result in a Windows executable using the clang-cl driver" {
   # @sbdl test-comp-0003 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0003 }
   cmake --preset clang-cl

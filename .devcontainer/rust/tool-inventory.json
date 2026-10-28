@@ -3,6 +3,7 @@
   "cargo-binutils",
   "cargo-mutants",
   "g++-15",
+  "gdb-multiarch",
   "rust",
   "rustup"
 ]

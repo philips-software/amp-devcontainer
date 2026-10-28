@@ -1,3 +1,5 @@
+add_executable(test-debug EXCLUDE_FROM_ALL debug.cpp)
+target_compile_options(test-debug PRIVATE -O0 -g)
 add_executable(test-gcc EXCLUDE_FROM_ALL main.cpp)
 add_executable(test-gcc-fail EXCLUDE_FROM_ALL main-fail.cpp)
 add_executable(test-gcc-lld EXCLUDE_FROM_ALL main.cpp)
