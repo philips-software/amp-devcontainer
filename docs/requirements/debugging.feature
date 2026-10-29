@@ -26,5 +26,10 @@ Feature: Debugging
          code flow, and ensuring the correctness of software. By having integrated debugging tools,
          developers can streamline their workflow and reduce the time spent on troubleshooting and
          fixing bugs."
+        custom:verification-type is "Test"
+        custom:verification-rationale is
+        "The C++ and Rust integration suites compile debug-symbol-enabled programs, set a breakpoint,
+         inspect a variable, and continue execution using the debugger available in each language
+         flavor. Embedded flavors are verified without claiming hardware-attached debugging."
       }
     # @sbdl-end
