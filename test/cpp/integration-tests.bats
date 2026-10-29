@@ -98,9 +98,9 @@ teardown() {
 @test "gdb-multiarch should set a breakpoint and inspect a C++ variable" {
   # @sbdl test-debug-0001 is test { custom:title is [[[[@-LINE]]]]; requirement is req-debug-0001 }
   cmake --preset gcc
-  cmake --build --preset gcc
+  cmake --build --preset gcc-debug
 
-  run gdb-multiarch --batch -ex "break main" -ex run -ex next -ex "print value" -ex continue --args build/gcc/gcc/test-debug
+  run gdb-multiarch --batch -ex "break main" -ex run -ex next -ex "print value" -ex continue --args build/gcc/gcc/test-gcc-debug
   assert_success
   assert_output --partial '$1 = 42'
 }
