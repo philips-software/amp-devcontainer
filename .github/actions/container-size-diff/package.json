@@ -1,0 +1,10 @@
+{
+  "name": "container-size-diff",
+  "private": true,
+  "dependencies": {
+    "execa": "^9.6.0",
+    "filesize": "^11.0.2",
+    "lodash": "^4.0.0",
+    "markdown-table": "^3.0.4"
+  }
+}
