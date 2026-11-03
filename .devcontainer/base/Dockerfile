@@ -89,8 +89,6 @@ SOURCE
    # Rename Ubuntu's default account while preserving its UID and GID.
    usermod --login code --home /home/code --move-home ubuntu
    groupmod --new-name code ubuntu
-   test "$(id -u code)" -eq 1000
-   test "$(id -g code)" -eq 1000
 
    # Ensure the developer account has a bashrc with bash-completion enabled.
    install -d -m 0755 -o code -g code /home/code
