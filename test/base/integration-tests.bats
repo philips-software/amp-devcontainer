@@ -13,7 +13,7 @@ setup() {
   assert_output --partial "OK"
 }
 
-@test "default developer account is code with UID and GID 1000" {
+@test "default developer account is `code` with UID and GID 1000" {
   run id -u code
   assert_success
   assert_output "1000"
@@ -41,8 +41,15 @@ setup() {
 }
 
 # bats test_tags=Compatibility,Version
+@test "GitHub CLI is installed and reports its version" {
+  run gh --version
+  assert_success
+  assert_output --regexp '^gh version [0-9]+\.[0-9]+\.[0-9]+'
+}
+
+# bats test_tags=Compatibility,Version
 @test "apt packages are installed at their pinned versions" {
-  APT_REQUIREMENTS="${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements.json"
+  APT_REQUIREMENTS="${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements-base.json"
 
   while IFS="=" read -r PACKAGE EXPECTED_VERSION; do
     run dpkg-query -W -f='${Version}' "${PACKAGE}"
