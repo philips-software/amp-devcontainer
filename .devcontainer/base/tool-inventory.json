@@ -1,1 +1,9 @@
-["bats", "bats-assert", "bats-support", "git", "gnupg2", "wget"]
+[
+    "bats",
+    "bats-assert",
+    "bats-support",
+    "gh",
+    "git",
+    "gnupg2",
+    "wget"
+]
