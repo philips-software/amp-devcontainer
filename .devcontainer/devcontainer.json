@@ -1,3 +1,4 @@
 {
+  "containerUser": "code",
   "image": "ghcr.io/philips-software/amp-devcontainer-base"
 }

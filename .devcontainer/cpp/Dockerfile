@@ -64,7 +64,7 @@ ADD --checksum=sha256:6550bcc308bf972f7f956001b73f6478da3d22f1ebd4b01653c978a6c7
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
 
-USER 0:0
+USER 0
 
 ARG CCACHE_MINISIGN_PUBKEY
 ARG CCACHE_VERSION
@@ -109,12 +109,12 @@ RUN --mount=from=downloader,target=/dl \
     cp /dl/mull.gpg.key /mull.gpg.key
 EOF
 
-USER 1000:1000
+USER 1000
 
 # Final development container image
 FROM ${BASE_IMAGE}
 
-USER 0:0
+USER 0
 
 ARG LLVM_VERSION
 ARG LLVM_MAJOR_VERSION
@@ -255,4 +255,4 @@ EOF
 RUN install -d -m 0755 -o code -g code /home/code/.cache /home/code/.cache/ccache /home/code/.cache/cpm /home/code/.cache/python /home/code/.winsdk \
  && ln -s /home/code/.winsdk /winsdk
 
-USER 1000:1000
+USER 1000
