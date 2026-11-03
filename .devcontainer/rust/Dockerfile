@@ -35,7 +35,7 @@ FROM downloader-${TARGETARCH} AS downloader
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
 
-USER 0:0
+USER 0
 
 ARG CARGO_BINSTALL_VERSION
 ARG CARGO_BINSTALL_MINISIGN_PUBKEY
@@ -55,12 +55,12 @@ RUN --mount=from=downloader,target=/dl \
     tar xzf /dl/cargo-binstall.tgz
 EOF
 
-USER 1000:1000
+USER 1000
 
 # Final development container image
 FROM ${BASE_IMAGE}
 
-USER 0:0
+USER 0
 
 ARG CARGO_BINSTALL_VERSION
 ARG CARGO_BINUTILS_VERSION=0.3.6
@@ -138,4 +138,4 @@ RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tm
     fi
 EOF
 
-USER 1000:1000
+USER 1000
