@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: philips-software/amp-devcontainer/.github/actions/update-apt-packages@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
+      - uses: philips-software/amp-devcontainer/.github/actions/update-apt-packages@dce97e0513ae0b18ef9504ca03ff9b813bfe8dee # actions/v2.0.0
         id: update-packages
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements*.json
