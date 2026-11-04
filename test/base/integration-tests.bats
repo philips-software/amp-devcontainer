@@ -5,6 +5,7 @@ bats_require_minimum_version 1.5.0
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
+  load '../versions'
 }
 
 @test "cisco umbrella root certificate is included in system certificate store" {
@@ -49,38 +50,12 @@ setup() {
 
 # bats test_tags=Compatibility,Version
 @test "apt packages are installed at their pinned versions" {
-  APT_REQUIREMENTS="${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements-base.json"
-
-  while IFS="=" read -r PACKAGE EXPECTED_VERSION; do
-    run dpkg-query -W -f='${Version}' "${PACKAGE}"
-    assert_success
-    assert_equal "${output}" "${EXPECTED_VERSION}"
-  done < <(jq -r 'to_entries[] | .key + "=" + .value' "${APT_REQUIREMENTS}")
+  assert_apt_packages_at_pinned_versions
 }
 
 # bats test_tags=Sbom
 @test "tools listed in the inventory are present in the image" {
-  TOOL_INVENTORY="${BATS_TEST_DIRNAME}/../../.devcontainer/base/tool-inventory.json"
-
-  run jq -r '.[]' "${TOOL_INVENTORY}"
-  assert_success
-
-  while IFS= read -r TOOL; do
-    case "${TOOL}" in
-      bats-support | bats-assert)
-        assert [ -f "/usr/local/${TOOL}/load.bash" ]
-        ;;
-      gnupg2)
-        # The gnupg2 package provides the gpg command
-        run command -v gpg
-        assert_success
-        ;;
-      *)
-        run command -v "${TOOL}"
-        assert_success
-        ;;
-    esac
-  done <<< "${output}"
+  assert_inventory_tools_available
 }
 
 # bats test_tags=Compatibility

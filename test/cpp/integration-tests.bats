@@ -9,6 +9,7 @@ setup_file() {
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
+  load '../versions'
 
   pushd ${BATS_TEST_DIRNAME}/workspace
 }
@@ -24,13 +25,23 @@ teardown() {
 #  that the tools are compatible with each other. E.g. that the host and embedded toolchains
 #  are aligned in terms of major and minor versions.
 
+# bats test_tags=Compatibility,Version
+@test "apt packages are installed at their pinned versions" {
+  assert_apt_packages_at_pinned_versions
+}
+
+# bats test_tags=Sbom
+@test "tools listed in the inventory are present in the image" {
+  assert_inventory_tools_available
+}
+
 # bats test_tags=Compatibility,Version,Clang
 @test "clang toolchain versions should be aligned with expected versions" {
   EXPECTED_VERSION=$(get_expected_semver_for clang)
 
   for TOOL in clang clang++ clang-cl clang-format clang-tidy; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
-    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
+    assert_tool_version "${TOOL}" "${INSTALLED_VERSION}" "${EXPECTED_VERSION}"
   done
 }
 
@@ -40,7 +51,7 @@ teardown() {
 
   for TOOL in cc gcc c++ g++ gcov; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
-    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+    assert_tool_version "${TOOL}" "${INSTALLED_VERSION}" "${EXPECTED_VERSION}"
   done
 }
 
@@ -50,21 +61,21 @@ teardown() {
     EXPECTED_VERSION=$(get_expected_version_for ${TOOL})
     INSTALLED_VERSION=$(${TOOL} --version | grep -o '[0-9]\+\.[0-9]\+' | head -n1)
 
-    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+    assert_tool_version "${TOOL}" "${INSTALLED_VERSION}" "${EXPECTED_VERSION}"
   done
 
   for TOOL in git ninja; do
     EXPECTED_VERSION=$(get_expected_semver_for ${TOOL})
     INSTALLED_VERSION=$(${TOOL} --version | to_semver)
 
-    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+    assert_tool_version "${TOOL}" "${INSTALLED_VERSION}" "${EXPECTED_VERSION}"
   done
 
   for TOOL in cmake conan; do
     EXPECTED_VERSION=$(cat ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/requirements.in | grep ${TOOL} | to_semver)
     INSTALLED_VERSION=$(${TOOL} --version | to_semver)
 
-    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+    assert_tool_version "${TOOL}" "${INSTALLED_VERSION}" "${EXPECTED_VERSION}"
   done
 }
 
@@ -352,26 +363,6 @@ function assert_windows_fuzzing_executable() {
   assert_windows_executable build/${PRESET}/fuzzing/test-fuzzing.exe
   assert_imports build/${PRESET}/fuzzing/test-fuzzing.exe clang_rt.asan_dynamic-x86_64.dll
   assert_contains build/${PRESET}/fuzzing/test-fuzzing.exe libFuzzer
-}
-
-function to_semver() {
-  grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1
-}
-
-function get_expected_version_for() {
-  local TOOL=${1:?}
-
-  jq -sr ".[0] * .[1] * .[2] * .[3] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
-    ${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements-base.json \
-    ${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements-gh.json \
-    ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-base.json \
-    ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-clang.json
-}
-
-function get_expected_semver_for() {
-  local TOOL=${1:?}
-
-  get_expected_version_for ${TOOL} | to_semver
 }
 
 function install_win_sdk() {

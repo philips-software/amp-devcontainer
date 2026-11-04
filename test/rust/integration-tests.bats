@@ -5,6 +5,7 @@ bats_require_minimum_version 1.5.0
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
+  load '../versions'
 
   pushd ${BATS_TEST_DIRNAME}/workspace
 }
@@ -13,6 +14,16 @@ teardown() {
   rm -rf build ./**/target ./**/default*.prof* ./**/mutants.out
 
   popd
+}
+
+# bats test_tags=Compatibility,Version
+@test "apt packages are installed at their pinned versions" {
+  assert_apt_packages_at_pinned_versions
+}
+
+# bats test_tags=Sbom
+@test "tools listed in the inventory are present in the image" {
+  assert_inventory_tools_available
 }
 
 @test "Rust toolchain directories are writable by the code user" {
