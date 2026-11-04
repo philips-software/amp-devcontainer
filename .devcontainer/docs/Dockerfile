@@ -3,7 +3,7 @@
 ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 FROM ${BASE_IMAGE}
 
-USER 0:0
+USER 0
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -41,4 +41,4 @@ EOF
 # Create runtime directories outside the BuildKit cache mount so they persist in the image.
 RUN install -d -m 0755 -o code -g code /home/code/.cache /home/code/.cache/python
 
-USER 1000:1000
+USER 1000
