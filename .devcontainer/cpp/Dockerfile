@@ -10,6 +10,7 @@ ARG CPM_VERSION=0.43.1
 ARG INCLUDE_WHAT_YOU_USE_VERSION=0.26
 ARG LLVM_VERSION=22.1.2
 ARG LLVM_MAJOR_VERSION=22
+ARG MULL_VERSION=0.37.0
 ARG XWIN_VERSION=0.10.0
 # Whether or not to build the embedded flavor of this container
 ARG BUILD_EMBEDDED_FLAVOR=false
@@ -118,6 +119,7 @@ ARG LLVM_MAJOR_VERSION
 ARG BUILD_EMBEDDED_FLAVOR
 ARG CCACHE_VERSION
 ARG INCLUDE_WHAT_YOU_USE_VERSION
+ARG MULL_VERSION
 ARG XWIN_VERSION
 ARG ARM_GNU_TOOLCHAIN_VERSION
 
@@ -174,8 +176,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
 
     UBUNTU_VERSION_ID=$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
     gh release download --repo mull-project/mull \
-        --pattern "Mull-[0-9].[0-9]*-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb" \
-        --pattern "Mull-${LLVM_MAJOR_VERSION}-*-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
+        --pattern "Mull-${MULL_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb" \
+        --pattern "Mull-${LLVM_MAJOR_VERSION}-${MULL_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
     apt-get install -y --no-install-recommends ./Mull-*.deb
     rm -f ./Mull-*.deb
 
