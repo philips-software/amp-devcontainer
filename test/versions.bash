@@ -3,29 +3,29 @@ function to_semver() {
 }
 
 function read_apt_requirements() {
-  local ROOT="${BATS_TEST_DIRNAME}/../../.devcontainer"
-  local FLAVOR
-  local FILES=()
-  local FLAVOR_FILES
+  local root="${BATS_TEST_DIRNAME}/../../.devcontainer"
+  local flavor
+  local files=()
+  local flavor_files
 
-  for FLAVOR in "$@"; do
-    FLAVOR_FILES=("${ROOT}/${FLAVOR}"/apt-requirements*.json)
-    if [[ ! -f "${FLAVOR_FILES[0]}" ]]; then
-      echo "No apt requirements found for flavor '${FLAVOR}' in ${ROOT}" >&2
+  for flavor in "$@"; do
+    flavor_files=("${root}/${flavor}"/apt-requirements*.json)
+    if [[ ! -f "${flavor_files[0]}" ]]; then
+      echo "No apt requirements found for flavor '${flavor}' in ${root}" >&2
       return 1
     fi
-    FILES+=("${FLAVOR_FILES[@]}")
+    files+=("${flavor_files[@]}")
   done
 
-  jq -s 'reduce .[] as $requirements ({}; . * $requirements)' "${FILES[@]}"
+  jq -s 'reduce .[] as $requirements ({}; . * $requirements)' "${files[@]}"
 }
 
 function get_expected_version_for() {
-  local TOOL=${1:?}
-  local REQUIREMENTS
+  local tool=${1:?}
+  local requirements
 
-  REQUIREMENTS=$(read_flavor_apt_requirements) || return
-  jq -er --arg tool "${TOOL}" '
+  requirements=$(read_flavor_apt_requirements) || return
+  jq -er --arg tool "${tool}" '
     to_entries | map(
       select(.key == $tool or (.key | startswith($tool + "-"))) |
       .value | sub("-.*"; "")
@@ -34,38 +34,38 @@ function get_expected_version_for() {
     elif length == 0 then error("No apt version found for " + $tool)
     else error("Ambiguous apt versions for " + $tool)
     end
-  ' <<< "${REQUIREMENTS}"
+  ' <<< "${requirements}"
 }
 
 function read_flavor_apt_requirements() {
-  local FLAVOR="${BATS_TEST_DIRNAME##*/}"
-  local FLAVORS=(base)
+  local flavor="${BATS_TEST_DIRNAME##*/}"
+  local flavors=(base)
 
-  case "${FLAVOR}" in
+  case "${flavor}" in
     base) ;;
-    embedded-cpp) FLAVORS+=(cpp embedded-cpp) ;;
-    embedded-rust) FLAVORS+=(rust) ;;
-    *) FLAVORS+=("${FLAVOR}") ;;
+    embedded-cpp) flavors+=(cpp embedded-cpp) ;;
+    embedded-rust) flavors+=(rust) ;;
+    *) flavors+=("${flavor}") ;;
   esac
-  read_apt_requirements "${FLAVORS[@]}"
+  read_apt_requirements "${flavors[@]}"
 }
 
 function get_expected_semver_for() {
-  local VERSION
-  VERSION=$(get_expected_version_for "${1:?}") || return
-  to_semver <<< "${VERSION}"
+  local version
+  version=$(get_expected_version_for "${1:?}") || return
+  to_semver <<< "${version}"
 }
 
 function assert_tool_version() {
-  local TOOL=${1:?}
-  local ACTUAL=${2-}
-  local EXPECTED=${3-}
+  local tool=${1:?}
+  local actual=${2-}
+  local expected=${3-}
 
-  if [[ "${ACTUAL}" != "${EXPECTED}" ]]; then
+  if [[ "${actual}" != "${expected}" ]]; then
     batslib_print_kv_single_or_multi 8 \
-      'tool' "${TOOL}" \
-      'expected' "${EXPECTED}" \
-      'actual' "${ACTUAL}" \
+      'tool' "${tool}" \
+      'expected' "${expected}" \
+      'actual' "${actual}" \
       | batslib_decorate 'tool version does not match' \
       | fail
   fi
@@ -74,33 +74,33 @@ function assert_tool_version() {
 # Assert that the actual version of a tool matches the expected version
 # failing with a decorated diagnostic if the versions do not match.
 function assert_apt_packages_at_pinned_versions() {
-  local REQUIREMENTS
-  local PACKAGES
-  local PACKAGE
-  local EXPECTED_VERSION
+  local requirements
+  local packages
+  local package
+  local expected_version
 
   run read_flavor_apt_requirements
   assert_success || return
-  REQUIREMENTS="${output}"
+  requirements="${output}"
 
-  run jq -r 'to_entries[] | .key + "=" + .value' <<< "${REQUIREMENTS}"
+  run jq -r 'to_entries[] | .key + "=" + .value' <<< "${requirements}"
   assert_success || return
-  PACKAGES="${output}"
+  packages="${output}"
 
-  while IFS="=" read -r PACKAGE EXPECTED_VERSION; do
-    run dpkg-query -W -f='${Version}' "${PACKAGE}"
+  while IFS="=" read -r package expected_version; do
+    run dpkg-query -W -f='${Version}' "${package}"
     assert_success || return
-    assert_tool_version "${PACKAGE}" "${output}" "${EXPECTED_VERSION}" || return
-  done <<< "${PACKAGES}"
+    assert_tool_version "${package}" "${output}" "${expected_version}" || return
+  done <<< "${packages}"
 }
 
 # Assert that every command passed as an argument is available on the PATH,
 # failing with a decorated diagnostic on the first one that cannot be found.
 function assert_commands_available() {
-  local CMD
-  for CMD in "$@"; do
-    if ! command -v "${CMD}" > /dev/null 2>&1; then
-      batslib_print_kv_single 7 'command' "${CMD}" \
+  local cmd
+  for cmd in "$@"; do
+    if ! command -v "${cmd}" > /dev/null 2>&1; then
+      batslib_print_kv_single 7 'command' "${cmd}" \
         | batslib_decorate 'command not found on PATH' \
         | fail
       return 1
@@ -109,14 +109,14 @@ function assert_commands_available() {
 }
 
 function assert_inventory_tools_available() {
-  local PACKAGE KIND TOOL
-  local TOOLS
-  local ROOT="${BATS_TEST_DIRNAME}/../../.devcontainer"
-  local FLAVOR="${BATS_TEST_DIRNAME##*/}"
+  local package kind tool
+  local tools
+  local root="${BATS_TEST_DIRNAME}/../../.devcontainer"
+  local flavor="${BATS_TEST_DIRNAME##*/}"
 
-  local INVENTORIES=("${ROOT}/base/tool-inventory.json")
-  if [[ "${FLAVOR}" != "base" ]]; then
-    INVENTORIES+=("${ROOT}/${FLAVOR}/tool-inventory.json")
+  local inventories=("${root}/base/tool-inventory.json")
+  if [[ "${flavor}" != "base" ]]; then
+    inventories+=("${root}/${flavor}/tool-inventory.json")
   fi
   run jq -r '
     def paths: type == "array" and all(.[]; type == "string" and length > 0 and (test("[\\t\\r\\n]") | not));
@@ -132,19 +132,19 @@ function assert_inventory_tools_available() {
         ((.files // [])[] | [$package, "file", .]) | @tsv
       end
     end
-  ' "${INVENTORIES[@]}"
+  ' "${inventories[@]}"
   assert_success || return
-  TOOLS="${output}"
+  tools="${output}"
 
-  while IFS=$'\t' read -r PACKAGE KIND TOOL; do
-    [[ -n "${PACKAGE}" ]] || continue
-    if [[ "${KIND}" == "command" ]]; then
-      assert_commands_available "${TOOL}" || return
-    elif [[ ! -f "${TOOL}" ]]; then
-      batslib_print_kv_single_or_multi 7 'package' "${PACKAGE}" 'file' "${TOOL}" \
+  while IFS=$'\t' read -r package kind tool; do
+    [[ -n "${package}" ]] || continue
+    if [[ "${kind}" == "command" ]]; then
+      assert_commands_available "${tool}" || return
+    elif [[ ! -f "${tool}" ]]; then
+      batslib_print_kv_single_or_multi 7 'package' "${package}" 'file' "${tool}" \
         | batslib_decorate 'inventory file not found' \
         | fail
       return 1
     fi
-  done <<< "${TOOLS}"
+  done <<< "${tools}"
 }
