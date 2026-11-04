@@ -166,7 +166,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     # Install clang toolchain and mull mutation testing framework
     cat /src/llvm.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg
 
-    UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2)
+    #UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2)
     #echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${LLVM_MAJOR_VERSION} main" | tee /etc/apt/sources.list.d/llvm-snapshot.list > /dev/null
     echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
