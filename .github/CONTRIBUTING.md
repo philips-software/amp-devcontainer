@@ -146,6 +146,13 @@ Before you submit your pull request consider the following guidelines:
 
 1. Ensure that all tests pass.
 
+   Each flavor's `tool-inventory.json` identifies the key tools it promises to
+   provide. Integration tests check that these tools are available, and release
+   notes list them with versions taken from the image's Software Bill of
+   Materials (SBOM). When adding, removing, or renaming a tool, update the
+   inventories for all affected flavors so the tests and release notes stay
+   aligned.
+
 1. Commit your changes using a descriptive commit message.
 
    ```shell

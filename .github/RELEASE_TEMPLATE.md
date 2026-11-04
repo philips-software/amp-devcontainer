@@ -19,7 +19,7 @@
 
 #### :hammer_and_wrench: Included tools
 
-The tables below list the most relevant tools per flavor and their versions, as recorded in the image's Software Bill of Materials (SBOM).
+The tables below list the most relevant packages per flavor, their versions from the image's Software Bill of Materials (SBOM), and the commands or library files checked by the integration tests.
 
 <details>
 <summary>amp-devcontainer-base</summary>

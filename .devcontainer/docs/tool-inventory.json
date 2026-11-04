@@ -1,1 +1,5 @@
-["graphviz", "plantuml", "sbdl"]
+{
+  "graphviz": { "commands": ["dot"] },
+  "plantuml": {},
+  "sbdl": {}
+}

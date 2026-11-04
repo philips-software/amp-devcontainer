@@ -109,7 +109,7 @@ function assert_commands_available() {
 }
 
 function assert_inventory_tools_available() {
-  local TOOL
+  local PACKAGE KIND TOOL
   local TOOLS
   local ROOT="${BATS_TEST_DIRNAME}/../../.devcontainer"
   local FLAVOR="${BATS_TEST_DIRNAME##*/}"
@@ -118,38 +118,33 @@ function assert_inventory_tools_available() {
   if [[ "${FLAVOR}" != "base" ]]; then
     INVENTORIES+=("${ROOT}/${FLAVOR}/tool-inventory.json")
   fi
-  run jq -r '.[]' "${INVENTORIES[@]}"
+  run jq -r '
+    def paths: type == "array" and all(.[]; type == "string" and length > 0 and (test("[\\t\\r\\n]") | not));
+    if type != "object" then error("Tool inventory must be a package mapping")
+    else to_entries[] |
+      if (.value | type != "object") then error("Invalid inventory entry for " + .key)
+      elif (.value | keys - ["commands", "files"] | length > 0)
+        or (.value | all(.[]; paths) | not)
+        or (.value != {} and ((.value.commands // []) + (.value.files // []) | length == 0))
+      then error("Invalid commands/files for " + .key)
+      else .key as $package | (if .value == {} then {commands: [$package]} else .value end) |
+        ((.commands // [])[] | [$package, "command", .]),
+        ((.files // [])[] | [$package, "file", .]) | @tsv
+      end
+    end
+  ' "${INVENTORIES[@]}"
   assert_success || return
   TOOLS="${output}"
 
-  while IFS= read -r TOOL; do
-    case "${TOOL}" in
-      bats-support | bats-assert)
-        assert [ -f "/usr/local/${TOOL}/load.bash" ]
-        ;;
-      gnupg2) assert_commands_available gpg ;;
-      graphviz) assert_commands_available dot ;;
-      include-what-you-use) assert_commands_available iwyu ;;
-      ninja-build) assert_commands_available ninja ;;
-      arm-gnu-toolchain)
-        assert_commands_available arm-none-eabi-{gcc,g++,as,ld,objcopy,objdump,readelf}
-        ;;
-      clang-tools-*)
-        local MAJOR="${TOOL##*-}"
-        assert_commands_available "clang-${MAJOR}" clang-{check,cpp,doc,format,include-cleaner,move,query,refactor,tidy}-"${MAJOR}"
-        ;;
-      llvm-*)
-        local MAJOR="${TOOL##*-}"
-        assert_commands_available llvm-{ar,as,cxxfilt,cov,link,nm,objcopy,objdump,readelf}-"${MAJOR}"
-        ;;
-      lld-*) assert_commands_available "ld.lld-${TOOL##*-}" ;;
-      mull-*)
-        assert_commands_available mull-{instrument,runner,reporter}-"${TOOL##*-}"
-        ;;
-      rust) assert_commands_available rustc cargo rustfmt cargo-clippy ;;
-      cargo-binutils) assert_commands_available cargo-{ar,cov,nm,objcopy,objdump,profdata,readobj,size,strip} ;;
-      probe-rs-tools) assert_commands_available probe-rs cargo-embed cargo-flash ;;
-      *) assert_commands_available "${TOOL}" ;;
-    esac || return
+  while IFS=$'\t' read -r PACKAGE KIND TOOL; do
+    [[ -n "${PACKAGE}" ]] || continue
+    if [[ "${KIND}" == "command" ]]; then
+      assert_commands_available "${TOOL}" || return
+    elif [[ ! -f "${TOOL}" ]]; then
+      batslib_print_kv_single_or_multi 7 'package' "${PACKAGE}" 'file' "${TOOL}" \
+        | batslib_decorate 'inventory file not found' \
+        | fail
+      return 1
+    fi
   done <<< "${TOOLS}"
 }
