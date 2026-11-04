@@ -7,9 +7,6 @@ on:
       - .github/workflows/apt-snapshot-proof.yml
       - test/apt-snapshots/**
       - .devcontainer/**
-  push:
-    branches:
-      - feat/use-apt-snapshots
   workflow_dispatch:
     inputs:
       snapshot:
