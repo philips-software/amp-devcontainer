@@ -70,7 +70,7 @@ jobs:
         with:
           node-version: 24.8.0
       - run: npm ci --ignore-scripts
-      - run: npx playwright install --with-deps
+      - run: npx playwright install --with-deps chromium
       - name: Wait for Codespace to be active
         run: |
           set -Eeuo pipefail
