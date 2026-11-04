@@ -91,8 +91,9 @@ function to_semver() {
 function get_expected_version_for() {
   local TOOL=${1:?}
 
-  jq -sr ".[0] * .[1] * .[2] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
-    ${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements.json \
+  jq -sr ".[0] * .[1] * .[2] * .[3] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
+    ${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements-base.json \
+    ${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements-gh.json \
     ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-base.json \
     ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-clang.json
 }
