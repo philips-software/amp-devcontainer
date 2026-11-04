@@ -1,5 +1,5 @@
 cmake==4.4.4
-conan==2.33.0
+conan==2.34.0
 gcovr==8.7
 
 # Constraints to address pip-audit findings on transitive dependencies
