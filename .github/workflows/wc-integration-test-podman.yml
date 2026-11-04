@@ -71,7 +71,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           podman run --rm \
-            --security-opt seccomp=unconfined
+            --security-opt seccomp=unconfined \
             --userns=keep-id:uid=1000,gid=1000 \
             --user 1000:1000 \
             --network=host \
