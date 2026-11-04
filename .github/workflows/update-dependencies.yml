@@ -63,9 +63,6 @@ jobs:
     name: GitHub CLI
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    container:
-      image: ghcr.io/philips-software/amp-devcontainer-base:edge # zizmor: ignore[unpinned-images]
-      options: --user 0
     permissions:
       contents: read
     steps:
@@ -76,24 +73,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Discover GitHub CLI independently of Ubuntu snapshots
-        run: |
-          set -Eeuo pipefail
-          apt-get update -o APT::Update::Error-Mode=any \
-            -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/github-cli.sources \
-            -o Dir::Etc::sourceparts=-
-          VERSIONS=$(apt-cache madison gh | awk -F '|' '/cli.github.com/ {gsub(/[[:space:]]/, "", $2); print $2}')
-          VERSION=""
-          while IFS= read -r CANDIDATE; do
-            [[ -n "${CANDIDATE}" ]] || continue
-            if [[ -z "${VERSION}" ]] || dpkg --compare-versions "${CANDIDATE}" gt "${VERSION}"; then
-              VERSION="${CANDIDATE}"
-            fi
-          done <<< "${VERSIONS}"
-          if [[ -z "${VERSION}" || ! "${VERSION}" =~ ^[0-9][0-9A-Za-z.+:~_-]*$ ]]; then
-            echo "error: no valid GitHub CLI version found in its external repository" >&2
-            exit 1
-          fi
-          sed -i "s/^ARG GH_VERSION=.*/ARG GH_VERSION=${VERSION}/" .devcontainer/base/Dockerfile
+        run: bash .github/scripts/update-github-cli.sh
       - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         id: token
         if: github.event_name != 'pull_request'

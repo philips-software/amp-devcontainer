@@ -141,3 +141,61 @@ setup_updater_fixture() {
   assert_failure
   assert_output ''
 }
+
+setup_cli_fixture() {
+  setup_updater_fixture
+  cp "${BATS_TEST_DIRNAME}/../../.github/scripts/update-github-cli.sh" "${FIXTURE}/.github/scripts/"
+  local CHECKSUM
+  CHECKSUM=$(printf fake-key | sha256sum | cut -d' ' -f1)
+  printf 'ADD --checksum=sha256:%s \\\n https://cli.github.com/packages/githubcli-archive-keyring.gpg /key.gpg\n' "${CHECKSUM}" \
+    >> "${FIXTURE}/.devcontainer/base/Dockerfile"
+  function curl() {
+    while [[ $# -gt 0 ]]; do
+      if [[ "${1}" == -o ]]; then
+        printf fake-key > "${2}"
+        return
+      fi
+      shift
+    done
+    return 1
+  }
+  function apt-get() { :; }
+  function apt-cache() { printf ' gh | 111.222.333 | external main Packages\n'; }
+  export -f curl apt-get apt-cache
+}
+
+@test "external CLI updater changes only its own pin after checking both architectures" {
+  setup_cli_fixture
+  run bash "${FIXTURE}/.github/scripts/update-github-cli.sh"
+  assert_success
+  run grep '^ARG ' "${FIXTURE}/.devcontainer/base/Dockerfile"
+  assert_output $'ARG UBUNTU_SNAPSHOT=20261028T000000Z\nARG GH_VERSION=111.222.333'
+}
+
+@test "external CLI updater rejects mismatched architecture candidates" {
+  setup_cli_fixture
+  function apt-cache() {
+    if [[ "${*: -1}" == gh:arm64 ]]; then
+      printf ' gh | 444.555.666 | external main Packages\n'
+    else
+      printf ' gh | 111.222.333 | external main Packages\n'
+    fi
+  }
+  export -f apt-cache
+  run bash "${FIXTURE}/.github/scripts/update-github-cli.sh"
+  assert_failure
+  assert_output --partial 'candidates differ across architectures'
+  run grep '^ARG GH_VERSION=' "${FIXTURE}/.devcontainer/base/Dockerfile"
+  assert_output 'ARG GH_VERSION=101.202.303'
+}
+
+@test "external CLI updater fails if an architecture has no candidate" {
+  setup_cli_fixture
+  function apt-cache() { :; }
+  export -f apt-cache
+  run bash "${FIXTURE}/.github/scripts/update-github-cli.sh"
+  assert_failure
+  assert_output --partial 'no valid GitHub CLI candidate'
+  run grep '^ARG GH_VERSION=' "${FIXTURE}/.devcontainer/base/Dockerfile"
+  assert_output 'ARG GH_VERSION=101.202.303'
+}
