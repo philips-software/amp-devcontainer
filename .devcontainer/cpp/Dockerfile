@@ -174,8 +174,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
 
     UBUNTU_VERSION_ID=$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
     gh release download --repo mull-project/mull \
-        --pattern "Mull-[0-9].[0-9]*-ubuntu-$(dpkg --print-architecture)-${UBUNTU_VERSION_ID}.deb" \
-        --pattern "Mull-${LLVM_MAJOR_VERSION}-*-ubuntu-$(dpkg --print-architecture)-${UBUNTU_VERSION_ID}.deb"
+        --pattern "Mull-[0-9].[0-9]*-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb" \
+        --pattern "Mull-${LLVM_MAJOR_VERSION}-*-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
     apt-get install -y --no-install-recommends ./Mull-*.deb
     rm -f ./Mull-*.deb
 
