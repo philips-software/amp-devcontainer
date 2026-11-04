@@ -2,6 +2,6 @@
   "name": "update-vscode-extensions",
   "private": true,
   "devDependencies": {
-    "@vscode/vsce": "3.9.2"
+    "@vscode/vsce": "4.1.0"
   }
 }
