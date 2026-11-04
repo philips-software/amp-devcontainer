@@ -146,6 +146,12 @@ Before you submit your pull request consider the following guidelines:
 
 1. Ensure that all tests pass.
 
+   The Ubuntu snapshot proof workflow evaluates candidate repository snapshots
+   on native amd64 and arm64 runners without changing the published images.
+   It checks each flavor's Ubuntu packages, external GitHub CLI pins, and LLVM
+   compatibility. Run it manually with a snapshot timestamp to investigate
+   failures; its artifacts record the selected base image and package versions.
+
 1. Commit your changes using a descriptive commit message.
 
    ```shell

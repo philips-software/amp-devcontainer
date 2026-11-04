@@ -1,0 +1,86 @@
+---
+name: Ubuntu snapshot proof
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/apt-snapshot-proof.yml
+      - test/apt-snapshots/**
+      - .devcontainer/**/apt-requirements*.json
+      - .devcontainer/base/Dockerfile
+      - .devcontainer/cpp/Dockerfile
+  push:
+    paths:
+      - .github/workflows/apt-snapshot-proof.yml
+      - test/apt-snapshots/**
+  workflow_dispatch:
+    inputs:
+      snapshot:
+        description: Ubuntu snapshot timestamp; empty selects the previous UTC day
+        required: false
+        type: string
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  native-resolution:
+    name: ${{ matrix.flavor }} (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        flavor: [base, cpp, docs, embedded-cpp, rust, embedded-rust]
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    permissions:
+      contents: read
+    steps:
+      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate snapshot resolution in a disposable native container
+        run: |
+          set -Eeuo pipefail
+          SNAPSHOT="${REQUESTED_SNAPSHOT:-$(date -u -d yesterday +%Y%m%dT000000Z)}"
+          source test/apt-snapshots/probe.sh
+          validate_snapshot "${SNAPSHOT}"
+          BASE_IMAGE=$(sed -n 's/^FROM \(ubuntu:[^ ]*\).*/\1/p' .devcontainer/base/Dockerfile | sort -u)
+          if [[ ! "${BASE_IMAGE}" =~ ^ubuntu:[^[:space:]]+@sha256:[[:xdigit:]]{64}$ ]]; then
+            echo "error: expected one digest-pinned Ubuntu base image" >&2
+            exit 1
+          fi
+          mkdir -p snapshot-results
+          printf 'base-image=%s\n' "${BASE_IMAGE}" > snapshot-results/base-image.txt
+          docker run --rm --pull always \
+            --platform "linux/${TARGET_ARCH}" \
+            --env SNAPSHOT_PROBE=1 \
+            --mount "type=bind,source=${GITHUB_WORKSPACE},target=/workspace,readonly" \
+            --mount "type=bind,source=${GITHUB_WORKSPACE}/snapshot-results,target=/results" \
+            --mount type=bind,source=/etc/ssl/certs/ca-certificates.crt,target=/bootstrap-ca.crt,readonly \
+            "${BASE_IMAGE}" \
+            bash /workspace/test/apt-snapshots/probe.sh "${SNAPSHOT}" "${FLAVOR}" /results \
+            2>&1 | tee snapshot-results/probe.log
+        env:
+          FLAVOR: ${{ matrix.flavor }}
+          REQUESTED_SNAPSHOT: ${{ inputs.snapshot }}
+          TARGET_ARCH: ${{ matrix.arch }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: snapshot-proof-${{ matrix.flavor }}-${{ matrix.arch }}
+          path: snapshot-results/
+          if-no-files-found: error
+          retention-days: 10
