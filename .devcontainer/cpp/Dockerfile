@@ -176,7 +176,7 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     gh release download --repo mull-project/mull \
         --pattern "Mull-[0-9].[0-9]*-ubuntu-$(dpkg --print-architecture)-${UBUNTU_VERSION_ID}.deb" \
         --pattern "Mull-${LLVM_MAJOR_VERSION}-*-ubuntu-$(dpkg --print-architecture)-${UBUNTU_VERSION_ID}.deb"
-    apt-get install ./Mull-*.deb
+    apt-get install -y --no-install-recommends ./Mull-*.deb
     rm -f ./Mull-*.deb
 
     # Install Windows (x86_64) LLVM/Clang runtime libraries to support fuzzing and sanitizers
