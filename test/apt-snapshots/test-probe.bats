@@ -5,7 +5,7 @@ bats_require_minimum_version 1.5.0
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
-  source "${BATS_TEST_DIRNAME}/probe.sh"
+  source "${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-snapshot.sh"
 }
 
 @test "snapshot IDs reject invalid dates and shell input" {
@@ -49,20 +49,95 @@ setup() {
   check_base_compatibility
 }
 
-@test "Ubuntu flavor package discovery excludes GitHub CLI pins" {
-  local ROOT="${BATS_TEST_DIRNAME}/../.."
-  local FLAVOR
-  for FLAVOR in base cpp docs embedded-cpp rust embedded-rust; do
-    run ubuntu_requirements "${ROOT}" "${FLAVOR}"
-    assert_success
-    refute_output --regexp '^gh$'
-    assert_output --partial ca-certificates
-  done
+@test "base compatibility rejects installed packages missing from the snapshot" {
+  function dpkg-query() { printf 'fake-package\t101.202.303\tinstalled\n'; }
+  function apt-cache() { :; }
+  run check_base_compatibility
+  assert_failure
+  assert_output --partial "fake-package is absent"
 }
 
-@test "the probe refuses to mutate the current devcontainer without explicit opt in" {
-  unset SNAPSHOT_PROBE
-  run main 20261028T000000Z base "${BATS_TEST_TMPDIR}"
+@test "uninstalled base package records do not require a repository candidate" {
+  function dpkg-query() { printf 'fake-removed-package\t999.888.777\tconfig-files\n'; }
+  function apt-cache() { return 1; }
+  check_base_compatibility
+}
+
+setup_updater_fixture() {
+  FIXTURE="${BATS_TEST_TMPDIR}/repository"
+  mkdir -p "${FIXTURE}/.github/scripts" "${FIXTURE}/.devcontainer/base"
+  cp "${BATS_TEST_DIRNAME}/../../.github/scripts/update-ubuntu-snapshot.sh" "${FIXTURE}/.github/scripts/"
+  cp "${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-snapshot.sh" "${FIXTURE}/.devcontainer/base/"
+  printf 'ARG UBUNTU_SNAPSHOT=20261028T000000Z\nARG GH_VERSION=101.202.303\n' > "${FIXTURE}/.devcontainer/base/Dockerfile"
+  function curl() {
+    while [[ $# -gt 0 ]]; do
+      if [[ "${1}" == -o ]]; then
+        printf 'Architectures: amd64 arm64\n' > "${2}"
+        return
+      fi
+      shift
+    done
+    return 1
+  }
+  function gpgv() { :; }
+  export -f curl gpgv
+}
+
+@test "snapshot updater changes only the timestamp after checking signed metadata" {
+  setup_updater_fixture
+  run bash "${FIXTURE}/.github/scripts/update-ubuntu-snapshot.sh" 20261103T000000Z
+  assert_success
+  assert_output --partial '20261028T000000Z -> 20261103T000000Z'
+  run cat "${FIXTURE}/.devcontainer/base/Dockerfile"
+  assert_output $'ARG UBUNTU_SNAPSHOT=20261103T000000Z\nARG GH_VERSION=101.202.303'
+}
+
+@test "snapshot updater leaves the timestamp unchanged on signature failure" {
+  setup_updater_fixture
+  function gpgv() { echo 'fake signature verification failure' >&2; return 1; }
+  export -f gpgv
+  run bash "${FIXTURE}/.github/scripts/update-ubuntu-snapshot.sh" 20261103T000000Z
   assert_failure
-  assert_output --partial "disposable Docker container"
+  assert_output --partial 'fake signature verification failure'
+  run grep '^ARG UBUNTU_SNAPSHOT=' "${FIXTURE}/.devcontainer/base/Dockerfile"
+  assert_output 'ARG UBUNTU_SNAPSHOT=20261028T000000Z'
+}
+
+@test "snapshot updater rejects missing ARM64 metadata" {
+  setup_updater_fixture
+  function curl() {
+    while [[ $# -gt 0 ]]; do
+      if [[ "${1}" == -o ]]; then
+        printf 'Architectures: amd64\n' > "${2}"
+        return
+      fi
+      shift
+    done
+    return 1
+  }
+  export -f curl
+  run bash "${FIXTURE}/.github/scripts/update-ubuntu-snapshot.sh" 20261103T000000Z
+  assert_failure
+  assert_output --partial 'does not advertise arm64'
+  run grep '^ARG UBUNTU_SNAPSHOT=' "${FIXTURE}/.devcontainer/base/Dockerfile"
+  assert_output 'ARG UBUNTU_SNAPSHOT=20261028T000000Z'
+}
+
+@test "snapshot updater does not modify the pin when a pocket download fails" {
+  setup_updater_fixture
+  function curl() { echo 'fake snapshot service unavailable' >&2; return 22; }
+  export -f curl
+  run bash "${FIXTURE}/.github/scripts/update-ubuntu-snapshot.sh" 20261103T000000Z
+  assert_failure
+  assert_output --partial 'fake snapshot service unavailable'
+  run grep '^ARG UBUNTU_SNAPSHOT=' "${FIXTURE}/.devcontainer/base/Dockerfile"
+  assert_output 'ARG UBUNTU_SNAPSHOT=20261028T000000Z'
+}
+
+@test "Dockerfiles no longer require APT version manifests or cached package indexes" {
+  local ROOT="${BATS_TEST_DIRNAME}/../.."
+  run grep -E 'apt-requirements|target=/var/lib/apt' \
+    "${ROOT}/.devcontainer/"{base,cpp,docs,rust}/Dockerfile
+  assert_failure
+  assert_output ''
 }

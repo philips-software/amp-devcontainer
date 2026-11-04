@@ -6,17 +6,14 @@ on:
     paths:
       - .github/workflows/apt-snapshot-proof.yml
       - test/apt-snapshots/**
-      - .devcontainer/**/apt-requirements*.json
-      - .devcontainer/base/Dockerfile
-      - .devcontainer/cpp/Dockerfile
+      - .devcontainer/**
   push:
-    paths:
-      - .github/workflows/apt-snapshot-proof.yml
-      - test/apt-snapshots/**
+    branches:
+      - feat/use-apt-snapshots
   workflow_dispatch:
     inputs:
       snapshot:
-        description: Ubuntu snapshot timestamp; empty selects the previous UTC day
+        description: Ubuntu snapshot timestamp; empty uses the committed value
         required: false
         type: string
 
@@ -27,15 +24,13 @@ concurrency:
 permissions: {}
 
 jobs:
-  native-resolution:
-    name: ${{ matrix.flavor }} (${{ matrix.arch }})
+  native-builds:
+    name: Native builds (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 30
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
-        flavor: [base, cpp, docs, embedded-cpp, rust, embedded-rust]
-        runner: [ubuntu-latest, ubuntu-24.04-arm]
         include:
           - arch: amd64
             runner: ubuntu-latest
@@ -51,36 +46,52 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Validate snapshot resolution in a disposable native container
+      - name: Build one base and validate every flavor sequentially
         run: |
           set -Eeuo pipefail
-          SNAPSHOT="${REQUESTED_SNAPSHOT:-$(date -u -d yesterday +%Y%m%dT000000Z)}"
-          source test/apt-snapshots/probe.sh
+          source .devcontainer/base/apt-snapshot.sh
+          SNAPSHOT="${REQUESTED_SNAPSHOT:-$(sed -n 's/^ARG UBUNTU_SNAPSHOT=//p' .devcontainer/base/Dockerfile)}"
           validate_snapshot "${SNAPSHOT}"
-          BASE_IMAGE=$(sed -n 's/^FROM \(ubuntu:[^ ]*\).*/\1/p' .devcontainer/base/Dockerfile | sort -u)
-          if [[ ! "${BASE_IMAGE}" =~ ^ubuntu:[^[:space:]]+@sha256:[[:xdigit:]]{64}$ ]]; then
-            echo "error: expected one digest-pinned Ubuntu base image" >&2
-            exit 1
-          fi
           mkdir -p snapshot-results
-          printf 'base-image=%s\n' "${BASE_IMAGE}" > snapshot-results/base-image.txt
-          docker run --rm --pull always \
-            --platform "linux/${TARGET_ARCH}" \
-            --env SNAPSHOT_PROBE=1 \
+          sed -n 's/^FROM \(ubuntu:[^ ]*\).*/\1/p' .devcontainer/base/Dockerfile \
+            | sort -u > snapshot-results/base-image.txt
+          printf '%s\n' "${SNAPSHOT}" > snapshot-results/snapshot.txt
+          docker build --progress plain --platform "linux/${TARGET_ARCH}" \
+            --build-arg "UBUNTU_SNAPSHOT=${SNAPSHOT}" \
+            -f .devcontainer/base/Dockerfile -t snapshot-base . \
+            2>&1 | tee snapshot-results/base.log
+          docker run --rm --entrypoint bats \
             --mount "type=bind,source=${GITHUB_WORKSPACE},target=/workspace,readonly" \
-            --mount "type=bind,source=${GITHUB_WORKSPACE}/snapshot-results,target=/results" \
-            --mount type=bind,source=/etc/ssl/certs/ca-certificates.crt,target=/bootstrap-ca.crt,readonly \
-            "${BASE_IMAGE}" \
-            bash /workspace/test/apt-snapshots/probe.sh "${SNAPSHOT}" "${FLAVOR}" /results \
-            2>&1 | tee snapshot-results/probe.log
+            snapshot-base /workspace/test/apt-snapshots/test-probe.bats
+          for FLAVOR in base cpp embedded-cpp docs rust embedded-rust; do
+            if [[ "${FLAVOR}" != base ]]; then
+              LANGUAGE="${FLAVOR#embedded-}"
+              EMBEDDED=false
+              if [[ "${FLAVOR}" == embedded-* ]]; then EMBEDDED=true; fi
+              docker build --progress plain --platform "linux/${TARGET_ARCH}" \
+                --build-arg BASE_IMAGE=snapshot-base \
+                --build-arg "BUILD_EMBEDDED_FLAVOR=${EMBEDDED}" \
+                -f ".devcontainer/${LANGUAGE}/Dockerfile" -t "snapshot-${FLAVOR}" . \
+                2>&1 | tee "snapshot-results/${FLAVOR}.log"
+            fi
+            docker run --rm --entrypoint bash -e "EXPECTED_SNAPSHOT=${SNAPSHOT}" \
+              "snapshot-${FLAVOR}" -Eeuo pipefail -c '
+                test "$(cat /etc/apt/ubuntu-snapshot)" = "${EXPECTED_SNAPSHOT}"
+                grep -Fx "URIs: https://snapshot.ubuntu.com/ubuntu/${EXPECTED_SNAPSHOT}/" /etc/apt/sources.list.d/ubuntu.sources
+                gh --version
+                dpkg-query -W -f="\${binary:Package}\t\${Version}\t\${Architecture}\n"
+              ' > "snapshot-results/${FLAVOR}-packages.tsv"
+            if [[ "${FLAVOR}" != base ]]; then
+              docker image rm "snapshot-${FLAVOR}"
+            fi
+          done
         env:
-          FLAVOR: ${{ matrix.flavor }}
           REQUESTED_SNAPSHOT: ${{ inputs.snapshot }}
           TARGET_ARCH: ${{ matrix.arch }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
-          name: snapshot-proof-${{ matrix.flavor }}-${{ matrix.arch }}
+          name: snapshot-proof-${{ matrix.arch }}
           path: snapshot-results/
           if-no-files-found: error
           retention-days: 10

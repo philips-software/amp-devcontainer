@@ -146,11 +146,15 @@ Before you submit your pull request consider the following guidelines:
 
 1. Ensure that all tests pass.
 
-   The Ubuntu snapshot proof workflow evaluates candidate repository snapshots
-   on native amd64 and arm64 runners without changing the published images.
-   It checks each flavor's Ubuntu packages, external GitHub CLI pins, and LLVM
-   compatibility. Run it manually with a snapshot timestamp to investigate
-   failures; its artifacts record the selected base image and package versions.
+   Ubuntu packages are installed from one dated snapshot shared by all flavors.
+   List packages in the relevant Dockerfile; the tool inventory describes the
+   tools promised to users, not every installation dependency. Weekly update
+   PRs advance the snapshot, while GitHub CLI is updated independently.
+   The Ubuntu snapshot proof workflow builds every flavor on native amd64 and
+   arm64 runners without publishing images. Use its manual timestamp input to
+   investigate candidate snapshots. All normal integration tests must also pass.
+   A newer Ubuntu base image may require advancing the snapshot first. Changes
+   to Clang must remain compatible with the pinned Windows LLVM runtimes.
 
 1. Commit your changes using a descriptive commit message.
 

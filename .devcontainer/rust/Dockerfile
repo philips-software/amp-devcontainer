@@ -47,7 +47,7 @@ WORKDIR /
 # hadolint ignore=DL3008
 RUN --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
+    <<EOF
     apt-get update && apt-get install --no-install-recommends -y minisign
 
     minisign -P "${CARGO_BINSTALL_MINISIGN_PUBKEY}" -Vm /dl/cargo-binstall.tgz
@@ -83,15 +83,12 @@ ENV BINSTALL_DISABLE_TELEMETRY=true \
 # The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
-RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tmp/apt-requirements.json \
-    --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
     --mount=from=extractor,target=/src <<EOF
 
     # Install the base system with all tool dependencies
-    apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | \
-        xargs apt-get install -y --no-install-recommends
+    apt-get update && apt-get install -y --no-install-recommends g++-15 rustup
 
     update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
                         --slave /usr/bin/c++ c++ /usr/bin/g++-15

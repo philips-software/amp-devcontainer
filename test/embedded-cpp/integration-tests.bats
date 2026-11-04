@@ -15,17 +15,6 @@ teardown() {
   popd
 }
 
-# bats test_tags=Compatibility,Version
-@test "apt packages are installed at their pinned versions" {
-  APT_REQUIREMENTS="${BATS_TEST_DIRNAME}/../../.devcontainer/embedded-cpp/apt-requirements.json"
-
-  while IFS="=" read -r PACKAGE EXPECTED_VERSION; do
-    run dpkg-query -W -f='${Version}' "${PACKAGE}"
-    assert_success
-    assert_equal "${output}" "${EXPECTED_VERSION}"
-  done < <(jq -r 'to_entries[] | .key + "=" + .value' "${APT_REQUIREMENTS}")
-}
-
 # bats test_tags=Sbom
 @test "tools listed in the inventory are present in the image" {
   TOOL_INVENTORY="${BATS_TEST_DIRNAME}/../../.devcontainer/embedded-cpp/tool-inventory.json"
@@ -64,7 +53,7 @@ teardown() {
 
 # bats test_tags=Compatibility,Version,HostGCCArmGCC
 @test "host and embedded gcc toolchain versions should be the same major and minor version" {
-  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for g++ | cut -d. -f1,2)
+  EXPECTED_MAJOR_MINOR_VERSION=$(g++-15 -dumpfullversion | cut -d. -f1,2)
   INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
   assert_equal "$INSTALLED_MAJOR_MINOR_VERSION" "$EXPECTED_MAJOR_MINOR_VERSION"
 }
@@ -88,21 +77,6 @@ function to_semver() {
   grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1
 }
 
-function get_expected_version_for() {
-  local TOOL=${1:?}
-
-  jq -sr ".[0] * .[1] * .[2] * .[3] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
-    ${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements-base.json \
-    ${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements-gh.json \
-    ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-base.json \
-    ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-clang.json
-}
-
-function get_expected_semver_for() {
-  local TOOL=${1:?}
-
-  get_expected_version_for ${TOOL} | to_semver
-}
 
 # Assert that every command passed as an argument is available on the PATH,
 # failing with a decorated diagnostic on the first one that cannot be found.

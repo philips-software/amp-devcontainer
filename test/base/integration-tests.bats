@@ -48,14 +48,21 @@ setup() {
 }
 
 # bats test_tags=Compatibility,Version
-@test "apt packages are installed at their pinned versions" {
-  APT_REQUIREMENTS="${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements-base.json"
+@test "Ubuntu repositories use the committed snapshot" {
+  EXPECTED_SNAPSHOT=$(sed -n 's/^ARG UBUNTU_SNAPSHOT=//p' "${BATS_TEST_DIRNAME}/../../.devcontainer/base/Dockerfile")
+  run cat /etc/apt/ubuntu-snapshot
+  assert_success
+  assert_output "${EXPECTED_SNAPSHOT}"
+  run grep '^URIs:' /etc/apt/sources.list.d/ubuntu.sources
+  assert_success
+  assert_output --regexp "^URIs: https://snapshot.ubuntu.com/ubuntu/${EXPECTED_SNAPSHOT}/$"
+}
 
-  while IFS="=" read -r PACKAGE EXPECTED_VERSION; do
-    run dpkg-query -W -f='${Version}' "${PACKAGE}"
-    assert_success
-    assert_equal "${output}" "${EXPECTED_VERSION}"
-  done < <(jq -r 'to_entries[] | .key + "=" + .value' "${APT_REQUIREMENTS}")
+@test "GitHub CLI uses its independently pinned version" {
+  EXPECTED_VERSION=$(sed -n 's/^ARG GH_VERSION=//p' "${BATS_TEST_DIRNAME}/../../.devcontainer/base/Dockerfile")
+  run dpkg-query -W -f='${Version}' gh
+  assert_success
+  assert_output "${EXPECTED_VERSION}"
 }
 
 # bats test_tags=Sbom
