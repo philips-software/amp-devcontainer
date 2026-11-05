@@ -39,7 +39,8 @@
       ]
     },
     "mull-22": {
-      "commands": ["mull-instrument-22", "mull-runner-22", "mull-reporter-22"]
+      "commands": ["mull-instrument", "mull-runner", "mull-reporter"],
+      "files": ["/usr/lib/mull-ir-frontend-22"]
     },
     "ninja-build": { "commands": ["ninja"] },
     "xwin": {}

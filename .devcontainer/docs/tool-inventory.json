@@ -9,7 +9,7 @@
     },
     "plantuml": {
       "commands": ["plantuml"],
-      "smoke-test-args": { "plantuml": ["-version"] }
+      "smoke-test-args": { "plantuml": ["-help"] }
     },
     "python3-pip": { "commands": ["pip"] },
     "sbdl": {}
