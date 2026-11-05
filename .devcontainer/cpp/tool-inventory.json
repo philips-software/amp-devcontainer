@@ -1,19 +1,47 @@
-[
-  "ccache",
-  "clang-22",
-  "clang-format-22",
-  "clang-tidy-22",
-  "clang-tools-22",
-  "clangd-22",
-  "cmake",
-  "conan",
-  "g++-15",
-  "gcovr",
-  "gdb-multiarch",
-  "include-what-you-use",
-  "lld-22",
-  "llvm-22",
-  "mull-22",
-  "ninja-build",
-  "xwin"
-]
+{
+  "includes": [
+    "../base/tool-inventory.json"
+  ],
+  "packages": {
+    "ccache": {},
+    "clang-22": { "commands": ["clang-22", "clang++-22", "clang-cpp-22"] },
+    "clang-format-22": {},
+    "clang-tidy-22": {},
+    "clang-tools-22": {
+      "commands": [
+        "clang-check-22",
+        "clang-doc-22",
+        "clang-include-cleaner-22",
+        "clang-move-22",
+        "clang-query-22",
+        "clang-refactor-22"
+      ]
+    },
+    "clangd-22": {},
+    "cmake": {},
+    "conan": {},
+    "g++-15": {},
+    "gcovr": {},
+    "gdb-multiarch": { "commands": ["gdb", "gdb-multiarch"] },
+    "include-what-you-use": { "commands": ["iwyu"] },
+    "lld-22": { "commands": ["ld.lld-22"] },
+    "llvm-22": {
+      "commands": [
+        "llvm-ar-22",
+        "llvm-as-22",
+        "llvm-cxxfilt-22",
+        "llvm-cov-22",
+        "llvm-link-22",
+        "llvm-nm-22",
+        "llvm-objcopy-22",
+        "llvm-objdump-22",
+        "llvm-readelf-22"
+      ]
+    },
+    "mull-22": {
+      "commands": ["mull-instrument-22", "mull-runner-22", "mull-reporter-22"]
+    },
+    "ninja-build": { "commands": ["ninja"] },
+    "xwin": {}
+  }
+}

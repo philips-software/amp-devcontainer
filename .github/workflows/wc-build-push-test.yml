@@ -92,8 +92,7 @@ on:
         default: '["ubuntu-latest"]'
       tool-inventory-file:
         description: >-
-          Path to a JSON allowlist of package names used to derive a curated tool
-          inventory from the generated SBOM. When empty, no inventory is produced.
+          Path to the flavor's tool inventory. When empty, no inventory is produced.
 
           Examples:
             '.devcontainer/<flavor>/tool-inventory.json'
