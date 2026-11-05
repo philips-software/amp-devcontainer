@@ -106,7 +106,7 @@ jobs:
       # Merge the base image's devcontainer.metadata array with this flavor's
       # entry so that flavors inherit base metadata without duplicating it.
       - name: Generate image label for devcontainer.metadata
-        uses: philips-software/amp-devcontainer/.github/actions/merge-devcontainer-metadata@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions-v1.1.0
+        uses: philips-software/amp-devcontainer/.github/actions/merge-devcontainer-metadata@393bcb3879a2a8f9b7726d560647e2e6106833bd # actions/v2.1.0
         id: devcontainer-metadata
         with:
           base-image: ${{ inputs.base-image }}
@@ -265,7 +265,7 @@ jobs:
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
         shell: bash
         working-directory: ${{ runner.temp }}/digests
-      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
+      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@393bcb3879a2a8f9b7726d560647e2e6106833bd # actions/v2.1.0
         id: extract-digest
         with:
           container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
@@ -284,7 +284,7 @@ jobs:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
+      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@393bcb3879a2a8f9b7726d560647e2e6106833bd # actions/v2.1.0
         id: container-size-diff
         with:
           from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
@@ -308,7 +308,7 @@ jobs:
       - name: Generate tool inventory
         if: ${{ inputs.tool-inventory-file != '' }}
         id: generate-tool-inventory
-        uses: ./.github/actions/generate-tool-inventory
+        uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@393bcb3879a2a8f9b7726d560647e2e6106833bd # actions/v2.1.0
         with:
           sbom: ${{ runner.temp }}/sbom.spdx.json
           tool-inventory: ${{ inputs.tool-inventory-file }}
