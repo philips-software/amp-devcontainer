@@ -65,11 +65,12 @@ FROM ${BASE_IMAGE} AS extractor
 
 USER 0
 
+ARG ARM_GNU_TOOLCHAIN_VERSION
+ARG BUILD_EMBEDDED_FLAVOR
 ARG CCACHE_MINISIGN_PUBKEY
 ARG CCACHE_VERSION
+ARG MULL_VERSION
 ARG XWIN_VERSION
-ARG BUILD_EMBEDDED_FLAVOR
-ARG ARM_GNU_TOOLCHAIN_VERSION
 
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
@@ -80,6 +81,25 @@ RUN --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
     apt-get update && apt-get install --no-install-recommends -y minisign
+
+    MULL_RUNNER_DEB="Mull-Runner-${MULL_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
+    MULL_DEB="Mull-${MULL_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
+
+    UBUNTU_VERSION_ID=$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+    gh release download --repo mull-project/mull \
+        --pattern "${MULL_DEB}" \
+        --pattern "${MULL_RUNNER_DEB}"
+
+    if [[ "$(uname -m)" == "x86_64" ]]; then
+        MULL_RUNNER_SHA256="sha256:8f64aea71da7bafcd86bea0e316b16253aaf0835c54878d0bb4b0853f6bc1dfe"
+        MULL_SHA256="sha256:44267017f4da2b556ee7715c2c32bcb16270abfdbf8fe0740317708d355171cc"
+    elif [[ "$(uname -m)" == "aarch64" ]]; then
+        MULL_RUNNER_SHA256="sha256:4ff84028c08c56d4a3e7654ef8176e8f3c949bb5da39fe36aa13d5fc362f02da"
+        MULL_SHA256="sha256:04a4db34db49d596493f6b2f0464abbf795b140f11b2674f6946826f8cdbc302"
+    fi
+
+    echo "${MULL_RUNNER_SHA256}  ${MULL_RUNNER_DEB}" | sha256sum -c -
+    echo "${MULL_SHA256}  ${MULL_DEB}" | sha256sum -c -
 
     if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
         ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_GNU_TOOLCHAIN_VERSION}/binrel/arm-gnu-toolchain-${ARM_GNU_TOOLCHAIN_VERSION}-$(uname -m)-arm-none-eabi.tar.xz"
@@ -119,7 +139,6 @@ ARG LLVM_MAJOR_VERSION
 ARG BUILD_EMBEDDED_FLAVOR
 ARG CCACHE_VERSION
 ARG INCLUDE_WHAT_YOU_USE_VERSION
-ARG MULL_VERSION
 ARG XWIN_VERSION
 ARG ARM_GNU_TOOLCHAIN_VERSION
 
@@ -174,10 +193,6 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
         xargs apt-get install -y --no-install-recommends
 
-    UBUNTU_VERSION_ID=$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
-    gh release download --repo mull-project/mull \
-        --pattern "Mull-${MULL_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb" \
-        --pattern "Mull-${LLVM_MAJOR_VERSION}-${MULL_VERSION}-LLVM-${LLVM_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
     apt-get install -y --no-install-recommends ./Mull-*.deb
     rm -f ./Mull-*.deb
 
