@@ -38,7 +38,7 @@ setup() {
   assert_equal "${LANG}" "C.UTF-8"
 }
 
-@test "default developer account is `code` with UID and GID 1000" {
+@test "default developer account is 'code' with UID and GID 1000" {
   run id -u code
   assert_success
   assert_output "1000"
