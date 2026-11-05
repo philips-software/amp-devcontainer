@@ -8,10 +8,10 @@ inputs:
   sbom:
     description: Path to the Syft SPDX SBOM
     required: true
-  allowlist:
+  tool-inventory:
     description: >-
-      Path to the flavor's tool allowlist JSON, relative to the caller
-      repository root.
+      Path to the flavor's inventory JSON, relative to the caller repository
+      root. Included inventories must also be checked out.
     required: true
   flavor:
     description: Name of the flavor the inventory is generated for
@@ -33,38 +33,46 @@ runs:
       run: |
         set -Eeuo pipefail
 
-        # Keep only packages whose name is on the flavor allowlist and project them
-        # to {name, version, purl}. Versions come straight from the SBOM, so the
+        packages="$(bash "${GITHUB_ACTION_PATH}/resolve.sh" "${TOOL_INVENTORY}")"
+
+        # Keep only packages whose name is on the flavor tool-inventory and project them
+        # to {name, version, purl, commands, files}. Versions come from the SBOM, so the
         # inventory can never disagree with it.
         inventory="$(jq -n \
           --slurpfile sbom "${SBOM}" \
-          --slurpfile allow "${ALLOWLIST}" \
+          --argjson allow "${packages}" \
           --arg flavor "${FLAVOR}" '
-          ($allow[0] | map(ascii_downcase)) as $names
+          ($allow | with_entries(
+            if .value == {} then .value = {commands: [.key]} else . end
+            | .key |= ascii_downcase
+          )) as $packages
+          | ($packages | keys) as $names
           | [ $sbom[0].packages[]
               | select(.name != null)
               | . as $pkg
               | select($names | index($pkg.name | ascii_downcase))
               | { name: $pkg.name,
                   version: $pkg.versionInfo,
+                  commands: ($packages[$pkg.name | ascii_downcase].commands // []),
+                  files: ($packages[$pkg.name | ascii_downcase].files // []),
                   purl: ([ $pkg.externalRefs[]? | select(.referenceType == "purl") | .referenceLocator ] | first) } ]
           | unique_by(.name | ascii_downcase)
           | sort_by(.name | ascii_downcase)
           | { flavor: $flavor, tools: . }')"
 
-        # Fail if an allowlisted tool is absent from the SBOM. This turns a version
+        # Fail if an included tool is absent from the SBOM. This turns a version
         # bump that renames a package (e.g. clang-22 -> clang-23) or a tool that
         # silently dropped out of the image into a hard, actionable CI error.
         missing="$(jq -rn \
           --argjson inventory "${inventory}" \
-          --slurpfile allow "${ALLOWLIST}" '
+          --argjson allow "${packages}" '
           ($inventory.tools | map(.name | ascii_downcase)) as $found
-          | $allow[0]
+          | ($allow | keys)
           | map(select((ascii_downcase) as $name | ($found | index($name)) | not))
           | .[]')"
 
         if [ -n "${missing}" ]; then
-          echo "error: the following allowlisted tools were not found in the SBOM:" >&2
+          echo "error: the following tools from the tool-inventory were not found in the SBOM:" >&2
           echo "${missing}" | sed 's/^/  - /' >&2
           exit 1
         fi
@@ -72,6 +80,6 @@ runs:
         echo "${inventory}" | tee "${OUTPUT_FILE}"
       env:
         SBOM: ${{ inputs.sbom }}
-        ALLOWLIST: ${{ inputs.allowlist }}
+        TOOL_INVENTORY: ${{ inputs.tool-inventory }}
         FLAVOR: ${{ inputs.flavor }}
         OUTPUT_FILE: ${{ inputs.output-file }}

@@ -1,8 +1,28 @@
-[
-  "cargo-binstall",
-  "cargo-binutils",
-  "cargo-mutants",
-  "g++-15",
-  "rust",
-  "rustup"
-]
+{
+  "includes": [
+    "../base/tool-inventory.json"
+  ],
+  "packages": {
+    "cargo-binstall": {},
+    "cargo-binutils": {
+      "commands": [
+        "cargo-ar",
+        "cargo-cov",
+        "cargo-nm",
+        "cargo-objcopy",
+        "cargo-objdump",
+        "cargo-profdata",
+        "cargo-readobj",
+        "cargo-size",
+        "cargo-strip"
+      ]
+    },
+    "cargo-mutants": {
+      "commands": ["cargo-mutants"],
+      "smoke-test-args": { "cargo-mutants": ["mutants", "--version"] }
+    },
+    "g++-15": {},
+    "rust": { "commands": ["rustc", "cargo", "rustfmt", "cargo-clippy"] },
+    "rustup": {}
+  }
+}

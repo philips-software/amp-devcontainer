@@ -9,6 +9,9 @@ ARG BATS_ASSERT_VERSION=2.2.4
 ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd306e85fb \
  https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem /cisco-umbrella-root.crt
 
+ADD --checksum=sha256:6084d5d7bd8e288441e0e94fc6275570895da18e6751f70f057485dc2d1a811b \
+ https://cli.github.com/packages/githubcli-archive-keyring.gpg /githubcli-archive-keyring.gpg
+
 ADD --checksum=sha256:a85e12b8828271a152b338ca8109aa23493b57950987c8e6dff97ba492772ff3 \
  https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_CORE_VERSION}.tar.gz /bats-core.tar.gz
 ADD --checksum=sha256:7815237aafeb42ddcc1b8c698fc5808026d33317d8701d5ec2396e9634e2918f \
@@ -32,7 +35,8 @@ SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add-sbom-note.sh \
-    --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
+    --mount=type=bind,source=.devcontainer/base/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
+    --mount=type=bind,source=.devcontainer/base/apt-requirements-gh.json,target=/tmp/apt-requirements-gh.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
@@ -40,12 +44,30 @@ RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add
 
    # Install the base system with all tool dependencies
    apt-get update && apt-get install -y --no-install-recommends jq
-   jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | \
+   jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
       xargs apt-get install -y --no-install-recommends
 
    # Include the Cisco Umbrella PKI Root Certificate
    install -m 0644 /src/cisco-umbrella-root.crt /usr/local/share/ca-certificates/
    update-ca-certificates
+
+   # Install GitHub cli
+   gpg --no-options --homedir /dev/null --batch \
+    --trust-model always --no-default-keyring \
+    --keyring /src/githubcli-archive-keyring.gpg \
+    --list-keys 0x7F38BBB59D064DBCB3D84D725612B36462313325
+   cat /src/githubcli-archive-keyring.gpg | tee /usr/share/keyrings/githubcli-archive-keyring.gpg
+   cat > /etc/apt/sources.list.d/github-cli.sources <<SOURCE
+Types: deb
+URIs: https://cli.github.com/packages
+Suites: stable
+Components: main
+Architectures: $(dpkg --print-architecture)
+Signed-By: /usr/share/keyrings/githubcli-archive-keyring.gpg
+SOURCE
+   apt-get update
+   jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-gh.json | \
+      xargs apt-get install -y --no-install-recommends
 
    # Install bats
    bash /src/bats-core/install.sh /usr/local
