@@ -83,8 +83,8 @@ RUN --mount=from=downloader,target=/dl \
     apt-get update && apt-get install --no-install-recommends -y minisign
 
     UBUNTU_VERSION_ID=$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
-    MULL_RUNNER_DEB="Mull-Runner-${MULL_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
-    MULL_DEB="Mull-${MULL_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
+    MULL_RUNNER_DEB="Mull-${MULL_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
+    MULL_DEB="Mull-${LLVM_MAJOR_VERSION}-${MULL_VERSION}-LLVM-${LLVM_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
 
     gh release download --repo mull-project/mull \
         --pattern "${MULL_DEB}" \
