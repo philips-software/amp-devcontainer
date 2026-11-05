@@ -24,6 +24,11 @@ setup() {
   assert_inventory_tools_available
 }
 
+# bats test_tags=Functional
+@test "commands listed in the inventory start successfully" {
+  assert_inventory_tools_run
+}
+
 # bats test_tags=Compatibility
 @test "the C.UTF-8 locale is generated and set as the default" {
   run locale -a

@@ -26,6 +26,11 @@ teardown() {
   assert_inventory_tools_available
 }
 
+# bats test_tags=Functional
+@test "commands listed in the inventory start successfully" {
+  assert_inventory_tools_run
+}
+
 @test "Rust toolchain directories are writable by the code user" {
   WRITE_TESTS=("${CARGO_HOME}/.write-test" "${RUSTUP_HOME}/.write-test")
 

@@ -13,8 +13,14 @@
       "cargo-strip"
     ]
   },
-  "cargo-mutants": {},
-  "flip-link": {},
+  "cargo-mutants": {
+    "commands": ["cargo-mutants"],
+    "smoke-test-args": { "cargo-mutants": ["mutants", "--version"] }
+  },
+  "flip-link": {
+    "commands": ["flip-link"],
+    "smoke-test-args": { "flip-link": ["--help"] }
+  },
   "g++-15": {},
   "probe-rs-tools": { "commands": ["probe-rs", "cargo-embed", "cargo-flash"] },
   "rust": { "commands": ["rustc", "cargo", "rustfmt", "cargo-clippy"] },

@@ -35,6 +35,11 @@ teardown() {
   assert_inventory_tools_available
 }
 
+# bats test_tags=Functional
+@test "commands listed in the inventory start successfully" {
+  assert_inventory_tools_run
+}
+
 # bats test_tags=Compatibility,Version,Clang
 @test "clang toolchain versions should be aligned with expected versions" {
   EXPECTED_VERSION=$(get_expected_semver_for clang)

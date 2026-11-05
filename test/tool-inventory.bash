@@ -108,9 +108,7 @@ function assert_commands_available() {
   done
 }
 
-function assert_inventory_tools_available() {
-  local package kind tool
-  local tools
+function read_inventory_tools() {
   local root="${BATS_TEST_DIRNAME}/../../.devcontainer"
   local flavor="${BATS_TEST_DIRNAME##*/}"
 
@@ -118,21 +116,41 @@ function assert_inventory_tools_available() {
   if [[ "${flavor}" != "base" ]]; then
     inventories+=("${root}/${flavor}/tool-inventory.json")
   fi
-  run jq -r '
+  jq -c '
     def paths: type == "array" and all(.[]; type == "string" and length > 0 and (test("[\\t\\r\\n]") | not));
+    def valid_entry:
+      . as $entry |
+      (keys - ["commands", "files", "smoke-test-args"] | length == 0) and
+      (del(.["smoke-test-args"]) | all(.[]; paths)) and
+      (. == {} or ((.commands // []) + (.files // []) | length > 0)) and
+      (if has("smoke-test-args") then
+        .["smoke-test-args"] | type == "object" and all(to_entries[];
+          (.key as $command | $entry.commands // [] | index($command) != null) and
+          (.value | paths and length > 0)
+        )
+      else true end);
     if type != "object" then error("Tool inventory must be a package mapping")
     else to_entries[] |
       if (.value | type != "object") then error("Invalid inventory entry for " + .key)
-      elif (.value | keys - ["commands", "files"] | length > 0)
-        or (.value | all(.[]; paths) | not)
-        or (.value != {} and ((.value.commands // []) + (.value.files // []) | length == 0))
+      elif (.value | valid_entry | not)
       then error("Invalid commands/files for " + .key)
       else .key as $package | (if .value == {} then {commands: [$package]} else .value end) |
-        ((.commands // [])[] | [$package, "command", .]),
-        ((.files // [])[] | [$package, "file", .]) | @tsv
+        . as $entry |
+        ((.commands // [])[] | {
+          package: $package, kind: "command", tool: .,
+          args: ($entry["smoke-test-args"][.] // ["--version"])
+        }),
+        ((.files // [])[] | {package: $package, kind: "file", tool: .})
       end
     end
   ' "${inventories[@]}"
+}
+
+function assert_inventory_tools_available() {
+  local package kind tool
+  local tools
+
+  run read_inventory_tools
   assert_success || return
   tools="${output}"
 
@@ -146,5 +164,33 @@ function assert_inventory_tools_available() {
         | fail
       return 1
     fi
-  done <<< "${tools}"
+  done < <(jq -r '[.package, .kind, .tool] | @tsv' <<< "${tools}")
+}
+
+function assert_inventory_tools_run() {
+  local tools entry package tool invocation
+  local args=()
+
+  run read_inventory_tools
+  assert_success || return
+  tools="${output}"
+
+  while IFS= read -r entry; do
+    package=$(jq -r '.package' <<< "${entry}")
+    tool=$(jq -r '.tool' <<< "${entry}")
+    mapfile -t args < <(jq -r '.args[]' <<< "${entry}")
+    printf -v invocation '%q ' "${tool}" "${args[@]}"
+
+    run timeout --kill-after=5s 30s "${tool}" "${args[@]}" < /dev/null
+    if [[ "${status}" -ne 0 ]]; then
+      batslib_print_kv_single_or_multi 10 \
+        'package' "${package}" \
+        'command' "${invocation% }" \
+        'exit code' "${status}" \
+        'output' "${output}" \
+        | batslib_decorate 'inventory command failed to start successfully' \
+        | fail
+      return 1
+    fi
+  done < <(jq -c 'select(.kind == "command")' <<< "${tools}")
 }

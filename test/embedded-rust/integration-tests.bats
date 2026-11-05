@@ -26,6 +26,11 @@ teardown() {
   assert_inventory_tools_available
 }
 
+# bats test_tags=Functional
+@test "commands listed in the inventory start successfully" {
+  assert_inventory_tools_run
+}
+
 @test "valid code input should result in working elf executable targeting the cortex-m architecture" {
   pushd cortex-m
 

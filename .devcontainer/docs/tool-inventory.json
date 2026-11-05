@@ -1,6 +1,12 @@
 {
-  "graphviz": { "commands": ["dot"] },
-  "plantuml": {},
+  "graphviz": {
+    "commands": ["dot"],
+    "smoke-test-args": { "dot": ["-V"] }
+  },
+  "plantuml": {
+    "commands": ["plantuml"],
+    "smoke-test-args": { "plantuml": ["-version"] }
+  },
   "python3-pip": { "commands": ["pip"] },
   "sbdl": {}
 }

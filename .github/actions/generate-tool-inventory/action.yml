@@ -34,11 +34,20 @@ runs:
         set -Eeuo pipefail
 
         jq -e '
+          def paths: type == "array" and all(.[]; type == "string" and length > 0 and (test("[\\t\\r\\n]") | not));
           type == "object" and all(to_entries[];
             (.value | type == "object") and
-            (.value | keys - ["commands", "files"] | length == 0) and
-            (.value | all(.[]; type == "array" and all(.[]; type == "string" and length > 0))) and
-            (.value == {} or (.value | [.[][]] | length > 0))
+            (.value | . as $entry |
+              (keys - ["commands", "files", "smoke-test-args"] | length == 0) and
+              (del(.["smoke-test-args"]) | all(.[]; paths)) and
+              (. == {} or ((.commands // []) + (.files // []) | length > 0)) and
+              (if has("smoke-test-args") then
+                .["smoke-test-args"] | type == "object" and all(to_entries[];
+                  (.key as $command | $entry.commands // [] | index($command) != null) and
+                  (.value | paths and length > 0)
+                )
+              else true end)
+            )
           )
         ' "${ALLOWLIST}" > /dev/null || {
           echo "error: invalid package-to-commands/files inventory: ${ALLOWLIST}" >&2

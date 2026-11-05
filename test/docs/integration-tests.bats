@@ -26,6 +26,11 @@ teardown() {
   assert_inventory_tools_available
 }
 
+# bats test_tags=Functional
+@test "commands listed in the inventory start successfully" {
+  assert_inventory_tools_run
+}
+
 # bats test_tags=Version,Sbdl
 @test "sbdl version should be aligned with the expected version" {
   EXPECTED_VERSION=$(grep sbdl ${BATS_TEST_DIRNAME}/../../.devcontainer/docs/requirements.in | to_semver)

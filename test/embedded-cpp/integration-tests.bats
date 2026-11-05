@@ -26,6 +26,11 @@ teardown() {
   assert_inventory_tools_available
 }
 
+# bats test_tags=Functional
+@test "commands listed in the inventory start successfully" {
+  assert_inventory_tools_run
+}
+
 ## This section contains tests for the embedded (ARM none-eabi) toolchain.
 #  Verifying that the host and embedded toolchains are aligned in terms of major
 #  and minor versions and that valid source code can be compiled into a working

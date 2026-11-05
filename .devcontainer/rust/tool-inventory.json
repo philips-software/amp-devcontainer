@@ -13,7 +13,10 @@
       "cargo-strip"
     ]
   },
-  "cargo-mutants": {},
+  "cargo-mutants": {
+    "commands": ["cargo-mutants"],
+    "smoke-test-args": { "cargo-mutants": ["mutants", "--version"] }
+  },
   "g++-15": {},
   "rust": { "commands": ["rustc", "cargo", "rustfmt", "cargo-clippy"] },
   "rustup": {}
