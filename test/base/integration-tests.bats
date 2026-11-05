@@ -5,13 +5,32 @@ bats_require_minimum_version 1.5.0
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
-  load '../versions'
+  load '../tool-inventory'
 }
 
 @test "cisco umbrella root certificate is included in system certificate store" {
   run openssl verify -CAfile /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/cisco-umbrella-root.pem
   assert_success
   assert_output --partial "OK"
+}
+
+# bats test_tags=Compatibility,Version
+@test "apt packages are installed at their pinned versions" {
+  assert_apt_packages_at_pinned_versions
+}
+
+# bats test_tags=Sbom
+@test "tools listed in the inventory are present in the image" {
+  assert_inventory_tools_available
+}
+
+# bats test_tags=Compatibility
+@test "the C.UTF-8 locale is generated and set as the default" {
+  run locale -a
+  assert_success
+  assert_output --partial "C.utf8"
+
+  assert_equal "${LANG}" "C.UTF-8"
 }
 
 @test "default developer account is `code` with UID and GID 1000" {
@@ -37,34 +56,7 @@ setup() {
 @test "devcontainer metadata selects code as the container user" {
   METADATA="${BATS_TEST_DIRNAME}/../../.devcontainer/base/devcontainer-metadata.json"
 
-  run jq -e '.containerUser == "code"' "${METADATA}"
-  assert_success
-}
-
-# bats test_tags=Compatibility,Version
-@test "GitHub CLI is installed and reports its version" {
-  run gh --version
-  assert_success
-  assert_output --regexp '^gh version [0-9]+\.[0-9]+\.[0-9]+'
-}
-
-# bats test_tags=Compatibility,Version
-@test "apt packages are installed at their pinned versions" {
-  assert_apt_packages_at_pinned_versions
-}
-
-# bats test_tags=Sbom
-@test "tools listed in the inventory are present in the image" {
-  assert_inventory_tools_available
-}
-
-# bats test_tags=Compatibility
-@test "the C.UTF-8 locale is generated and set as the default" {
-  run locale -a
-  assert_success
-  assert_output --partial "C.utf8"
-
-  assert_equal "${LANG}" "C.UTF-8"
+  jq -e '.containerUser == "code"' "${METADATA}"
 }
 
 # bats test_tags=Maintainability

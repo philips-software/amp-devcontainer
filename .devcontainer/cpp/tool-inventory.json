@@ -18,7 +18,7 @@
   "conan": {},
   "g++-15": {},
   "gcovr": {},
-  "gdb-multiarch": {},
+  "gdb-multiarch": { "commands": ["gdb", "gdb-multiarch"] },
   "include-what-you-use": { "commands": ["iwyu"] },
   "lld-22": { "commands": ["ld.lld-22"] },
   "llvm-22": {

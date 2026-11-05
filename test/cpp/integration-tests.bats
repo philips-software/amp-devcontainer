@@ -9,7 +9,7 @@ setup_file() {
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
-  load '../versions'
+  load '../tool-inventory'
 
   pushd ${BATS_TEST_DIRNAME}/workspace
 }
@@ -55,22 +55,8 @@ teardown() {
   done
 }
 
-# bats test_tags=Compatibility,Version,Tools
-@test "supporting tool versions should be aligned with expected versions" {
-  for TOOL in gdb gdb-multiarch; do
-    EXPECTED_VERSION=$(get_expected_version_for ${TOOL})
-    INSTALLED_VERSION=$(${TOOL} --version | grep -o '[0-9]\+\.[0-9]\+' | head -n1)
-
-    assert_tool_version "${TOOL}" "${INSTALLED_VERSION}" "${EXPECTED_VERSION}"
-  done
-
-  for TOOL in git ninja; do
-    EXPECTED_VERSION=$(get_expected_semver_for ${TOOL})
-    INSTALLED_VERSION=$(${TOOL} --version | to_semver)
-
-    assert_tool_version "${TOOL}" "${INSTALLED_VERSION}" "${EXPECTED_VERSION}"
-  done
-
+# bats test_tags=Version,Tools
+@test "pip-installed tool versions should be aligned with expected versions" {
   for TOOL in cmake conan; do
     EXPECTED_VERSION=$(cat ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/requirements.in | grep ${TOOL} | to_semver)
     INSTALLED_VERSION=$(${TOOL} --version | to_semver)

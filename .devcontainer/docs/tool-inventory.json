@@ -1,5 +1,6 @@
 {
   "graphviz": { "commands": ["dot"] },
   "plantuml": {},
+  "python3-pip": { "commands": ["pip"] },
   "sbdl": {}
 }
