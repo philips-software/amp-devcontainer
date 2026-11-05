@@ -5,6 +5,7 @@ bats_require_minimum_version 1.5.0
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
+  load '../tool-inventory'
 
   pushd ${BATS_TEST_DIRNAME}/workspace
 }
@@ -13,6 +14,16 @@ teardown() {
   rm -rf build ./**/target ./**/default*.prof* ./**/mutants.out
 
   popd
+}
+
+# bats test_tags=Sbom
+@test "tools listed in the inventory are present in the image" {
+  assert_inventory_tools_available
+}
+
+# bats test_tags=Functional
+@test "commands listed in the inventory start successfully" {
+  assert_inventory_tools_run
 }
 
 @test "Rust toolchain directories are writable by the code user" {

@@ -5,6 +5,7 @@ bats_require_minimum_version 1.5.0
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
+  load '../tool-inventory'
 
   pushd ${BATS_TEST_DIRNAME}/workspace
 }
@@ -20,12 +21,22 @@ teardown() {
   assert_success
 }
 
+# bats test_tags=Sbom
+@test "tools listed in the inventory are present in the image" {
+  assert_inventory_tools_available
+}
+
+# bats test_tags=Functional
+@test "commands listed in the inventory start successfully" {
+  assert_inventory_tools_run
+}
+
 # bats test_tags=Version,Sbdl
 @test "sbdl version should be aligned with the expected version" {
   EXPECTED_VERSION=$(grep sbdl ${BATS_TEST_DIRNAME}/../../.devcontainer/docs/requirements.in | to_semver)
   INSTALLED_VERSION=$(sbdl --version | to_semver)
 
-  assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+  assert_tool_version sbdl "${INSTALLED_VERSION}" "${EXPECTED_VERSION}"
 }
 
 @test "python cache directory is writable by the code user" {
@@ -60,8 +71,4 @@ teardown() {
 
   assert_success
   assert_output --partial "req-doc-0001 is requirement"
-}
-
-function to_semver() {
-  grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1
 }
