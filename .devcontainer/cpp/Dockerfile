@@ -88,7 +88,7 @@ RUN --mount=from=downloader,target=/dl \
     MULL_RUNNER_DEB="Mull-${MULL_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
     MULL_DEB="Mull-${LLVM_MAJOR_VERSION}-${MULL_VERSION}-LLVM-${LLVM_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
 
-    gh release download --repo mull-project/mull \
+    gh release download "${MULL_VERSION}" --repo mull-project/mull \
         --pattern "${MULL_DEB}" \
         --pattern "${MULL_RUNNER_DEB}"
 
