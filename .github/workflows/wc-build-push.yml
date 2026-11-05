@@ -308,7 +308,7 @@ jobs:
       - name: Generate tool inventory
         if: ${{ inputs.tool-inventory-file != '' }}
         id: generate-tool-inventory
-        uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions-v1.1.0
+        uses: ./.github/actions/generate-tool-inventory
         with:
           sbom: ${{ runner.temp }}/sbom.spdx.json
           tool-inventory: ${{ inputs.tool-inventory-file }}
