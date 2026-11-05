@@ -149,7 +149,7 @@ Before you submit your pull request consider the following guidelines:
    Ubuntu packages are installed from one dated snapshot shared by all flavors.
    List packages in the relevant Dockerfile; the tool inventory describes the
    tools promised to users, not every installation dependency. Weekly update
-   PRs advance the snapshot, while GitHub CLI is updated independently.
+   PRs advance the snapshot; the GitHub CLI version pin is unchanged by these updates.
    The Ubuntu snapshot proof workflow builds every flavor on native amd64 and
    arm64 runners without publishing images. Use its manual timestamp input to
    investigate candidate snapshots. All normal integration tests must also pass.
