@@ -265,7 +265,7 @@ jobs:
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
         shell: bash
         working-directory: ${{ runner.temp }}/digests
-      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
+      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@dce97e0513ae0b18ef9504ca03ff9b813bfe8dee # actions/v2.0.0
         id: extract-digest
         with:
           container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
