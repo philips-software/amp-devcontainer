@@ -97,7 +97,7 @@ RUN --mount=from=downloader,target=/dl \
         MULL_SHA256="44267017f4da2b556ee7715c2c32bcb16270abfdbf8fe0740317708d355171cc"
     elif [[ "$(uname -m)" == "aarch64" ]]; then
         MULL_RUNNER_SHA256="4ff84028c08c56d4a3e7654ef8176e8f3c949bb5da39fe36aa13d5fc362f02da"
-        MULL_SHA256="04a4db34db49d596493f6b2f0464abbf795b140f11b2674f6946826f8cdbc302"
+        MULL_SHA256="3c9e047bb188ded92fab389af65799cb45d606bfe1193cfd57b7e0396dab9f4f"
     fi
 
     echo "${MULL_RUNNER_SHA256}  ${MULL_RUNNER_DEB}" | sha256sum -c -
