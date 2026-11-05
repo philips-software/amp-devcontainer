@@ -152,6 +152,13 @@ Before you submit your pull request consider the following guidelines:
    Materials (SBOM). When adding, removing, or renaming a tool, update the
    inventories for all affected flavors so the tests and release notes stay
    aligned.
+   Define flavor-specific entries under `packages` and reuse other inventories
+   through `includes`, with paths relative to the declaring file. Includes are
+   applied in order, then local packages replace inherited entries in full.
+   Tests and release notes use the same resolved inventory; missing includes
+   and inclusion cycles fail validation.
+   Commands are smoke-tested with `--version` by default. Use a package's
+   `smoke-test-args` mapping for command-specific argument arrays when needed.
 
 1. Commit your changes using a descriptive commit message.
 

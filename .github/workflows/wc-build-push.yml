@@ -305,15 +305,13 @@ jobs:
         if: ${{ inputs.tool-inventory-file != '' }}
         with:
           persist-credentials: false
-          sparse-checkout: ${{ inputs.tool-inventory-file }}
-          sparse-checkout-cone-mode: false
       - name: Generate tool inventory
         if: ${{ inputs.tool-inventory-file != '' }}
         id: generate-tool-inventory
         uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions-v1.1.0
         with:
           sbom: ${{ runner.temp }}/sbom.spdx.json
-          allowlist: ${{ inputs.tool-inventory-file }}
+          tool-inventory: ${{ inputs.tool-inventory-file }}
           flavor: ${{ needs.sanitize-image-name.outputs.image-basename }}
           output-file: ${{ runner.temp }}/tool-inventory.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

@@ -1,12 +1,17 @@
 {
-  "graphviz": {
-    "commands": ["dot"],
-    "smoke-test-args": { "dot": ["-V"] }
-  },
-  "plantuml": {
-    "commands": ["plantuml"],
-    "smoke-test-args": { "plantuml": ["-version"] }
-  },
-  "python3-pip": { "commands": ["pip"] },
-  "sbdl": {}
+  "includes": [
+    "../base/tool-inventory.json"
+  ],
+  "packages": {
+    "graphviz": {
+      "commands": ["dot"],
+      "smoke-test-args": { "dot": ["-V"] }
+    },
+    "plantuml": {
+      "commands": ["plantuml"],
+      "smoke-test-args": { "plantuml": ["-version"] }
+    },
+    "python3-pip": { "commands": ["pip"] },
+    "sbdl": {}
+  }
 }

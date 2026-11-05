@@ -112,38 +112,19 @@ function read_inventory_tools() {
   local root="${BATS_TEST_DIRNAME}/../../.devcontainer"
   local flavor="${BATS_TEST_DIRNAME##*/}"
 
-  local inventories=("${root}/base/tool-inventory.json")
-  if [[ "${flavor}" != "base" ]]; then
-    inventories+=("${root}/${flavor}/tool-inventory.json")
-  fi
+  local packages
+  packages=$(bash "${BASH_SOURCE[0]%/*}/../.github/actions/generate-tool-inventory/resolve.sh" \
+    "${root}/${flavor}/tool-inventory.json") || return
   jq -c '
-    def paths: type == "array" and all(.[]; type == "string" and length > 0 and (test("[\\t\\r\\n]") | not));
-    def valid_entry:
-      . as $entry |
-      (keys - ["commands", "files", "smoke-test-args"] | length == 0) and
-      (del(.["smoke-test-args"]) | all(.[]; paths)) and
-      (. == {} or ((.commands // []) + (.files // []) | length > 0)) and
-      (if has("smoke-test-args") then
-        .["smoke-test-args"] | type == "object" and all(to_entries[];
-          (.key as $command | $entry.commands // [] | index($command) != null) and
-          (.value | paths and length > 0)
-        )
-      else true end);
-    if type != "object" then error("Tool inventory must be a package mapping")
-    else to_entries[] |
-      if (.value | type != "object") then error("Invalid inventory entry for " + .key)
-      elif (.value | valid_entry | not)
-      then error("Invalid commands/files for " + .key)
-      else .key as $package | (if .value == {} then {commands: [$package]} else .value end) |
+    to_entries[] |
+      .key as $package | (if .value == {} then {commands: [$package]} else .value end) |
         . as $entry |
         ((.commands // [])[] | {
           package: $package, kind: "command", tool: .,
           args: ($entry["smoke-test-args"][.] // ["--version"])
         }),
         ((.files // [])[] | {package: $package, kind: "file", tool: .})
-      end
-    end
-  ' "${inventories[@]}"
+  ' <<< "${packages}"
 }
 
 function assert_inventory_tools_available() {

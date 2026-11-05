@@ -1,28 +1,12 @@
 {
-  "cargo-binstall": {},
-  "cargo-binutils": {
-    "commands": [
-      "cargo-ar",
-      "cargo-cov",
-      "cargo-nm",
-      "cargo-objcopy",
-      "cargo-objdump",
-      "cargo-profdata",
-      "cargo-readobj",
-      "cargo-size",
-      "cargo-strip"
-    ]
-  },
-  "cargo-mutants": {
-    "commands": ["cargo-mutants"],
-    "smoke-test-args": { "cargo-mutants": ["mutants", "--version"] }
-  },
-  "flip-link": {
-    "commands": ["flip-link"],
-    "smoke-test-args": { "flip-link": ["--help"] }
-  },
-  "g++-15": {},
-  "probe-rs-tools": { "commands": ["probe-rs", "cargo-embed", "cargo-flash"] },
-  "rust": { "commands": ["rustc", "cargo", "rustfmt", "cargo-clippy"] },
-  "rustup": {}
+  "includes": [
+    "../rust/tool-inventory.json"
+  ],
+  "packages": {
+    "flip-link": {
+      "commands": ["flip-link"],
+      "smoke-test-args": { "flip-link": ["--help"] }
+    },
+    "probe-rs-tools": { "commands": ["probe-rs", "cargo-embed", "cargo-flash"] }
+  }
 }
