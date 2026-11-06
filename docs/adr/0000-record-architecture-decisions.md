@@ -8,7 +8,7 @@
 
 The project makes architectural, process, and supply-chain decisions — such as how packages are pinned or how the threat model is expressed — whose rationale is easily lost over time. Commit messages and pull-request discussions are hard to discover after the fact, yet new contributors and auditors need to understand *why* a decision was made, not only *what* the code does.
 
-The container's own maintainability requirement states that amp-devcontainer *SHOULD* document its architectural decisions (see [test/cpp/features/maintainability.feature](../../test/cpp/features/maintainability.feature)). The project therefore needs a lightweight, durable, and discoverable way to capture significant decisions together with their context and consequences.
+The container's own maintainability requirement states that amp-devcontainer *SHOULD* document its architectural decisions (see [req-maint-0004](../requirements/maintainability.feature)). The project therefore needs a lightweight, durable, and discoverable way to capture significant decisions together with their context and consequences.
 
 ## Decision Drivers
 
