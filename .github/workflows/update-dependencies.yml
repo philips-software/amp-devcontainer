@@ -30,13 +30,13 @@ jobs:
     permissions:
       contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
     steps:
-      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: philips-software/amp-devcontainer/.github/actions/update-apt-packages@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
+      - uses: philips-software/amp-devcontainer/.github/actions/update-apt-packages@393bcb3879a2a8f9b7726d560647e2e6106833bd # actions/v2.1.0
         id: update-packages
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements*.json
@@ -65,14 +65,14 @@ jobs:
     permissions:
       contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
     steps:
-      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       # continue-on-error is intentional: a single bad file shouldn't block a PR for the rest; see the trailing "Fail if..." step
-      - uses: philips-software/amp-devcontainer/.github/actions/update-vscode-extensions@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
+      - uses: philips-software/amp-devcontainer/.github/actions/update-vscode-extensions@393bcb3879a2a8f9b7726d560647e2e6106833bd # actions/v2.1.0
         id: update-extensions
         continue-on-error: true
         with:

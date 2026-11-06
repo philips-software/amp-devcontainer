@@ -5,6 +5,7 @@ bats_require_minimum_version 1.5.0
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
+  load '../tool-inventory'
 }
 
 @test "cisco umbrella root certificate is included in system certificate store" {
@@ -13,7 +14,31 @@ setup() {
   assert_output --partial "OK"
 }
 
-@test "default developer account is code with UID and GID 1000" {
+# bats test_tags=Compatibility,Version
+@test "apt packages are installed at their pinned versions" {
+  assert_apt_packages_at_pinned_versions
+}
+
+# bats test_tags=Sbom
+@test "tools listed in the inventory are present in the image" {
+  assert_inventory_tools_available
+}
+
+# bats test_tags=Functional
+@test "commands listed in the inventory start successfully" {
+  assert_inventory_tools_run
+}
+
+# bats test_tags=Compatibility
+@test "the C.UTF-8 locale is generated and set as the default" {
+  run locale -a
+  assert_success
+  assert_output --partial "C.utf8"
+
+  assert_equal "${LANG}" "C.UTF-8"
+}
+
+@test "default developer account is 'code' with UID and GID 1000" {
   run id -u code
   assert_success
   assert_output "1000"
@@ -41,48 +66,10 @@ setup() {
 }
 
 # bats test_tags=Compatibility,Version
-@test "apt packages are installed at their pinned versions" {
-  APT_REQUIREMENTS="${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements.json"
-
-  while IFS="=" read -r PACKAGE EXPECTED_VERSION; do
-    run dpkg-query -W -f='${Version}' "${PACKAGE}"
-    assert_success
-    assert_equal "${output}" "${EXPECTED_VERSION}"
-  done < <(jq -r 'to_entries[] | .key + "=" + .value' "${APT_REQUIREMENTS}")
-}
-
-# bats test_tags=Sbom
-@test "tools listed in the inventory are present in the image" {
-  TOOL_INVENTORY="${BATS_TEST_DIRNAME}/../../.devcontainer/base/tool-inventory.json"
-
-  run jq -r '.[]' "${TOOL_INVENTORY}"
+@test "GitHub CLI is installed and reports its version" {
+  run gh --version
   assert_success
-
-  while IFS= read -r TOOL; do
-    case "${TOOL}" in
-      bats-support | bats-assert)
-        assert [ -f "/usr/local/${TOOL}/load.bash" ]
-        ;;
-      gnupg2)
-        # The gnupg2 package provides the gpg command
-        run command -v gpg
-        assert_success
-        ;;
-      *)
-        run command -v "${TOOL}"
-        assert_success
-        ;;
-    esac
-  done <<< "${output}"
-}
-
-# bats test_tags=Compatibility
-@test "the C.UTF-8 locale is generated and set as the default" {
-  run locale -a
-  assert_success
-  assert_output --partial "C.utf8"
-
-  assert_equal "${LANG}" "C.UTF-8"
+  assert_output --regexp '^gh version [0-9]+\.[0-9]+\.[0-9]+'
 }
 
 # bats test_tags=Maintainability

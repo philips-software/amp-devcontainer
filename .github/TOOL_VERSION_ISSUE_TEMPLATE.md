@@ -35,7 +35,7 @@ It's time for our quarterly tool version check! This issue serves as a reminder 
 
 ### ⚙️ amp-devcontainer-embedded-cpp
 
-- [ ] [ARM GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) — *must match GCC version*
+- [ ] [ARM GNU Toolchain](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm) — *must match GCC version*
 
 ### 🦀 amp-devcontainer-rust
 
