@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [9.0.0](https://github.com/philips-software/amp-devcontainer/compare/v8.4.1...v9.0.0) (2026-11-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* add code container user to replace root ([#1501](https://github.com/philips-software/amp-devcontainer/issues/1501))
+
+### Features
+
+* Add code container user to replace root ([#1501](https://github.com/philips-software/amp-devcontainer/issues/1501)) ([adf549b](https://github.com/philips-software/amp-devcontainer/commit/adf549ba6b0df1cdab12789e91e90cc54979eb8c))
+* Add GitHub cli ([#1517](https://github.com/philips-software/amp-devcontainer/issues/1517)) ([740a93b](https://github.com/philips-software/amp-devcontainer/commit/740a93bac7764aeb17adf20dc069ba1184187930))
+
+
+### Bug Fixes
+
+* Enable code as container user for all configurations ([#1516](https://github.com/philips-software/amp-devcontainer/issues/1516)) ([55dc7e3](https://github.com/philips-software/amp-devcontainer/commit/55dc7e355d23b7d4c46999c1f20af102d8fbe471))
+
+
+### Chores
+
+* **deps, cpp:** Update mull-22 ([#1507](https://github.com/philips-software/amp-devcontainer/issues/1507)) ([1bcf69c](https://github.com/philips-software/amp-devcontainer/commit/1bcf69c7015dc432e30b9e28173834f2917a7737))
+* **deps:** Bump gcovr from 8.6 to 8.7 in amp-devcontainer-cpp ([#1506](https://github.com/philips-software/amp-devcontainer/issues/1506)) ([d747cb5](https://github.com/philips-software/amp-devcontainer/commit/d747cb58552769e2d8a9f7145ed00cad99297fea))
+* Fix sonarqube findings ([#1505](https://github.com/philips-software/amp-devcontainer/issues/1505)) ([66681b4](https://github.com/philips-software/amp-devcontainer/commit/66681b43ace8a0ae5869f9fdde32dd05f62f1ea1))
+* Install mull from gh releases ([#1519](https://github.com/philips-software/amp-devcontainer/issues/1519)) ([78c54fd](https://github.com/philips-software/amp-devcontainer/commit/78c54fd7fe7ae8d0a335089bf5cba1d35cf26caa))
+* **main:** Release actions 2.0.0 ([#1502](https://github.com/philips-software/amp-devcontainer/issues/1502)) ([dce97e0](https://github.com/philips-software/amp-devcontainer/commit/dce97e0513ae0b18ef9504ca03ff9b813bfe8dee))
+* **main:** Release actions 2.1.0 ([#1520](https://github.com/philips-software/amp-devcontainer/issues/1520)) ([393bcb3](https://github.com/philips-software/amp-devcontainer/commit/393bcb3879a2a8f9b7726d560647e2e6106833bd))
+* Update node version in actions ([#1515](https://github.com/philips-software/amp-devcontainer/issues/1515)) ([beb625c](https://github.com/philips-software/amp-devcontainer/commit/beb625ce65b07e1cdee2157bd08505c42519820c))
+
 ## [8.4.1](https://github.com/philips-software/amp-devcontainer/compare/v8.4.0...v8.4.1) (2026-10-24)
 
 
