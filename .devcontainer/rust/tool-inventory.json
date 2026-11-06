@@ -25,6 +25,7 @@
       "smoke-test-args": { "cargo-mutants": ["mutants", "--version"] }
     },
     "g++-15": {},
+    "gdb-multiarch": { "commands": ["gdb", "gdb-multiarch"] },
     "rust": { "commands": ["rustc", "cargo", "rustfmt", "cargo-clippy"] },
     "rustup": {}
   }

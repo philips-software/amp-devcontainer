@@ -78,6 +78,7 @@ HEALTHCHECK NONE
 ENV BINSTALL_DISABLE_TELEMETRY=true \
     CARGO_HOME=/home/code/.cargo \
     RUSTUP_HOME=/home/code/.rustup \
+    RUST_GDB=gdb-multiarch \
     PATH=/home/code/.cargo/bin:"$PATH"
 
 # The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
