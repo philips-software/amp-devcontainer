@@ -111,7 +111,7 @@ Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<mino
 The latest build on the default branch is tagged with `edge` and pull request builds are tagged with `pr-<number>`.
 
 | Branch       | Tag                        |
-| ------------ | -------------------------- |
+|--------------|----------------------------|
 | Default      | `edge`                     |
 | Pull Request | `pr-<number>`              |
 | Release      | `v<major>.<minor>.<patch>` |

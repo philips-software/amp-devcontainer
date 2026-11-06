@@ -42,14 +42,15 @@ jobs:
       # The caller supplies the immutable digest produced by the build workflow.
       image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }} # zizmor: ignore[unpinned-images]
       # Actions need access to runner-owned command files; the tests run as code below.
-      options: --user 0
+      # ThreadSanitizer requires unconfined seccomp to function correctly.
+      options: --user 0 --security-opt seccomp=unconfined
       credentials:
         username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
         password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
     permissions:
       contents: read
     steps:
-      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
         with:
           disable-sudo: true
           egress-policy: audit

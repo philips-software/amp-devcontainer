@@ -1,6 +1,7 @@
 {
   "image": "ghcr.io/philips-software/amp-devcontainer-embedded-cpp:${localEnv:IMAGE_VERSION}",
   "workspaceFolder": "/workspaces/amp-devcontainer/test/embedded-cpp/workspace",
+  "containerUser": "code",
   "customizations": {
     "vscode": {
       "settings": {

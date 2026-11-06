@@ -8,6 +8,7 @@
       "BUILD_EMBEDDED_FLAVOR": "true"
     }
   },
+  "containerUser": "code",
   "remoteEnv": {
     "CONTAINER_FLAVOR": "embedded-rust"
   },

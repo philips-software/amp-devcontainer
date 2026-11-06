@@ -40,7 +40,7 @@ jobs:
     timeout-minutes: 20
     environment: acceptance-testing
     steps:
-      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
         with:
           disable-sudo: false # Playwright requires root privileges to install browsers
           egress-policy: audit
@@ -71,9 +71,9 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24.8.0
+          node-version: 26
       - run: npm ci --ignore-scripts
-      - run: npx playwright install --with-deps
+      - run: npx playwright install --with-deps chromium
       - name: Wait for Codespace to be active
         run: |
           set -Eeuo pipefail

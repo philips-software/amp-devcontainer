@@ -5,6 +5,7 @@ bats_require_minimum_version 1.5.0
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
+  load '../tool-inventory'
 
   pushd ${BATS_TEST_DIRNAME}/workspace
 }
@@ -15,32 +16,19 @@ teardown() {
   popd
 }
 
-## This section contains tests for version correctness of the installed tools.
-#  Comparing the versions of the installed tools with the expected versions as
-#  pinned in the flavor's apt- and pip-requirements.
-
-# bats test_tags=Version,Graphviz
-@test "graphviz version should be aligned with the expected version" {
-  EXPECTED_VERSION=$(get_expected_semver_for graphviz)
-  INSTALLED_VERSION=$(dot -V 2>&1 | to_semver)
-
-  assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+# bats test_tags=Compatibility,Version
+@test "apt packages are installed at their pinned versions" {
+  assert_apt_packages_at_pinned_versions
 }
 
-# bats test_tags=Version,Pip
-@test "pip version should be aligned with the expected version" {
-  EXPECTED_VERSION=$(get_expected_semver_for python3-pip)
-  INSTALLED_VERSION=$(pip --version | to_semver)
-
-  assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+# bats test_tags=Sbom
+@test "tools listed in the inventory are present in the image" {
+  assert_inventory_tools_available
 }
 
-# bats test_tags=Version,Plantuml
-@test "plantuml version should be aligned with the expected version" {
-  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for plantuml | cut -d. -f1,2)
-  INSTALLED_MAJOR_MINOR_VERSION=$(plantuml -version 2>&1 | to_semver | cut -d. -f1,2)
-
-  assert_equal "$INSTALLED_MAJOR_MINOR_VERSION" "$EXPECTED_MAJOR_MINOR_VERSION"
+# bats test_tags=Functional
+@test "commands listed in the inventory start successfully" {
+  assert_inventory_tools_run
 }
 
 # bats test_tags=Version,Sbdl
@@ -48,7 +36,7 @@ teardown() {
   EXPECTED_VERSION=$(grep sbdl ${BATS_TEST_DIRNAME}/../../.devcontainer/docs/requirements.in | to_semver)
   INSTALLED_VERSION=$(sbdl --version | to_semver)
 
-  assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+  assert_tool_version sbdl "${INSTALLED_VERSION}" "${EXPECTED_VERSION}"
 }
 
 @test "python cache directory is writable by the code user" {
@@ -83,21 +71,4 @@ teardown() {
 
   assert_success
   assert_output --partial "req-doc-0001 is requirement"
-}
-
-function to_semver() {
-  grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1
-}
-
-function get_expected_version_for() {
-  local TOOL=${1:?}
-
-  jq -r "to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
-    ${BATS_TEST_DIRNAME}/../../.devcontainer/docs/apt-requirements.json
-}
-
-function get_expected_semver_for() {
-  local TOOL=${1:?}
-
-  get_expected_version_for ${TOOL} | to_semver
 }

@@ -1,11 +1,12 @@
-[
-  "cargo-binstall",
-  "cargo-binutils",
-  "cargo-mutants",
-  "flip-link",
-  "g++-15",
-  "gdb-multiarch",
-  "probe-rs-tools",
-  "rust",
-  "rustup"
-]
+{
+  "includes": [
+    "../rust/tool-inventory.json"
+  ],
+  "packages": {
+    "flip-link": {
+      "commands": ["flip-link"],
+      "smoke-test-args": { "flip-link": ["--help"] }
+    },
+    "probe-rs-tools": { "commands": ["probe-rs", "cargo-embed", "cargo-flash"] }
+  }
+}

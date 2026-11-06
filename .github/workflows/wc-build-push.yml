@@ -82,7 +82,7 @@ jobs:
       contents: read
       packages: write # is needed by docker/build-push-action to push images when using GitHub Container Registry
     steps:
-      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
         with:
           disable-sudo: true
           egress-policy: audit
@@ -92,7 +92,7 @@ jobs:
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
         with:
           cache-binary: false
-      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
@@ -106,7 +106,7 @@ jobs:
       # Merge the base image's devcontainer.metadata array with this flavor's
       # entry so that flavors inherit base metadata without duplicating it.
       - name: Generate image label for devcontainer.metadata
-        uses: philips-software/amp-devcontainer/.github/actions/merge-devcontainer-metadata@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions-v1.1.0
+        uses: philips-software/amp-devcontainer/.github/actions/merge-devcontainer-metadata@393bcb3879a2a8f9b7726d560647e2e6106833bd # actions/v2.1.0
         id: devcontainer-metadata
         with:
           base-image: ${{ inputs.base-image }}
@@ -197,7 +197,7 @@ jobs:
       digest: ${{ steps.extract-digest.outputs.digest }}
       version: ${{ steps.metadata.outputs.version }}
     steps:
-      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
         with:
           disable-sudo: true
           egress-policy: audit
@@ -209,7 +209,7 @@ jobs:
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
         with:
           cache-binary: false
-      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
@@ -265,7 +265,7 @@ jobs:
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
         shell: bash
         working-directory: ${{ runner.temp }}/digests
-      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
+      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@393bcb3879a2a8f9b7726d560647e2e6106833bd # actions/v2.1.0
         id: extract-digest
         with:
           container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
@@ -284,7 +284,7 @@ jobs:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
+      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@393bcb3879a2a8f9b7726d560647e2e6106833bd # actions/v2.1.0
         id: container-size-diff
         with:
           from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
@@ -305,15 +305,13 @@ jobs:
         if: ${{ inputs.tool-inventory-file != '' }}
         with:
           persist-credentials: false
-          sparse-checkout: ${{ inputs.tool-inventory-file }}
-          sparse-checkout-cone-mode: false
       - name: Generate tool inventory
         if: ${{ inputs.tool-inventory-file != '' }}
         id: generate-tool-inventory
-        uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@370c48c32a438aafb841c2b1f9f442f21919c2a9 # actions-v1.1.0
+        uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@393bcb3879a2a8f9b7726d560647e2e6106833bd # actions/v2.1.0
         with:
           sbom: ${{ runner.temp }}/sbom.spdx.json
-          allowlist: ${{ inputs.tool-inventory-file }}
+          tool-inventory: ${{ inputs.tool-inventory-file }}
           flavor: ${{ needs.sanitize-image-name.outputs.image-basename }}
           output-file: ${{ runner.temp }}/tool-inventory.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

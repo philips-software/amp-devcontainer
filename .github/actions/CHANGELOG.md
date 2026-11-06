@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.0.0...actions/v2.1.0) (2026-11-05)
+
+
+### Features
+
+* Add GitHub cli ([#1517](https://github.com/philips-software/amp-devcontainer/issues/1517)) ([740a93b](https://github.com/philips-software/amp-devcontainer/commit/740a93bac7764aeb17adf20dc069ba1184187930))
+
+
+### Chores
+
+* Update node version in actions ([#1515](https://github.com/philips-software/amp-devcontainer/issues/1515)) ([beb625c](https://github.com/philips-software/amp-devcontainer/commit/beb625ce65b07e1cdee2157bd08505c42519820c))
+
 ## [2.0.0](https://github.com/philips-software/amp-devcontainer/compare/actions/v1.2.0...actions/v2.0.0) (2026-10-26)
 
 

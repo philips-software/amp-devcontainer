@@ -2,4 +2,4 @@ FROM ghcr.io/philips-software/amp-devcontainer-embedded-cpp:${templateOption:ima
 
 HEALTHCHECK NONE
 
-USER 1000:1000
+USER 1000
