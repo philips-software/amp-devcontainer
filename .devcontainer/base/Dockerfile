@@ -56,7 +56,7 @@ RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add
     --trust-model always --no-default-keyring \
     --keyring /src/githubcli-archive-keyring.gpg \
     --list-keys 0x7F38BBB59D064DBCB3D84D725612B36462313325
-   cat /src/githubcli-archive-keyring.gpg | tee /usr/share/keyrings/githubcli-archive-keyring.gpg
+   cat /src/githubcli-archive-keyring.gpg | tee /usr/share/keyrings/githubcli-archive-keyring.gpg > /dev/null
    cat > /etc/apt/sources.list.d/github-cli.sources <<SOURCE
 Types: deb
 URIs: https://cli.github.com/packages
@@ -89,8 +89,6 @@ SOURCE
    # Rename Ubuntu's default account while preserving its UID and GID.
    usermod --login code --home /home/code --move-home ubuntu
    groupmod --new-name code ubuntu
-   test "$(id -u code)" -eq 1000
-   test "$(id -g code)" -eq 1000
 
    # Ensure the developer account has a bashrc with bash-completion enabled.
    install -d -m 0755 -o code -g code /home/code

@@ -38,7 +38,7 @@ setup() {
   assert_equal "${LANG}" "C.UTF-8"
 }
 
-@test "default developer account is `code` with UID and GID 1000" {
+@test "default developer account is 'code' with UID and GID 1000" {
   run id -u code
   assert_success
   assert_output "1000"
@@ -61,7 +61,15 @@ setup() {
 @test "devcontainer metadata selects code as the container user" {
   METADATA="${BATS_TEST_DIRNAME}/../../.devcontainer/base/devcontainer-metadata.json"
 
-  jq -e '.containerUser == "code"' "${METADATA}"
+  run jq -e '.containerUser == "code"' "${METADATA}"
+  assert_success
+}
+
+# bats test_tags=Compatibility,Version
+@test "GitHub CLI is installed and reports its version" {
+  run gh --version
+  assert_success
+  assert_output --regexp '^gh version [0-9]+\.[0-9]+\.[0-9]+'
 }
 
 # bats test_tags=Maintainability

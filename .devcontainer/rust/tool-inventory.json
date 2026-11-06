@@ -3,10 +3,13 @@
     "../base/tool-inventory.json"
   ],
   "packages": {
-    "cargo-binstall": {},
+    "cargo-binstall": {
+      "commands": ["cargo-binstall"],
+      "smoke-test-args": { "cargo-binstall": ["--help"] }
+    },
     "cargo-binutils": {
       "commands": [
-        "cargo-ar",
+        "rust-ar",
         "cargo-cov",
         "cargo-nm",
         "cargo-objcopy",
