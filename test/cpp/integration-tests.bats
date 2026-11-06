@@ -25,11 +25,6 @@ teardown() {
 #  that the tools are compatible with each other. E.g. that the host and embedded toolchains
 #  are aligned in terms of major and minor versions.
 
-# bats test_tags=Compatibility,Version
-@test "apt packages are installed at their pinned versions" {
-  assert_apt_packages_at_pinned_versions
-}
-
 # bats test_tags=Sbom
 @test "tools listed in the inventory are present in the image" {
   assert_inventory_tools_available
@@ -42,7 +37,7 @@ teardown() {
 
 # bats test_tags=Compatibility,Version,Clang
 @test "clang toolchain versions should be aligned with expected versions" {
-  EXPECTED_VERSION=$(get_expected_semver_for clang)
+  EXPECTED_VERSION=$(sed -n 's/^ARG LLVM_VERSION=//p' "${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/Dockerfile")
 
   for TOOL in clang clang++ clang-cl clang-format clang-tidy; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
@@ -52,7 +47,7 @@ teardown() {
 
 # bats test_tags=Compatibility,Version,GCC
 @test "host gcc toolchain versions and alternatives should be aligned with expected versions" {
-  EXPECTED_VERSION=$(get_expected_semver_for g++)
+  EXPECTED_VERSION=$(g++-15 -dumpfullversion)
 
   for TOOL in cc gcc c++ g++ gcov; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
@@ -60,8 +55,20 @@ teardown() {
   done
 }
 
-# bats test_tags=Version,Tools
-@test "pip-installed tool versions should be aligned with expected versions" {
+# bats test_tags=Compatibility,Version,Tools
+@test "supporting tool versions should be aligned with expected versions" {
+  EXPECTED_VERSION=$(gdb-multiarch --version | grep -o '[0-9]\+\.[0-9]\+' | head -n1)
+  for TOOL in gdb gdb-multiarch; do
+    INSTALLED_VERSION=$(${TOOL} --version | grep -o '[0-9]\+\.[0-9]\+' | head -n1)
+
+    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+  done
+
+  for TOOL in git ninja; do
+    run "${TOOL}" --version
+    assert_success
+  done
+
   for TOOL in cmake conan; do
     EXPECTED_VERSION=$(cat ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/requirements.in | grep ${TOOL} | to_semver)
     INSTALLED_VERSION=$(${TOOL} --version | to_semver)

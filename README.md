@@ -111,7 +111,7 @@ Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<mino
 The latest build on the default branch is tagged with `edge` and pull request builds are tagged with `pr-<number>`.
 
 | Branch       | Tag                        |
-| ------------ | -------------------------- |
+|--------------|----------------------------|
 | Default      | `edge`                     |
 | Pull Request | `pr-<number>`              |
 | Release      | `v<major>.<minor>.<patch>` |
@@ -179,6 +179,24 @@ gh attestation verify --repo philips-software/amp-devcontainer oci://ghcr.io/phi
 ```
 
 ### Local development
+
+Ubuntu packages come from a fixed [Ubuntu snapshot](https://snapshot.ubuntu.com/)
+shared by all flavors and architectures. This also applies to subsequent
+`apt-get` commands inside the container. Weekly dependency-update pull requests
+advance the snapshot; manual updates can adopt urgent security fixes. External
+tools such as GitHub CLI retain independent version pins. The SBOM records the
+versions actually installed.
+
+To opt into current Ubuntu packages in a disposable local container, replace
+the snapshot URI in `/etc/apt/sources.list.d/ubuntu.sources` with
+`https://archive.ubuntu.com/ubuntu/` on amd64 or
+`https://ports.ubuntu.com/ubuntu-ports/` on arm64, then run `apt-get update`
+as root. This intentionally leaves the tested repository state.
+
+Snapshots improve repeatable package resolution, not indefinite archival or
+byte-for-byte image reproducibility. Canonical currently documents retention
+of at least two years. Snapshot-service outages can still prevent clean builds;
+builds fail rather than silently switching repositories.
 
 The resulting containers can be used in a `.devcontainer.json` file or in a `.devcontainer` folder.
 

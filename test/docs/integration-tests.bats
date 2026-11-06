@@ -16,9 +16,9 @@ teardown() {
   popd
 }
 
-# bats test_tags=Compatibility,Version
-@test "apt packages are installed at their pinned versions" {
-  assert_apt_packages_at_pinned_versions
+@test "pip is available" {
+  run pip --version
+  assert_success
 }
 
 # bats test_tags=Sbom

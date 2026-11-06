@@ -146,6 +146,16 @@ Before you submit your pull request consider the following guidelines:
 
 1. Ensure that all tests pass.
 
+   Ubuntu packages are installed from one dated snapshot shared by all flavors.
+   List packages in the relevant Dockerfile; the tool inventory describes the
+   tools promised to users, not every installation dependency. Weekly update
+   PRs advance the snapshot; the GitHub CLI version pin is unchanged by these updates.
+   The Ubuntu snapshot proof workflow builds every flavor on native amd64 and
+   arm64 runners without publishing images. Use its manual timestamp input to
+   investigate candidate snapshots. All normal integration tests must also pass.
+   A newer Ubuntu base image may require advancing the snapshot first. Changes
+   to Clang must remain compatible with the pinned Windows LLVM runtimes.
+
    Each flavor's `tool-inventory.json` identifies the key tools it promises to
    provide. Integration tests check that these tools are available, and release
    notes list them with versions taken from the image's Software Bill of

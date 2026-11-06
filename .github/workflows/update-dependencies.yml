@@ -6,6 +6,11 @@ on:
   schedule:
     - cron: "30 2 * * 0"
   workflow_dispatch:
+    inputs:
+      snapshot:
+        description: Ubuntu snapshot timestamp; empty selects the previous UTC day
+        required: false
+        type: string
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -14,19 +19,10 @@ concurrency:
 permissions: {}
 
 jobs:
-  update-apt-dependencies:
-    name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} OS (🍨 ${{ matrix.flavor }})
+  update-ubuntu-snapshot:
+    name: Ubuntu snapshot
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        flavor: [base, cpp, docs, embedded-cpp, rust]
-    # Using our own container is required since we need all package sources
-    # set-up correctly.
-    container:
-      image: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:edge # zizmor: ignore[unpinned-images]
-      options: --user 0
+    timeout-minutes: 15
     permissions:
       contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
     steps:
@@ -36,10 +32,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: philips-software/amp-devcontainer/.github/actions/update-apt-packages@eccf76dc2da974d3e49531784bf4df2d0e8bbbaa # actions/v1.2.0
-        id: update-packages
-        with:
-          input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements*.json
+      - run: bash .github/scripts/update-ubuntu-snapshot.sh "${REQUESTED_SNAPSHOT}"
+        env:
+          REQUESTED_SNAPSHOT: ${{ inputs.snapshot }}
       - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         id: token
         if: github.event_name != 'pull_request'
@@ -51,9 +46,15 @@ jobs:
       - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         if: github.event_name != 'pull_request'
         with:
-          commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
-          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-apt-packages
-          title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
+          commit-message: "chore(deps): update Ubuntu snapshot"
+          branch: feature/amp-devcontainer/update-ubuntu-snapshot
+          title: "chore(deps): update Ubuntu snapshot"
+          body: |
+            Advance the shared Ubuntu repository snapshot for all flavors and architectures.
+            Signed metadata is verified before proposing the update. Native image builds
+            and functional tests must pass before merging. Changes to Clang may require
+            a coordinated Windows LLVM runtime version and checksum update.
+          add-paths: .devcontainer/base/Dockerfile
           labels: dependencies,apt
           token: ${{ steps.token.outputs.token }}
           sign-commits: true

@@ -16,11 +16,6 @@ teardown() {
   popd
 }
 
-# bats test_tags=Compatibility,Version
-@test "apt packages are installed at their pinned versions" {
-  assert_apt_packages_at_pinned_versions
-}
-
 # bats test_tags=Sbom
 @test "tools listed in the inventory are present in the image" {
   assert_inventory_tools_available
@@ -38,7 +33,7 @@ teardown() {
 
 # bats test_tags=Compatibility,Version,HostGCCArmGCC
 @test "host and embedded gcc toolchain versions should be the same major and minor version" {
-  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for g++ | cut -d. -f1,2)
+  EXPECTED_MAJOR_MINOR_VERSION=$(g++-15 -dumpfullversion | cut -d. -f1,2)
   INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
   assert_tool_version arm-none-eabi-gcc "${INSTALLED_MAJOR_MINOR_VERSION}" "${EXPECTED_MAJOR_MINOR_VERSION}"
 }

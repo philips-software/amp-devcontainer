@@ -14,11 +14,6 @@ setup() {
   assert_output --partial "OK"
 }
 
-# bats test_tags=Compatibility,Version
-@test "apt packages are installed at their pinned versions" {
-  assert_apt_packages_at_pinned_versions
-}
-
 # bats test_tags=Sbom
 @test "tools listed in the inventory are present in the image" {
   assert_inventory_tools_available
@@ -61,7 +56,33 @@ setup() {
 @test "devcontainer metadata selects code as the container user" {
   METADATA="${BATS_TEST_DIRNAME}/../../.devcontainer/base/devcontainer-metadata.json"
 
-  jq -e '.containerUser == "code"' "${METADATA}"
+  run jq -e '.containerUser == "code"' "${METADATA}"
+  assert_success
+}
+
+# bats test_tags=Compatibility,Version
+@test "GitHub CLI is installed and reports its version" {
+  run gh --version
+  assert_success
+  assert_output --regexp '^gh version [0-9]+\.[0-9]+\.[0-9]+'
+}
+
+# bats test_tags=Compatibility,Version
+@test "Ubuntu repositories use the committed snapshot" {
+  EXPECTED_SNAPSHOT=$(sed -n 's/^ARG UBUNTU_SNAPSHOT=//p' "${BATS_TEST_DIRNAME}/../../.devcontainer/base/Dockerfile")
+  run cat /etc/apt/ubuntu-snapshot
+  assert_success
+  assert_output "${EXPECTED_SNAPSHOT}"
+  run grep '^URIs:' /etc/apt/sources.list.d/ubuntu.sources
+  assert_success
+  assert_output --regexp "^URIs: https://snapshot.ubuntu.com/ubuntu/${EXPECTED_SNAPSHOT}/$"
+}
+
+@test "GitHub CLI uses its independently pinned version" {
+  EXPECTED_VERSION=$(sed -n 's/^ARG GH_VERSION=//p' "${BATS_TEST_DIRNAME}/../../.devcontainer/base/Dockerfile")
+  run dpkg-query -W -f='${Version}' gh
+  assert_success
+  assert_output "${EXPECTED_VERSION}"
 }
 
 # bats test_tags=Maintainability

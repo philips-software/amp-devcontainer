@@ -15,18 +15,15 @@ ENV PYTHONPYCACHEPREFIX=/home/code/.cache/python
 # The sequence is important. Hadolint (2.15) forgets the shell when there are other options in between SHELL and RUN
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
-RUN --mount=type=bind,source=.devcontainer/docs/apt-requirements.json,target=/tmp/apt-requirements.json \
-    --mount=type=bind,source=.devcontainer/docs/requirements.txt,target=/tmp/requirements.txt \
+RUN --mount=type=bind,source=.devcontainer/docs/requirements.txt,target=/tmp/requirements.txt \
     --mount=type=cache,target=/cache,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked <<EOF
 
     export PYTHONPYCACHEPREFIX=/cache/.python
 
     # Install the base system with all tool dependencies
-    apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | \
-        xargs apt-get install -y --no-install-recommends
+    apt-get update && apt-get install -y --no-install-recommends graphviz plantuml python3-pip
 
     # Install some tools via pip to get more recent versions, clean up afterwards
     # SBDL publishes only source archives; its reviewed setuptools packaging is version- and hash-locked.

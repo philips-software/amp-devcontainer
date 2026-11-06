@@ -16,11 +16,6 @@ teardown() {
   popd
 }
 
-# bats test_tags=Compatibility,Version
-@test "apt packages are installed at their pinned versions" {
-  assert_apt_packages_at_pinned_versions
-}
-
 # bats test_tags=Sbom
 @test "tools listed in the inventory are present in the image" {
   assert_inventory_tools_available
