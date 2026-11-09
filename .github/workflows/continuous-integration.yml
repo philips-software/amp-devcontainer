@@ -68,8 +68,8 @@ jobs:
     permissions:
       contents: read
 
-  helper-tests:
-    name: 🧰 Helper & Action Tests
+  helper-repository-tests:
+    name: 🧰 Helper & Repository Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     # The docs container provides Bats, jq, and the python3 and jinja2 needed by the tests.
@@ -86,7 +86,7 @@ jobs:
       - name: Run helper tests
         run: |
           set -Eeuo pipefail
-          bats helpers/*/test .github/actions/*/test
+          bats helpers/*/test .github/actions/*/test test/repository
         env:
           BATS_LIB_PATH: /usr/local
       # The action and the helper resolve inventories independently, they only share the

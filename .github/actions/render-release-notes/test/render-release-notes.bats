@@ -353,18 +353,37 @@ run_script() {
   refute [ -e "${FAKE_DIR}/edited-notes" ]
 }
 
-@test "the script fails without a release tag, render image or template" {
-  run env -u RELEASE_TAG RENDER_IMAGE=fake TEMPLATE_FILE=fake bash "${SCRIPT}"
+@test "the script fails without a release tag or render image" {
+  run env -u RELEASE_TAG RENDER_IMAGE=fake bash "${SCRIPT}"
   assert_failure
   assert_output --partial "release tag required"
 
-  run env -u RENDER_IMAGE RELEASE_TAG=fake TEMPLATE_FILE=fake bash "${SCRIPT}"
+  run env -u RENDER_IMAGE RELEASE_TAG=fake bash "${SCRIPT}"
   assert_failure
   assert_output --partial "render image required"
+}
 
-  run env -u TEMPLATE_FILE RELEASE_TAG=fake RENDER_IMAGE=fake bash "${SCRIPT}"
-  assert_failure
-  assert_output --partial "template file required"
+@test "the script uses the default template of the action when no template is given" {
+  add_image fake-registry.invalid/fake-owner/fake-image-alpha 9.9.9-fake "${FAKE_DIGEST_ALPHA}" \
+    '{"tools": [{"name": "fake-tool-alpha", "version": "1.2.3", "commands": ["fake-command"], "files": ["/fake/file"]}]}'
+  add_image fake-registry.invalid/fake-owner/fake-image-beta 9.9.9-fake "${FAKE_DIGEST_BETA}" '{"tools": []}'
+  printf '## [9.9.9-fake] (2000-01-01)\n\n### Features\n\n* fake feature\n' > "${FAKE_DIR}/notes"
+
+  IMAGES=$'fake-registry.invalid/fake-owner/fake-image-alpha\nfake-registry.invalid/fake-owner/fake-image-beta' \
+    RELEASE_TAG=9.9.9-fake \
+    RENDER_IMAGE=fake-registry.invalid/fake-owner/fake-render-image:1.2.3-fake \
+    INVENTORY_DIRECTORY="${FAKE_DIR}/inventory" \
+    run -0 env -u TEMPLATE_FILE bash "${SCRIPT}"
+
+  run cat "${FAKE_DIR}/edited-notes"
+  assert_line --index 0 "## [9.9.9-fake] (2000-01-01)"
+  assert_line "| fake-image-alpha | <pre><code>fake-registry.invalid/fake-owner/fake-image-alpha:9.9.9-fake@${FAKE_DIGEST_ALPHA}</code></pre><tr/> |"
+  assert_line "| fake-image-beta | <pre><code>fake-registry.invalid/fake-owner/fake-image-beta:9.9.9-fake@${FAKE_DIGEST_BETA}</code></pre> |"
+  assert_line "<summary>fake-image-alpha</summary>"
+  assert_line "| fake-tool-alpha | 1.2.3 | fake-command | /fake/file |"
+  assert_line "* fake feature"
+  refute_output --partial "{{"
+  refute_output --partial "{%"
 }
 
 @test "loading the render functions does not change the shell options" {

@@ -30,8 +30,10 @@ inputs:
       e.g. an amp-devcontainer-docs image.
     required: true
   template-file:
-    description: Path to the Jinja2 template, which is inserted after the first header of the release notes.
-    required: true
+    description: >-
+      Path to the Jinja2 template, which is inserted after the first header of the release notes.
+      Defaults to the template that is part of this action.
+    required: false
 
 runs:
   using: composite

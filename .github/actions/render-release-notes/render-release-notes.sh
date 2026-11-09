@@ -8,7 +8,7 @@
 # Environment:
 #   RELEASE_TAG          release to render, also used as the tag of the images
 #   RENDER_IMAGE         container image with python3 and jinja2 that renders the template
-#   TEMPLATE_FILE        template to render
+#   TEMPLATE_FILE        template to render (default: default-template.md.j2 next to this script)
 #   IMAGES               newline-separated image references, without tag
 #   INVENTORY_DIRECTORY  directory with tool-inventory-<image-basename>/tool-inventory.json (default: .)
 
@@ -21,7 +21,7 @@ source "${script_directory}/render.bash"
 
 release_tag=${RELEASE_TAG:?release tag required}
 render_image=${RENDER_IMAGE:?render image required}
-template_file=${TEMPLATE_FILE:?template file required}
+template_file=${TEMPLATE_FILE:-${script_directory}/default-template.md.j2}
 images=${IMAGES-}
 inventory_directory=${INVENTORY_DIRECTORY:-.}
 

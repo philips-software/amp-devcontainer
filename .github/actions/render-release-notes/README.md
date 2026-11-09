@@ -22,7 +22,6 @@ When anything fails, for instance an image digest that cannot be resolved or a v
       ghcr.io/my-org/my-image-beta
     release-tag: ${{ github.ref_name }}
     render-image: ghcr.io/philips-software/amp-devcontainer-docs:<version>@<digest>
-    template-file: .github/RELEASE_TEMPLATE.md.j2
 ```
 
 The caller needs `contents: write` to edit the release, and a container engine to resolve digests and render.
@@ -34,9 +33,16 @@ The caller needs `contents: write` to edit the release, and a container engine t
 | `images`              | yes      | Newline-separated image references without tag. The last path segment is the *image basename*, the key of the image in the template.                                                                                           |
 | `release-tag`         | yes      | Tag of the release to render. The images are expected to carry the same tag.                                                                                                                                                   |
 | `render-image`        | yes      | Container image with python3 and jinja2, e.g. an amp-devcontainer-docs image. The rendering runs without network access.                                                                                                       |
-| `template-file`       | yes      | Path to the Jinja2 template.                                                                                                                                                                                                   |
+| `template-file`       | no       | Path to the Jinja2 template. Defaults to the [default template](./default-template.md.j2) of the action.                                                                                                                       |
 | `inventory-directory` | no       | Directory with a `tool-inventory-<image-basename>/tool-inventory.json` file per image, as produced by the [generate-tool-inventory](../generate-tool-inventory/action.yml) action and downloaded as artifact. Defaults to `.`. |
 | `github-token`        | no       | Token used to read and edit the release. Defaults to the workflow token.                                                                                                                                                       |
+
+## Default template
+
+Without a `template-file` the [default template](./default-template.md.j2) is used.
+It lists the images in a table with their full identifiers, and the included tools of every image in a collapsible section, with a placeholder summary for the release manager to fill in.
+It loops over the images instead of naming them, so the same layout can be reused for any set of images.
+To change the layout, pass your own template; copying the default template is a good starting point.
 
 ## Template variables
 
