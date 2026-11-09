@@ -18,6 +18,7 @@
   - [Verify image signature](#verify-image-signature)
   - [Local development](#local-development)
   - [Continuous Integration](#continuous-integration)
+  - [Build your own containers](#build-your-own-containers)
 - [Community](#community)
 - [Changelog](#changelog)
 - [Contributing](#contributing)
@@ -218,6 +219,12 @@ jobs:
 > ```
 >
 > See: [Dockerfile support](https://docs.github.com/en/actions/reference/workflows-and-actions/dockerfile-support) and https://github.com/actions/checkout/issues/956
+
+### Build your own containers
+
+The way amp-devcontainer builds, tests, and releases its containers is re-usable: re-usable workflows, actions, and Bats test helpers that don't know about the flavors above.
+They build one image or many, and give each of them a multi-architecture build, an SBOM, a signed provenance attestation, a tool inventory, and integration tests with Docker and Podman.
+See [the re-usable build system](./docs/reusable-build-system.md) for the building blocks and the recommended way to use them, the golden path.
 
 ## Community
 

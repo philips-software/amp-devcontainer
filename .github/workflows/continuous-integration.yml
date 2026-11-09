@@ -69,7 +69,7 @@ jobs:
       contents: read
 
   helper-repository-tests:
-    name: 🧰 Helper & Repository Tests
+    name: 🧰 Helper, Action & Repository Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     # The docs container provides Bats, jq, and the python3 and jinja2 needed by the tests.
@@ -89,3 +89,28 @@ jobs:
           bats helpers/*/test .github/actions/*/test test/repository
         env:
           BATS_LIB_PATH: /usr/local
+
+  node-action-tests:
+    name: 🧰 Node.js Action Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # The docs container used for the other tests has no Node.js
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+      - name: Run action tests
+        run: |
+          set -Eeuo pipefail
+          npm ci --ignore-scripts --prefix .github/actions/container-size-diff
+          npm test --prefix .github/actions/container-size-diff

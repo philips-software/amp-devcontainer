@@ -1,8 +1,7 @@
 ---
 name: Generate tool inventory
 description: >-
-  Derive a curated, per-flavor tool inventory from a Syft SPDX SBOM and write it
-  to a JSON file.
+  Derive a curated tool inventory from a Syft SPDX SBOM and write it to a JSON file.
 
 inputs:
   sbom:
@@ -10,11 +9,11 @@ inputs:
     required: true
   tool-inventory:
     description: >-
-      Path to the flavor's inventory JSON, relative to the caller repository
+      Path to the inventory JSON of the image, relative to the caller repository
       root. Included inventories must also be checked out.
     required: true
   flavor:
-    description: Name of the flavor the inventory is generated for
+    description: Name the inventory is reported under, it is stored in the `flavor` field of the output
     required: true
   output-file:
     description: Path the generated tool inventory is written to
@@ -30,54 +29,7 @@ runs:
   using: composite
   steps:
     - shell: bash
-      run: |
-        set -Eeuo pipefail
-
-        packages="$(bash "${GITHUB_ACTION_PATH}/resolve.sh" "${TOOL_INVENTORY}")"
-
-        # Keep only packages whose name is on the flavor tool-inventory and project them
-        # to {name, version, purl, commands, files}. Versions come from the SBOM, so the
-        # inventory can never disagree with it.
-        inventory="$(jq -n \
-          --slurpfile sbom "${SBOM}" \
-          --argjson allow "${packages}" \
-          --arg flavor "${FLAVOR}" '
-          ($allow | with_entries(
-            if .value == {} then .value = {commands: [.key]} else . end
-            | .key |= ascii_downcase
-          )) as $packages
-          | ($packages | keys) as $names
-          | [ $sbom[0].packages[]
-              | select(.name != null)
-              | . as $pkg
-              | select($names | index($pkg.name | ascii_downcase))
-              | { name: $pkg.name,
-                  version: $pkg.versionInfo,
-                  commands: ($packages[$pkg.name | ascii_downcase].commands // []),
-                  files: ($packages[$pkg.name | ascii_downcase].files // []),
-                  purl: ([ $pkg.externalRefs[]? | select(.referenceType == "purl") | .referenceLocator ] | first) } ]
-          | unique_by(.name | ascii_downcase)
-          | sort_by(.name | ascii_downcase)
-          | { flavor: $flavor, tools: . }')"
-
-        # Fail if an included tool is absent from the SBOM. This turns a version
-        # bump that renames a package (e.g. clang-22 -> clang-23) or a tool that
-        # silently dropped out of the image into a hard, actionable CI error.
-        missing="$(jq -rn \
-          --argjson inventory "${inventory}" \
-          --argjson allow "${packages}" '
-          ($inventory.tools | map(.name | ascii_downcase)) as $found
-          | ($allow | keys)
-          | map(select((ascii_downcase) as $name | ($found | index($name)) | not))
-          | .[]')"
-
-        if [ -n "${missing}" ]; then
-          echo "error: the following tools from the tool-inventory were not found in the SBOM:" >&2
-          echo "${missing}" | sed 's/^/  - /' >&2
-          exit 1
-        fi
-
-        echo "${inventory}" | tee "${OUTPUT_FILE}"
+      run: bash "${GITHUB_ACTION_PATH}/generate-tool-inventory.sh"
       env:
         SBOM: ${{ inputs.sbom }}
         TOOL_INVENTORY: ${{ inputs.tool-inventory }}
