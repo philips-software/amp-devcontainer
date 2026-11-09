@@ -69,7 +69,7 @@ jobs:
       contents: read
 
   helper-tests:
-    name: 🧰 Helper Tests
+    name: 🧰 Helper & Action Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -94,7 +94,7 @@ jobs:
       - name: Run helper tests
         run: |
           set -Eeuo pipefail
-          bats helpers/*/test
+          bats helpers/*/test .github/actions/*/test
         env:
           BATS_LIB_PATH: ${{ steps.bats.outputs.lib-path }}
       # The action and the helper resolve inventories independently, they only share the

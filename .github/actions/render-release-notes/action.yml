@@ -1,0 +1,41 @@
+---
+name: 📝 Render release notes
+description: >-
+  Render the placeholders of a GitHub release's notes, optionally after applying a
+  template, using the digests and tool inventories of the released container images.
+
+inputs:
+  github-token:
+    description: Token used to read and edit the release, needs `contents: write`.
+    required: false
+    default: ${{ github.token }}
+  images:
+    description: >-
+      Newline-separated container image references without tag, e.g. `ghcr.io/my-org/my-image`.
+      The last path segment is the image basename used in the placeholders.
+    required: true
+  inventory-directory:
+    description: >-
+      Directory that contains a `tool-inventory-<image-basename>/tool-inventory.json` file
+      for every image, as produced by downloading the tool inventory artifacts.
+    required: false
+    default: .
+  release-tag:
+    description: Tag of the release to render. The images are expected to have this tag as well.
+    required: true
+  template-file:
+    description: Optional path to a template that is applied to the release notes before rendering.
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: bash "${GITHUB_ACTION_PATH}/render-release-notes.sh"
+      env:
+        GH_REPO: ${{ github.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        IMAGES: ${{ inputs.images }}
+        INVENTORY_DIRECTORY: ${{ inputs.inventory-directory }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        TEMPLATE_FILE: ${{ inputs.template-file }}

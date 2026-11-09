@@ -8,14 +8,14 @@
 
 #### :ice_cream: Image flavors
 
-|    Flavor     | Full identifier                                                                                                                                                            |
-|:-------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|     base      | <pre><code>ghcr.io/philips-software/amp-devcontainer-base:{{ amp-devcontainer-base-version }}@{{ amp-devcontainer-base-sha }}</code></pre><tr/>                            |
-|      cpp      | <pre><code>ghcr.io/philips-software/amp-devcontainer-cpp:{{ amp-devcontainer-cpp-version }}@{{ amp-devcontainer-cpp-sha }}</code></pre><tr/>                               |
-|     docs      | <pre><code>ghcr.io/philips-software/amp-devcontainer-docs:{{ amp-devcontainer-docs-version }}@{{ amp-devcontainer-docs-sha }}</code></pre><tr/>                            |
-| embedded-cpp  | <pre><code>ghcr.io/philips-software/amp-devcontainer-embedded-cpp:{{ amp-devcontainer-embedded-cpp-version }}@{{ amp-devcontainer-embedded-cpp-sha }}</code></pre><tr/>    |
-| embedded-rust | <pre><code>ghcr.io/philips-software/amp-devcontainer-embedded-rust:{{ amp-devcontainer-embedded-rust-version }}@{{ amp-devcontainer-embedded-rust-sha }}</code></pre><tr/> |
-|     rust      | <pre><code>ghcr.io/philips-software/amp-devcontainer-rust:{{ amp-devcontainer-rust-version }}@{{ amp-devcontainer-rust-sha }}</code></pre>                                 |
+|    Flavor     | Full identifier                                                                                                                                                                           |
+|:-------------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|     base      | <pre><code>ghcr.io/philips-software/amp-devcontainer-base:{{ image.amp-devcontainer-base.version }}@{{ image.amp-devcontainer-base.digest }}</code></pre><tr/>                            |
+|      cpp      | <pre><code>ghcr.io/philips-software/amp-devcontainer-cpp:{{ image.amp-devcontainer-cpp.version }}@{{ image.amp-devcontainer-cpp.digest }}</code></pre><tr/>                               |
+|     docs      | <pre><code>ghcr.io/philips-software/amp-devcontainer-docs:{{ image.amp-devcontainer-docs.version }}@{{ image.amp-devcontainer-docs.digest }}</code></pre><tr/>                            |
+| embedded-cpp  | <pre><code>ghcr.io/philips-software/amp-devcontainer-embedded-cpp:{{ image.amp-devcontainer-embedded-cpp.version }}@{{ image.amp-devcontainer-embedded-cpp.digest }}</code></pre><tr/>    |
+| embedded-rust | <pre><code>ghcr.io/philips-software/amp-devcontainer-embedded-rust:{{ image.amp-devcontainer-embedded-rust.version }}@{{ image.amp-devcontainer-embedded-rust.digest }}</code></pre><tr/> |
+|     rust      | <pre><code>ghcr.io/philips-software/amp-devcontainer-rust:{{ image.amp-devcontainer-rust.version }}@{{ image.amp-devcontainer-rust.digest }}</code></pre>                                 |
 
 #### :hammer_and_wrench: Included tools
 
@@ -24,41 +24,41 @@ The tables below list the most relevant packages per flavor, their versions from
 <details>
 <summary>amp-devcontainer-base</summary>
 
-{{ amp-devcontainer-base-tools }}
+{{ image.amp-devcontainer-base.tools }}
 
 </details>
 
 <details>
 <summary>amp-devcontainer-cpp</summary>
 
-{{ amp-devcontainer-cpp-tools }}
+{{ image.amp-devcontainer-cpp.tools }}
 
 </details>
 
 <details>
 <summary>amp-devcontainer-docs</summary>
 
-{{ amp-devcontainer-docs-tools }}
+{{ image.amp-devcontainer-docs.tools }}
 
 </details>
 
 <details>
 <summary>amp-devcontainer-embedded-cpp</summary>
 
-{{ amp-devcontainer-embedded-cpp-tools }}
+{{ image.amp-devcontainer-embedded-cpp.tools }}
 
 </details>
 
 <details>
 <summary>amp-devcontainer-embedded-rust</summary>
 
-{{ amp-devcontainer-embedded-rust-tools }}
+{{ image.amp-devcontainer-embedded-rust.tools }}
 
 </details>
 
 <details>
 <summary>amp-devcontainer-rust</summary>
 
-{{ amp-devcontainer-rust-tools }}
+{{ image.amp-devcontainer-rust.tools }}
 
 </details>

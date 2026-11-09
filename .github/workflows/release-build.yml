@@ -95,9 +95,9 @@ jobs:
             TOOL_INVENTORY="tool-inventory-${REPOSITORY_NAME}-${FLAVOR}/tool-inventory.json"
             TOOLS_TABLE=$(jq -r '"| Package | Version | Included commands | Included files |\n| --- | --- | --- | --- |\n" + ([.tools[] | "| \(.name) | \(.version) | \(.commands | join(", ")) | \(.files | join(", ")) |"] | join("\n"))' "${TOOL_INVENTORY}")
             UPDATED_NOTES=$(gh release view "${REF_NAME}" --json body -q '.body')
-            UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${FLAVOR}-version }}"/"${REF_NAME}"}
-            UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${FLAVOR}-sha }}"/"${DIGEST}"}
-            UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${FLAVOR}-tools }}"/"${TOOLS_TABLE}"}
+            UPDATED_NOTES=${UPDATED_NOTES//"{{ image.amp-devcontainer-${FLAVOR}.version }}"/"${REF_NAME}"}
+            UPDATED_NOTES=${UPDATED_NOTES//"{{ image.amp-devcontainer-${FLAVOR}.digest }}"/"${DIGEST}"}
+            UPDATED_NOTES=${UPDATED_NOTES//"{{ image.amp-devcontainer-${FLAVOR}.tools }}"/"${TOOLS_TABLE}"}
             gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
 
             INVENTORY="${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${FLAVOR}_${FORMATTED_DIGEST}.tool-inventory.json"
