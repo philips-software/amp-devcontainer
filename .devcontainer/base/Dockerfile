@@ -2,7 +2,7 @@
 
 FROM ubuntu:26.04@sha256:6a06111c3b0a8600feadb270aec771dc239bf407b25625f93f44ab00e11f4d3c AS extractor
 
-ARG BATS_CORE_VERSION=1.13.0
+ARG BATS_CORE_VERSION=1.14.0
 ARG BATS_SUPPORT_VERSION=0.3.0
 ARG BATS_ASSERT_VERSION=2.2.4
 
@@ -72,17 +72,16 @@ SOURCE
       xargs apt-get install -y --no-install-recommends
 
    # Install bats
+   # And retain the bats-core manifest so the tool is captured in the SBOM
    bash /src/bats-core/install.sh /usr/local
+   install -D -m 0644 -t /usr/local/lib/bats-core /src/bats-core/package.json
+
    # Install the bats libraries, only with the files that are needed at runtime
    for library in /src/bats-support /src/bats-assert /tmp/bats-tool-inventory; do
       install -d "/usr/local/${library##*/}/src"
       install -m 0644 -t "/usr/local/${library##*/}" "${library}"/{load.bash,package.json,LICENSE}
       install -m 0644 -t "/usr/local/${library##*/}/src" "${library}"/src/*.bash
    done
-
-   # Retain the bats-core manifest so the tool is captured in the SBOM
-   mkdir -p /usr/local/lib/bats-core
-   cp /src/bats-core/package.json /usr/local/lib/bats-core/package.json
 
    # Install the SBOM annotation helper so downstream flavors can annotate tools
    # that Syft cannot detect on its own (see .devcontainer/base/add-sbom-note.sh)
