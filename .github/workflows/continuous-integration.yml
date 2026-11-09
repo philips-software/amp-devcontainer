@@ -88,4 +88,4 @@ jobs:
           set -Eeuo pipefail
           bats helpers/*/test .github/actions/*/test test/repository
         env:
-          BATS_LIB_PATH: ${{ steps.bats.outputs.lib-path }}
+          BATS_LIB_PATH: /usr/local
