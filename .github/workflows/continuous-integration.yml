@@ -68,8 +68,8 @@ jobs:
     permissions:
       contents: read
 
-  tool-inventory-tests:
-    name: 🧰 Tool Inventory Helper Tests
+  helper-tests:
+    name: 🧰 Helper Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -94,7 +94,7 @@ jobs:
       - name: Run helper tests
         run: |
           set -Eeuo pipefail
-          bats helpers/bats-tool-inventory/test
+          bats helpers/*/test
         env:
           BATS_LIB_PATH: ${{ steps.bats.outputs.lib-path }}
       # The action and the helper resolve inventories independently, they only share the

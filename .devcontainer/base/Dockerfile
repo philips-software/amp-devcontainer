@@ -35,9 +35,9 @@ HEALTHCHECK NONE
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # hadolint ignore=DL3008
-RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add-sbom-note.sh \
-    --mount=type=bind,source=.devcontainer/base/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
+RUN --mount=type=bind,source=.devcontainer/base/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/base/apt-requirements-gh.json,target=/tmp/apt-requirements-gh.json \
+    --mount=type=bind,source=helpers/add-sbom-note/add-sbom-note.sh,target=/tmp/add-sbom-note.sh \
     --mount=type=bind,source=helpers/bats-tool-inventory,target=/tmp/bats-tool-inventory \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -84,7 +84,7 @@ SOURCE
    done
 
    # Install the SBOM annotation helper so downstream flavors can annotate tools
-   # that Syft cannot detect on its own (see .devcontainer/base/add-sbom-note.sh)
+   # that Syft cannot detect on its own (see helpers/add-sbom-note/add-sbom-note.sh)
    install -m 0755 /tmp/add-sbom-note.sh /usr/local/bin/add-sbom-note
 
    # Generate locale
