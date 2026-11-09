@@ -2,27 +2,17 @@
   "packages": {
     "bats": {},
     "bats-assert": {
-      "files": [
-        "/usr/local/bats-assert/load.bash"
-      ]
+      "files": ["/usr/local/bats-assert/load.bash"]
     },
     "bats-support": {
-      "files": [
-        "/usr/local/bats-support/load.bash"
-      ]
+      "files": ["/usr/local/bats-support/load.bash"]
     },
     "bats-tool-inventory": {
-      "files": [
-        "/usr/local/bats-tool-inventory/load.bash"
-      ]
+      "files": ["/usr/local/bats-tool-inventory/load.bash"]
     },
     "gh": {},
     "git": {},
-    "gnupg2": {
-      "commands": [
-        "gpg"
-      ]
-    },
+    "gnupg2": { "commands": ["gpg"] },
     "wget": {}
   }
 }

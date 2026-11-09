@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
 
-# Checks that versions that are pinned in more than one place stay in sync.
+# Checks that versions that are pinned in more than one place, and logic that is
+# duplicated on purpose, stay in sync.
 # These tests inspect this repository, they do not need a container.
 
 bats_require_minimum_version 1.6.0
@@ -119,6 +120,37 @@ dockerfile_arg() {
     if [[ "${status}" -ne 0 ]]; then
       batslib_print_kv_single_or_multi 10 'package' "${name}" 'installed' "${installed[${name}]}" 'required' "${range}" \
         | batslib_decorate 'installed version does not satisfy the peer dependency' \
+        | fail
+    fi
+  done
+}
+
+# The generate-tool-inventory action and the bats-tool-inventory helper resolve
+# inventories independently, they only share the documented inventory format.
+# Make sure they never drift apart on the real inventories.
+# bats test_tags=Maintainability
+@test "the tool-inventory helper resolves inventories identically to the generate-tool-inventory action" {
+  local inventories=("${ROOT}"/.devcontainer/*/tool-inventory.json)
+  local inventory action_inventory helper_inventory
+
+  source "${ROOT}/helpers/bats-tool-inventory/src/resolve-inventory.bash"
+  assert [ -f "${inventories[0]}" ]
+
+  for inventory in "${inventories[@]}"; do
+    run bash "${ROOT}/.github/actions/generate-tool-inventory/resolve.sh" "${inventory}"
+    assert_success
+    action_inventory=$(jq -S . <<< "${output}")
+
+    run resolve_inventory "${inventory}"
+    assert_success
+    helper_inventory=$(jq -S . <<< "${output}")
+
+    if [[ "${helper_inventory}" != "${action_inventory}" ]]; then
+      batslib_print_kv_single_or_multi 10 \
+        'inventory' "${inventory}" \
+        'action' "${action_inventory}" \
+        'helper' "${helper_inventory}" \
+        | batslib_decorate 'resolved inventories differ' \
         | fail
     fi
   done
