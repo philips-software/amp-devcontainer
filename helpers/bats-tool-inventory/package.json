@@ -4,7 +4,7 @@
   "description": "Bats helpers to verify a tool inventory and pinned apt packages",
   "license": "MIT",
   "peerDependencies": {
-    "bats": "^1.5",
+    "bats": "^1.6",
     "bats-assert": "^2",
     "bats-support": "^0.3"
   }
