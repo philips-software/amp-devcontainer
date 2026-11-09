@@ -70,6 +70,7 @@ For the full list of all included tools and tool versions see the [Dependency Gr
 
 The amp-devcontainer-base image is a shared foundation used by the other flavors.
 It consolidates common tooling (e.g. certificates and test tooling) so that the flavor images can focus on language-specific features.
+The test tooling includes [Bats](https://bats-core.readthedocs.io) with bats-support, bats-assert, and [bats-tool-inventory](./helpers/bats-tool-inventory/README.md), a helper package to verify tool inventories and pinned apt packages in your own derived containers.
 
 #### amp-devcontainer-cpp
 

@@ -1,11 +1,15 @@
 #!/usr/bin/env bats
 
-bats_require_minimum_version 1.5.0
+bats_require_minimum_version 1.6.0
 
 setup() {
-  load '/usr/local/bats-support/load'
-  load '/usr/local/bats-assert/load'
-  load '../tool-inventory'
+  bats_load_library bats-support
+  bats_load_library bats-assert
+  bats_load_library bats-tool-inventory
+
+  DEVCONTAINER_DIR="${BATS_TEST_DIRNAME}/../../.devcontainer"
+  INVENTORY="${DEVCONTAINER_DIR}/base/tool-inventory.json"
+  APT_REQUIREMENTS=("${DEVCONTAINER_DIR}/base"/apt-requirements*.json)
 }
 
 @test "cisco umbrella root certificate is included in system certificate store" {
@@ -16,17 +20,17 @@ setup() {
 
 # bats test_tags=Compatibility,Version
 @test "apt packages are installed at their pinned versions" {
-  assert_apt_packages_at_pinned_versions
+  assert_apt_packages_at_pinned_versions "${APT_REQUIREMENTS[@]}"
 }
 
 # bats test_tags=Sbom
 @test "tools listed in the inventory are present in the image" {
-  assert_inventory_tools_available
+  assert_inventory_tools_available "${INVENTORY}"
 }
 
 # bats test_tags=Functional
 @test "commands listed in the inventory start successfully" {
-  assert_inventory_tools_run
+  assert_inventory_tools_run "${INVENTORY}"
 }
 
 # bats test_tags=Compatibility
@@ -84,42 +88,4 @@ setup() {
   assert_success
 
   assert [ -x /usr/local/bin/add-sbom-note ]
-}
-
-# bats test_tags=Sbom
-@test "add-sbom-note fails when required arguments are missing" {
-  run add-sbom-note only-a-name
-  assert_failure
-}
-
-# bats test_tags=Sbom
-@test "add-sbom-note fails when none of the given binaries exist" {
-  run add-sbom-note example 1.2.3 pkg:generic/example@1.2.3 /nonexistent/binary
-
-  assert_failure
-  assert_output --partial "no binaries found to annotate for example"
-}
-
-# bats test_tags=Sbom
-@test "add-sbom-note annotates an ELF binary with a .note.package section" {
-  BINARY=$(mktemp)
-  cp "$(command -v bash)" "$BINARY"
-  chmod +x "$BINARY"
-  # Ubuntu ships some binaries with a pre-existing .note.package section; start
-  # from a clean binary so the test exercises add-sbom-note's own annotation.
-  objcopy --remove-section .note.package "$BINARY" 2> /dev/null || true
-
-  run add-sbom-note example 1.2.3 pkg:generic/example@1.2.3 "$BINARY"
-  assert_success
-
-  SECTION=$(mktemp)
-  objcopy --dump-section .note.package="$SECTION" "$BINARY" /dev/null
-
-  run cat "$SECTION"
-  assert_success
-  assert_output --partial '"name": "example"'
-  assert_output --partial '"version": "1.2.3"'
-  assert_output --partial '"purl": "pkg:generic/example@1.2.3"'
-
-  rm -f "$BINARY" "$SECTION"
 }

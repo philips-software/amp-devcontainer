@@ -1,15 +1,19 @@
 #!/usr/bin/env bats
 
-bats_require_minimum_version 1.5.0
+bats_require_minimum_version 1.6.0
 
 setup_file() {
   install_win_sdk
 }
 
 setup() {
-  load '/usr/local/bats-support/load'
-  load '/usr/local/bats-assert/load'
-  load '../tool-inventory'
+  bats_load_library bats-support
+  bats_load_library bats-assert
+  bats_load_library bats-tool-inventory
+
+  DEVCONTAINER_DIR="${BATS_TEST_DIRNAME}/../../.devcontainer"
+  INVENTORY="${DEVCONTAINER_DIR}/cpp/tool-inventory.json"
+  APT_REQUIREMENTS=("${DEVCONTAINER_DIR}"/{base,cpp}/apt-requirements*.json)
 
   pushd ${BATS_TEST_DIRNAME}/workspace
 }
@@ -27,22 +31,22 @@ teardown() {
 
 # bats test_tags=Compatibility,Version
 @test "apt packages are installed at their pinned versions" {
-  assert_apt_packages_at_pinned_versions
+  assert_apt_packages_at_pinned_versions "${APT_REQUIREMENTS[@]}"
 }
 
 # bats test_tags=Sbom
 @test "tools listed in the inventory are present in the image" {
-  assert_inventory_tools_available
+  assert_inventory_tools_available "${INVENTORY}"
 }
 
 # bats test_tags=Functional
 @test "commands listed in the inventory start successfully" {
-  assert_inventory_tools_run
+  assert_inventory_tools_run "${INVENTORY}"
 }
 
 # bats test_tags=Compatibility,Version,Clang
 @test "clang toolchain versions should be aligned with expected versions" {
-  EXPECTED_VERSION=$(get_expected_semver_for clang)
+  EXPECTED_VERSION=$(get_expected_semver_for clang "${APT_REQUIREMENTS[@]}")
 
   for TOOL in clang clang++ clang-cl clang-format clang-tidy; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
@@ -52,7 +56,7 @@ teardown() {
 
 # bats test_tags=Compatibility,Version,GCC
 @test "host gcc toolchain versions and alternatives should be aligned with expected versions" {
-  EXPECTED_VERSION=$(get_expected_semver_for g++)
+  EXPECTED_VERSION=$(get_expected_semver_for g++ "${APT_REQUIREMENTS[@]}")
 
   for TOOL in cc gcc c++ g++ gcov; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)

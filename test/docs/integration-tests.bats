@@ -1,11 +1,15 @@
 #!/usr/bin/env bats
 
-bats_require_minimum_version 1.5.0
+bats_require_minimum_version 1.6.0
 
 setup() {
-  load '/usr/local/bats-support/load'
-  load '/usr/local/bats-assert/load'
-  load '../tool-inventory'
+  bats_load_library bats-support
+  bats_load_library bats-assert
+  bats_load_library bats-tool-inventory
+
+  DEVCONTAINER_DIR="${BATS_TEST_DIRNAME}/../../.devcontainer"
+  INVENTORY="${DEVCONTAINER_DIR}/docs/tool-inventory.json"
+  APT_REQUIREMENTS=("${DEVCONTAINER_DIR}"/{base,docs}/apt-requirements*.json)
 
   pushd ${BATS_TEST_DIRNAME}/workspace
 }
@@ -18,17 +22,17 @@ teardown() {
 
 # bats test_tags=Compatibility,Version
 @test "apt packages are installed at their pinned versions" {
-  assert_apt_packages_at_pinned_versions
+  assert_apt_packages_at_pinned_versions "${APT_REQUIREMENTS[@]}"
 }
 
 # bats test_tags=Sbom
 @test "tools listed in the inventory are present in the image" {
-  assert_inventory_tools_available
+  assert_inventory_tools_available "${INVENTORY}"
 }
 
 # bats test_tags=Functional
 @test "commands listed in the inventory start successfully" {
-  assert_inventory_tools_run
+  assert_inventory_tools_run "${INVENTORY}"
 }
 
 # bats test_tags=Version,Sbdl

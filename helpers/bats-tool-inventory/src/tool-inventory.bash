@@ -2,29 +2,39 @@ function to_semver() {
   grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1
 }
 
+# Merge apt requirement files (JSON objects of package => version) into a
+# single JSON object. Later files override earlier ones.
+#
+# Usage: read_apt_requirements REQUIREMENTS_JSON...
 function read_apt_requirements() {
-  local root="${BATS_TEST_DIRNAME}/../../.devcontainer"
-  local flavor
-  local files=()
-  local flavor_files
+  local file
 
-  for flavor in "$@"; do
-    flavor_files=("${root}/${flavor}"/apt-requirements*.json)
-    if [[ ! -f "${flavor_files[0]}" ]]; then
-      echo "No apt requirements found for flavor '${flavor}' in ${root}" >&2
+  if [[ $# -eq 0 ]]; then
+    echo "No apt requirements files given" >&2
+    return 1
+  fi
+
+  for file in "$@"; do
+    if [[ ! -f "${file}" ]]; then
+      echo "Apt requirements file not found: ${file}" >&2
       return 1
     fi
-    files+=("${flavor_files[@]}")
   done
 
-  jq -s 'reduce .[] as $requirements ({}; . * $requirements)' "${files[@]}"
+  jq -s 'reduce .[] as $requirements ({}; . * $requirements)' "$@"
 }
 
+# Print the pinned upstream version (without the packaging revision) of a tool.
+# A tool matches a package when the names are equal or the package name starts
+# with the tool name followed by a dash.
+#
+# Usage: get_expected_version_for TOOL REQUIREMENTS_JSON...
 function get_expected_version_for() {
   local tool=${1:?}
+  shift
   local requirements
 
-  requirements=$(read_flavor_apt_requirements) || return
+  requirements=$(read_apt_requirements "$@") || return
   jq -er --arg tool "${tool}" '
     to_entries | map(
       select(.key == $tool or (.key | startswith($tool + "-"))) |
@@ -37,25 +47,15 @@ function get_expected_version_for() {
   ' <<< "${requirements}"
 }
 
-function read_flavor_apt_requirements() {
-  local flavor="${BATS_TEST_DIRNAME##*/}"
-  local flavors=(base)
-
-  case "${flavor}" in
-    base) ;;
-    embedded-cpp) flavors+=(cpp embedded-cpp) ;;
-    embedded-rust) flavors+=(rust) ;;
-    *) flavors+=("${flavor}") ;;
-  esac
-  read_apt_requirements "${flavors[@]}"
-}
-
+# Usage: get_expected_semver_for TOOL REQUIREMENTS_JSON...
 function get_expected_semver_for() {
   local version
-  version=$(get_expected_version_for "${1:?}") || return
+  version=$(get_expected_version_for "$@") || return
   to_semver <<< "${version}"
 }
 
+# Assert that the actual version of a tool matches the expected version
+# failing with a decorated diagnostic if the versions do not match.
 function assert_tool_version() {
   local tool=${1:?}
   local actual=${2-}
@@ -71,15 +71,17 @@ function assert_tool_version() {
   fi
 }
 
-# Assert that the actual version of a tool matches the expected version
-# failing with a decorated diagnostic if the versions do not match.
+# Assert that every package in the apt requirement files is installed at
+# exactly its pinned version.
+#
+# Usage: assert_apt_packages_at_pinned_versions REQUIREMENTS_JSON...
 function assert_apt_packages_at_pinned_versions() {
   local requirements
   local packages
   local package
   local expected_version
 
-  run read_flavor_apt_requirements
+  run read_apt_requirements "$@"
   assert_success || return
   requirements="${output}"
 
@@ -88,6 +90,7 @@ function assert_apt_packages_at_pinned_versions() {
   packages="${output}"
 
   while IFS="=" read -r package expected_version; do
+    [[ -n "${package}" ]] || continue
     run dpkg-query -W -f='${Version}' "${package}"
     assert_success || return
     assert_tool_version "${package}" "${output}" "${expected_version}" || return
@@ -108,13 +111,12 @@ function assert_commands_available() {
   done
 }
 
+# Print one compact JSON object per command and file in the inventory.
+#
+# Usage: read_inventory_tools INVENTORY_JSON
 function read_inventory_tools() {
-  local root="${BATS_TEST_DIRNAME}/../../.devcontainer"
-  local flavor="${BATS_TEST_DIRNAME##*/}"
-
   local packages
-  packages=$(bash "${BASH_SOURCE[0]%/*}/../.github/actions/generate-tool-inventory/resolve.sh" \
-    "${root}/${flavor}/tool-inventory.json") || return
+  packages=$(resolve_inventory "${1:?}") || return
   jq -c '
     to_entries[] |
       .key as $package | (if .value == {} then {commands: [$package]} else .value end) |
@@ -127,11 +129,12 @@ function read_inventory_tools() {
   ' <<< "${packages}"
 }
 
+# Usage: assert_inventory_tools_available INVENTORY_JSON
 function assert_inventory_tools_available() {
   local package kind tool
   local tools
 
-  run read_inventory_tools
+  run read_inventory_tools "${1:?}"
   assert_success || return
   tools="${output}"
 
@@ -148,11 +151,12 @@ function assert_inventory_tools_available() {
   done < <(jq -r '[.package, .kind, .tool] | @tsv' <<< "${tools}")
 }
 
+# Usage: assert_inventory_tools_run INVENTORY_JSON
 function assert_inventory_tools_run() {
   local tools entry package tool invocation
   local args=()
 
-  run read_inventory_tools
+  run read_inventory_tools "${1:?}"
   assert_success || return
   tools="${output}"
 

@@ -2,7 +2,7 @@
 
 FROM ubuntu:26.04@sha256:6a06111c3b0a8600feadb270aec771dc239bf407b25625f93f44ab00e11f4d3c AS extractor
 
-ARG BATS_CORE_VERSION=1.13.0
+ARG BATS_CORE_VERSION=1.14.0
 ARG BATS_SUPPORT_VERSION=0.3.0
 ARG BATS_ASSERT_VERSION=2.2.4
 
@@ -12,7 +12,7 @@ ADD --checksum=sha256:a122d4080a26c1da986bd0e7202b1630eb661a624915ef244f496fdd30
 ADD --checksum=sha256:6084d5d7bd8e288441e0e94fc6275570895da18e6751f70f057485dc2d1a811b \
  https://cli.github.com/packages/githubcli-archive-keyring.gpg /githubcli-archive-keyring.gpg
 
-ADD --checksum=sha256:a85e12b8828271a152b338ca8109aa23493b57950987c8e6dff97ba492772ff3 \
+ADD --checksum=sha256:bb537b70b15b732f6d8827dd6578e3d8ce166636ce1f18ea9a074184fcce9177 \
  https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_CORE_VERSION}.tar.gz /bats-core.tar.gz
 ADD --checksum=sha256:7815237aafeb42ddcc1b8c698fc5808026d33317d8701d5ec2396e9634e2918f \
  https://github.com/bats-core/bats-support/archive/refs/tags/v${BATS_SUPPORT_VERSION}.tar.gz /bats-support.tar.gz
@@ -27,16 +27,18 @@ FROM ubuntu:26.04@sha256:6a06111c3b0a8600feadb270aec771dc239bf407b25625f93f44ab0
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV LANG=C.UTF-8
+ENV BATS_LIB_PATH=/usr/local \
+    LANG=C.UTF-8
 
 HEALTHCHECK NONE
 
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # hadolint ignore=DL3008
-RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add-sbom-note.sh \
-    --mount=type=bind,source=.devcontainer/base/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
+RUN --mount=type=bind,source=.devcontainer/base/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/base/apt-requirements-gh.json,target=/tmp/apt-requirements-gh.json \
+    --mount=type=bind,source=helpers/add-sbom-note/add-sbom-note.sh,target=/tmp/add-sbom-note.sh \
+    --mount=type=bind,source=helpers/bats-tool-inventory,target=/tmp/bats-tool-inventory \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
@@ -70,16 +72,19 @@ SOURCE
       xargs apt-get install -y --no-install-recommends
 
    # Install bats
+   # And retain the bats-core manifest so the tool is captured in the SBOM
    bash /src/bats-core/install.sh /usr/local
-   cp -r /src/bats-support /usr/local/bats-support
-   cp -r /src/bats-assert /usr/local/bats-assert
+   install -D -m 0644 -t /usr/local/lib/bats-core /src/bats-core/package.json
 
-   # Retain the bats-core manifest so the tool is captured in the SBOM
-   mkdir -p /usr/local/lib/bats-core
-   cp /src/bats-core/package.json /usr/local/lib/bats-core/package.json
+   # Install the bats libraries, only with the files that are needed at runtime
+   for library in /src/bats-support /src/bats-assert /tmp/bats-tool-inventory; do
+      install -d "/usr/local/${library##*/}/src"
+      install -m 0644 -t "/usr/local/${library##*/}" "${library}"/{load.bash,package.json,LICENSE}
+      install -m 0644 -t "/usr/local/${library##*/}/src" "${library}"/src/*.bash
+   done
 
    # Install the SBOM annotation helper so downstream flavors can annotate tools
-   # that Syft cannot detect on its own (see .devcontainer/base/add-sbom-note.sh)
+   # that Syft cannot detect on its own (see helpers/add-sbom-note/add-sbom-note.sh)
    install -m 0755 /tmp/add-sbom-note.sh /usr/local/bin/add-sbom-note
 
    # Generate locale

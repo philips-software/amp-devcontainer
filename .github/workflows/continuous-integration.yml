@@ -67,3 +67,46 @@ jobs:
     uses: $/.github/workflows/wc-document-generation.yml
     permissions:
       contents: read
+
+  helper-tests:
+    name: 🧰 Helper Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo: false # is needed by bats-core/bats-action to install the Bats libraries
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: bats-core/bats-action@3566550e0f594451ac0f58fcbfdeca93aa29a45e # 4.1.0
+        id: bats
+        with:
+          assert-version: 2.2.4
+          bats-version: 1.14.0
+          detik-install: false
+          file-install: false
+          github-token: ${{ github.token }}
+          support-version: 0.3.0
+      - name: Run helper tests
+        run: |
+          set -Eeuo pipefail
+          bats helpers/*/test
+        env:
+          BATS_LIB_PATH: ${{ steps.bats.outputs.lib-path }}
+      # The action and the helper resolve inventories independently, they only share the
+      # documented inventory format. Make sure they never drift apart on the real inventories.
+      - name: Verify inventory resolution matches the generate-tool-inventory action
+        run: |
+          set -Eeuo pipefail
+          source helpers/bats-tool-inventory/src/resolve-inventory.bash
+          for inventory in .devcontainer/*/tool-inventory.json; do
+            action_inventory=$(bash .github/actions/generate-tool-inventory/resolve.sh "${inventory}" | jq -S .)
+            helper_inventory=$(resolve_inventory "${inventory}" | jq -S .)
+            diff <(printf '%s\n' "${action_inventory}") \
+                 <(printf '%s\n' "${helper_inventory}")
+            echo "${inventory}: resolved identically"
+          done

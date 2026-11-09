@@ -11,6 +11,9 @@
         "/usr/local/bats-support/load.bash"
       ]
     },
+    "bats-tool-inventory": {
+      "files": ["/usr/local/bats-tool-inventory/load.bash"]
+    },
     "gh": {},
     "git": {},
     "gnupg2": {
