@@ -1,18 +1,19 @@
 ---
 name: 📝 Render release notes
 description: >-
-  Render the placeholders of a GitHub release's notes, optionally after applying a
-  template, using the digests and tool inventories of the released container images.
+  Render a Jinja2 template with the digests and tool inventories of released container
+  images, and insert the result into the notes of a GitHub release.
 
 inputs:
   github-token:
-    description: Token used to read and edit the release, needs `contents: write`.
+    description: >-
+      Token used to read and edit the release, this requires `contents: write`.
     required: false
     default: ${{ github.token }}
   images:
     description: >-
       Newline-separated container image references without tag, e.g. `ghcr.io/my-org/my-image`.
-      The last path segment is the image basename used in the placeholders.
+      The last path segment is the image basename, the key of the image in the template.
     required: true
   inventory-directory:
     description: >-
@@ -23,9 +24,14 @@ inputs:
   release-tag:
     description: Tag of the release to render. The images are expected to have this tag as well.
     required: true
+  render-image:
+    description: >-
+      Container image that has python3 and jinja2 installed to render the template with,
+      e.g. an amp-devcontainer-docs image.
+    required: true
   template-file:
-    description: Optional path to a template that is applied to the release notes before rendering.
-    required: false
+    description: Path to the Jinja2 template, which is inserted after the first header of the release notes.
+    required: true
 
 runs:
   using: composite
@@ -38,4 +44,5 @@ runs:
         IMAGES: ${{ inputs.images }}
         INVENTORY_DIRECTORY: ${{ inputs.inventory-directory }}
         RELEASE_TAG: ${{ inputs.release-tag }}
+        RENDER_IMAGE: ${{ inputs.render-image }}
         TEMPLATE_FILE: ${{ inputs.template-file }}

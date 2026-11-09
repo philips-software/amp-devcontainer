@@ -1,11 +1,13 @@
 # render-release-notes
 
-Renders the placeholders in the notes of a GitHub release, optionally after applying a template.
+Renders a [Jinja2](https://jinja.palletsprojects.com) template with the data of released container images, and inserts the result into the notes of a GitHub release.
 The action does not know anything about container flavors; it renders the images it is given.
-Which images exist, and what they are called, is decided by the calling workflow.
+Which images exist, and what they are called, is decided by the calling workflow, and a template can loop over the images without naming any of them.
 
-The release is read once, rendered completely in memory, and edited once.
-When anything fails, for instance an image digest that cannot be resolved or a placeholder without a value, the release is left untouched.
+The template is rendered by [render.py](./render.py) in a container, so no tooling needs to be installed on the runner.
+Only the rendered template is inserted, directly after the first level-2 (`##`) header of the notes, the existing notes are never interpreted as a template.
+The release is read once, rendered completely, and edited once.
+When anything fails, for instance an image digest that cannot be resolved or a variable that does not exist, the release is left untouched.
 
 ## Usage
 
@@ -19,53 +21,60 @@ When anything fails, for instance an image digest that cannot be resolved or a p
       ghcr.io/my-org/my-image-alpha
       ghcr.io/my-org/my-image-beta
     release-tag: ${{ github.ref_name }}
-    template-file: .github/RELEASE_TEMPLATE.md
+    render-image: ghcr.io/philips-software/amp-devcontainer-docs:<version>@<digest>
+    template-file: .github/RELEASE_TEMPLATE.md.j2
 ```
 
-The caller needs `contents: write` to edit the release.
+The caller needs `contents: write` to edit the release, and a container engine to resolve digests and render.
 
 ### Inputs
 
-| Input | Required | Description |
-| --- | --- | --- |
-| `images` | yes | Newline-separated image references without tag. The last path segment is the *image basename* used in placeholders. |
-| `release-tag` | yes | Tag of the release to render. The images are expected to carry the same tag. |
-| `inventory-directory` | no | Directory with a `tool-inventory-<image-basename>/tool-inventory.json` file per image, as produced by the [generate-tool-inventory](../generate-tool-inventory/action.yml) action and downloaded as artifact. Defaults to `.`. |
-| `template-file` | no | Template that is inserted directly after the first `## ` header of the notes before rendering. Notes without a header get the template prepended. |
-| `github-token` | no | Token used to read and edit the release. Defaults to the workflow token. |
+| Input                 | Required | Description                                                                                                                                                                                                                    |
+|-----------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `images`              | yes      | Newline-separated image references without tag. The last path segment is the *image basename*, the key of the image in the template.                                                                                           |
+| `release-tag`         | yes      | Tag of the release to render. The images are expected to carry the same tag.                                                                                                                                                   |
+| `render-image`        | yes      | Container image with python3 and jinja2, e.g. an amp-devcontainer-docs image. The rendering runs without network access.                                                                                                       |
+| `template-file`       | yes      | Path to the Jinja2 template.                                                                                                                                                                                                   |
+| `inventory-directory` | no       | Directory with a `tool-inventory-<image-basename>/tool-inventory.json` file per image, as produced by the [generate-tool-inventory](../generate-tool-inventory/action.yml) action and downloaded as artifact. Defaults to `.`. |
+| `github-token`        | no       | Token used to read and edit the release. Defaults to the workflow token.                                                                                                                                                       |
 
-## Placeholders
+## Template variables
 
-A placeholder has the form
+The template has the following variables.
+Using a variable, or an attribute of a variable, that does not exist is an error, so typos never end up in a published release.
+Values are inserted as they are; there is no HTML escaping.
 
-```text
-{{ <namespace>[.<subject>].<attribute> }}
+| Variable                      | Value                                                                                    |
+|-------------------------------|------------------------------------------------------------------------------------------|
+| `release.tag`                 | The tag of the release.                                                                  |
+| `images`                      | The images of the release by image basename, in the order they were given to the action. |
+| `images[<name>].reference`    | The image reference without tag, e.g. `ghcr.io/my-org/my-image-alpha`.                   |
+| `images[<name>].version`      | The tag of the image, which is the release tag.                                          |
+| `images[<name>].digest`       | The digest of the multi-architecture image manifest, e.g. `sha256:…`.                    |
+| `images[<name>].tools`        | The tools of the image's tool inventory.                                                 |
+| `images[<name>].tools[].name` | The name of a tool, followed by `version`, `commands` (list) and `files` (list).         |
+
+The image basename is the last path segment of the image reference, so `ghcr.io/my-org/my-image-alpha` is named `my-image-alpha`.
+Images are looked up by name, which is not a valid identifier because of the dashes: use `images["my-image-alpha"].digest`, or loop over the images:
+
+```jinja
+{% for name, image in images.items() %}
+| {{ name }} | {{ image.reference }}:{{ image.version }}@{{ image.digest }} |
+{% endfor %}
 ```
 
-- The **namespace** is the first dot-separated segment, and says what kind of thing the placeholder refers to.
-- The **attribute** is the last segment, and says which property of it is rendered.
-- The **subject** is everything in between, and identifies one particular thing of that kind. It can contain dots and dashes.
-- Names consist of lowercase letters, digits and dashes, and start with a letter. Whitespace inside the braces is ignored; use a single space by convention.
-- Text between double braces that does not follow this form is not a placeholder and is left as is.
-- A placeholder without a value is an error that fails the render, so typos never end up in a published release.
-- Values are inserted literally; they are never interpreted again.
+Naming conventions for variables, to keep templates predictable:
 
-### Namespaces
+- The first segment says what kind of thing a variable is (`release`, `images`); plural names are collections that are looped over or looked up by name, singular names are a single thing.
+- Attributes are lowercase and describe a single property (`tag`, `digest`); nothing is encoded in a longer name.
+- When adding a new kind of value, add a new top-level variable (or a new attribute of an existing one) in the data assembly of [render-release-notes.sh](./render-release-notes.sh) and to the table above.
 
-| Placeholder | Value |
-| --- | --- |
-| `{{ image.<image-basename>.version }}` | The tag of the image, which is the release tag. |
-| `{{ image.<image-basename>.digest }}` | The digest of the multi-architecture image manifest, e.g. `sha256:…`. |
-| `{{ image.<image-basename>.tools }}` | A markdown table with the packages, versions, commands and files of the image's tool inventory. |
-| `{{ release.<attribute> }}` | Reserved for values of the release itself. No attributes are defined yet. |
-
-The image basename is the last path segment of the image reference, so `ghcr.io/my-org/my-image-alpha` is referred to as `my-image-alpha`, as in `{{ image.my-image-alpha.digest }}`.
-
-When adding a new kind of value, pick a new namespace (or a new attribute of an existing one) instead of encoding the meaning in a longer name, and add it to the table above.
+Blocks (`{% … %}`) do not leave an empty line behind: the first newline after a block is removed, and whitespace before a block is stripped.
 
 ## Tests
 
-The tests use generated fake input and stub the `gh` and `docker` commands. Run them with [Bats](https://bats-core.readthedocs.io) from the repository root:
+The tests use generated fake input, and stub the `gh` and `docker` commands with functions.
+They need Bats, jq, python3 and jinja2, which the amp-devcontainer-docs image provides. Run them from the repository root:
 
 ```bash
 bats .github/actions/render-release-notes/test

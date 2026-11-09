@@ -166,12 +166,13 @@ Before you submit your pull request consider the following guidelines:
    Commands are smoke-tested with `--version` by default. Use a package's
    `smoke-test-args` mapping for command-specific argument arrays when needed.
 
-   The release notes are rendered from [.github/RELEASE_TEMPLATE.md](./RELEASE_TEMPLATE.md).
-   Placeholders in the template follow a `{{ <namespace>[.<subject>].<attribute> }}`
-   scheme, for example `{{ image.amp-devcontainer-cpp.digest }}`, and a
-   placeholder without a value fails the release. See the
-   [render-release-notes action](./actions/render-release-notes/README.md) for
-   the supported placeholders.
+   The release notes are rendered from the Jinja2 template
+   [.github/RELEASE_TEMPLATE.md.j2](./RELEASE_TEMPLATE.md.j2) by the
+   [render-release-notes action](./actions/render-release-notes/README.md), which
+   documents the variables a template can use. The template loops over the
+   images of the release instead of naming them, and a variable that does not
+   exist fails the release.
+
 1. Commit your changes using a descriptive commit message.
 
    ```shell
