@@ -12,9 +12,7 @@
       ]
     },
     "bats-tool-inventory": {
-      "files": [
-        "/usr/local/bats-tool-inventory/load.bash"
-      ]
+      "files": ["/usr/local/bats-tool-inventory/load.bash"]
     },
     "gh": {},
     "git": {},

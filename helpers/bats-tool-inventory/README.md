@@ -28,12 +28,12 @@ An apt requirements file is a JSON object mapping a package name to its pinned v
 When multiple files are passed, later files override earlier ones.
 A missing argument or file is an error.
 
-| Function | Description |
-| --- | --- |
-| `read_apt_requirements FILE...` | Print the merged requirements as JSON. |
-| `get_expected_version_for TOOL FILE...` | Print the pinned upstream version (packaging revision removed) of a tool. |
-| `get_expected_semver_for TOOL FILE...` | Print the first `major.minor.patch` of the expected version. |
-| `assert_apt_packages_at_pinned_versions FILE...` | Assert that each package is installed at exactly the pinned version. |
+| Function                                         | Description                                                               |
+|--------------------------------------------------|---------------------------------------------------------------------------|
+| `read_apt_requirements FILE...`                  | Print the merged requirements as JSON.                                    |
+| `get_expected_version_for TOOL FILE...`          | Print the pinned upstream version (packaging revision removed) of a tool. |
+| `get_expected_semver_for TOOL FILE...`           | Print the first `major.minor.patch` of the expected version.              |
+| `assert_apt_packages_at_pinned_versions FILE...` | Assert that each package is installed at exactly the pinned version.      |
 
 A tool matches a package when its name is equal to the package name, or when the package name starts with the tool name followed by a dash.
 Looking up `fake-tool` therefore also matches `fake-tool-extra`; the lookup fails when the matches have different versions.
@@ -61,20 +61,20 @@ An inventory file is a JSON object with an optional `includes` array and a `pack
 - Commands are started with `--version` unless `smoke-test-args` provides other arguments.
 - Missing includes, include cycles, and invalid documents are errors.
 
-| Function | Description |
-| --- | --- |
-| `resolve_inventory FILE` | Print the resolved inventory as compact JSON. |
-| `read_inventory_tools FILE` | Print one JSON object per command and file in the inventory. |
-| `assert_inventory_tools_available FILE` | Assert that all commands are on the `PATH` and all files exist. |
-| `assert_inventory_tools_run FILE` | Assert that every command starts successfully within 30 seconds. |
+| Function                                | Description                                                      |
+|-----------------------------------------|------------------------------------------------------------------|
+| `resolve_inventory FILE`                | Print the resolved inventory as compact JSON.                    |
+| `read_inventory_tools FILE`             | Print one JSON object per command and file in the inventory.     |
+| `assert_inventory_tools_available FILE` | Assert that all commands are on the `PATH` and all files exist.  |
+| `assert_inventory_tools_run FILE`       | Assert that every command starts successfully within 30 seconds. |
 
 ### Version helpers
 
-| Function | Description |
-| --- | --- |
-| `to_semver` | Read stdin and print the first `major.minor.patch`. |
-| `assert_tool_version TOOL ACTUAL EXPECTED` | Fail with a diagnostic when the versions differ. |
-| `assert_commands_available COMMAND...` | Fail on the first command that is not on the `PATH`. |
+| Function                                   | Description                                          |
+|--------------------------------------------|------------------------------------------------------|
+| `to_semver`                                | Read stdin and print the first `major.minor.patch`.  |
+| `assert_tool_version TOOL ACTUAL EXPECTED` | Fail with a diagnostic when the versions differ.     |
+| `assert_commands_available COMMAND...`     | Fail on the first command that is not on the `PATH`. |
 
 ## Tests
 

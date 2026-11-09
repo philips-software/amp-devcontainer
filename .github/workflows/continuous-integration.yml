@@ -104,7 +104,9 @@ jobs:
           set -Eeuo pipefail
           source helpers/bats-tool-inventory/src/resolve-inventory.bash
           for inventory in .devcontainer/*/tool-inventory.json; do
-            diff <(bash .github/actions/generate-tool-inventory/resolve.sh "${inventory}" | jq -S .) \
-                 <(resolve_inventory "${inventory}" | jq -S .)
+            action_inventory=$(bash .github/actions/generate-tool-inventory/resolve.sh "${inventory}" | jq -S .)
+            helper_inventory=$(resolve_inventory "${inventory}" | jq -S .)
+            diff <(printf '%s\n' "${action_inventory}") \
+                 <(printf '%s\n' "${helper_inventory}")
             echo "${inventory}: resolved identically"
           done
