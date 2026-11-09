@@ -201,6 +201,23 @@ jobs:
     container: ghcr.io/philips-software/amp-devcontainer-<🍨 flavor>:latest
 ```
 
+> [!IMPORTANT]
+> **GitHub hosted runners require Actions to run as `root`**
+>
+> amp-devcontainer uses least-privileged execution by default, while allowing CI platforms to override runtime identity where required.
+> For GitHub hosted runners this requires:
+>
+> ```yaml
+> jobs:
+>   container-job:
+>     runs-on: ubuntu-latest
+>     container:
+>       image: ghcr.io/philips-software/amp-devcontainer-<🍨 flavor>:latest
+>       options: --user 0
+> ```
+>
+> See: [Dockerfile support](https://docs.github.com/en/actions/reference/workflows-and-actions/dockerfile-support) and https://github.com/actions/checkout/issues/956
+
 ## Community
 
 This project uses a [code of conduct](.github/CODE_OF_CONDUCT.md) to define expected conduct in our community. Instances of
