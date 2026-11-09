@@ -15,7 +15,8 @@ function insert_after_header() {
   fi
 
   if ! grep -q '^## ' <<< "${notes}"; then
-    cat "${text_file}"
+    # Make sure the text ends with a newline, so it is not joined with the first line of the notes
+    sed -e '$a\' "${text_file}"
     [[ -z "${notes}" ]] || printf '%s\n' "${notes}"
     return 0
   fi

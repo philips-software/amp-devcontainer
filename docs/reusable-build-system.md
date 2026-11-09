@@ -49,7 +49,7 @@ The files of amp-devcontainer itself follow it, so they can be used as an exampl
 
 Per image, add a directory `.devcontainer/<name>` with:
 
-- a `Dockerfile` that starts `FROM` an amp-devcontainer image, pinned by digest;
+- a `Dockerfile` that starts `FROM` an amp-devcontainer image, pinned by digest. Let it take the image from an `ARG BASE_IMAGE`, so the same image can be given to the workflow in step 3;
 - `apt-requirements*.json` files that pin the apt packages that the Dockerfile installs, as `{"package": "version"}`;
 - a `devcontainer-metadata.json` with the settings and VS Code extensions for the dev container;
 - a `tool-inventory.json` with the tools that the image promises to provide, see the [inventory format](../.github/actions/generate-tool-inventory/README.md#inventory-format).
@@ -104,6 +104,8 @@ jobs:
       packages: write
       pull-requests: write
     with:
+      base-image: ghcr.io/philips-software/amp-devcontainer-<flavor>@sha256:<digest>
+      build-args: BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-<flavor>@sha256:<digest>
       dockerfile: .devcontainer/<name>/Dockerfile
       image-name: ${{ github.repository }}-<name>
       devcontainer-metadata-file: .devcontainer/<name>/devcontainer-metadata.json
@@ -113,6 +115,8 @@ jobs:
 
 The permissions are what the jobs in the workflow need, the workflow has a comment per permission.
 The inputs of the workflow are documented in the workflow file.
+The `base-image` is the image of the `FROM` line.
+Without it the `devcontainer.metadata` label of your image only has your own metadata, and the VS Code extensions and settings of the base image are lost.
 Run the workflow for pull requests, and for the merge queue with `enable-edge-tag` so there is always an `edge` image to compare with.
 
 ### 4. Keep the pins up to date

@@ -189,6 +189,22 @@ run_script() {
   assert_output $'fake text\nfake notes\nwithout header'
 }
 
+@test "insert_after_header does not join text without a final newline with the notes" {
+  printf 'fake text' > "${FAKE_DIR}/text.md"
+
+  run insert_after_header $'fake notes\nwithout header' "${FAKE_DIR}/text.md"
+  assert_success
+  assert_output $'fake text\nfake notes\nwithout header'
+
+  run insert_after_header $'## fake header\nfake notes' "${FAKE_DIR}/text.md"
+  assert_success
+  assert_output $'## fake header\nfake text\nfake notes'
+
+  run insert_after_header "" "${FAKE_DIR}/text.md"
+  assert_success
+  assert_output "fake text"
+}
+
 @test "insert_after_header handles empty notes" {
   printf 'fake text\n' > "${FAKE_DIR}/text.md"
 

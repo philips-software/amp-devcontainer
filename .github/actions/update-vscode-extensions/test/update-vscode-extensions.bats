@@ -72,6 +72,11 @@ extensions_of() {
   jq -c '.customizations.vscode.extensions' "${1:?}"
 }
 
+# The time of a number of days ago, in the format of the marketplace.
+fake_days_ago() {
+  date -u -d "-${1:?} days" +"%Y-%m-%dT%H:%M:%S.000Z"
+}
+
 output_of() {
   sed -n "s/^${1:?}=//p" "${GITHUB_OUTPUT}"
 }
@@ -112,14 +117,20 @@ output_of() {
 }
 
 @test "the cooldown period can be configured" {
-  add_extension fake.extension-alpha "$(version 1.3.0 "${FAKE_FUTURE}")" "$(version 1.2.0 "${FAKE_PAST}")"
+  add_extension fake.extension-alpha "$(version 1.3.0 "$(fake_days_ago 1)")" "$(version 1.2.0 "${FAKE_PAST}")"
   write_devcontainer fake-flavor-alpha/devcontainer.json fake.extension-alpha@1.1.0
 
-  COOLDOWN_DAYS=0 run bash "${SCRIPT}" fake-flavor-alpha/devcontainer.json
-
+  # A version of yesterday is within the default cooldown of 7 days, but not within a cooldown of 0 days
+  run bash "${SCRIPT}" fake-flavor-alpha/devcontainer.json
   assert_success
   run extensions_of fake-flavor-alpha/devcontainer.json
   assert_output '["fake.extension-alpha@1.2.0"]'
+
+  write_devcontainer fake-flavor-alpha/devcontainer.json fake.extension-alpha@1.1.0
+  COOLDOWN_DAYS=0 run bash "${SCRIPT}" fake-flavor-alpha/devcontainer.json
+  assert_success
+  run extensions_of fake-flavor-alpha/devcontainer.json
+  assert_output '["fake.extension-alpha@1.3.0"]'
 }
 
 @test "the current version is kept when no version has cleared the cooldown yet" {
