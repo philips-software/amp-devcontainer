@@ -88,9 +88,8 @@ RUN --mount=from=downloader,target=/dl \
     MULL_RUNNER_DEB="Mull-${MULL_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
     MULL_DEB="Mull-${LLVM_MAJOR_VERSION}-${MULL_VERSION}-LLVM-${LLVM_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
 
-    gh release download "${MULL_VERSION}" --repo mull-project/mull \
-        --pattern "${MULL_DEB}" \
-        --pattern "${MULL_RUNNER_DEB}"
+    MULL_BASE_URL="https://github.com/mull-project/mull/releases/download/${MULL_VERSION}"
+    wget --no-hsts -q "${MULL_BASE_URL}/${MULL_RUNNER_DEB}" "${MULL_BASE_URL}/${MULL_DEB}"
 
     if [[ "$(uname -m)" == "x86_64" ]]; then
         MULL_RUNNER_SHA256="8f64aea71da7bafcd86bea0e316b16253aaf0835c54878d0bb4b0853f6bc1dfe"
