@@ -86,7 +86,7 @@ jobs:
         id: bats
         with:
           assert-version: 2.2.4
-          bats-version: 1.13.0
+          bats-version: 1.14.0
           detik-install: false
           file-install: false
           github-token: ${{ github.token }}
