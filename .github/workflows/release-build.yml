@@ -31,8 +31,8 @@ jobs:
       TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
 
-  update-release-notes:
-    name: 📝 Update Release Notes
+  update-release:
+    name: 📝 Update Release
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -42,6 +42,8 @@ jobs:
       contents: write # is needed to modify a release
     needs: [build-push-test]
     env:
+      # The image of the release that renders the release notes, it is built by this workflow.
+      DOCS_IMAGE: ghcr.io/${{ github.repository }}-docs
       # The images that are part of the release, the only place where they are listed.
       IMAGES: |
         ghcr.io/${{ github.repository }}-base
@@ -50,7 +52,6 @@ jobs:
         ghcr.io/${{ github.repository }}-embedded-cpp
         ghcr.io/${{ github.repository }}-embedded-rust
         ghcr.io/${{ github.repository }}-rust
-      REF_NAME: ${{ github.ref_name }}
     steps:
       - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
         with:
@@ -59,33 +60,22 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: tool-inventory-${{ github.event.repository.name }}-*
+      - name: Get digest of the render image
+        id: docs-digest
+        uses: $/.github/actions/extract-manifest-digest
+        with:
+          container: ${{ env.DOCS_IMAGE }}:${{ github.ref_name }}
       - name: Render release notes
         uses: $/.github/actions/render-release-notes
         with:
           images: ${{ env.IMAGES }}
           release-tag: ${{ github.ref_name }}
-          render-image: ghcr.io/philips-software/amp-devcontainer-docs:v8.0.0@sha256:86151248390ef9061fc98f872a5cc18bffd90ac201b169c2ad208e484dd06415
+          render-image: ${{ env.DOCS_IMAGE }}@${{ steps.docs-digest.outputs.digest }}
       - name: Upload attestations and tool inventories
-        # Images are processed one at a time so release asset uploads can't race each other.
-        run: |
-          set -Eeuo pipefail
-          while IFS= read -r IMAGE; do
-            [[ -n "${IMAGE}" ]] || continue
-            IMAGE_NAME=${IMAGE##*/}
-            DIGEST=$(docker buildx imagetools inspect "${IMAGE}:${REF_NAME}" --format '{{json .}}' | jq -er '.manifest.digest // .manifests[0].digest')
-            FORMATTED_DIGEST=${DIGEST//:/_}
-
-            gh attestation verify --repo "${GH_REPO}" "oci://${IMAGE}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${IMAGE_NAME}_${FORMATTED_DIGEST}.intoto.jsonl"
-            gh release upload --clobber "${REF_NAME}" "${REPOSITORY_OWNER}-${IMAGE_NAME}_${FORMATTED_DIGEST}.intoto.jsonl"
-
-            INVENTORY="${REPOSITORY_OWNER}-${IMAGE_NAME}_${FORMATTED_DIGEST}.tool-inventory.json"
-            cp "tool-inventory-${IMAGE_NAME}/tool-inventory.json" "${INVENTORY}"
-            gh release upload --clobber "${REF_NAME}" "${INVENTORY}"
-          done <<< "${IMAGES}"
-        env:
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        uses: $/.github/actions/upload-release-assets
+        with:
+          images: ${{ env.IMAGES }}
+          release-tag: ${{ github.ref_name }}
 
   publish-devcontainer-templates:
     name: 📝 Publish templates

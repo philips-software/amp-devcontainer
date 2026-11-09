@@ -25,6 +25,7 @@ The actions have a README with their inputs and outputs:
 - [render-release-notes](../.github/actions/render-release-notes/README.md): render the release notes of a release
 - [update-apt-packages](../.github/actions/update-apt-packages/README.md): update pinned apt packages
 - [update-vscode-extensions](../.github/actions/update-vscode-extensions/README.md): update pinned VS Code extensions
+- [upload-release-assets](../.github/actions/upload-release-assets/README.md): attach the attestations and tool inventories of images to a release
 
 The helpers are [bats-tool-inventory](../helpers/bats-tool-inventory/README.md), to check the installed tools and apt packages, and [add-sbom-note](../helpers/add-sbom-note/add-sbom-note.sh), to make tools that are not installed by a package manager show up in the SBOM.
 
@@ -130,8 +131,8 @@ The integration tests of step 2 fail when a pin and the installed package disagr
 Releases are created with [release-please](https://github.com/googleapis/release-please) from [conventional commits](https://www.conventionalcommits.org), see [release-please.yml](../.github/workflows/release-please.yml).
 Publishing the release runs [release-build.yml](../.github/workflows/release-build.yml): it builds, pushes and tests the images again, now with the semantic version tags, and then:
 
-- renders the release notes with [render-release-notes](../.github/actions/render-release-notes/README.md), with the digests and tool inventories of the images;
-- uploads the attestations and tool inventories as release assets;
+- renders the release notes with [render-release-notes](../.github/actions/render-release-notes/README.md), with the digests and tool inventories of the images, and can be run again without duplicating text;
+- uploads the attestations and tool inventories as release assets with [upload-release-assets](../.github/actions/upload-release-assets/README.md);
 - generates the documents (see [wc-document-generation.yml](../.github/workflows/wc-document-generation.yml)) and publishes the dev container templates.
 
 ### 6. Verify
