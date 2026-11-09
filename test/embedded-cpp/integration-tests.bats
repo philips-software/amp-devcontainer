@@ -5,7 +5,11 @@ bats_require_minimum_version 1.5.0
 setup() {
   load '/usr/local/bats-support/load'
   load '/usr/local/bats-assert/load'
-  load '../tool-inventory'
+  load '/usr/local/bats-tool-inventory/load'
+
+  DEVCONTAINER_DIR="${BATS_TEST_DIRNAME}/../../.devcontainer"
+  INVENTORY="${DEVCONTAINER_DIR}/embedded-cpp/tool-inventory.json"
+  APT_REQUIREMENTS=("${DEVCONTAINER_DIR}"/{base,cpp,embedded-cpp}/apt-requirements*.json)
 
   pushd ${BATS_TEST_DIRNAME}/workspace
 }
@@ -18,17 +22,17 @@ teardown() {
 
 # bats test_tags=Compatibility,Version
 @test "apt packages are installed at their pinned versions" {
-  assert_apt_packages_at_pinned_versions
+  assert_apt_packages_at_pinned_versions "${APT_REQUIREMENTS[@]}"
 }
 
 # bats test_tags=Sbom
 @test "tools listed in the inventory are present in the image" {
-  assert_inventory_tools_available
+  assert_inventory_tools_available "${INVENTORY}"
 }
 
 # bats test_tags=Functional
 @test "commands listed in the inventory start successfully" {
-  assert_inventory_tools_run
+  assert_inventory_tools_run "${INVENTORY}"
 }
 
 ## This section contains tests for the embedded (ARM none-eabi) toolchain.
@@ -38,7 +42,7 @@ teardown() {
 
 # bats test_tags=Compatibility,Version,HostGCCArmGCC
 @test "host and embedded gcc toolchain versions should be the same major and minor version" {
-  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for g++ | cut -d. -f1,2)
+  EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for g++ "${APT_REQUIREMENTS[@]}" | cut -d. -f1,2)
   INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
   assert_tool_version arm-none-eabi-gcc "${INSTALLED_MAJOR_MINOR_VERSION}" "${EXPECTED_MAJOR_MINOR_VERSION}"
 }

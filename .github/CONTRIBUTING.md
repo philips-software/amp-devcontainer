@@ -156,7 +156,13 @@ Before you submit your pull request consider the following guidelines:
    through `includes`, with paths relative to the declaring file. Includes are
    applied in order, then local packages replace inherited entries in full.
    Tests and release notes use the same resolved inventory; missing includes
-   and inclusion cycles fail validation.
+   and inclusion cycles fail validation. The Bats helpers that verify
+   inventories live in [helpers/bats-tool-inventory](../helpers/bats-tool-inventory/README.md)
+   and are tested separately from the container images. The helpers and the
+   release notes generation resolve inventories independently; CI verifies
+   they agree, so changes to the inventory format must be applied to both
+   `helpers/bats-tool-inventory/src/resolve-inventory.bash` and
+   `.github/actions/generate-tool-inventory/resolve.sh`.
    Commands are smoke-tested with `--version` by default. Use a package's
    `smoke-test-args` mapping for command-specific argument arrays when needed.
 

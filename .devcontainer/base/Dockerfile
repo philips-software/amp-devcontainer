@@ -37,6 +37,7 @@ SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 RUN --mount=type=bind,source=.devcontainer/base/add-sbom-note.sh,target=/tmp/add-sbom-note.sh \
     --mount=type=bind,source=.devcontainer/base/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/base/apt-requirements-gh.json,target=/tmp/apt-requirements-gh.json \
+    --mount=type=bind,source=helpers/bats-tool-inventory,target=/tmp/bats-tool-inventory \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
@@ -73,6 +74,10 @@ SOURCE
    bash /src/bats-core/install.sh /usr/local
    cp -r /src/bats-support /usr/local/bats-support
    cp -r /src/bats-assert /usr/local/bats-assert
+
+   # Install the tool-inventory helpers, without the package tests
+   install -d /usr/local/bats-tool-inventory
+   cp -r /tmp/bats-tool-inventory/{load.bash,package.json,LICENSE,README.md,src} /usr/local/bats-tool-inventory/
 
    # Retain the bats-core manifest so the tool is captured in the SBOM
    mkdir -p /usr/local/lib/bats-core
