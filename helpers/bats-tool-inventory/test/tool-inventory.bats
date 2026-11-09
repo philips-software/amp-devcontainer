@@ -3,8 +3,6 @@
 bats_require_minimum_version 1.5.0
 
 setup() {
-  bats_load_library bats-support
-  bats_load_library bats-assert
   load '../load'
 
   FAKE_BIN="${BATS_TEST_TMPDIR}/fake-bin"
@@ -498,6 +496,7 @@ make_fake_dpkg() {
 
 @test "loading the package does not change the shell options" {
   run bash -c '
+    bats_load_library() { :; }
     before=$(set +o; shopt -p)
     source "$1"
     after=$(set +o; shopt -p)
@@ -507,19 +506,36 @@ make_fake_dpkg() {
   assert_success
 }
 
+@test "loading the package makes the assertions of its dependencies available" {
+  run type -t assert_success refute_output fail
+
+  assert_success
+  assert_output "$(printf 'function\nfunction\nfunction')"
+}
+
+@test "loading the package fails when a dependency cannot be found" {
+  cat > "${BATS_TEST_TMPDIR}/missing-dependency.bats" << EOF
+@test "missing dependency" {
+  load '${BATS_TEST_DIRNAME}/../load'
+}
+EOF
+
+  run -1 env BATS_LIB_PATH="${BATS_TEST_TMPDIR}/fake-empty-lib-path" bats "${BATS_TEST_TMPDIR}/missing-dependency.bats"
+
+  assert_output --partial "Could not find library 'bats-support'"
+}
+
 @test "the package works from a relocated prefix that contains only the installable files" {
   local prefix="${BATS_TEST_TMPDIR}/fake-prefix/bats-tool-inventory"
   local package="${BATS_TEST_DIRNAME}/.."
 
   mkdir -p "${prefix}"
-  cp -r "${package}"/{load.bash,package.json,LICENSE,README.md,src} "${prefix}/"
+  cp -r "${package}"/{load.bash,package.json,LICENSE,src} "${prefix}/"
   make_stub fake-tool-alpha
   write_json "${FAKE_DIR}/inventory.json" <<< '{"packages": {"fake-tool-alpha": {}}}'
   write_json "${FAKE_DIR}/requirements.json" <<< '{"fake-tool": "1.2.3-fake1"}'
   cat > "${BATS_TEST_TMPDIR}/relocated.bats" << EOF
 setup() {
-  bats_load_library bats-support
-  bats_load_library bats-assert
   load '${prefix}/load'
 }
 

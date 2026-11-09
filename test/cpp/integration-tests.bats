@@ -7,9 +7,9 @@ setup_file() {
 }
 
 setup() {
-  load '/usr/local/bats-support/load'
-  load '/usr/local/bats-assert/load'
-  load '/usr/local/bats-tool-inventory/load'
+  bats_load_library bats-support
+  bats_load_library bats-assert
+  bats_load_library bats-tool-inventory
 
   DEVCONTAINER_DIR="${BATS_TEST_DIRNAME}/../../.devcontainer"
   INVENTORY="${DEVCONTAINER_DIR}/cpp/tool-inventory.json"

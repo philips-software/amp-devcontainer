@@ -27,7 +27,8 @@ FROM ubuntu:26.04@sha256:6a06111c3b0a8600feadb270aec771dc239bf407b25625f93f44ab0
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV LANG=C.UTF-8
+ENV BATS_LIB_PATH=/usr/local \
+    LANG=C.UTF-8
 
 HEALTHCHECK NONE
 
@@ -72,12 +73,12 @@ SOURCE
 
    # Install bats
    bash /src/bats-core/install.sh /usr/local
-   cp -r /src/bats-support /usr/local/bats-support
-   cp -r /src/bats-assert /usr/local/bats-assert
-
-   # Install the tool-inventory helpers, without the package tests
-   install -d /usr/local/bats-tool-inventory
-   cp -r /tmp/bats-tool-inventory/{load.bash,package.json,LICENSE,README.md,src} /usr/local/bats-tool-inventory/
+   # Install the bats libraries, only with the files that are needed at runtime
+   for library in /src/bats-support /src/bats-assert /tmp/bats-tool-inventory; do
+      install -d "/usr/local/${library##*/}/src"
+      install -m 0644 -t "/usr/local/${library##*/}" "${library}"/{load.bash,package.json,LICENSE}
+      install -m 0644 -t "/usr/local/${library##*/}/src" "${library}"/src/*.bash
+   done
 
    # Retain the bats-core manifest so the tool is captured in the SBOM
    mkdir -p /usr/local/lib/bats-core

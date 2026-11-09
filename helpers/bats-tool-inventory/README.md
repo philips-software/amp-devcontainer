@@ -8,19 +8,19 @@ Callers pass every input file explicitly, so they are equally usable for a singl
 
 ## Usage
 
-Load bats-support and bats-assert before loading this package:
+The package loads its dependencies, bats-support and bats-assert, itself using `bats_load_library`.
+Make sure the directory that contains `bats-support`, `bats-assert` and `bats-tool-inventory` is in `BATS_LIB_PATH`; the amp-devcontainer base image sets `BATS_LIB_PATH=/usr/local`.
 
 ```bash
 setup() {
-  load '/usr/local/bats-support/load'
-  load '/usr/local/bats-assert/load'
-  load '/usr/local/bats-tool-inventory/load'
+  bats_load_library bats-tool-inventory
 }
 ```
 
 ### Requirements
 
-Bash, [Bats](https://bats-core.readthedocs.io) 1.5.0 or newer, bats-support, bats-assert, `jq`, GNU `timeout` and `realpath`, and `dpkg-query` (only for the apt assertions).
+The dependencies are declared as `peerDependencies` in [package.json](./package.json): [Bats](https://bats-core.readthedocs.io) 1.5.0 or newer, bats-support, and bats-assert.
+Next to that Bash, `jq`, GNU `timeout` and `realpath`, and `dpkg-query` (only for the apt assertions) are needed.
 
 ### Apt requirement files
 

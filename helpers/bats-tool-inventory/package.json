@@ -2,5 +2,10 @@
   "name": "bats-tool-inventory",
   "version": "1.0.0",
   "description": "Bats helpers to verify a tool inventory and pinned apt packages",
-  "license": "MIT"
+  "license": "MIT",
+  "peerDependencies": {
+    "bats": "^1.5",
+    "bats-assert": "^2",
+    "bats-support": "^0.3"
+  }
 }
