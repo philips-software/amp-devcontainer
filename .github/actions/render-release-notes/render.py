@@ -11,11 +11,19 @@ import json
 import sys
 from pathlib import Path
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, TemplateError
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    TemplateError,
+    select_autoescape,
+)
 
 
 def render(template_file: str, data_file: str) -> str:
-    data = json.loads(Path(data_file).read_text(encoding="utf-8"))
+    # The paths are arguments of a command-line tool that renders local files, the
+    # caller decides what to read, so there is no path traversal to guard against.
+    data = json.loads(Path(data_file).read_text(encoding="utf-8"))  # NOSONAR
     if not isinstance(data, dict):
         raise ValueError(f"{data_file}: the data must be a JSON object")
 
@@ -23,7 +31,8 @@ def render(template_file: str, data_file: str) -> str:
     environment = Environment(
         loader=FileSystemLoader(template_path.parent),
         undefined=StrictUndefined,
-        autoescape=False,  # the output is markdown, not HTML
+        # Escapes HTML and XML templates only, the markdown templates produce no HTML
+        autoescape=select_autoescape(),
         trim_blocks=True,
         lstrip_blocks=True,
         keep_trailing_newline=True,
