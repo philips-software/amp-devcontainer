@@ -146,6 +146,12 @@ Before you submit your pull request consider the following guidelines:
 
 1. Ensure that all tests pass.
 
+   The actions in `.github/actions`, the helpers in `helpers`, and the
+   consistency of versions that are pinned in multiple places have tests that
+   run without building a container, see
+   [the re-usable build system](../docs/reusable-build-system.md#testing-the-build-system-itself).
+   Add or update the tests of the action or helper that you change.
+
    Each flavor's `tool-inventory.json` identifies the key tools it promises to
    provide. Integration tests check that these tools are available, and release
    notes list them with versions taken from the image's Software Bill of
@@ -165,6 +171,13 @@ Before you submit your pull request consider the following guidelines:
    `.github/actions/generate-tool-inventory/resolve.sh`.
    Commands are smoke-tested with `--version` by default. Use a package's
    `smoke-test-args` mapping for command-specific argument arrays when needed.
+
+   The release notes are rendered by the
+   [render-release-notes action](./actions/render-release-notes/README.md) from
+   its [default Jinja2 template](./actions/render-release-notes/default-template.md.j2).
+   The action's README documents the variables a template can use. The template
+   loops over the images of the release instead of naming them, and a variable
+   that does not exist fails the release.
 
 1. Commit your changes using a descriptive commit message.
 

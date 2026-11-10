@@ -1,0 +1,56 @@
+---
+name: 📝 Render release notes
+description: >-
+  Render a Jinja2 template with the digests and tool inventories of released container
+  images, and insert the result into the notes of a GitHub release.
+
+inputs:
+  github-token:
+    description: >-
+      Token used to read and edit the release, this requires `contents: write`.
+    required: false
+    default: ${{ github.token }}
+  images:
+    description: >-
+      Newline-separated container image references without tag, e.g. `ghcr.io/my-org/my-image`.
+      The last path segment is the image basename, the key of the image in the template.
+    required: true
+  inventory-directory:
+    description: >-
+      Directory that contains a `tool-inventory-<image-basename>/tool-inventory.json` file
+      for every image, as produced by downloading the tool inventory artifacts.
+    required: false
+    default: .
+  release-tag:
+    description: Tag of the release to render. The images are expected to have this tag as well.
+    required: true
+  render-image:
+    description: >-
+      Container image that has python3 and jinja2 installed to render the template with,
+      e.g. an amp-devcontainer-docs image.
+    required: true
+  summary-file:
+    description: >-
+      Path to a file with a summary of the release, e.g. from the generate-release-summary action.
+      It is available in the template as `release.summary`. A file that doesn't exist counts as no summary.
+    required: false
+  template-file:
+    description: >-
+      Path to the Jinja2 template, which is inserted after the first header of the release notes.
+      Defaults to the template that is part of this action.
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: bash "${GITHUB_ACTION_PATH}/render-release-notes.sh"
+      env:
+        GH_REPO: ${{ github.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        IMAGES: ${{ inputs.images }}
+        INVENTORY_DIRECTORY: ${{ inputs.inventory-directory }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        RENDER_IMAGE: ${{ inputs.render-image }}
+        SUMMARY_FILE: ${{ inputs.summary-file }}
+        TEMPLATE_FILE: ${{ inputs.template-file }}

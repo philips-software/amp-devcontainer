@@ -18,8 +18,5 @@ runs:
     - id: extract-digest
       env:
         CONTAINER: ${{ inputs.container }}
-      run: |
-        set -Eeuo pipefail
-        digest="$(docker buildx imagetools inspect "${CONTAINER}" --format '{{json .}}' | jq -er '.manifest.digest // .manifests[0].digest')"
-        echo "digest=${digest}" >> "$GITHUB_OUTPUT"
+      run: bash "${GITHUB_ACTION_PATH}/extract-manifest-digest.sh"
       shell: bash

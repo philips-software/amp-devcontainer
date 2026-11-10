@@ -1,0 +1,62 @@
+---
+name: ✨ Generate release summary
+description: >-
+  Let GitHub Copilot draft a short summary of a release for the release notes from the
+  commits of the release, billed to the organization. A summary that can't be generated
+  never fails the action.
+
+inputs:
+  github-token:
+    description: >-
+      Token that Copilot authenticates with. The job needs the `copilot-requests: write` permission,
+      and the organization must allow Copilot CLI to be billed to the organization.
+    required: false
+    default: ${{ github.token }}
+  output-file:
+    description: Path the summary is written to, when it could be generated.
+    required: false
+    default: release-summary.md
+  release-tag:
+    description: >-
+      Tag of the release to summarize. The repository must be checked out with the full
+      history and tags (`fetch-depth: 0`).
+    required: true
+  tag-pattern:
+    description: >-
+      Pattern (see `git describe --match`) of the tags of earlier releases. The commits
+      since the latest tag that matches are summarized.
+    required: false
+    default: v[0-9]*
+
+outputs:
+  generated:
+    description: "`true` when a summary was generated, `false` when it was not."
+    value: ${{ steps.summary.outputs.generated }}
+  summary-file:
+    description: Path to the summary, empty when no summary was generated.
+    value: ${{ steps.summary.outputs.summary-file }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: 26
+        package-manager-cache: false
+    - id: install
+      shell: bash
+      run: |
+        if npm ci --ignore-scripts --prefix "${GITHUB_ACTION_PATH}"; then
+          echo "copilot=${GITHUB_ACTION_PATH}/node_modules/.bin/copilot" >> "${GITHUB_OUTPUT}"
+        else
+          echo "::warning::Copilot CLI could not be installed, the release summary is skipped"
+        fi
+    - id: summary
+      shell: bash
+      run: bash "${GITHUB_ACTION_PATH}/generate-release-summary.sh"
+      env:
+        COPILOT_BIN: ${{ steps.install.outputs.copilot }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        OUTPUT_FILE: ${{ inputs.output-file }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        TAG_PATTERN: ${{ inputs.tag-pattern }}

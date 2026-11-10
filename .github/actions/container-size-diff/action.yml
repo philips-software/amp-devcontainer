@@ -18,7 +18,7 @@ outputs:
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
         node-version: '~26.12.1'
         package-manager-cache: false
@@ -26,103 +26,12 @@ runs:
     - run: npm ci --ignore-scripts --prefix "${GITHUB_ACTION_PATH}"
       shell: bash
 
-    - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+    - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       id: size-diff
       env:
         FROM_CONTAINER: ${{ inputs.from-container }}
         TO_CONTAINER: ${{ inputs.to-container }}
       with:
         script: |
-          const actionRequire = require("node:module").createRequire(`${process.env.GITHUB_ACTION_PATH}/package.json`);
-          const { execaSync } = actionRequire("execa");
-          const { filesize } = actionRequire("filesize");
-          const { markdownTable } = actionRequire("markdown-table");
-          const _ = actionRequire("lodash");
-
-          const fromContainer = process.env.FROM_CONTAINER;
-          const toContainer = process.env.TO_CONTAINER;
-
-          async function getSizes(container) {
-              const { stdout } = execaSync("docker", ["manifest", "inspect", "-v", container]);
-              const manifests = _.castArray(JSON.parse(stdout.trim()));
-              const sizes = _(manifests)
-                  .map(m => {
-                      const platform = _.get(m, 'Descriptor.platform', {});
-
-                      const key = _.compact([
-                          platform.os,
-                          platform.architecture,
-                          platform.variant,
-                          platform["os.version"]
-                      ])
-                      .join("/");
-
-                      const layers = _.get(m, 'OCIManifest.layers') || _.get(m, 'layers', []);
-                      const total = _.sumBy(layers, 'size');
-
-                      return [key, total];
-                  })
-                  .filter(([platform]) => platform && !platform.includes("unknown"))
-                  .fromPairs()
-                  .value();
-
-              if (_.isEmpty(sizes)) {
-                  throw new Error(`No platform sizes found for ${container}`);
-              }
-
-              return sizes;
-          }
-
-          const fromSizes = await getSizes(fromContainer);
-          const toSizes   = await getSizes(toContainer);
-
-          const missingFrom = _.difference(_.keys(toSizes), _.keys(fromSizes));
-          const missingTo = _.difference(_.keys(fromSizes), _.keys(toSizes));
-          if (missingFrom.length || missingTo.length) {
-              throw new Error(
-                  `Platform sets differ; missing from baseline: ${missingFrom.join(", ") || "none"}; ` +
-                  `missing from current image: ${missingTo.join(", ") || "none"}`
-              );
-          }
-
-          const platforms = _.keys(fromSizes).sort();
-
-          const platformRow = (platform) => {
-              const previous = _.get(fromSizes, platform, 0);
-              const current = _.get(toSizes, platform, 0);
-              const change = current - previous;
-
-              const percentage = previous
-                  ? `${change >= 0 ? "+" : ""}${_.round(change / previous * 100, 2)}%`
-                  : current ? "+∞" : "+0.00%";
-
-              const icon = _.cond([
-                  [change => change < 0, _.constant("🔽")],
-                  [change => change > 0, _.constant("🔼")],
-                  [_.stubTrue, _.constant("🔄")]
-              ])(change);
-
-              return [
-                  platform,
-                  filesize(previous),
-                  filesize(current),
-                  `${change >= 0 ? "+" : ""}${filesize(Math.abs(change))} (${percentage})`,
-                  icon
-              ];
-          };
-
-          const rows = [
-              ["OS/Platform", "Previous", "Current", "Change", "Trend"],
-              ..._.map(platforms, platformRow)
-          ];
-
-          const output = `## 📦 Container Size Analysis
-
-          > [!NOTE]
-          > Comparing \`${fromContainer}\` ➔ \`${toContainer}\`
-
-          ### 📈 Size Comparison Table
-
-          ${markdownTable(rows, { align: ["l", "c", "c", "c", "c"] })}`;
-
-          core.setOutput("markdown", output);
+          const { containerSizeDiff } = require(`${process.env.GITHUB_ACTION_PATH}/container-size-diff.js`);
+          core.setOutput("markdown", containerSizeDiff(process.env.FROM_CONTAINER, process.env.TO_CONTAINER));
