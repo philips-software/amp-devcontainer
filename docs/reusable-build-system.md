@@ -28,6 +28,15 @@ The actions have a README with their inputs and outputs:
 - [update-vscode-extensions](../.github/actions/update-vscode-extensions/README.md): update pinned VS Code extensions
 - [upload-release-assets](../.github/actions/upload-release-assets/README.md): attach the attestations and tool inventories of images to a release
 
+The re-usable workflows that a repository calls, next to `wc-build-push-test.yml`:
+
+- [wc-dependency-review.yml](../.github/workflows/wc-dependency-review.yml): review the dependencies that a pull request changes
+- [wc-pr-title.yml](../.github/workflows/wc-pr-title.yml): check that the title of a pull request is a conventional commit, with a comment that explains what to change
+- [wc-release-notes.yml](../.github/workflows/wc-release-notes.yml) and [wc-release-summary.yml](../.github/workflows/wc-release-summary.yml): write the notes of a release, see [Release](#5-release)
+
+They all take the runner as `runner-labels`, a JSON array, and a workflow that logs in to a registry takes `registry` and the secrets `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD`.
+A caller passes secrets explicitly, never with `secrets: inherit`.
+
 The helpers are [bats-tool-inventory](../helpers/bats-tool-inventory/README.md), to check the installed tools and apt packages, and [add-sbom-note](../helpers/add-sbom-note/add-sbom-note.sh), to make tools that are not installed by a package manager show up in the SBOM.
 
 ## What `wc-build-push-test.yml` does
