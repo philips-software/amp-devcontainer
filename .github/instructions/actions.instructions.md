@@ -5,7 +5,7 @@ applyTo: ".github/actions/**"
 
 # Actions Guidelines
 
-The actions in `.github/actions` are re-usable by other repositories and released separately as `actions/vX.Y.Z`.
+The actions in `.github/actions` are re-usable by other repositories. They are released together with the re-usable workflows in `.github/workflows`, as `actions/vX.Y.Z`, separate from the containers.
 
 - An action does not know about the flavors of this repository. It takes images, names, files and tokens as inputs.
 - `action.yml` only declares the inputs, outputs and a step that runs a script. Pass inputs to the script through `env:`, never interpolate `${{ inputs.* }}` in a `run:` script. Inputs and outputs are sorted alphabetically.

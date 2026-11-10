@@ -9,12 +9,12 @@ This document describes the building blocks, and the path we recommend to follow
 
 ## Building blocks
 
-| Kind                | Location                                           | Purpose                                                                                                        |
-|---------------------|----------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| Re-usable workflows | [.github/workflows/wc-*.yml](../.github/workflows) | Build, push, test, and document images. `wc-build-push-test.yml` is the entry point.                           |
-| Actions             | [.github/actions](../.github/actions)              | Steps that the workflows are made of, and that can be used on their own. Released separately, as `actions/vX`. |
-| Test helpers        | [helpers](../helpers)                              | Bats libraries and tools that are installed in the base image, to test the containers.                         |
-| Base image          | [.devcontainer/base](../.devcontainer/base)        | The image to derive from; it contains Bats and the test helpers.                                               |
+| Kind                | Location                                           | Purpose                                                                                                                |
+|---------------------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| Re-usable workflows | [.github/workflows/wc-*.yml](../.github/workflows) | Build, push, test, and document images. `wc-build-push-test.yml` is the entry point.                                   |
+| Actions             | [.github/actions](../.github/actions)              | Steps that the workflows are made of, and that can be used on their own. Released with the workflows, as `actions/vX`. |
+| Test helpers        | [helpers](../helpers)                              | Bats libraries and tools that are installed in the base image, to test the containers.                                 |
+| Base image          | [.devcontainer/base](../.devcontainer/base)        | The image to derive from; it contains Bats and the test helpers.                                                       |
 
 The actions have a README with their inputs and outputs:
 
@@ -232,7 +232,7 @@ The workflows of this repository and the [upload-release-assets](../.github/acti
 
 A repository that uses the build system pins the re-usable workflows by commit SHA, with the version as a comment, so they never change without a pull request: `philips-software/amp-devcontainer/.github/workflows/wc-<name>.yml@<sha> # <version>`.
 Use the same version for all of them.
-The workflows are released together with the containers (`vX.Y.Z`), and the actions are released on their own (`actions/vX.Y.Z`); a commit SHA of either release contains all workflows and actions of that commit.
+The workflows and actions are released together as `actions/vX.Y.Z`, separate from the containers (`vX.Y.Z`) so that the release notes of the containers only describe the containers. A commit SHA of any release contains all workflows and actions of that commit, so an older pin of a container release keeps working.
 
 The workflows of this repository call the actions and each other with `$/.github/...`, the self-repository syntax. It resolves to the repository and commit of the workflow that contains it, also when your repository calls that workflow.
 Pinning a workflow therefore pins every workflow and action below it to the same commit, and you don't pin the actions that the workflows use.
