@@ -180,6 +180,16 @@ The attestations can be checked with the following command, verifying that the i
 gh attestation verify --repo philips-software/amp-devcontainer oci://ghcr.io/philips-software/amp-devcontainer-<🍨 flavor>
 ```
 
+#### Verify a release
+
+Releases are [immutable](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases): the tag and the assets (documents, tool inventories, attestations) can't be changed after publication, and GitHub attaches a release attestation with the tag, commit SHA and digests of the assets.
+Verify that a release is immutable, and that a downloaded asset is exactly the one that was published:
+
+```sh
+gh release verify --repo philips-software/amp-devcontainer <tag>
+gh release verify-asset --repo philips-software/amp-devcontainer <tag> <asset>
+```
+
 ### Local development
 
 The resulting containers can be used in a `.devcontainer.json` file or in a `.devcontainer` folder.

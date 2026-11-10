@@ -160,7 +160,8 @@ The tag runs [release-build.yml](../.github/workflows/release-build.yml): it bui
 - waits for the approval of the `release` environment: review the release notes of the draft, and approve to publish the release.
 
 Publishing a release (approving the environment, or with **Publish release** on the releases page) runs [release-published.yml](../.github/workflows/release-published.yml), which publishes the dev container templates and comments on the released pull requests.
-Publish only after release-build.yml has finished; the assets of an immutable release can't be changed, and neither can a published release be built again.
+Publish only after release-build.yml has finished; the assets of an immutable release can't be changed or added later, only the title and release notes can.
+The same workflow verifies that the published release is immutable, so a disabled repository setting is noticed.
 Rejecting the approval leaves the draft in place, to be deleted or fixed with a new release.
 
 #### Release notes workflow
@@ -222,17 +223,21 @@ This repository extends the file by its path.
 
 ### 7. Verify
 
-Everyone that uses an image can verify where it comes from:
+Everyone that uses an image can verify where it comes from, and that the release is immutable and its assets are the published ones:
 
 ```sh
 gh attestation verify --repo <owner>/<repository> \
   --signer-workflow philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml \
   oci://<registry>/<image>@<digest>
+gh release verify --repo <owner>/<repository> <tag>
+gh release verify-asset --repo <owner>/<repository> <tag> <asset>
 ```
 
 The attestation is signed by the re-usable workflow [wc-build-push.yml](../.github/workflows/wc-build-push.yml) of amp-devcontainer, not by a workflow in your repository.
 Without `--signer-workflow`, the verification expects the signing workflow in `<owner>/<repository>` and fails.
 The workflows of this repository and the [upload-release-assets](../.github/actions/upload-release-assets/README.md) action do this for you.
+
+The release attestation is created by GitHub when an immutable release is published, nothing in the workflows creates it. Enable immutable releases in the repository settings.
 
 ## Versioning and pinning
 
