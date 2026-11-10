@@ -23,4 +23,6 @@ The folder structure of amp-devcontainer is described below, adhere to the exist
 - `/.devcontainer/[flavor]`: Contains the Dockerfile and configuration for each container flavor (e.g., `cpp`, `rust`).
 - `/.devcontainer/[flavor]-test`: Contains a devcontainer.json file for testing the container flavor.
 - `/.github`: Contains the GitHub workflows for CI/CD, linter configuration, issue templates and re-usable actions.
+- `/helpers/[helper]`: Contains re-usable Bats helper packages (e.g. `bats-tool-inventory`) and scripts that are installed in the base image, each with its own tests in `/helpers/[helper]/test`.
 - `/test/[flavor]`: Contains [Bats](https://bats-core.readthedocs.io/en/stable/) integration- and Playwright verification tests for the containers.
+- `/test/repository`: Contains Bats tests that check the repository itself, e.g. that versions that are pinned in multiple places are in sync. These don't need a container.

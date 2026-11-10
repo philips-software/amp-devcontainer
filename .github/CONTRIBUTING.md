@@ -166,6 +166,13 @@ Before you submit your pull request consider the following guidelines:
    Commands are smoke-tested with `--version` by default. Use a package's
    `smoke-test-args` mapping for command-specific argument arrays when needed.
 
+   The release notes are rendered by the
+   [render-release-notes action](./actions/render-release-notes/README.md) from
+   its [default Jinja2 template](./actions/render-release-notes/default-template.md.j2).
+   The action's README documents the variables a template can use. The template
+   loops over the images of the release instead of naming them, and a variable
+   that does not exist fails the release.
+
 1. Commit your changes using a descriptive commit message.
 
    ```shell

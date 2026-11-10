@@ -1,0 +1,32 @@
+{# Default release notes template, see README.md for the available variables. #}
+### :clipboard: Summary
+
+<!-- Manually fill this summary, taking note of any changes relevant to the end user.
+     When a change requires action, or emphasis, use '> [!NOTE]' notation.
+-->
+
+#### :ice_cream: Images
+
+| Image | Full identifier |
+|:-----:|-----------------|
+{% for name, image in images.items() %}
+| {{ name }} | <pre><code>{{ image.reference }}:{{ image.version }}@{{ image.digest }}</code></pre>{{ "" if loop.last else "<tr/>" }} |
+{% endfor %}
+
+#### :hammer_and_wrench: Included tools
+
+The tables below list the most relevant packages per image, their versions from the image's Software Bill of Materials (SBOM), and the commands or library files checked by the integration tests.
+
+{% for name, image in images.items() %}
+<details>
+<summary>{{ name }}</summary>
+
+| Package | Version | Included commands | Included files |
+| --- | --- | --- | --- |
+{% for tool in image.tools %}
+| {{ tool.name }} | {{ tool.version }} | {{ tool.commands | join(", ") }} | {{ tool.files | join(", ") }} |
+{% endfor %}
+
+</details>
+
+{% endfor %}

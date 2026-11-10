@@ -17,6 +17,9 @@ write_json() {
   cat > "${file}"
 }
 
+# Commands that are the *subject* of a test, e.g. the tools of an inventory, are
+# created as executables since they have to be found on the PATH and started.
+# Commands that the code under test merely *uses* are stubbed with functions.
 make_stub() {
   local name=${1:?}
   printf '#!/usr/bin/env bash\n%s\n' "${2:-exit 0}" > "${FAKE_BIN}/${name}"
@@ -165,9 +168,13 @@ make_stub() {
 ## assert_apt_packages_at_pinned_versions
 
 make_fake_dpkg() {
-  export FAKE_DPKG_DB="${BATS_TEST_TMPDIR}/fake-dpkg"
+  FAKE_DPKG_DB="${BATS_TEST_TMPDIR}/fake-dpkg"
   mkdir -p "${FAKE_DPKG_DB}"
-  make_stub dpkg-query 'cat "${FAKE_DPKG_DB}/${3}"'
+
+  # shellcheck disable=SC2317
+  dpkg-query() {
+    cat "${FAKE_DPKG_DB}/${3}"
+  }
 }
 
 @test "assert_apt_packages_at_pinned_versions succeeds when all versions match" {
@@ -475,7 +482,7 @@ make_fake_dpkg() {
 
 @test "assert_inventory_tools_run fails when a command is stopped by the timeout" {
   make_stub fake-tool-alpha
-  make_stub timeout 'exit 124'
+  timeout() { return 124; }
   write_json "${FAKE_DIR}/inventory.json" <<< '{"packages": {"fake-tool-alpha": {}}}'
 
   run assert_inventory_tools_run "${FAKE_DIR}/inventory.json"
