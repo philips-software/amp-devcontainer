@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Check that the draft release of a tag exists, see README.md.
+# Require that the draft release of a tag exists, see README.md.
 #
 # release-please creates the tag, which starts the release workflow, before it creates the
 # draft release. Wait for a minute for the release, and fail now instead of after the build.

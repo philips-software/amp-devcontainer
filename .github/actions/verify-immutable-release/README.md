@@ -1,4 +1,4 @@
-# verify-release
+# verify-immutable-release
 
 Verifies that a published release is immutable: the release and its tag can't be changed, and GitHub has created the release attestation that binds the tag, the commit and the assets together.
 The check is `gh release verify`, which fails for a release that was published while immutable releases were not enabled for the repository.
@@ -9,7 +9,7 @@ Use it after the publication, for instance in a workflow for the `release` event
 ## Usage
 
 ```yaml
-- uses: philips-software/amp-devcontainer/.github/actions/verify-release@...
+- uses: philips-software/amp-devcontainer/.github/actions/verify-immutable-release@...
   with:
     release-tag: ${{ github.ref_name }}
 ```
@@ -29,5 +29,5 @@ The re-usable workflow [wc-release-published.yml](../../workflows/wc-release-pub
 The tests stub `gh` and `sleep` with functions. Run them with [Bats](https://bats-core.readthedocs.io) from the repository root:
 
 ```bash
-bats .github/actions/verify-release/test
+bats .github/actions/verify-immutable-release/test
 ```

@@ -15,10 +15,10 @@ concurrency:
 permissions: {}
 
 jobs:
-  check-release:
-    name: 🔎 Check Release
+  require-draft-release:
+    name: 🔎 Require Draft Release
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
-    uses: $/.github/workflows/wc-check-release.yml
+    uses: $/.github/workflows/wc-require-draft-release.yml
     with:
       release-tag: ${{ github.ref_name }}
     permissions:
@@ -27,7 +27,7 @@ jobs:
   build-push-test:
     name: Build → Push → Test
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
-    needs: check-release
+    needs: require-draft-release
     uses: $/.github/workflows/build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
@@ -46,7 +46,7 @@ jobs:
   release-summary:
     name: ✨ Release Summary
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
-    needs: check-release
+    needs: require-draft-release
     uses: $/.github/workflows/wc-release-summary.yml
     with:
       release-tag: ${{ github.ref_name }}
@@ -84,7 +84,7 @@ jobs:
   generate-documents:
     name: 📄 Documentation
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
-    needs: check-release
+    needs: require-draft-release
     uses: $/.github/workflows/wc-document-generation.yml
     with:
       is-release: true

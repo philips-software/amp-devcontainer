@@ -28,7 +28,7 @@ on:
 permissions: {}
 
 jobs:
-  verify-release:
+  verify-immutable-release:
     name: 🔒 Verify immutable release
     runs-on: ${{ fromJson(inputs.runner-labels) }}
     timeout-minutes: 5
@@ -40,7 +40,7 @@ jobs:
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
-      - uses: $/.github/actions/verify-release
+      - uses: $/.github/actions/verify-immutable-release
         with:
           release-tag: ${{ inputs.release-tag }}
 

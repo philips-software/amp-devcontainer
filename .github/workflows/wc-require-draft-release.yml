@@ -1,5 +1,5 @@
 ---
-name: Check Release
+name: Require Draft Release
 
 on:
   workflow_call:
@@ -23,8 +23,8 @@ on:
 permissions: {}
 
 jobs:
-  check-release:
-    name: 🔎 Check Release
+  require-draft-release:
+    name: 🔎 Require Draft Release
     runs-on: ${{ fromJson(inputs.runner-labels) }}
     timeout-minutes: 5
     permissions:
@@ -34,6 +34,6 @@ jobs:
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
-      - uses: $/.github/actions/check-release
+      - uses: $/.github/actions/require-draft-release
         with:
           release-tag: ${{ inputs.release-tag }}

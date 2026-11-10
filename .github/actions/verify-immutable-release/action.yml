@@ -1,5 +1,5 @@
 ---
-name: 🔒 Verify release
+name: 🔒 Verify immutable release
 description: >-
   Verify that a published release is immutable, waiting for its release attestation.
 
@@ -18,7 +18,7 @@ runs:
   using: composite
   steps:
     - shell: bash
-      run: bash "${GITHUB_ACTION_PATH}/verify-release.sh"
+      run: bash "${GITHUB_ACTION_PATH}/verify-immutable-release.sh"
       env:
         GH_REPO: ${{ github.repository }}
         GH_TOKEN: ${{ inputs.github-token }}

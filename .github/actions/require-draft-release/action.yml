@@ -1,7 +1,7 @@
 ---
-name: 🔎 Check release
+name: 🔎 Require draft release
 description: >-
-  Check that the draft release of a tag exists, waiting for it while release-please
+  Require that the draft release of a tag exists, waiting for it while release-please
   is still creating it, and that the release is not published yet.
 
 inputs:
@@ -19,7 +19,7 @@ runs:
   using: composite
   steps:
     - shell: bash
-      run: bash "${GITHUB_ACTION_PATH}/check-release.sh"
+      run: bash "${GITHUB_ACTION_PATH}/require-draft-release.sh"
       env:
         GH_REPO: ${{ github.repository }}
         GH_TOKEN: ${{ inputs.github-token }}

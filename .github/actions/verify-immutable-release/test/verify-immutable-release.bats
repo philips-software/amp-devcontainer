@@ -6,7 +6,7 @@ setup() {
   bats_load_library bats-support
   bats_load_library bats-assert
 
-  SCRIPT="${BATS_TEST_DIRNAME}/../verify-release.sh"
+  SCRIPT="${BATS_TEST_DIRNAME}/../verify-immutable-release.sh"
   FAKE_DIR="${BATS_TEST_TMPDIR}/fake-dir"
   mkdir -p "${FAKE_DIR}"
 
