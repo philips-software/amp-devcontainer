@@ -132,10 +132,34 @@ The integration tests of step 2 fail when a pin and the installed package disagr
 Releases are created with [release-please](https://github.com/googleapis/release-please) from [conventional commits](https://www.conventionalcommits.org), see [release-please.yml](../.github/workflows/release-please.yml).
 Publishing the release runs [release-build.yml](../.github/workflows/release-build.yml): it builds, pushes and tests the images again, now with the semantic version tags, and then:
 
-- drafts a summary of the release with Copilot, in a job with a read-only token that is billed to the organization with [generate-release-summary](../.github/actions/generate-release-summary/README.md). A summary that can't be generated never fails the release;
-- renders the release notes with [render-release-notes](../.github/actions/render-release-notes/README.md), with the summary, and the digests and tool inventories of the images, and can be run again without duplicating text;
-- uploads the attestations and tool inventories as release assets with [upload-release-assets](../.github/actions/upload-release-assets/README.md);
+- writes the release notes with the re-usable workflow [wc-release-notes.yml](../.github/workflows/wc-release-notes.yml), which is given the images, the tag and the image to render with (see its [usage](#release-notes-workflow)):
+  - drafts a summary of the release with Copilot, in a job with a read-only token that is billed to the organization with [generate-release-summary](../.github/actions/generate-release-summary/README.md). A summary that can't be generated never fails the release;
+  - renders the release notes with [render-release-notes](../.github/actions/render-release-notes/README.md), with the summary, and the digests and tool inventories of the images, and can be run again without duplicating text;
+  - uploads the attestations and tool inventories as release assets with [upload-release-assets](../.github/actions/upload-release-assets/README.md);
 - generates the documents (see [wc-document-generation.yml](../.github/workflows/wc-document-generation.yml)) and publishes the dev container templates.
+
+#### Release notes workflow
+
+Call it from the workflow that builds your release, after the images are built, and list the images of the release once:
+
+```yaml
+release-notes:
+  needs: [build-push-test]
+  uses: philips-software/amp-devcontainer/.github/workflows/wc-release-notes.yml@<sha> # <version>
+  with:
+    images: |
+      ghcr.io/my-org/my-image-alpha
+      ghcr.io/my-org/my-image-beta
+    release-tag: ${{ github.ref_name }}
+    render-image: ghcr.io/philips-software/amp-devcontainer-docs # the version of the release is used as tag
+  permissions:
+    actions: read # to download the tool inventories
+    contents: write # to modify the release
+    copilot-requests: write # to bill Copilot CLI to the organization, the workflow can't request more than the caller grants
+```
+
+The tool inventories are the artifacts `tool-inventory-<image basename>` of the same workflow run, which [wc-build-push-test.yml](../.github/workflows/wc-build-push-test.yml) creates.
+Optionally pass `template-file` with a template of your own, see [render-release-notes](../.github/actions/render-release-notes/README.md).
 
 ### 6. Verify
 
