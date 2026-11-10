@@ -1,6 +1,9 @@
 {
   "name": "container-size-diff",
   "private": true,
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  },
   "dependencies": {
     "execa": "^9.6.0",
     "filesize": "^11.0.2",

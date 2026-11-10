@@ -146,6 +146,12 @@ Before you submit your pull request consider the following guidelines:
 
 1. Ensure that all tests pass.
 
+   The actions in `.github/actions`, the helpers in `helpers`, and the
+   consistency of versions that are pinned in multiple places have tests that
+   run without building a container, see
+   [the re-usable build system](../docs/reusable-build-system.md#testing-the-build-system-itself).
+   Add or update the tests of the action or helper that you change.
+
    Each flavor's `tool-inventory.json` identifies the key tools it promises to
    provide. Integration tests check that these tools are available, and release
    notes list them with versions taken from the image's Software Bill of
