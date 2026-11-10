@@ -1,0 +1,26 @@
+---
+name: 🔎 Check release
+description: >-
+  Check that the draft release of a tag exists, waiting for it while release-please
+  is still creating it, and that the release is not published yet.
+
+inputs:
+  github-token:
+    description: >-
+      Token used to read the release, this requires `contents: write` because
+      a draft release is only visible with write access.
+    required: false
+    default: ${{ github.token }}
+  release-tag:
+    description: Tag of the release to check.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: bash "${GITHUB_ACTION_PATH}/check-release.sh"
+      env:
+        GH_REPO: ${{ github.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}

@@ -1,0 +1,39 @@
+---
+name: Check Release
+
+on:
+  workflow_call:
+    inputs:
+      release-tag:
+        description: Tag of the release to check, which has to be a draft.
+        required: true
+        type: string
+      runner-labels:
+        description: >-
+          JSON array used to select the runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+
+permissions: {}
+
+jobs:
+  check-release:
+    name: 🔎 Check Release
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 5
+    permissions:
+      contents: write # is needed by gh to find a draft release, which is only visible with write access
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - uses: $/.github/actions/check-release
+        with:
+          release-tag: ${{ inputs.release-tag }}

@@ -376,50 +376,6 @@ run_publish() {
   assert_output "2"
 }
 
-@test "the release check passes for a draft release" {
-  run_workflow_step "Check release"
-
-  assert_success
-  refute [ -e "${FAKE_DIR}/sleep-calls" ]
-}
-
-@test "the release check waits for the draft that is created after the tag" {
-  echo 2 > "${FAKE_DIR}/draft-view-failures"
-
-  run_workflow_step "Check release"
-
-  assert_success
-  run grep -c "^10$" "${FAKE_DIR}/sleep-calls"
-  assert_output "2"
-}
-
-@test "the release check fails after a bounded wait when there is no release" {
-  touch "${FAKE_DIR}/fail-draft-view"
-
-  run_workflow_step "Check release"
-
-  assert_failure
-  assert_output --partial "No release found for 9.9.9-fake"
-  assert_output --partial "gh release create 9.9.9-fake --draft --verify-tag"
-  run grep -c "^10$" "${FAKE_DIR}/sleep-calls"
-  assert_output "6"
-}
-
-@test "the release check fails for a release that is already published" {
-  FAKE_DRAFT=false run_workflow_step "Check release"
-
-  assert_failure
-  assert_output --partial "already published"
-  refute [ -e "${FAKE_DIR}/sleep-calls" ]
-}
-
-@test "the release check fails on an unexpected draft state" {
-  FAKE_DRAFT=maybe run_workflow_step "Check release"
-
-  assert_failure
-  assert_output --partial "Unexpected draft state of release 9.9.9-fake: maybe"
-}
-
 @test "the documents can be uploaded again after a partial or complete upload" {
   local directory="${BATS_TEST_TMPDIR}/documents"
   mkdir -p "${directory}"
