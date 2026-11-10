@@ -37,13 +37,15 @@ The caller needs `contents: write` to edit the release, and a container engine t
 | `release-tag`         | yes      | Tag of the release to render. The images are expected to carry the same tag.                                                                                                                                                   |
 | `render-image`        | yes      | Container image with python3 and jinja2, e.g. an amp-devcontainer-docs image. The rendering runs without network access.                                                                                                       |
 | `template-file`       | no       | Path to the Jinja2 template. Defaults to the [default template](./default-template.md.j2) of the action.                                                                                                                       |
+| `summary-file`        | no       | File with a summary of the release, e.g. from [generate-release-summary](../generate-release-summary/README.md), available in the template as `release.summary`. A file that does not exist counts as no summary.              |
 | `inventory-directory` | no       | Directory with a `tool-inventory-<image-basename>/tool-inventory.json` file per image, as produced by the [generate-tool-inventory](../generate-tool-inventory/action.yml) action and downloaded as artifact. Defaults to `.`. |
 | `github-token`        | no       | Token used to read and edit the release. Defaults to the workflow token.                                                                                                                                                       |
 
 ## Default template
 
 Without a `template-file` the [default template](./default-template.md.j2) is used.
-It lists the images in a table with their full identifiers, and the included tools of every image in a collapsible section, with a placeholder summary for the release manager to fill in.
+It lists the images in a table with their full identifiers, and the included tools of every image in a collapsible section.
+The summary is the `release.summary` when there is one, with a note that it was drafted by GitHub Copilot, and a placeholder for the release manager to fill in when there is not.
 It loops over the images instead of naming them, so the same layout can be reused for any set of images.
 To change the layout, pass your own template; copying the default template is a good starting point.
 
@@ -56,6 +58,7 @@ Values are inserted as they are; there is no HTML escaping.
 | Variable                      | Value                                                                                    |
 |-------------------------------|------------------------------------------------------------------------------------------|
 | `release.tag`                 | The tag of the release.                                                                  |
+| `release.summary`             | A summary of the release from the `summary-file`, or an empty text when there is none.   |
 | `images`                      | The images of the release by image basename, in the order they were given to the action. |
 | `images[<name>].reference`    | The image reference without tag, e.g. `ghcr.io/my-org/my-image-alpha`.                   |
 | `images[<name>].version`      | The tag of the image, which is the release tag.                                          |

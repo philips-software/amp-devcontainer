@@ -29,6 +29,11 @@ inputs:
       Container image that has python3 and jinja2 installed to render the template with,
       e.g. an amp-devcontainer-docs image.
     required: true
+  summary-file:
+    description: >-
+      Path to a file with a summary of the release, e.g. from the generate-release-summary action.
+      It is available in the template as `release.summary`. A file that doesn't exist counts as no summary.
+    required: false
   template-file:
     description: >-
       Path to the Jinja2 template, which is inserted after the first header of the release notes.
@@ -47,4 +52,5 @@ runs:
         INVENTORY_DIRECTORY: ${{ inputs.inventory-directory }}
         RELEASE_TAG: ${{ inputs.release-tag }}
         RENDER_IMAGE: ${{ inputs.render-image }}
+        SUMMARY_FILE: ${{ inputs.summary-file }}
         TEMPLATE_FILE: ${{ inputs.template-file }}

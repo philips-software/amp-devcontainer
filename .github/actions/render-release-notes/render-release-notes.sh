@@ -9,6 +9,8 @@
 #   RELEASE_TAG          release to render, also used as the tag of the images
 #   RENDER_IMAGE         container image with python3 and jinja2 that renders the template
 #   TEMPLATE_FILE        template to render (default: default-template.md.j2 next to this script)
+#   SUMMARY_FILE         file with a summary of the release, available in the template as release.summary (optional,
+#                        a file that doesn't exist counts as no summary)
 #   IMAGES               newline-separated image references, without tag
 #   INVENTORY_DIRECTORY  directory with tool-inventory-<image-basename>/tool-inventory.json (default: .)
 
@@ -37,7 +39,12 @@ chmod 0755 "${work_directory}"
 install -m 0644 "${script_directory}/render.py" "${work_directory}/render.py"
 install -m 0644 "${template_file}" "${work_directory}/template.md.j2"
 
-data=$(jq -cn --arg tag "${release_tag}" '{release: {tag: $tag}, images: {}}')
+summary=
+if [[ -n "${SUMMARY_FILE:-}" && -f "${SUMMARY_FILE}" ]]; then
+  summary=$(< "${SUMMARY_FILE}")
+fi
+
+data=$(jq -cn --arg tag "${release_tag}" --arg summary "${summary}" '{release: {tag: $tag, summary: $summary}, images: {}}')
 while IFS= read -r image; do
   image=${image//[[:space:]]/}
   [[ -n "${image}" ]] || continue
