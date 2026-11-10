@@ -35,6 +35,7 @@ The re-usable workflows that a repository calls, next to `wc-build-push-test.yml
 - [wc-pr-title.yml](../.github/workflows/wc-pr-title.yml): check that the title of a pull request is a conventional commit, with a comment that explains what to change
 - [wc-release-please.yml](../.github/workflows/wc-release-please.yml): create the release pull request and the releases with [release-please](https://github.com/googleapis/release-please), with an installation token of a GitHub App (input `app-client-id` and secret `APP_PRIVATE_KEY`) so the release triggers other workflows
 - [wc-release-notes.yml](../.github/workflows/wc-release-notes.yml) and [wc-release-summary.yml](../.github/workflows/wc-release-summary.yml): write the notes of a release, see [Release](#5-release)
+- [wc-update-apt-packages.yml](../.github/workflows/wc-update-apt-packages.yml) and [wc-update-vscode-extensions.yml](../.github/workflows/wc-update-vscode-extensions.yml): open a pull request that updates pinned apt packages and VS Code extensions, see [Keep the pins up to date](#4-keep-the-pins-up-to-date)
 
 They all take the runner as `runner-labels`, a JSON array, and a workflow that logs in to a registry takes `registry` and the secrets `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD`.
 A caller passes secrets explicitly, never with `secrets: inherit`.
@@ -134,7 +135,12 @@ Run the workflow for pull requests, and for the merge queue with `enable-edge-ta
 
 ### 4. Keep the pins up to date
 
-Pinned apt packages and VS Code extensions are updated by [update-apt-packages](../.github/actions/update-apt-packages/README.md) and [update-vscode-extensions](../.github/actions/update-vscode-extensions/README.md), run in a schedule that opens a pull request, see [update-dependencies.yml](../.github/workflows/update-dependencies.yml).
+Pinned apt packages and VS Code extensions are updated by the re-usable workflows [wc-update-apt-packages.yml](../.github/workflows/wc-update-apt-packages.yml) and [wc-update-vscode-extensions.yml](../.github/workflows/wc-update-vscode-extensions.yml),
+which use the actions [update-apt-packages](../.github/actions/update-apt-packages/README.md) and [update-vscode-extensions](../.github/actions/update-vscode-extensions/README.md).
+Call them from a workflow with a schedule, see [update-dependencies.yml](../.github/workflows/update-dependencies.yml).
+They open a pull request, with the installation token of a GitHub App (`app-client-id` and `APP_PRIVATE_KEY`) so it triggers the other checks.
+The apt packages are updated in the image itself, since it has all package sources set up (`container-image`, and `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` when it is in a private registry).
+Call the workflow once for each image, for example with a matrix.
 Dependabot keeps the pinned actions, Dockerfile base images and other dependencies up to date.
 The integration tests of step 2 fail when a pin and the installed package disagree.
 
