@@ -1,0 +1,25 @@
+---
+name: 🔒 Verify release
+description: >-
+  Verify that a published release is immutable, waiting for its release attestation.
+
+inputs:
+  github-token:
+    description: >-
+      Token used to read the release and its attestation, this requires `contents: read`
+      and `attestations: read`.
+    required: false
+    default: ${{ github.token }}
+  release-tag:
+    description: Tag of the release to verify.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: bash "${GITHUB_ACTION_PATH}/verify-release.sh"
+      env:
+        GH_REPO: ${{ github.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}

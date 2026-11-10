@@ -18,45 +18,14 @@ jobs:
     permissions:
       packages: write # is needed by devcontainers/action to write templates as OCI artifacts
 
-  comment-released-prs:
-    name: Comment on released PRs
-    if: ${{ !startsWith(github.ref_name, 'actions/') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
-    steps:
-      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
-        with:
-          disable-sudo-and-containers: true
-          egress-policy: audit
-      - uses: rdlf0/comment-released-prs-action@249f57bed533baa7f883fe9d9a834424f153c3cb # v3.2.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-  verify-release:
-    name: 🔒 Verify immutable release
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+  release-published:
+    name: 📣 Release Published
+    uses: $/.github/workflows/wc-release-published.yml
+    with:
+      # The actions are released without a draft, and their pull requests are not commented on
+      comment-released-prs: ${{ !startsWith(github.ref_name, 'actions/') }}
+      release-tag: ${{ github.ref_name }}
     permissions:
       attestations: read # is needed by gh to read the attestation of the release
       contents: read # is needed by gh to read the release
-    steps:
-      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
-        with:
-          disable-sudo-and-containers: true
-          egress-policy: audit
-      - name: Verify release
-        # The release attestation is created after publication, so retry for a short while
-        run: |
-          set -Eeuo pipefail
-          for attempt in 1 2 3 4 5; do
-            gh release verify "${REF_NAME}" && exit 0
-            sleep $((attempt * 10))
-          done
-          echo "::error::Release ${REF_NAME} is not immutable, enable immutable releases in the repository settings"
-          exit 1
-        env:
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
-          REF_NAME: ${{ github.ref_name }}
+      pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
