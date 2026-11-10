@@ -1,0 +1,7 @@
+{
+  "name": "generate-release-summary",
+  "private": true,
+  "dependencies": {
+    "@github/copilot": "1.0.108"
+  }
+}

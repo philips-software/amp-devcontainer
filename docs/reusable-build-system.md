@@ -20,6 +20,7 @@ The actions have a README with their inputs and outputs:
 
 - [container-size-diff](../.github/actions/container-size-diff/README.md): report the size difference between two images
 - [extract-manifest-digest](../.github/actions/extract-manifest-digest/README.md): get the digest of an image
+- [generate-release-summary](../.github/actions/generate-release-summary/README.md): let Copilot draft the summary of a release
 - [generate-tool-inventory](../.github/actions/generate-tool-inventory/README.md): derive the tools of an image from its SBOM
 - [merge-devcontainer-metadata](../.github/actions/merge-devcontainer-metadata/README.md): carry over the `devcontainer.metadata` label of the base image
 - [render-release-notes](../.github/actions/render-release-notes/README.md): render the release notes of a release
@@ -131,7 +132,8 @@ The integration tests of step 2 fail when a pin and the installed package disagr
 Releases are created with [release-please](https://github.com/googleapis/release-please) from [conventional commits](https://www.conventionalcommits.org), see [release-please.yml](../.github/workflows/release-please.yml).
 Publishing the release runs [release-build.yml](../.github/workflows/release-build.yml): it builds, pushes and tests the images again, now with the semantic version tags, and then:
 
-- renders the release notes with [render-release-notes](../.github/actions/render-release-notes/README.md), with the digests and tool inventories of the images, and can be run again without duplicating text;
+- drafts a summary of the release with Copilot, in a job with a read-only token that is billed to the organization with [generate-release-summary](../.github/actions/generate-release-summary/README.md). A summary that can't be generated never fails the release;
+- renders the release notes with [render-release-notes](../.github/actions/render-release-notes/README.md), with the summary, and the digests and tool inventories of the images, and can be run again without duplicating text;
 - uploads the attestations and tool inventories as release assets with [upload-release-assets](../.github/actions/upload-release-assets/README.md);
 - generates the documents (see [wc-document-generation.yml](../.github/workflows/wc-document-generation.yml)) and publishes the dev container templates.
 

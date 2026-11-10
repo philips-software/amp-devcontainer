@@ -1,9 +1,15 @@
 {# Default release notes template, see README.md for the available variables. #}
 ### :clipboard: Summary
 
+{% if release.summary %}
+{{ release.summary }}
+
+<sub>This summary was drafted by GitHub Copilot, and has not been checked.</sub>
+{% else %}
 <!-- Manually fill this summary, taking note of any changes relevant to the end user.
      When a change requires action, or emphasis, use '> [!NOTE]' notation.
 -->
+{% endif %}
 
 #### :ice_cream: Images
 

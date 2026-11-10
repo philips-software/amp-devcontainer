@@ -527,6 +527,58 @@ run_script() {
   refute_output --partial "{%"
 }
 
+@test "the summary is available in the template, and inserted as text" {
+  printf 'A fake summary with {{ fake_value }} and {%% fake %%} in it.\n\n* fake item\n' > "${FAKE_DIR}/summary.md"
+  printf '## fake\n' > "${FAKE_DIR}/notes"
+  write_template $'summary: {{ release.summary }}'
+
+  IMAGES="" SUMMARY_FILE="${FAKE_DIR}/summary.md" run_script
+
+  assert_success
+  run cat "${FAKE_DIR}/edited-notes"
+  assert_line "summary: A fake summary with {{ fake_value }} and {% fake %} in it."
+  assert_line "* fake item"
+}
+
+@test "the summary is empty without a summary file, or when it does not exist" {
+  printf '## fake\n' > "${FAKE_DIR}/notes"
+  write_template $'summary: [{{ release.summary }}]'
+
+  IMAGES="" run_script
+  assert_success
+  run cat "${FAKE_DIR}/edited-notes"
+  assert_line "summary: []"
+
+  IMAGES="" SUMMARY_FILE="${FAKE_DIR}/fake-missing.md" run_script
+  assert_success
+  run cat "${FAKE_DIR}/edited-notes"
+  assert_line "summary: []"
+}
+
+@test "the default template shows the summary, and says it was drafted by Copilot" {
+  printf 'A fake summary of the release.\n' > "${FAKE_DIR}/summary.md"
+  printf '## [9.9.9-fake]\n' > "${FAKE_DIR}/notes"
+
+  IMAGES="" SUMMARY_FILE="${FAKE_DIR}/summary.md" RELEASE_TAG=9.9.9-fake RENDER_IMAGE=fake-render-image \
+    run -0 env -u TEMPLATE_FILE INVENTORY_DIRECTORY="${FAKE_DIR}/inventory" bash "${SCRIPT}"
+
+  run cat "${FAKE_DIR}/edited-notes"
+  assert_line "A fake summary of the release."
+  assert_line --partial "drafted by GitHub Copilot"
+  refute_output --partial "Manually fill this summary"
+}
+
+@test "the default template asks to fill in the summary when there is none" {
+  printf '## [9.9.9-fake]\n' > "${FAKE_DIR}/notes"
+
+  IMAGES="" RELEASE_TAG=9.9.9-fake RENDER_IMAGE=fake-render-image \
+    run -0 env -u TEMPLATE_FILE INVENTORY_DIRECTORY="${FAKE_DIR}/inventory" bash "${SCRIPT}"
+
+  run cat "${FAKE_DIR}/edited-notes"
+  assert_line --partial "Manually fill this summary"
+  refute_output --partial "drafted by GitHub Copilot"
+}
+
 @test "loading the render functions does not change the shell options" {
   run bash -c '
     before=$(set +o; shopt -p)

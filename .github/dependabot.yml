@@ -51,6 +51,7 @@ updates:
       default-days: 7
     directories:
       - .github/actions/container-size-diff
+      - .github/actions/generate-release-summary
       - .github/actions/update-vscode-extensions
     schedule:
       interval: weekly
