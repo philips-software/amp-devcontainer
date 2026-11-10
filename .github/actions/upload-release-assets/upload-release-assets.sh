@@ -10,11 +10,14 @@
 #   IMAGES               newline-separated image references, without tag
 #   INVENTORY_DIRECTORY  directory with tool-inventory-<image-basename>/tool-inventory.json (default: .)
 #   GH_REPO              repository (<owner>/<name>) of the release, the attestations are verified against it
+#   SIGNER_WORKFLOW      workflow (<owner>/<repository>/<path>) that signed the attestations, which is not
+#                        in GH_REPO when the images are built by a re-usable workflow of another repository
 
 set -Eeuo pipefail
 
 release_tag=${RELEASE_TAG:?release tag required}
 repository=${GH_REPO:?GH_REPO required}
+signer_workflow=${SIGNER_WORKFLOW:?signer workflow required}
 images=${IMAGES-}
 inventory_directory=${INVENTORY_DIRECTORY:-.}
 owner=${repository%%/*}
@@ -46,7 +49,7 @@ while IFS= read -r image; do
   asset_name="${owner}-${basename}_${digest//:/_}"
 
   # The attestation is verified, and written as the in-toto statement it contains
-  gh attestation verify --repo "${repository}" "oci://${image}@${digest}" --format json \
+  gh attestation verify --repo "${repository}" --signer-workflow "${signer_workflow}" "oci://${image}@${digest}" --format json \
     --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' \
     | base64 -d | jq . > "${work_directory}/${asset_name}.intoto.jsonl"
   if [[ ! -s "${work_directory}/${asset_name}.intoto.jsonl" ]]; then

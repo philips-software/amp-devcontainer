@@ -142,8 +142,14 @@ Publishing the release runs [release-build.yml](../.github/workflows/release-bui
 Everyone that uses an image can verify where it comes from:
 
 ```sh
-gh attestation verify --repo <owner>/<repository> oci://<registry>/<image>@<digest>
+gh attestation verify --repo <owner>/<repository> \
+  --signer-workflow philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml \
+  oci://<registry>/<image>@<digest>
 ```
+
+The attestation is signed by the re-usable workflow [wc-build-push.yml](../.github/workflows/wc-build-push.yml) of amp-devcontainer, not by a workflow in your repository.
+Without `--signer-workflow`, the verification expects the signing workflow in `<owner>/<repository>` and fails.
+The workflows of this repository and the [upload-release-assets](../.github/actions/upload-release-assets/README.md) action do this for you.
 
 ## Versioning and pinning
 
