@@ -54,6 +54,13 @@ The helpers are [bats-tool-inventory](../helpers/bats-tool-inventory/README.md),
 
 The workflow [wc-build-push-test.yml](../.github/workflows/wc-build-push-test.yml) takes the description of one image, and does everything from building to testing:
 
+```mermaid
+flowchart LR
+    build["1. Build<br/>per architecture,<br/>push by digest"] --> merge["2. Merge<br/>multi-architecture image,<br/>tags"]
+    merge --> document["3. Document<br/>SBOM, attestation,<br/>tool inventory, size diff"]
+    document --> test["4. Test<br/>Docker, Podman,<br/>Codespace"]
+```
+
 1. **Build**, on every architecture runner, and push by digest. The `devcontainer.metadata` label is merged with the one of the base image.
 2. **Merge** the architectures into one multi-architecture image, and tag it: `pr-<number>` for a pull request, `edge` for the merge queue (when enabled), and the semantic versions for a release.
 3. **Document the image**: create an SBOM, a build provenance attestation (which is verified right away), the tool inventory, a container diff, and a comment with the size difference with the `edge` image.
@@ -64,7 +71,34 @@ Calling it with several images, in a matrix, gives you a family of containers: b
 
 ## The golden path
 
-This is the path for a repository that builds its own containers on top of amp-devcontainer.
+A repository that uses the build system contains the data that describes its images and a few thin workflows.
+The workflows only call the re-usable workflows of amp-devcontainer with parameters and explicit secrets, and those call the actions at the same commit:
+
+```mermaid
+flowchart LR
+    subgraph yours["Your repository"]
+        data["Data<br/>Dockerfile, apt pins, tool inventory,<br/>tests, release template, linter settings"]
+        callers["Thin workflows<br/>ci, release-please, release-build,<br/>release-published, update-dependencies"]
+    end
+    subgraph amp["amp-devcontainer, pinned by commit SHA"]
+        workflows["Re-usable workflows<br/>wc-*.yml"]
+        actions["Actions<br/>.github/actions"]
+        helpers["Bats helpers<br/>in the base image"]
+    end
+    callers -->|"workflow_call with parameters and secrets"| workflows
+    workflows -->|"same commit with $/"| actions
+    data -.->|"checked by the tests of"| helpers
+
+    classDef own fill:#dbeafe,stroke:#1d4ed8,color:#111827
+    classDef shared fill:#dcfce7,stroke:#15803d,color:#111827
+    class data,callers own
+    class workflows,actions,helpers shared
+```
+
+Everything that is specific to your repository, such as the registry, the runners and the names of your secrets, is a parameter of a call.
+The shared parts, in green, are never copied.
+
+The rest of this section is the path for a repository that builds its own containers on top of amp-devcontainer.
 The files of amp-devcontainer itself follow it, so they can be used as an example.
 
 ### 1. Describe the image
@@ -157,6 +191,32 @@ The integration tests of step 2 fail when a pin and the installed package disagr
 
 Releases are created with [release-please](https://github.com/googleapis/release-please) from [conventional commits](https://www.conventionalcommits.org), see [release-please.yml](../.github/workflows/release-please.yml).
 The release is created as a **draft**, together with its tag, so nothing is visible to users and all assets can be attached before it is published. This is what makes [immutable releases](https://docs.github.com/en/repositories/releasing-projects-on-github/immutable-releases) possible.
+The whole path, from merging the release pull request to the published release, looks like this:
+
+```mermaid
+flowchart TD
+    merge(["Merge the release pull request"]) --> tag["release-please creates<br/>the tag and a draft release"]
+    tag --> require["wc-require-draft-release<br/>the draft has to exist"]
+    require --> build["Build, push and test<br/>the workflow of your repository"]
+    require --> summary["wc-release-summary<br/>optional, Copilot"]
+    require --> documents["Generate documents<br/>repository specific"]
+    build --> notes["wc-release-notes<br/>render the notes, attach attestations,<br/>SBOMs and tool inventories"]
+    summary --> notes
+    documents --> upload["Upload documents"]
+    notes --> publish{{"wc-publish-release<br/>approval of the release environment,<br/>assets checked again"}}
+    upload --> publish
+    publish --> published(["Release is published and immutable"])
+    published --> after["wc-release-published<br/>verify immutability,<br/>comment on pull requests"]
+    published --> templates["Publish dev container templates<br/>repository specific"]
+
+    classDef own fill:#dbeafe,stroke:#1d4ed8,color:#111827
+    classDef shared fill:#dcfce7,stroke:#15803d,color:#111827
+    class build,documents,upload,templates own
+    class require,summary,notes,publish,after shared
+```
+
+Blue steps are specific to this repository and are written in your workflow; green steps are re-usable workflows.
+
 The tag runs [release-build.yml](../.github/workflows/release-build.yml).
 release-please creates the tag before the draft release, so the workflow first requires that the draft exists with [wc-require-draft-release.yml](../.github/workflows/wc-require-draft-release.yml), waiting for about a minute for it, and fails right away when it doesn't.
 Then it builds, pushes and tests the images again, now with the semantic version tags, and:
@@ -249,7 +309,15 @@ A workflow for the `release` event calls `wc-release-published.yml` with the tag
 
 ### 6. Check pull requests
 
-Call [wc-lint.yml](../.github/workflows/wc-lint.yml), [wc-pr-title.yml](../.github/workflows/wc-pr-title.yml) and [wc-dependency-review.yml](../.github/workflows/wc-dependency-review.yml) from a workflow that runs for pull requests and the merge queue.
+Call [wc-lint.yml](../.github/workflows/wc-lint.yml), [wc-pr-title.yml](../.github/workflows/wc-pr-title.yml) and [wc-dependency-review.yml](../.github/workflows/wc-dependency-review.yml) from a workflow that runs for pull requests and the merge queue, next to the build:
+
+```mermaid
+flowchart LR
+    pr(["Pull request or merge queue"]) --> lint["wc-lint<br/>zizmor, MegaLinter"]
+    pr --> title["wc-pr-title<br/>conventional commit title"]
+    pr --> review["wc-dependency-review<br/>changed dependencies"]
+    pr --> build["wc-build-push-test<br/>build, push and test"]
+```
 
 #### Shared MegaLinter settings
 
