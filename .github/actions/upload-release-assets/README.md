@@ -38,7 +38,7 @@ An interrupted upload can leave some assets on the draft; uploading again replac
     sbom-directory: ${{ runner.temp }}/release-sboms
 ```
 
-The caller needs `contents: write` to upload to the release, and a container engine with `buildx`, the GitHub CLI and `jq` on the runner.
+The caller needs `contents: write` to upload to the release, `attestations: read` to verify the attestations, and a container engine with `buildx`, the GitHub CLI and `jq` on the runner.
 
 ## Inputs
 
