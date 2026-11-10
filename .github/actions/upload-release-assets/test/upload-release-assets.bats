@@ -52,6 +52,10 @@ gh() {
         return 1
       fi
       if [[ "${5-}" == "isDraft" ]]; then
+        if [[ -f "${FAKE_DIR}/fail-draft-view" ]]; then
+          echo "simulated draft lookup failure" >&2
+          return 1
+        fi
         printf '%s\n' "${FAKE_DRAFT:-true}"
         return
       fi
@@ -62,7 +66,12 @@ gh() {
           | jq -Rsc 'split("\n") | map(select(length > 0) | {name: ., state: "uploaded"}) | {assets: .}'
       fi
       ;;
-    "release edit") ;;
+    "release edit")
+      if [[ -f "${FAKE_DIR}/fail-release-edit" ]]; then
+        echo "simulated edit failure" >&2
+        return 1
+      fi
+      ;;
     *) return 64 ;;
   esac
 }
@@ -397,6 +406,34 @@ run_publish() {
   assert_failure
   assert_output --partial "simulated asset lookup failure"
   refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
+}
+
+@test "publication fails when the draft state of the release cannot be looked up" {
+  printf '{"assets":[{"name":"required.spdx.json","state":"uploaded"}]}' > "${FAKE_DIR}/release-assets.json"
+  touch "${FAKE_DIR}/fail-draft-view"
+  EXPECTED_ASSETS='["required.spdx.json"]' run_publish
+
+  assert_failure
+  assert_output --partial "simulated draft lookup failure"
+  refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
+}
+
+@test "publication fails on an unexpected draft state" {
+  printf '{"assets":[{"name":"required.spdx.json","state":"uploaded"}]}' > "${FAKE_DIR}/release-assets.json"
+  FAKE_DRAFT=maybe EXPECTED_ASSETS='["required.spdx.json"]' run_publish
+
+  assert_failure
+  assert_output --partial "unexpected draft state of release 9.9.9-fake: maybe"
+  refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
+}
+
+@test "publication fails when the release cannot be published" {
+  printf '{"assets":[{"name":"required.spdx.json","state":"uploaded"}]}' > "${FAKE_DIR}/release-assets.json"
+  touch "${FAKE_DIR}/fail-release-edit"
+  EXPECTED_ASSETS='["required.spdx.json"]' run_publish
+
+  assert_failure
+  assert_output --partial "simulated edit failure"
 }
 
 @test "an already published release is left as is" {

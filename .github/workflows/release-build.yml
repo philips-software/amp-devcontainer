@@ -135,9 +135,12 @@ jobs:
         run: |
           set -Eeuo pipefail
           bash .github/actions/upload-release-assets/verify-release-assets.sh
-          if [[ "$(gh release view "${RELEASE_TAG}" --json isDraft --jq '.isDraft')" == "true" ]]; then
-            gh release edit "${RELEASE_TAG}" --draft=false --verify-tag
-          fi
+          is_draft=$(gh release view "${RELEASE_TAG}" --json isDraft --jq '.isDraft')
+          case "${is_draft}" in
+            true) gh release edit "${RELEASE_TAG}" --draft=false --verify-tag ;;
+            false) echo "release ${RELEASE_TAG} is already published" ;;
+            *) echo "error: unexpected draft state of release ${RELEASE_TAG}: ${is_draft}" >&2; exit 1 ;;
+          esac
         env:
           EXPECTED_ASSETS: ${{ needs.release-notes.outputs.asset-names }}
           GH_REPO: ${{ github.repository }}
