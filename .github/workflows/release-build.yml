@@ -99,7 +99,7 @@ jobs:
       - name: Upload documents to release
         run: |
           set -Eeuo pipefail
-          gh release upload "${REF_NAME}" ./*.pdf ./*.sbdl
+          gh release upload --clobber "${REF_NAME}" ./*.pdf ./*.sbdl
         env:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}

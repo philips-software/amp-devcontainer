@@ -33,7 +33,16 @@ gh() {
       cat "${FAKE_DIR}/attestations/${reference//\//_}" || return 1
       ;;
     "release upload")
+      clobber=false
+      [[ "$3" == "--clobber" ]] && clobber=true
       shift 4 # release upload --clobber <tag>
+      # like GitHub, an asset that exists is only replaced with --clobber
+      for file in "$@"; do
+        if [[ "${clobber}" == false && -e "${FAKE_DIR}/uploaded/${file##*/}" ]]; then
+          echo "asset under the same name already exists: ${file##*/}" >&2
+          return 1
+        fi
+      done
       if [[ -f "${FAKE_DIR}/fail-upload-once" ]]; then
         rm "${FAKE_DIR}/fail-upload-once"
         cp "$1" "${FAKE_DIR}/uploaded/"
@@ -110,18 +119,25 @@ run_script() {
     run bash "${SCRIPT}"
 }
 
-run_publish() {
-  awk '
-    $0 == "      - name: Publish release" { in_step = 1; next }
+run_workflow_step() {
+  local step=${1:?}
+
+  awk -v header="      - name: ${step}" '
+    $0 == header { in_step = 1; next }
     in_step && $0 == "        env:" { exit }
     in_step && /^          / { sub(/^          /, ""); print }
-  ' "${ROOT_DIRECTORY}/.github/workflows/release-build.yml" > "${FAKE_DIR}/publish.sh"
+  ' "${ROOT_DIRECTORY}/.github/workflows/release-build.yml" > "${FAKE_DIR}/step.sh"
 
   RELEASE_TAG=9.9.9-fake \
+    REF_NAME=9.9.9-fake \
     GH_REPO=fake-owner/fake-repo \
     EXPECTED_ASSETS="${EXPECTED_ASSETS:-}" \
     FAKE_DRAFT="${FAKE_DRAFT:-true}" \
-    run bash -c 'cd "$1"; exec bash "$2"' _ "${ROOT_DIRECTORY}" "${FAKE_DIR}/publish.sh"
+    run bash -c 'cd "${2:-.}"; exec bash "$1"' _ "${FAKE_DIR}/step.sh" "${STEP_DIRECTORY:-${ROOT_DIRECTORY}}"
+}
+
+run_publish() {
+  run_workflow_step "Publish release"
 }
 
 @test "the attestation and tool inventory of every image are uploaded in a single call" {
@@ -345,6 +361,30 @@ run_publish() {
   assert_success
   run grep -c "^release upload --clobber" "${FAKE_DIR}/gh-calls"
   assert_output "2"
+}
+
+@test "the documents can be uploaded again after a partial or complete upload" {
+  local directory="${BATS_TEST_TMPDIR}/documents"
+  mkdir -p "${directory}"
+  echo pdf > "${directory}/fake-document.pdf"
+  echo sbdl > "${directory}/fake-requirements.sbdl"
+  echo old > "${FAKE_DIR}/uploaded/fake-document.pdf"
+
+  STEP_DIRECTORY="${directory}" run_workflow_step "Upload documents to release"
+  assert_success
+  STEP_DIRECTORY="${directory}" run_workflow_step "Upload documents to release"
+  assert_success
+
+  run cat "${FAKE_DIR}/uploaded/fake-document.pdf"
+  assert_output "pdf"
+  run grep -c "^release upload --clobber 9.9.9-fake " "${FAKE_DIR}/gh-calls"
+  assert_output "2"
+}
+
+@test "the documents step fails when there are no documents" {
+  STEP_DIRECTORY="${BATS_TEST_TMPDIR}" run_workflow_step "Upload documents to release"
+
+  assert_failure
 }
 
 @test "publication rechecks the image assets after approval" {
