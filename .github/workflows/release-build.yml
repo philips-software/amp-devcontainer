@@ -15,9 +15,44 @@ concurrency:
 permissions: {}
 
 jobs:
+  check-release:
+    name: 🔎 Check Release
+    if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # is needed by gh to find a draft release, which is only visible with write access
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      # release-please creates the tag, which starts this workflow, before the draft release.
+      # Fail now, instead of when the release is updated after the build, when there is none.
+      - name: Check release
+        run: |
+          set -Eeuo pipefail
+          for attempt in 1 2 3 4 5 6; do
+            if is_draft=$(gh release view "${RELEASE_TAG}" --json isDraft --jq '.isDraft'); then
+              case "${is_draft}" in
+                true) exit 0 ;;
+                false) echo "::error::Release ${RELEASE_TAG} is already published, its assets can't be changed anymore"; exit 1 ;;
+                *) echo "::error::Unexpected draft state of release ${RELEASE_TAG}: ${is_draft}"; exit 1 ;;
+              esac
+            fi
+            sleep 10
+          done
+          echo "::error::No release found for ${RELEASE_TAG}, create the draft with 'gh release create ${RELEASE_TAG} --draft --verify-tag --title ${RELEASE_TAG} --notes \"\"' and run the failed jobs again"
+          exit 1
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+
   build-push-test:
     name: Build → Push → Test
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    needs: check-release
     uses: $/.github/workflows/build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
@@ -36,6 +71,7 @@ jobs:
   release-summary:
     name: ✨ Release Summary
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    needs: check-release
     uses: $/.github/workflows/wc-release-summary.yml
     with:
       release-tag: ${{ github.ref_name }}
@@ -73,6 +109,7 @@ jobs:
   generate-documents:
     name: 📄 Documentation
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    needs: check-release
     uses: $/.github/workflows/wc-document-generation.yml
     with:
       is-release: true

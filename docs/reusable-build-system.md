@@ -150,7 +150,7 @@ The integration tests of step 2 fail when a pin and the installed package disagr
 
 Releases are created with [release-please](https://github.com/googleapis/release-please) from [conventional commits](https://www.conventionalcommits.org), see [release-please.yml](../.github/workflows/release-please.yml).
 The release is created as a **draft**, together with its tag, so nothing is visible to users and all assets can be attached before it is published. This is what makes [immutable releases](https://docs.github.com/en/repositories/releasing-projects-on-github/immutable-releases) possible.
-The tag runs [release-build.yml](../.github/workflows/release-build.yml): it builds, pushes and tests the images again, now with the semantic version tags, and then:
+The tag runs [release-build.yml](../.github/workflows/release-build.yml). release-please creates the tag before the draft release, so the workflow first checks that the draft exists, waiting for about a minute for it, and fails right away when it doesn't. Then it builds, pushes and tests the images again, now with the semantic version tags, and:
 
 - drafts a summary of the release with Copilot, with the re-usable workflow [wc-release-summary.yml](../.github/workflows/wc-release-summary.yml), in a job with a read-only token that is billed to the organization with [generate-release-summary](../.github/actions/generate-release-summary/README.md). A summary that can't be generated never fails the release;
 - writes the release notes with the re-usable workflow [wc-release-notes.yml](../.github/workflows/wc-release-notes.yml), which is given the images, the tag and the image to render with (see its [usage](#release-notes-workflow)):
@@ -164,6 +164,14 @@ Publish only after release-build.yml has finished; the assets of an immutable re
 Publishing manually bypasses the pre-publication check, so verify that all image assets are present before doing so.
 The same workflow verifies that the published release is immutable, so a disabled repository setting is noticed.
 Rejecting the approval leaves the draft in place, to be deleted or fixed with a new release.
+
+If the check fails because there is no draft, release-please created the tag but not the release. Create the draft for the existing tag, and run the failed jobs of the workflow again:
+
+```sh
+gh release create <tag> --draft --verify-tag --title <tag> --notes "" --repo <owner>/<repository>
+```
+
+The release notes are rendered by the workflow. The check also fails for a release that is already published, which can't get more assets: create a new release instead.
 
 #### Release notes workflow
 
