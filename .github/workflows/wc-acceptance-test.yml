@@ -55,20 +55,22 @@ jobs:
 
           if [[ "${EVENT_NAME}" == "pull_request" ]]; then
             gh secret set -a codespaces IMAGE_VERSION --body "pr-${PR_NUMBER}"
-          elif [[ "${EVENT_NAME}" == "push" && "${REF_STARTS_WITH_TAG}" == "true" ]]; then
-            gh secret set -a codespaces IMAGE_VERSION --body "${GITHUB_REF#refs/tags/}"
+          elif [[ "${REF_TYPE}" == "tag" ]]; then
+            # Any event on a tag, e.g. a manual run, tests the image that is built for the release
+            gh secret set -a codespaces IMAGE_VERSION --body "${REF_NAME}"
           else
             gh secret set -a codespaces IMAGE_VERSION --body "edge"
           fi
 
           echo CODESPACE_NAME="$(gh codespace create -R "${GITHUB_REPOSITORY}" -b "${HEAD_REF}" -m basicLinux32gb --devcontainer-path "${DEVCONTAINER_FILE}" --idle-timeout 10m --retention-period 1h)" >> "$GITHUB_ENV"
         env:
-          REF_STARTS_WITH_TAG: ${{ startsWith(github.ref, 'refs/tags/') }}
           DEVCONTAINER_FILE: ${{ inputs.devcontainer-file }}
           EVENT_NAME: ${{ github.event_name }}
           GH_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "~26.12.1"
