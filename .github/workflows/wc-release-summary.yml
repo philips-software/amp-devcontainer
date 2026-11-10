@@ -19,6 +19,13 @@ on:
         required: false
         type: string
         default: '["ubuntu-latest"]'
+      tag-pattern:
+        description: >-
+          Pattern (see `git describe --match`) of the tags of earlier releases, the commits since the latest
+          tag that matches are summarized. Set it when the tags of your releases don't look like `v1.2.3`.
+        required: false
+        type: string
+        default: v[0-9]*
 
 permissions: {}
 
@@ -47,6 +54,7 @@ jobs:
         with:
           output-file: ${{ runner.temp }}/release-summary.md
           release-tag: ${{ inputs.release-tag }}
+          tag-pattern: ${{ inputs.tag-pattern }}
       # The artifact is named release-summary, which is what the summary-artifact input of wc-release-notes.yml expects
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ steps.summary.outputs.generated == 'true' }}
