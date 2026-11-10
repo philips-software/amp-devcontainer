@@ -50,7 +50,7 @@ jobs:
           persist-credentials: false
       - name: Generate release summary
         id: summary
-        uses: philips-software/amp-devcontainer/.github/actions/generate-release-summary@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
+        uses: $/.github/actions/generate-release-summary
         with:
           output-file: ${{ runner.temp }}/release-summary.md
           release-tag: ${{ inputs.release-tag }}

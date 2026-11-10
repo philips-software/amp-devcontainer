@@ -106,7 +106,7 @@ jobs:
       # Merge the base image's devcontainer.metadata array with this flavor's
       # entry so that flavors inherit base metadata without duplicating it.
       - name: Generate image label for devcontainer.metadata
-        uses: philips-software/amp-devcontainer/.github/actions/merge-devcontainer-metadata@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
+        uses: $/.github/actions/merge-devcontainer-metadata
         id: devcontainer-metadata
         with:
           base-image: ${{ inputs.base-image }}
@@ -265,7 +265,7 @@ jobs:
           METADATA_JSON: ${{ steps.metadata.outputs.json }}
         shell: bash
         working-directory: ${{ runner.temp }}/digests
-      - uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
+      - uses: $/.github/actions/extract-manifest-digest
         id: extract-digest
         with:
           container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:${{ steps.metadata.outputs.version }}
@@ -284,7 +284,7 @@ jobs:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: philips-software/amp-devcontainer/.github/actions/container-size-diff@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
+      - uses: $/.github/actions/container-size-diff
         id: container-size-diff
         with:
           from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
@@ -308,7 +308,7 @@ jobs:
       - name: Generate tool inventory
         if: ${{ inputs.tool-inventory-file != '' }}
         id: generate-tool-inventory
-        uses: philips-software/amp-devcontainer/.github/actions/generate-tool-inventory@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
+        uses: $/.github/actions/generate-tool-inventory
         with:
           sbom: ${{ runner.temp }}/sbom.spdx.json
           tool-inventory: ${{ inputs.tool-inventory-file }}

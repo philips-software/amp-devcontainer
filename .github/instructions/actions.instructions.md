@@ -17,4 +17,4 @@ The actions in `.github/actions` are re-usable by other repositories and release
 - Tools that run in the actions (`gh`, `jq`, `docker`) are stubbed in the tests, so they run without network or container engine.
 - Failing safely matters more than succeeding: an action that edits something (a release) reads and validates everything first, and edits once.
 - The inventory resolver exists twice, in `helpers/bats-tool-inventory/src/resolve-inventory.bash` and `.github/actions/generate-tool-inventory/resolve.sh`. Change both, a test checks that they agree.
-- A new action or a behavior change is released by release-please from a `feat:` or `fix:` pull request. Workflows only use it after the actions release is published, see [the pinning rules](./workflows.instructions.md#pinning).
+- A new action or a behavior change is released by release-please from a `feat:` or `fix:` pull request. Workflows of this repository use an action at the same commit with `$/`, see [the pinning rules](./workflows.instructions.md#pinning); the release gives repositories that use the action directly a version to pin.

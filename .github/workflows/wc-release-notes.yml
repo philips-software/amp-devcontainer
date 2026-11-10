@@ -104,11 +104,11 @@ jobs:
         id: render-digest
         # An image that is referenced by its digest needs no lookup
         if: ${{ !contains(inputs.render-image, '@sha256:') }}
-        uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
+        uses: $/.github/actions/extract-manifest-digest
         with:
           container: ${{ inputs.render-image }}
       - name: Render release notes
-        uses: philips-software/amp-devcontainer/.github/actions/render-release-notes@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
+        uses: $/.github/actions/render-release-notes
         with:
           images: ${{ inputs.images }}
           release-tag: ${{ inputs.release-tag }}
@@ -116,7 +116,7 @@ jobs:
           summary-file: ${{ runner.temp }}/release-summary/release-summary.md
           template-file: ${{ inputs.template-file }}
       - name: Upload attestations and tool inventories
-        uses: philips-software/amp-devcontainer/.github/actions/upload-release-assets@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
+        uses: $/.github/actions/upload-release-assets
         with:
           images: ${{ inputs.images }}
           release-tag: ${{ inputs.release-tag }}

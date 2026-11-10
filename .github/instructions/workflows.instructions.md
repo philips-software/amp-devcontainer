@@ -19,8 +19,8 @@ When writing GitHub Action workflows, ensure that:
 
 - Pin every `uses:` to a full commit SHA with the version as a comment: `uses: actions/checkout@<sha> # v7.0.1`. Look up the SHA of the tag, never guess it.
 - Container images are pinned by digest, and a pin that appears in several workflows has the same version everywhere. [test/repository](../../test/repository/version-consistency.bats) fails when they differ.
-- Re-usable workflows (`wc-*.yml`) use the actions of this repository like any other action, by the SHA of a released actions version: `philips-software/amp-devcontainer/.github/actions/<name>@<sha> # actions/vX.Y.Z`. Derived repositories call them, so they must only depend on released actions. All uses move to a new release together.
-- Top-level workflows call workflows and actions of the same repository with the self-repository syntax: `uses: $/.github/workflows/<name>.yml`. actionlint does not know it yet, which is ignored in [actionlint.yml](../linters/actionlint.yml).
+- Call workflows and actions of this repository, from workflows and from re-usable workflows, with the self-repository syntax: `uses: $/.github/actions/<name>`. In a re-usable workflow it resolves to the repository and commit of that workflow, also when another repository calls it, so a derived repository that pins a workflow by SHA gets the actions of that same commit.
+- Don't pin the actions of this repository separately, and don't use `./`. actionlint does not know `$/` yet, which is ignored in [actionlint.yml](../linters/actionlint.yml). It is not available in GitHub Enterprise Server.
 
 ## Security
 
