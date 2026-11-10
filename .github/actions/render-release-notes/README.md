@@ -57,10 +57,10 @@ To change the layout, pass your own template; copying the default template is a 
 A template that substitutes placeholders (`{{ my-placeholder }}` that is replaced by a script) has to be a Jinja2 template: a name with dashes is not a valid variable, it is a subtraction, and a variable that does not exist is an error.
 Use the variables below instead of placeholders:
 
-| Placeholder of a script       | Template variable                                                    |
-|-------------------------------|----------------------------------------------------------------------|
-| The version of the release    | `{{ release.tag }}`                                                  |
-| The digest of the image       | `{{ images["<image basename>"].digest }}`                            |
+| Placeholder of a script       | Template variable                                                        |
+|-------------------------------|--------------------------------------------------------------------------|
+| The version of the release    | `{{ release.tag }}`                                                      |
+| The digest of the image       | `{{ images["<image basename>"].digest }}`                                |
 | A table of the included tools | A loop over `images["<image basename>"].tools`, see the default template |
 
 The action inserts the rendered template itself, so a step that inserts the template into the release notes and a second step that substitutes the placeholders can both be replaced by one call of the action.
