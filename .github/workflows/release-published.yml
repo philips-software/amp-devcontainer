@@ -1,0 +1,35 @@
+---
+name: Release Published
+
+on:
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+
+permissions: {}
+
+jobs:
+  publish-devcontainer-templates:
+    name: 📝 Publish templates
+    if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    uses: $/.github/workflows/wc-publish-templates.yml
+    permissions:
+      packages: write # is needed by devcontainers/action to write templates as OCI artifacts
+
+  comment-released-prs:
+    name: Comment on released PRs
+    if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - uses: rdlf0/comment-released-prs-action@249f57bed533baa7f883fe9d9a834424f153c3cb # v3.2.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

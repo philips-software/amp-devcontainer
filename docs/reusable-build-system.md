@@ -149,13 +149,19 @@ The integration tests of step 2 fail when a pin and the installed package disagr
 ### 5. Release
 
 Releases are created with [release-please](https://github.com/googleapis/release-please) from [conventional commits](https://www.conventionalcommits.org), see [release-please.yml](../.github/workflows/release-please.yml).
-Publishing the release runs [release-build.yml](../.github/workflows/release-build.yml): it builds, pushes and tests the images again, now with the semantic version tags, and then:
+The release is created as a **draft**, together with its tag, so nothing is visible to users and all assets can be attached before it is published. This is what makes [immutable releases](https://docs.github.com/en/repositories/releasing-projects-on-github/immutable-releases) possible.
+The tag runs [release-build.yml](../.github/workflows/release-build.yml): it builds, pushes and tests the images again, now with the semantic version tags, and then:
 
 - drafts a summary of the release with Copilot, with the re-usable workflow [wc-release-summary.yml](../.github/workflows/wc-release-summary.yml), in a job with a read-only token that is billed to the organization with [generate-release-summary](../.github/actions/generate-release-summary/README.md). A summary that can't be generated never fails the release;
 - writes the release notes with the re-usable workflow [wc-release-notes.yml](../.github/workflows/wc-release-notes.yml), which is given the images, the tag and the image to render with (see its [usage](#release-notes-workflow)):
   - renders the release notes with [render-release-notes](../.github/actions/render-release-notes/README.md), with the summary, and the digests and tool inventories of the images, and can be run again without duplicating text;
   - uploads the attestations and tool inventories as release assets with [upload-release-assets](../.github/actions/upload-release-assets/README.md);
-- generates the documents (see [wc-document-generation.yml](../.github/workflows/wc-document-generation.yml)) and publishes the dev container templates.
+- generates the documents (see [wc-document-generation.yml](../.github/workflows/wc-document-generation.yml)) and uploads them to the release;
+- waits for the approval of the `release` environment: review the release notes of the draft, and approve to publish the release.
+
+Publishing a release (approving the environment, or with **Publish release** on the releases page) runs [release-published.yml](../.github/workflows/release-published.yml), which publishes the dev container templates and comments on the released pull requests.
+Publish only after release-build.yml has finished; the assets of an immutable release can't be changed, and neither can a published release be built again.
+Rejecting the approval leaves the draft in place, to be deleted or fixed with a new release.
 
 #### Release notes workflow
 
