@@ -247,6 +247,7 @@ Without `--signer-workflow`, the verification expects the signing workflow in `<
 The workflows of this repository and the [upload-release-assets](../.github/actions/upload-release-assets/README.md) action do this for you.
 
 The release attestation is created by GitHub when an immutable release is published, nothing in the workflows creates it. Enable immutable releases in the repository settings.
+Releases that were published before the setting was enabled are not immutable and have no release attestation, so `gh release verify` and `gh release verify-asset` fail for them.
 
 ## Versioning and pinning
 

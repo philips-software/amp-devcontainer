@@ -190,6 +190,10 @@ gh release verify --repo philips-software/amp-devcontainer <tag>
 gh release verify-asset --repo philips-software/amp-devcontainer <tag> <asset>
 ```
 
+> [!NOTE]
+> Releases that were published before immutable releases were enabled for this repository, such as `v9.0.0`, are not immutable and have no release attestation, so these commands fail for them.
+> The container images of those releases still have their own attestations, see above.
+
 ### Local development
 
 The resulting containers can be used in a `.devcontainer.json` file or in a `.devcontainer` folder.
