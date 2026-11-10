@@ -29,6 +29,8 @@ When anything fails, for instance an image digest that cannot be resolved or a v
 
 The caller needs `contents: write` to edit the release, and a container engine to resolve digests and render.
 
+To get the release notes together with a Copilot-drafted summary and the release assets, use the re-usable workflow [wc-release-notes.yml](../../workflows/wc-release-notes.yml) instead, see the [release step](../../../docs/reusable-build-system.md#release-notes-workflow) of the golden path.
+
 ### Inputs
 
 | Input                 | Required | Description                                                                                                                                                                                                                    |
