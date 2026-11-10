@@ -31,12 +31,13 @@ The caller needs `contents: write` to upload to the release, and a container eng
 
 ## Inputs
 
-| Name                  | Required | Description                                                                                                                                                      |
-|-----------------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `images`              | yes      | Newline-separated image references without tag. The last path segment is the *image basename*.                                                                   |
-| `release-tag`         | yes      | Tag of the release to upload to. The images are expected to carry the same tag.                                                                                  |
-| `inventory-directory` | no       | Directory with a `tool-inventory-<image-basename>/tool-inventory.json` file per image, as produced by downloading the tool inventory artifacts. Defaults to `.`. |
-| `github-token`        | no       | Token used to verify the attestations and to upload. Defaults to the workflow token.                                                                             |
+| Name                  | Required | Description                                                                                                                                                                                                  |
+|-----------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `images`              | yes      | Newline-separated image references without tag. The last path segment is the *image basename*.                                                                                                               |
+| `release-tag`         | yes      | Tag of the release to upload to. The images are expected to carry the same tag.                                                                                                                              |
+| `inventory-directory` | no       | Directory with a `tool-inventory-<image-basename>/tool-inventory.json` file per image, as produced by downloading the tool inventory artifacts. Defaults to `.`.                                             |
+| `github-token`        | no       | Token used to verify the attestations and to upload. Defaults to the workflow token.                                                                                                                         |
+| `signer-workflow`     | no       | Re-usable workflow that signed the attestations, `<owner>/<repository>/<path>`. Defaults to the build workflow of amp-devcontainer, `philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml`. |
 
 The action fails when an attestation cannot be verified or is missing, when a tool inventory is missing, when an image cannot be inspected, or when two images have the same basename.
 

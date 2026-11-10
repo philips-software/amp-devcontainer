@@ -31,9 +31,21 @@ jobs:
       TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
 
+  release-summary:
+    name: ✨ Release Summary
+    if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    uses: $/.github/workflows/wc-release-summary.yml
+    with:
+      release-tag: ${{ github.ref_name }}
+    permissions:
+      contents: read # is needed by actions/checkout to read the history of the release
+      copilot-requests: write # is needed by Copilot CLI to bill its requests to the organization
+
   release-notes:
     name: 📝 Release Notes
-    needs: [build-push-test]
+    # The summary is optional, so the release notes are written without it as well
+    if: ${{ !cancelled() && needs.build-push-test.result == 'success' }}
+    needs: [build-push-test, release-summary]
     uses: $/.github/workflows/wc-release-notes.yml
     with:
       # The images that are part of the release, the only place where they are listed.
@@ -46,13 +58,15 @@ jobs:
         ghcr.io/${{ github.repository }}-rust
       release-tag: ${{ github.ref_name }}
       # The image of the release that renders the release notes, it is built by this workflow.
-      render-image: ghcr.io/${{ github.repository }}-docs
+      render-image: ghcr.io/${{ github.repository }}-docs:${{ github.ref_name }}
+      summary-artifact: release-summary
     permissions:
       # Please note that contents: write is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
       actions: read # is needed by actions/download-artifact to fetch the tool inventories
+      attestations: read # is needed by gh to verify the attestations of the images
       contents: write # is needed to modify a release
-      copilot-requests: write # is needed by Copilot CLI to bill its requests to the organization
+      packages: read # is needed to inspect the images in GitHub Container Registry
 
   publish-devcontainer-templates:
     name: 📝 Publish templates

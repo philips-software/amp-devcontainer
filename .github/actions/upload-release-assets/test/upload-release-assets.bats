@@ -25,8 +25,10 @@ gh() {
   echo "$*" >> "${FAKE_DIR}/gh-calls"
   case "$1 $2" in
     "attestation verify")
-      # the arguments are: --repo <repository> oci://<image>@<digest>
-      reference=${5#oci://}
+      # the reference is the argument that starts with oci://
+      for argument in "$@"; do
+        [[ "${argument}" == oci://* ]] && reference=${argument#oci://}
+      done
       cat "${FAKE_DIR}/attestations/${reference//\//_}" || return 1
       ;;
     "release upload")
@@ -60,6 +62,7 @@ add_image() {
 run_script() {
   RELEASE_TAG=9.9.9-fake \
     GH_REPO=fake-owner/fake-repo \
+    SIGNER_WORKFLOW=${SIGNER_WORKFLOW-fake-signer-owner/fake-signer-repo/.github/workflows/fake-build.yml} \
     INVENTORY_DIRECTORY="${FAKE_DIR}/inventory" \
     run bash "${SCRIPT}"
 }
@@ -84,7 +87,7 @@ run_script() {
 @test "the assets are named after the owner of the repository, the image and the digest" {
   add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
 
-  IMAGES="${IMAGE_ALPHA}" GH_REPO=fake-other-owner/fake-repo RELEASE_TAG=9.9.9-fake INVENTORY_DIRECTORY="${FAKE_DIR}/inventory" run bash "${SCRIPT}"
+  IMAGES="${IMAGE_ALPHA}" GH_REPO=fake-other-owner/fake-repo SIGNER_WORKFLOW=fake-signer-owner/fake-signer-repo/fake.yml RELEASE_TAG=9.9.9-fake INVENTORY_DIRECTORY="${FAKE_DIR}/inventory" run bash "${SCRIPT}"
 
   assert_success
   run ls "${FAKE_DIR}/uploaded"
@@ -104,6 +107,26 @@ run_script() {
   assert_output '{"flavor":"fake-name","tools":[]}'
 }
 
+@test "the attestation is verified against the workflow that signed it, which can be in another repository" {
+  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
+
+  IMAGES="${IMAGE_ALPHA}" run_script
+
+  assert_success
+  run cat "${FAKE_DIR}/gh-calls"
+  assert_line --regexp "^attestation verify --repo fake-owner/fake-repo --signer-workflow fake-signer-owner/fake-signer-repo/.github/workflows/fake-build.yml oci://"
+}
+
+@test "fails without a signer workflow" {
+  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
+
+  SIGNER_WORKFLOW= IMAGES="${IMAGE_ALPHA}" run_script
+
+  assert_failure
+  assert_output --partial "signer workflow required"
+  refute [ -e "${FAKE_DIR}/gh-calls" ]
+}
+
 @test "the attestation is verified against the repository and the digest of the image with the given tag" {
   add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
 
@@ -113,7 +136,7 @@ run_script() {
   run cat "${FAKE_DIR}/docker-calls"
   assert_line "buildx imagetools inspect ${IMAGE_ALPHA}:9.9.9-fake --format {{json .}}"
   run cat "${FAKE_DIR}/gh-calls"
-  assert_line --regexp "^attestation verify --repo fake-owner/fake-repo oci://${IMAGE_ALPHA}@${FAKE_DIGEST_ALPHA} --format json --jq "
+  assert_line --regexp "^attestation verify --repo fake-owner/fake-repo --signer-workflow \\S+ oci://${IMAGE_ALPHA}@${FAKE_DIGEST_ALPHA} --format json --jq "
   assert_line --regexp "^release upload --clobber 9.9.9-fake "
 }
 

@@ -28,8 +28,9 @@ When anything fails, for instance an image digest that cannot be resolved or a v
 ```
 
 The caller needs `contents: write` to edit the release, and a container engine to resolve digests and render.
+Log in to the registry of the images before the action when they are private.
 
-To get the release notes together with a Copilot-drafted summary and the release assets, use the re-usable workflow [wc-release-notes.yml](../../workflows/wc-release-notes.yml) instead, see the [release step](../../../docs/reusable-build-system.md#release-notes-workflow) of the golden path.
+To get the release notes together with the release assets, and optionally a Copilot-drafted summary, use the re-usable workflow [wc-release-notes.yml](../../workflows/wc-release-notes.yml) instead, which also takes care of the login, see the [release step](../../../docs/reusable-build-system.md#release-notes-workflow) of the golden path.
 
 ### Inputs
 
@@ -50,6 +51,19 @@ It lists the images in a table with their full identifiers, and the included too
 The summary is the `release.summary` when there is one, with a note that it was drafted by GitHub Copilot, and a placeholder for the release manager to fill in when there is not.
 It loops over the images instead of naming them, so the same layout can be reused for any set of images.
 To change the layout, pass your own template; copying the default template is a good starting point.
+
+## Migrating a template
+
+A template that substitutes placeholders (`{{ my-placeholder }}` that is replaced by a script) has to be a Jinja2 template: a name with dashes is not a valid variable, it is a subtraction, and a variable that does not exist is an error.
+Use the variables below instead of placeholders:
+
+| Placeholder of a script       | Template variable                                                        |
+|-------------------------------|--------------------------------------------------------------------------|
+| The version of the release    | `{{ release.tag }}`                                                      |
+| The digest of the image       | `{{ images["<image basename>"].digest }}`                                |
+| A table of the included tools | A loop over `images["<image basename>"].tools`, see the default template |
+
+The action inserts the rendered template itself, so a step that inserts the template into the release notes and a second step that substitutes the placeholders can both be replaced by one call of the action.
 
 ## Template variables
 

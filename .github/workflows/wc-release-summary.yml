@@ -1,0 +1,64 @@
+---
+name: Release Summary
+
+on:
+  workflow_call:
+    inputs:
+      release-tag:
+        description: Tag of the release to summarize.
+        required: true
+        type: string
+      runner-labels:
+        description: >-
+          JSON array used to select the runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+      tag-pattern:
+        description: >-
+          Pattern (see `git describe --match`) of the tags of earlier releases, the commits since the latest
+          tag that matches are summarized. Set it when the tags of your releases don't look like `v1.2.3`.
+        required: false
+        type: string
+        default: v[0-9]*
+
+permissions: {}
+
+jobs:
+  summary:
+    name: ✨ Release Summary
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 10
+    # A summary is a nice to have, the release goes on without it when it can't be generated
+    continue-on-error: true
+    permissions:
+      contents: read
+      copilot-requests: write # is needed by Copilot CLI to bill its requests to the organization
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Generate release summary
+        id: summary
+        uses: philips-software/amp-devcontainer/.github/actions/generate-release-summary@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
+        with:
+          output-file: ${{ runner.temp }}/release-summary.md
+          release-tag: ${{ inputs.release-tag }}
+          tag-pattern: ${{ inputs.tag-pattern }}
+      # The artifact is named release-summary, which is what the summary-artifact input of wc-release-notes.yml expects
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ steps.summary.outputs.generated == 'true' }}
+        with:
+          name: release-summary
+          path: ${{ steps.summary.outputs.summary-file }}
+          retention-days: 1
