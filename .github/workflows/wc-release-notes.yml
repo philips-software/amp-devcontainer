@@ -6,20 +6,46 @@ on:
     inputs:
       images:
         description: >-
-          Newline-separated container image references without tag, that are part of the release.
+          Newline-separated fully qualified container image references without tag, that are part of the release.
           The tool inventories of the images are expected as artifacts of this workflow run,
           named `tool-inventory-<image basename>`.
         required: true
         type: string
+      registry:
+        description: >-
+          Docker registry of the images, to log in to.
+          `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` secrets must be set if not using GitHub Container Registry (ghcr.io).
+        required: false
+        type: string
+        default: ghcr.io
       release-tag:
         description: Tag of the release to write the notes of, also the tag of the images.
         required: true
         type: string
       render-image:
         description: >-
-          Container image without tag, that has python3 and jinja2 installed to render the template with,
-          e.g. an amp-devcontainer-docs image. The image with the tag of the release is resolved to its digest.
+          Reference of the container image, with a tag or a digest, that has python3 and jinja2 installed to render
+          the template with, e.g. an amp-devcontainer-docs image. A reference with a tag is resolved to its digest.
+          The image is pulled without credentials.
         required: true
+        type: string
+      runner-labels:
+        description: >-
+          JSON array used to select the runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+      summary-artifact:
+        description: >-
+          Name of an artifact of this workflow run with the summary of the release in `release-summary.md`,
+          see wc-release-summary.yml. The release notes are written without a summary when it is not set,
+          or when the artifact does not exist.
+        required: false
         type: string
       template-file:
         description: >-
@@ -27,53 +53,28 @@ on:
           of the caller. Defaults to the template of the render-release-notes action.
         required: false
         type: string
+    secrets:
+      DOCKER_REGISTRY_PASSWORD:
+        description: Password or token for Docker login, if not provided the GitHub token will be used.
+        required: false
+      DOCKER_REGISTRY_USERNAME:
+        description: User name for Docker login, if not provided the GitHub actor will be used.
+        required: false
 
 permissions: {}
 
 jobs:
-  summary:
-    name: ✨ Release Summary
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    # A summary is a nice to have, the release notes are rendered without it when it can't be generated
-    continue-on-error: true
-    permissions:
-      contents: read
-      copilot-requests: write # is needed by Copilot CLI to bill its requests to the organization
-    steps:
-      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
-        with:
-          disable-sudo: true
-          egress-policy: audit
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Generate release summary
-        id: summary
-        uses: philips-software/amp-devcontainer/.github/actions/generate-release-summary@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
-        with:
-          output-file: ${{ runner.temp }}/release-summary.md
-          release-tag: ${{ inputs.release-tag }}
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: ${{ steps.summary.outputs.generated == 'true' }}
-        with:
-          name: release-summary
-          path: ${{ steps.summary.outputs.summary-file }}
-          retention-days: 1
-
   release-notes:
     name: 📝 Release Notes
-    # The summary is optional, so the release notes are written without it as well
-    if: ${{ !cancelled() }}
-    needs: [summary]
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
     timeout-minutes: 10
     permissions:
-      # Please note that this is an overly broad scope, but GitHub does not
+      # Please note that contents: write is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
       actions: read # is needed by actions/download-artifact to fetch the tool inventories
+      attestations: read # is needed by gh to verify the attestations of the images in private and internal repositories
       contents: write # is needed to modify a release
+      packages: read # is needed to inspect private images in GitHub Container Registry
     steps:
       - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
         with:
@@ -83,27 +84,35 @@ jobs:
         if: ${{ inputs.template-file != '' }}
         with:
           persist-credentials: false
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: tool-inventory-*
       - name: Download release summary
+        if: ${{ inputs.summary-artifact != '' }}
         # There is no summary when it could not be generated
         continue-on-error: true
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: release-summary
+          name: ${{ inputs.summary-artifact }}
           path: ${{ runner.temp }}/release-summary
       - name: Get digest of the render image
         id: render-digest
+        # An image that is referenced by its digest needs no lookup
+        if: ${{ !contains(inputs.render-image, '@sha256:') }}
         uses: philips-software/amp-devcontainer/.github/actions/extract-manifest-digest@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
         with:
-          container: ${{ inputs.render-image }}:${{ inputs.release-tag }}
+          container: ${{ inputs.render-image }}
       - name: Render release notes
         uses: philips-software/amp-devcontainer/.github/actions/render-release-notes@4fee2b3be182c909a63e70965250daa86e2c65ac # actions/v2.2.0
         with:
           images: ${{ inputs.images }}
           release-tag: ${{ inputs.release-tag }}
-          render-image: ${{ inputs.render-image }}@${{ steps.render-digest.outputs.digest }}
+          render-image: ${{ steps.render-digest.outputs.digest && format('{0}@{1}', inputs.render-image, steps.render-digest.outputs.digest) || inputs.render-image }}
           summary-file: ${{ runner.temp }}/release-summary/release-summary.md
           template-file: ${{ inputs.template-file }}
       - name: Upload attestations and tool inventories
