@@ -1,0 +1,31 @@
+---
+name: 🚀 Publish release
+description: >-
+  Publish a draft release, after checking that the assets that it has to have are attached.
+
+inputs:
+  expected-assets:
+    description: >-
+      JSON array with the names of the assets that the release has to have,
+      e.g. the `asset-names` output of the upload-release-assets action.
+    required: true
+  github-token:
+    description: >-
+      Token used to publish the release, this requires `contents: write`. Use the token of a
+      GitHub App when the publication has to trigger a workflow for the `release` event.
+    required: false
+    default: ${{ github.token }}
+  release-tag:
+    description: Tag of the release to publish.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: bash "${GITHUB_ACTION_PATH}/publish-release.sh"
+      env:
+        EXPECTED_ASSETS: ${{ inputs.expected-assets }}
+        GH_REPO: ${{ github.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}

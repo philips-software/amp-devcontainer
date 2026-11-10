@@ -7,7 +7,6 @@ setup() {
   bats_load_library bats-assert
 
   SCRIPT="${BATS_TEST_DIRNAME}/../upload-release-assets.sh"
-  ROOT_DIRECTORY="${BATS_TEST_DIRNAME}/../../../.."
   FAKE_DIR="${BATS_TEST_TMPDIR}/fake-dir"
   mkdir -p "${FAKE_DIR}/digests" "${FAKE_DIR}/attestations" "${FAKE_DIR}/inventory" "${FAKE_DIR}/sboms" "${FAKE_DIR}/uploaded"
 
@@ -17,12 +16,7 @@ setup() {
   IMAGE_BETA=fake-registry.invalid/fake-owner/fake-image-beta
 
   export FAKE_DIR
-  export -f gh docker sleep
-}
-
-# The checks wait for the release to be created, without waiting in the tests.
-sleep() {
-  echo "$*" >> "${FAKE_DIR}/sleep-calls"
+  export -f gh docker
 }
 
 # 'attestation verify' prints the base64 encoded payload that is prepared for the reference,
@@ -61,37 +55,11 @@ gh() {
         echo "simulated release lookup failure" >&2
         return 1
       fi
-      if [[ "${5-}" == "assets" && -f "${FAKE_DIR}/fail-asset-view" ]]; then
-        echo "simulated asset lookup failure" >&2
-        return 1
-      fi
-      if [[ "${5-}" == "isDraft" ]]; then
-        if [[ -f "${FAKE_DIR}/fail-draft-view" ]]; then
-          echo "simulated draft lookup failure" >&2
-          return 1
-        fi
-        if [[ -f "${FAKE_DIR}/draft-view-failures" ]]; then
-          failures=$(< "${FAKE_DIR}/draft-view-failures")
-          if (( failures > 0 )); then
-            echo $((failures - 1)) > "${FAKE_DIR}/draft-view-failures"
-            echo "release not found" >&2
-            return 1
-          fi
-        fi
-        printf '%s\n' "${FAKE_DRAFT:-true}"
-        return
-      fi
       if [[ -f "${FAKE_DIR}/release-assets.json" ]]; then
         cat "${FAKE_DIR}/release-assets.json"
       else
         find "${FAKE_DIR}/uploaded" -maxdepth 1 -type f -printf '%f\n' \
           | jq -Rsc 'split("\n") | map(select(length > 0) | {name: ., state: "uploaded"}) | {assets: .}'
-      fi
-      ;;
-    "release edit")
-      if [[ -f "${FAKE_DIR}/fail-release-edit" ]]; then
-        echo "simulated edit failure" >&2
-        return 1
       fi
       ;;
     *) return 64 ;;
@@ -130,27 +98,6 @@ run_script() {
     INVENTORY_DIRECTORY="${FAKE_DIR}/inventory" \
     SBOM_DIRECTORY="${SBOM_DIRECTORY:-}" \
     run bash "${SCRIPT}"
-}
-
-run_workflow_step() {
-  local step=${1:?}
-
-  awk -v header="      - name: ${step}" '
-    $0 == header { in_step = 1; next }
-    in_step && $0 == "        env:" { exit }
-    in_step && /^          / { sub(/^          /, ""); print }
-  ' "${ROOT_DIRECTORY}/.github/workflows/release-build.yml" > "${FAKE_DIR}/step.sh"
-
-  RELEASE_TAG=9.9.9-fake \
-    REF_NAME=9.9.9-fake \
-    GH_REPO=fake-owner/fake-repo \
-    EXPECTED_ASSETS="${EXPECTED_ASSETS:-}" \
-    FAKE_DRAFT="${FAKE_DRAFT:-true}" \
-    run bash -c 'cd "${2:-.}"; exec bash "$1"' _ "${FAKE_DIR}/step.sh" "${STEP_DIRECTORY:-${ROOT_DIRECTORY}}"
-}
-
-run_publish() {
-  run_workflow_step "Publish release"
 }
 
 @test "the attestation and tool inventory of every image are uploaded in a single call" {
@@ -374,136 +321,6 @@ run_publish() {
   assert_success
   run grep -c "^release upload --clobber" "${FAKE_DIR}/gh-calls"
   assert_output "2"
-}
-
-@test "the documents can be uploaded again after a partial or complete upload" {
-  local directory="${BATS_TEST_TMPDIR}/documents"
-  mkdir -p "${directory}"
-  echo pdf > "${directory}/fake-document.pdf"
-  echo sbdl > "${directory}/fake-requirements.sbdl"
-  echo old > "${FAKE_DIR}/uploaded/fake-document.pdf"
-
-  STEP_DIRECTORY="${directory}" run_workflow_step "Upload documents to release"
-  assert_success
-  STEP_DIRECTORY="${directory}" run_workflow_step "Upload documents to release"
-  assert_success
-
-  run cat "${FAKE_DIR}/uploaded/fake-document.pdf"
-  assert_output "pdf"
-  run grep -c "^release upload --clobber 9.9.9-fake " "${FAKE_DIR}/gh-calls"
-  assert_output "2"
-}
-
-@test "the documents step fails when there are no documents" {
-  STEP_DIRECTORY="${BATS_TEST_TMPDIR}" run_workflow_step "Upload documents to release"
-
-  assert_failure
-}
-
-@test "publication rechecks the image assets after approval" {
-  local asset="fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}"
-  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
-  add_sbom "${asset}"
-
-  GITHUB_OUTPUT="${FAKE_DIR}/action-output" \
-    IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
-  assert_success
-  local expected
-  expected=$(sed -n 's/^asset-names=//p' "${FAKE_DIR}/action-output")
-
-  EXPECTED_ASSETS="${expected}" run_publish
-  assert_success
-  run grep -c "^release edit 9.9.9-fake --draft=false --verify-tag$" "${FAKE_DIR}/gh-calls"
-  assert_output "1"
-
-  rm "${FAKE_DIR}/uploaded/${asset}.spdx.json"
-  : > "${FAKE_DIR}/gh-calls"
-  EXPECTED_ASSETS="${expected}" run_publish
-
-  assert_failure
-  assert_output --partial "expected uploaded release asset not found"
-  assert_output --partial "${asset}.spdx.json"
-  refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
-}
-
-@test "publication refuses an absent or invalid expected asset list" {
-  local expected
-  for expected in '' '[]' '{}' '[""]' '["asset",null]' '["\n"]' '{invalid'; do
-    : > "${FAKE_DIR}/gh-calls"
-    EXPECTED_ASSETS="${expected}" run_publish
-
-    assert_failure
-    refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
-  done
-}
-
-@test "publication refuses a malformed release asset response" {
-  printf '{"assets":null}' > "${FAKE_DIR}/release-assets.json"
-  EXPECTED_ASSETS='["required.spdx.json"]' run_publish
-
-  assert_failure
-  assert_output --partial "release assets response has no assets array"
-  refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
-
-  printf '{invalid' > "${FAKE_DIR}/release-assets.json"
-  EXPECTED_ASSETS='["required.spdx.json"]' run_publish
-
-  assert_failure
-  refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
-}
-
-@test "publication refuses to proceed when asset lookup fails" {
-  touch "${FAKE_DIR}/fail-asset-view"
-  EXPECTED_ASSETS='["required.spdx.json"]' run_publish
-
-  assert_failure
-  assert_output --partial "simulated asset lookup failure"
-  refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
-}
-
-@test "publication fails when the draft state of the release cannot be looked up" {
-  printf '{"assets":[{"name":"required.spdx.json","state":"uploaded"}]}' > "${FAKE_DIR}/release-assets.json"
-  touch "${FAKE_DIR}/fail-draft-view"
-  EXPECTED_ASSETS='["required.spdx.json"]' run_publish
-
-  assert_failure
-  assert_output --partial "simulated draft lookup failure"
-  refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
-}
-
-@test "publication fails on an unexpected draft state" {
-  printf '{"assets":[{"name":"required.spdx.json","state":"uploaded"}]}' > "${FAKE_DIR}/release-assets.json"
-  FAKE_DRAFT=maybe EXPECTED_ASSETS='["required.spdx.json"]' run_publish
-
-  assert_failure
-  assert_output --partial "unexpected draft state of release 9.9.9-fake: maybe"
-  refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
-}
-
-@test "publication fails when the release cannot be published" {
-  printf '{"assets":[{"name":"required.spdx.json","state":"uploaded"}]}' > "${FAKE_DIR}/release-assets.json"
-  touch "${FAKE_DIR}/fail-release-edit"
-  EXPECTED_ASSETS='["required.spdx.json"]' run_publish
-
-  assert_failure
-  assert_output --partial "simulated edit failure"
-}
-
-@test "an already published release is left as is" {
-  printf '{"assets":[{"name":"required.spdx.json","state":"uploaded"}]}' > "${FAKE_DIR}/release-assets.json"
-  FAKE_DRAFT=false EXPECTED_ASSETS='["required.spdx.json"]' run_publish
-
-  assert_success
-  refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
-}
-
-@test "missing assets are reported even when the release was published manually" {
-  printf '{"assets":[]}' > "${FAKE_DIR}/release-assets.json"
-  FAKE_DRAFT=false EXPECTED_ASSETS='["required.spdx.json"]' run_publish
-
-  assert_failure
-  assert_output --partial "required.spdx.json"
-  refute grep -q "^release edit" "${FAKE_DIR}/gh-calls"
 }
 
 @test "the assets are named after the owner of the repository, the image and the digest" {

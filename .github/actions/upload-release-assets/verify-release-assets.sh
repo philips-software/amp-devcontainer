@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Verify that the expected image assets are present on a GitHub release.
+# Used by upload-release-assets after the upload, and by publish-release right before publication.
 
 set -Eeuo pipefail
 

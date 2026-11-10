@@ -120,41 +120,11 @@ jobs:
   publish-release:
     name: 🚀 Publish Release
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    # Publishing needs the approval of a reviewer of the environment, which is the moment to review the release notes.
-    # The release can also be published by hand, the job then leaves it as is.
-    environment: release
-    permissions: {}
     needs: [release-notes, upload-documents]
-    steps:
-      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
-        with:
-          disable-sudo-and-containers: true
-          egress-policy: audit
-      # Publishing with the token of the workflow does not trigger release-published.yml
-      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
-        id: token
-        with:
-          client-id: ${{ vars.FOREST_RELEASER_CLIENT_ID }}
-          private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
-          permission-contents: write
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          token: ${{ steps.token.outputs.token }}
-      - name: Publish release
-        run: |
-          set -Eeuo pipefail
-          bash .github/actions/upload-release-assets/verify-release-assets.sh
-          is_draft=$(gh release view "${RELEASE_TAG}" --json isDraft --jq '.isDraft')
-          case "${is_draft}" in
-            true) gh release edit "${RELEASE_TAG}" --draft=false --verify-tag ;;
-            false) echo "release ${RELEASE_TAG} is already published" ;;
-            *) echo "error: unexpected draft state of release ${RELEASE_TAG}: ${is_draft}" >&2; exit 1 ;;
-          esac
-        env:
-          EXPECTED_ASSETS: ${{ needs.release-notes.outputs.asset-names }}
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ steps.token.outputs.token }}
-          RELEASE_TAG: ${{ github.ref_name }}
+    uses: $/.github/workflows/wc-publish-release.yml
+    with:
+      app-client-id: ${{ vars.FOREST_RELEASER_CLIENT_ID }}
+      asset-names: ${{ needs.release-notes.outputs.asset-names }}
+      release-tag: ${{ github.ref_name }}
+    secrets:
+      APP_PRIVATE_KEY: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
