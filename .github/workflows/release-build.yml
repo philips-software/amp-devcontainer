@@ -31,93 +31,28 @@ jobs:
       TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
 
-  release-summary:
-    name: ✨ Release Summary
-    if: ${{ !startsWith(github.ref_name, 'actions/') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    # A summary is a nice to have, the release goes on without it when it can't be generated
-    continue-on-error: true
-    permissions:
-      contents: read
-      copilot-requests: write # is needed by Copilot CLI to bill its requests to the organization
-    steps:
-      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
-        with:
-          disable-sudo: true
-          egress-policy: audit
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Generate release summary
-        id: summary
-        uses: $/.github/actions/generate-release-summary
-        with:
-          output-file: ${{ runner.temp }}/release-summary.md
-          release-tag: ${{ github.ref_name }}
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: ${{ steps.summary.outputs.generated == 'true' }}
-        with:
-          name: release-summary
-          path: ${{ steps.summary.outputs.summary-file }}
-          retention-days: 1
-
-  update-release:
-    name: 📝 Update Release
-    # The summary is optional, so a release without it is updated as well
-    if: ${{ !cancelled() && needs.build-push-test.result == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      # Please note that this is an overly broad scope, but GitHub does not
-      # currently provide a more fine-grained permission for release modification.
-      actions: read # is needed by actions/download-artifact to fetch the tool inventory
-      contents: write # is needed to modify a release
-    needs: [build-push-test, release-summary]
-    env:
-      # The image of the release that renders the release notes, it is built by this workflow.
-      DOCS_IMAGE: ghcr.io/${{ github.repository }}-docs
+  release-notes:
+    name: 📝 Release Notes
+    needs: [build-push-test]
+    uses: $/.github/workflows/wc-release-notes.yml
+    with:
       # The images that are part of the release, the only place where they are listed.
-      IMAGES: |
+      images: |
         ghcr.io/${{ github.repository }}-base
         ghcr.io/${{ github.repository }}-cpp
         ghcr.io/${{ github.repository }}-docs
         ghcr.io/${{ github.repository }}-embedded-cpp
         ghcr.io/${{ github.repository }}-embedded-rust
         ghcr.io/${{ github.repository }}-rust
-    steps:
-      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
-        with:
-          disable-sudo: true
-          egress-policy: audit
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          pattern: tool-inventory-${{ github.event.repository.name }}-*
-      - name: Download release summary
-        # There is no summary when it could not be generated
-        continue-on-error: true
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: release-summary
-          path: ${{ runner.temp }}/release-summary
-      - name: Get digest of the render image
-        id: docs-digest
-        uses: $/.github/actions/extract-manifest-digest
-        with:
-          container: ${{ env.DOCS_IMAGE }}:${{ github.ref_name }}
-      - name: Render release notes
-        uses: $/.github/actions/render-release-notes
-        with:
-          images: ${{ env.IMAGES }}
-          release-tag: ${{ github.ref_name }}
-          render-image: ${{ env.DOCS_IMAGE }}@${{ steps.docs-digest.outputs.digest }}
-          summary-file: ${{ runner.temp }}/release-summary/release-summary.md
-      - name: Upload attestations and tool inventories
-        uses: $/.github/actions/upload-release-assets
-        with:
-          images: ${{ env.IMAGES }}
-          release-tag: ${{ github.ref_name }}
+      release-tag: ${{ github.ref_name }}
+      # The image of the release that renders the release notes, it is built by this workflow.
+      render-image: ghcr.io/${{ github.repository }}-docs
+    permissions:
+      # Please note that contents: write is an overly broad scope, but GitHub does not
+      # currently provide a more fine-grained permission for release modification.
+      actions: read # is needed by actions/download-artifact to fetch the tool inventories
+      contents: write # is needed to modify a release
+      copilot-requests: write # is needed by Copilot CLI to bill its requests to the organization
 
   publish-devcontainer-templates:
     name: 📝 Publish templates
