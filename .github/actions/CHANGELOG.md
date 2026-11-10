@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.3.0](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.2.0...actions/v2.3.0) (2026-11-10)
+
+
+### Features
+
+* Implement reusable release notes workflow ([#1549](https://github.com/philips-software/amp-devcontainer/issues/1549)) ([b13c71f](https://github.com/philips-software/amp-devcontainer/commit/b13c71f307daf8bca1e5086605db1e438ca1049f))
+
+
+### Bug Fixes
+
+* Verify attestations with the signing workflow ([#1552](https://github.com/philips-software/amp-devcontainer/issues/1552)) ([01645d1](https://github.com/philips-software/amp-devcontainer/commit/01645d126f4ad2b3d3f7caaddf2948b96bb148ed))
+
 ## [2.2.0](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.1.0...actions/v2.2.0) (2026-11-10)
 
 
