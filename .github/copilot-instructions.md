@@ -58,8 +58,8 @@ The development container (`.devcontainer/devcontainer.json`) has Bats and its l
 # Actions, helpers and repository consistency, no container needed
 bats helpers/*/test .github/actions/*/test test/repository
 
-# Node.js actions (container-size-diff, generate-release-summary, update-vscode-extensions)
-npm ci --ignore-scripts --prefix .github/actions/<action> && npm test --prefix .github/actions/<action>
+# Actions written in JavaScript, currently only container-size-diff (node:test)
+npm ci --ignore-scripts --prefix .github/actions/container-size-diff && npm test --prefix .github/actions/container-size-diff
 
 # Integration tests of a flavor, run inside that flavor's container
 bats test/<flavor>/integration-tests.bats
