@@ -1,6 +1,6 @@
 # upload-release-assets
 
-Verifies the attestations of released container images, and attaches them, together with the tool inventories of the images, to a GitHub release.
+Verifies the attestations of released container images, and attaches them, together with the tool inventories and optionally the SBOMs of the images, to a GitHub release.
 This gives everyone that downloads a release the means to check where the images come from, and which tools they contain, without having to pull the images.
 
 For every image two assets are uploaded:
@@ -10,8 +10,13 @@ For every image two assets are uploaded:
 
 The `<owner>` is the owner of the repository of the release, the `<digest>` is the digest of the image manifest with the `:` replaced by `_`.
 
-Everything is verified and collected before anything is uploaded, and the assets are uploaded in a single call, so a failure doesn't leave a release with only a part of the assets.
-Uploading again replaces the assets.
+When `sbom-directory` is set, the matching SPDX JSON SBOM produced by `anchore/sbom-action` is also required and uploaded for each image.
+The artifact name identifies the image and its digest, so an SBOM for a different digest cannot satisfy the check.
+The action checks that each file is a single JSON object with an SPDX version; it does not perform full SPDX schema validation.
+After uploading, the action checks that all expected image assets are present in the release with the `uploaded` state.
+
+Everything is verified and collected before anything is uploaded.
+An interrupted upload can leave some assets on the draft; uploading again replaces assets with the same names.
 
 ## Usage
 
@@ -19,12 +24,18 @@ Uploading again replaces the assets.
 - uses: actions/download-artifact@... # downloads tool-inventory-<image-basename>/tool-inventory.json
   with:
     pattern: tool-inventory-*
+- uses: actions/download-artifact@... # downloads SBOMs produced by anchore/sbom-action
+  with:
+    merge-multiple: true
+    path: ${{ runner.temp }}/release-sboms
+    pattern: '*.spdx.json'
 - uses: philips-software/amp-devcontainer/.github/actions/upload-release-assets@...
   with:
     images: |
       ghcr.io/my-org/my-image-alpha
       ghcr.io/my-org/my-image-beta
     release-tag: ${{ github.ref_name }}
+    sbom-directory: ${{ runner.temp }}/release-sboms
 ```
 
 The caller needs `contents: write` to upload to the release, and a container engine with `buildx`, the GitHub CLI and `jq` on the runner.
@@ -33,13 +44,20 @@ The caller needs `contents: write` to upload to the release, and a container eng
 
 | Name                  | Required | Description                                                                                                                                                                                                  |
 |-----------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `images`              | yes      | Newline-separated image references without tag. The last path segment is the *image basename*.                                                                                                               |
-| `release-tag`         | yes      | Tag of the release to upload to. The images are expected to carry the same tag.                                                                                                                              |
-| `inventory-directory` | no       | Directory with a `tool-inventory-<image-basename>/tool-inventory.json` file per image, as produced by downloading the tool inventory artifacts. Defaults to `.`.                                             |
 | `github-token`        | no       | Token used to verify the attestations and to upload. Defaults to the workflow token.                                                                                                                         |
+| `images`              | yes      | Newline-separated image references without tag. The last path segment is the *image basename*.                                                                                                               |
+| `inventory-directory` | no       | Directory with a `tool-inventory-<image-basename>/tool-inventory.json` file per image, as produced by downloading the tool inventory artifacts. Defaults to `.`.                                             |
+| `release-tag`         | yes      | Tag of the release to upload to. The images are expected to carry the same tag.                                                                                                                              |
+| `sbom-directory`      | no       | Directory with the SPDX JSON artifacts produced by `anchore/sbom-action`. When set, the SBOM for every image is required.                                                                                    |
 | `signer-workflow`     | no       | Re-usable workflow that signed the attestations, `<owner>/<repository>/<path>`. Defaults to the build workflow of amp-devcontainer, `philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml`. |
 
-The action fails when an attestation cannot be verified or is missing, when a tool inventory is missing, when an image cannot be inspected, or when two images have the same basename.
+The action fails when an attestation cannot be verified or is missing, when a required tool inventory or SBOM is missing, when an image cannot be inspected, or when image names collide.
+
+## Outputs
+
+| Name          | Description                                                                                 |
+|---------------|---------------------------------------------------------------------------------------------|
+| `asset-names` | JSON array of the names of the uploaded image assets, or `[]` when no images were provided. |
 
 ## Tests
 

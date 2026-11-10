@@ -8,7 +8,7 @@ on:
         description: >-
           Newline-separated fully qualified container image references without tag, that are part of the release.
           The tool inventories of the images are expected as artifacts of this workflow run,
-          named `tool-inventory-<image basename>`.
+          named `tool-inventory-<image basename>`, and so are their SBOMs, `*.spdx.json`.
         required: true
         type: string
       registry:
@@ -53,6 +53,10 @@ on:
           of the caller. Defaults to the template of the render-release-notes action.
         required: false
         type: string
+    outputs:
+      asset-names:
+        description: JSON array of the names of the image assets that were uploaded to the release.
+        value: ${{ jobs.release-notes.outputs.asset-names }}
     secrets:
       DOCKER_REGISTRY_PASSWORD:
         description: Password or token for Docker login, if not provided the GitHub token will be used.
@@ -68,6 +72,8 @@ jobs:
     name: 📝 Release Notes
     runs-on: ${{ fromJson(inputs.runner-labels) }}
     timeout-minutes: 10
+    outputs:
+      asset-names: ${{ steps.release-assets.outputs.asset-names }}
     permissions:
       # Please note that contents: write is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
@@ -92,6 +98,12 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: tool-inventory-*
+      - name: Download image SBOMs
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          merge-multiple: true
+          path: ${{ runner.temp }}/release-sboms
+          pattern: "*.spdx.json"
       - name: Download release summary
         if: ${{ inputs.summary-artifact != '' }}
         # There is no summary when it could not be generated
@@ -115,8 +127,10 @@ jobs:
           render-image: ${{ steps.render-digest.outputs.digest && format('{0}@{1}', inputs.render-image, steps.render-digest.outputs.digest) || inputs.render-image }}
           summary-file: ${{ runner.temp }}/release-summary/release-summary.md
           template-file: ${{ inputs.template-file }}
-      - name: Upload attestations and tool inventories
+      - name: Upload attestations, SBOMs and tool inventories
+        id: release-assets
         uses: $/.github/actions/upload-release-assets
         with:
           images: ${{ inputs.images }}
           release-tag: ${{ inputs.release-tag }}
+          sbom-directory: ${{ runner.temp }}/release-sboms

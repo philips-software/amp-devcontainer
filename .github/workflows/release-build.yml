@@ -114,7 +114,7 @@ jobs:
     # The release can also be published by hand, the job then leaves it as is.
     environment: release
     permissions: {}
-    needs: [update-release, upload-documents]
+    needs: [release-notes, upload-documents]
     steps:
       - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
         with:
@@ -127,13 +127,19 @@ jobs:
           client-id: ${{ vars.FOREST_RELEASER_CLIENT_ID }}
           private-key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
           permission-contents: write
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          token: ${{ steps.token.outputs.token }}
       - name: Publish release
         run: |
           set -Eeuo pipefail
-          if [[ "$(gh release view "${REF_NAME}" --json isDraft --jq '.isDraft')" == "true" ]]; then
-            gh release edit "${REF_NAME}" --draft=false --verify-tag
+          bash .github/actions/upload-release-assets/verify-release-assets.sh
+          if [[ "$(gh release view "${RELEASE_TAG}" --json isDraft --jq '.isDraft')" == "true" ]]; then
+            gh release edit "${RELEASE_TAG}" --draft=false --verify-tag
           fi
         env:
+          EXPECTED_ASSETS: ${{ needs.release-notes.outputs.asset-names }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ steps.token.outputs.token }}
-          REF_NAME: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ github.ref_name }}

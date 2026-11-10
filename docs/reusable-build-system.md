@@ -26,7 +26,7 @@ The actions have a README with their inputs and outputs:
 - [render-release-notes](../.github/actions/render-release-notes/README.md): render the release notes of a release
 - [update-apt-packages](../.github/actions/update-apt-packages/README.md): update pinned apt packages
 - [update-vscode-extensions](../.github/actions/update-vscode-extensions/README.md): update pinned VS Code extensions
-- [upload-release-assets](../.github/actions/upload-release-assets/README.md): attach the attestations and tool inventories of images to a release
+- [upload-release-assets](../.github/actions/upload-release-assets/README.md): attach the attestations, tool inventories and optionally SBOMs of images to a release
 
 The re-usable workflows that a repository calls, next to `wc-build-push-test.yml`:
 
@@ -155,12 +155,13 @@ The tag runs [release-build.yml](../.github/workflows/release-build.yml): it bui
 - drafts a summary of the release with Copilot, with the re-usable workflow [wc-release-summary.yml](../.github/workflows/wc-release-summary.yml), in a job with a read-only token that is billed to the organization with [generate-release-summary](../.github/actions/generate-release-summary/README.md). A summary that can't be generated never fails the release;
 - writes the release notes with the re-usable workflow [wc-release-notes.yml](../.github/workflows/wc-release-notes.yml), which is given the images, the tag and the image to render with (see its [usage](#release-notes-workflow)):
   - renders the release notes with [render-release-notes](../.github/actions/render-release-notes/README.md), with the summary, and the digests and tool inventories of the images, and can be run again without duplicating text;
-  - uploads the attestations and tool inventories as release assets with [upload-release-assets](../.github/actions/upload-release-assets/README.md);
+  - uploads and checks the attestations, SBOMs and tool inventories as release assets with [upload-release-assets](../.github/actions/upload-release-assets/README.md);
 - generates the documents (see [wc-document-generation.yml](../.github/workflows/wc-document-generation.yml)) and uploads them to the release;
-- waits for the approval of the `release` environment: review the release notes of the draft, and approve to publish the release.
+- waits for the approval of the `release` environment: review the release notes of the draft, and approve to publish the release. The image assets are checked again immediately before publication.
 
 Publishing a release (approving the environment, or with **Publish release** on the releases page) runs [release-published.yml](../.github/workflows/release-published.yml), which publishes the dev container templates and comments on the released pull requests.
 Publish only after release-build.yml has finished; the assets of an immutable release can't be changed or added later, only the title and release notes can.
+Publishing manually bypasses the pre-publication check, so verify that all image assets are present before doing so.
 The same workflow verifies that the published release is immutable, so a disabled repository setting is noticed.
 Rejecting the approval leaves the draft in place, to be deleted or fixed with a new release.
 
