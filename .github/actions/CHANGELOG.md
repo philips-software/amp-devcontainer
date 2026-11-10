@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.0](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.1.0...actions/v2.2.0) (2026-11-10)
+
+
+### Features
+
+* Make release template rendering reusable ([#1537](https://github.com/philips-software/amp-devcontainer/issues/1537)) ([1b19c11](https://github.com/philips-software/amp-devcontainer/commit/1b19c11108ed39f4731945aa94c3497dbdf4289a))
+
+
+### Chores
+
+* Automate release notes summary ([#1541](https://github.com/philips-software/amp-devcontainer/issues/1541)) ([199b208](https://github.com/philips-software/amp-devcontainer/commit/199b208523f91f921d26b30d119c20ebea0014e6))
+* Make render release notes idempotent ([#1540](https://github.com/philips-software/amp-devcontainer/issues/1540)) ([c001fa1](https://github.com/philips-software/amp-devcontainer/commit/c001fa15407bed0713106adcf37a1e2cf0d8902a))
+
 ## [2.1.0](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.0.0...actions/v2.1.0) (2026-11-05)
 
 
