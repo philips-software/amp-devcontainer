@@ -63,6 +63,11 @@ docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
   --volume "${work_directory}:/work:ro" --workdir /work \
   "${render_image}" python3 render.py template.md.j2 data.json > "${rendered_file}"
 
+wrapped_file="${work_directory}/wrapped.md"
+wrap_in_markers "${rendered_file}" > "${wrapped_file}"
+
+# Rendering again replaces the text of an earlier rendering instead of adding it a second time
 notes=$(gh release view "${release_tag}" --json body -q '.body')
-notes=$(insert_after_header "${notes}" "${rendered_file}")
+notes=$(remove_marked_block "${notes}")
+notes=$(insert_after_header "${notes}" "${wrapped_file}")
 gh release edit "${release_tag}" --notes "${notes}"

@@ -6,6 +6,9 @@ Which images exist, and what they are called, is decided by the calling workflow
 
 The template is rendered by [render.py](./render.py) in a container, so no tooling needs to be installed on the runner.
 Only the rendered template is inserted, directly after the first level-2 (`##`) header of the notes, the existing notes are never interpreted as a template.
+The inserted text is put between two marker comments, `<!-- render-release-notes:start -->` and `<!-- render-release-notes:end -->`, which are not shown in the release notes.
+Rendering a release again replaces the text between the markers, so it is safe to run more than once, and text that was added by hand outside of the markers is kept.
+The action fails, without editing the release, when the markers in the notes don't match up.
 The release is read once, rendered completely, and edited once.
 When anything fails, for instance an image digest that cannot be resolved or a variable that does not exist, the release is left untouched.
 

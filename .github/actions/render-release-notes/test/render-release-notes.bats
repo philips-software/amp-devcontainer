@@ -13,6 +13,9 @@ setup() {
   FAKE_DIR="${BATS_TEST_TMPDIR}/fake-dir"
   mkdir -p "${FAKE_DIR}/digests" "${FAKE_DIR}/inventory"
 
+  START="<!-- render-release-notes:start -->"
+  END="<!-- render-release-notes:end -->"
+
   FAKE_DIGEST_ALPHA=sha256:0000000000000000000000000000000000000000000000000000000000000001
   FAKE_DIGEST_BETA=sha256:0000000000000000000000000000000000000000000000000000000000000002
 
@@ -221,6 +224,67 @@ run_script() {
   assert_output --partial "file not found"
 }
 
+## wrap_in_markers and remove_marked_block
+
+@test "wrap_in_markers puts the text between the markers, ending with a newline" {
+  printf 'fake text' > "${FAKE_DIR}/text.md"
+
+  run wrap_in_markers "${FAKE_DIR}/text.md"
+
+  assert_success
+  assert_output "${START}"$'\nfake text\n'"${END}"
+}
+
+@test "wrap_in_markers fails when the text file does not exist" {
+  run wrap_in_markers "${FAKE_DIR}/fake-missing.md"
+
+  assert_failure
+  assert_output --partial "file not found"
+}
+
+@test "remove_marked_block removes the marked text and keeps all the other text" {
+  run remove_marked_block "$(printf '%s\n' 'fake before' "${START}" 'fake rendered' 'more rendered' "${END}" 'fake after')"
+
+  assert_success
+  assert_output $'fake before\nfake after'
+}
+
+@test "remove_marked_block removes every marked block" {
+  run remove_marked_block "$(printf '%s\n' "${START}" 'one' "${END}" 'fake between' "${START}" 'two' "${END}")"
+
+  assert_success
+  assert_output "fake between"
+}
+
+@test "remove_marked_block leaves notes without markers as they are" {
+  run remove_marked_block $'## fake\n\n* fake feature'
+
+  assert_success
+  assert_output $'## fake\n\n* fake feature'
+}
+
+@test "remove_marked_block only recognizes markers that are a line on their own" {
+  local text="fake text ${START} in a line"
+
+  run remove_marked_block "${text}"
+
+  assert_success
+  assert_output "${text}"
+}
+
+@test "remove_marked_block fails on markers that do not match" {
+  run remove_marked_block "$(printf '%s\n' 'fake before' "${START}" 'fake rendered')"
+  assert_failure 2
+  assert_output --partial "start marker without an end marker"
+
+  run remove_marked_block "$(printf '%s\n' "${START}" "${START}" "${END}")"
+  assert_failure 2
+
+  run remove_marked_block "$(printf '%s\n' 'fake before' "${END}")"
+  assert_failure 3
+  assert_output --partial "end marker without a start marker"
+}
+
 ## image_data
 
 @test "image_data combines the image and the tools of its inventory" {
@@ -266,8 +330,10 @@ run_script() {
   run cat "${FAKE_DIR}/edited-notes"
   assert_output "$(printf '%s\n' \
     '## [9.9.9-fake] (2000-01-01)' \
+    "${START}" \
     "fake-image-alpha fake-registry.invalid/fake-owner/fake-image-alpha:9.9.9-fake@${FAKE_DIGEST_ALPHA} tools=1 release=9.9.9-fake" \
     "fake-image-beta fake-registry.invalid/fake-owner/fake-image-beta:9.9.9-fake@${FAKE_DIGEST_BETA} tools=0 release=9.9.9-fake" \
+    "${END}" \
     '' \
     '### Features')"
 }
@@ -296,7 +362,66 @@ run_script() {
 
   assert_success
   run cat "${FAKE_DIR}/edited-notes"
-  assert_output $'## fake\nrendered\n\n* fix: handle {{ fake_value }} and {% fake %} in text'
+  assert_output $'## fake\n'"${START}"$'\nrendered\n'"${END}"$'\n\n* fix: handle {{ fake_value }} and {% fake %} in text'
+}
+
+@test "rendering again replaces the text of the earlier rendering instead of adding it again" {
+  add_image fake-registry.invalid/fake-image-alpha 9.9.9-fake "${FAKE_DIGEST_ALPHA}" '{"tools": []}'
+  printf '## [9.9.9-fake]\n\n### Features\n' > "${FAKE_DIR}/notes"
+  write_template 'image {{ images["fake-image-alpha"].digest }}'
+
+  IMAGES=fake-registry.invalid/fake-image-alpha run_script
+  assert_success
+  cp "${FAKE_DIR}/edited-notes" "${FAKE_DIR}/first-notes"
+
+  cp "${FAKE_DIR}/edited-notes" "${FAKE_DIR}/notes"
+  IMAGES=fake-registry.invalid/fake-image-alpha run_script
+  assert_success
+
+  run cat "${FAKE_DIR}/edited-notes"
+  assert_output "$(cat "${FAKE_DIR}/first-notes")"
+  run grep -c "^image " "${FAKE_DIR}/edited-notes"
+  assert_output "1"
+}
+
+@test "rendering again with a changed template updates the text, and keeps the other text of the notes" {
+  printf '## [9.9.9-fake]\n\n### Features\n\n* fake feature\n' > "${FAKE_DIR}/notes"
+  write_template 'first rendering'
+  IMAGES="" run_script
+  assert_success
+
+  # Text was added above and below the rendered text, by hand
+  printf 'Fake summary written by hand\n\n%s\n' "$(cat "${FAKE_DIR}/edited-notes")" > "${FAKE_DIR}/notes"
+  printf '\nFake note added by hand\n' >> "${FAKE_DIR}/notes"
+  write_template 'second rendering'
+  IMAGES="" run_script
+  assert_success
+
+  run cat "${FAKE_DIR}/edited-notes"
+  assert_output "$(printf '%s\n' \
+    'Fake summary written by hand' \
+    '' \
+    '## [9.9.9-fake]' \
+    "${START}" \
+    'second rendering' \
+    "${END}" \
+    '' \
+    '### Features' \
+    '' \
+    '* fake feature' \
+    '' \
+    'Fake note added by hand')"
+}
+
+@test "the script does not edit the release when the markers in the notes do not match" {
+  printf '## fake\n%s\nfake text\n' "${START}" > "${FAKE_DIR}/notes"
+  write_template 'fake'
+
+  IMAGES="" run_script
+
+  assert_failure
+  assert_output --partial "start marker without an end marker"
+  refute [ -e "${FAKE_DIR}/edited-notes" ]
 }
 
 @test "the script resolves the digest of a manifest list" {
@@ -309,7 +434,7 @@ run_script() {
 
   assert_success
   run cat "${FAKE_DIR}/edited-notes"
-  assert_line --index 1 "${FAKE_DIGEST_BETA}"
+  assert_line --index 2 "${FAKE_DIGEST_BETA}"
 }
 
 @test "the script does not edit the release when the digest cannot be resolved" {
