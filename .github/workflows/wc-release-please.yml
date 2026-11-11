@@ -1,0 +1,56 @@
+---
+name: Release Please
+
+on:
+  workflow_call:
+    inputs:
+      app-client-id:
+        description: Client ID of the GitHub App that release-please creates the release pull request and the release with.
+        required: true
+        type: string
+      runner-labels:
+        description: >-
+          JSON array used to select the runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+    secrets:
+      APP_PRIVATE_KEY:
+        description: Private key of the GitHub App.
+        required: true
+
+permissions: {}
+
+jobs:
+  create-release:
+    name: 🚀 Create Release
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # An installation token, because releases and tags that are created with the token of the workflow don't trigger other workflows
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: token
+        with:
+          client-id: ${{ inputs.app-client-id }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-issues: write
+          permission-pull-requests: write
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
+        with:
+          token: ${{ steps.token.outputs.token }}
