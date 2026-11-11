@@ -46,6 +46,7 @@ teardown() {
 }
 
 @test "valid code input should result in working executable targeting the host architecture" {
+  # @sbdl test-comp-0008 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   rustc --out-dir build rust/hello.rs
 
   run build/hello
@@ -54,6 +55,7 @@ teardown() {
 }
 
 @test "using cargo run should result in working executable" {
+  # @sbdl test-comp-0009 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   pushd cargo
 
   run cargo run
@@ -64,12 +66,14 @@ teardown() {
 }
 
 @test "invalid code input should result in failing build" {
+  # @sbdl test-comp-0010 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   run rustc rust/fail.rs
   assert_failure
   assert_output --partial "error: "
 }
 
 @test "running clippy should result in warning diagnostics" {
+  # @sbdl test-sda-0008 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0002 }
   pushd clippy
 
   run cargo clippy
@@ -80,6 +84,7 @@ teardown() {
 }
 
 @test "running rustfmt should result in re-formatted code" {
+  # @sbdl test-sda-0009 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0001 }
   run rustfmt --color=never --check rust/unformatted.rs
   assert_failure
   assert_output --partial - <<EOF
@@ -93,6 +98,7 @@ EOF
 }
 
 @test "coverage information should be generated when running a testsuite" {
+  # @sbdl test-sda-0010 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0003 }
   pushd test
 
   RUSTFLAGS="-C instrument-coverage" run cargo test
@@ -109,6 +115,7 @@ EOF
 }
 
 @test "mutation testing a test executable should be supported" {
+  # @sbdl test-sda-0011 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0004 }
   pushd test
 
   run cargo mutants
