@@ -22,9 +22,15 @@ outputs:
 runs:
   using: composite
   steps:
+    # jq is installed on GitHub-hosted runners and most self-hosted ones, don't require sudo when it is there
     - run: |
-        sudo apt-get update
-        sudo apt-get install --no-install-recommends -y jq
+        set -Eeuo pipefail
+        if ! command -v jq > /dev/null; then
+          sudo=
+          [[ "$(id -u)" -eq 0 ]] || sudo=sudo
+          ${sudo} apt-get update
+          ${sudo} apt-get install --no-install-recommends -y jq
+        fi
       shell: bash
     - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:

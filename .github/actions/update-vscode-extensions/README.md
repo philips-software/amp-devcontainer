@@ -27,6 +27,7 @@ Links to GitHub are rewritten and at-mentions are defused, so the summary doesn'
 ```
 
 The files are updated in place; the action does not commit them.
+The action sets up Node.js itself, and installs `jq` with apt, using sudo when it is not root, only when the runner doesn't have it.
 A file that cannot be updated, e.g. because the marketplace could not be reached after three attempts, is left unchanged and fails the action after all other files have been processed.
 
 ## Inputs and outputs
