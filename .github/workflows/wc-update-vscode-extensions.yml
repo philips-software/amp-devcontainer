@@ -1,0 +1,91 @@
+---
+name: Update VS Code Extensions
+
+on:
+  workflow_call:
+    inputs:
+      app-client-id:
+        description: >-
+          Client ID of the GitHub App that creates the pull request with the updates, so the pull request triggers other workflows.
+          Not needed for a run that doesn't create a pull request.
+        required: false
+        type: string
+      input-file:
+        description: >-
+          Newline-separated JSON file(s) with the version pinned VS Code extensions
+          under `customizations.vscode.extensions`.
+        required: true
+        type: string
+      runner-labels:
+        description: >-
+          JSON array used to select the runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+    secrets:
+      APP_PRIVATE_KEY:
+        description: Private key of the GitHub App.
+        required: false
+
+permissions: {}
+
+jobs:
+  update-vscode-extensions:
+    name: 📦 Update VS Code Extensions
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 10
+    permissions:
+      contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # continue-on-error is intentional: a single bad file shouldn't block a PR for the rest; see the trailing "Fail if..." step
+      - uses: $/.github/actions/update-vscode-extensions
+        id: update-extensions
+        continue-on-error: true
+        with:
+          input-file: ${{ inputs.input-file }}
+      - name: Generate PR body
+        run: |
+          set -Eeuo pipefail
+          {
+            echo "> [!NOTE]"
+            echo "> Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates."
+            echo ""
+            cat "$MARKDOWN_SUMMARY_FILE"
+          } > "${RUNNER_TEMP}/pull-request-body.md"
+        env:
+          MARKDOWN_SUMMARY_FILE: ${{ steps.update-extensions.outputs.markdown-summary-file }}
+      # A pull request is created by an installation token, so it triggers other workflows. A run for
+      # a pull request only checks that the extensions can be updated.
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: token
+        if: github.event_name != 'pull_request'
+        with:
+          client-id: ${{ inputs.app-client-id }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      # create-pull-request commits signed through the API and updates the branch of an earlier run, which `gh pr create` does not
+      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        if: github.event_name != 'pull_request'
+        with:
+          commit-message: "Update VS Code extensions"
+          branch: feature/${{ github.event.repository.name }}/update-vscode-extensions
+          body-path: ${{ runner.temp }}/pull-request-body.md
+          title: "chore(deps): update VS Code extensions"
+          labels: dependencies,vscode-extensions
+          token: ${{ steps.token.outputs.token }}
+          sign-commits: true
+      - name: Fail if any file could not be updated
+        if: steps.update-extensions.outcome == 'failure'
+        run: exit 1

@@ -110,7 +110,7 @@ assert_no_summary() {
   refute_output --partial "fake fix one"
 }
 
-@test "copilot is started with the automatic model, and is only allowed to read" {
+@test "copilot is started with the automatic model, and has no tools" {
   run_script
 
   assert_success
@@ -124,12 +124,11 @@ assert_no_summary() {
   assert_line "--no-custom-instructions"
   assert_line "--disable-builtin-mcps"
   assert_line "--secret-env-vars=GITHUB_TOKEN"
-  assert_line "--allow-tool=shell(git log:*)"
-  assert_line "--allow-tool=shell(git show:*)"
-  assert_line "--allow-tool=shell(git diff:*)"
+  assert_line "--deny-tool=shell"
   assert_line "--deny-tool=write"
   assert_line "--deny-tool=url"
   assert_line "--deny-tool=memory"
+  refute_line --partial "allow-tool"
   refute_line --partial "allow-all"
   refute_line --partial "yolo"
 }

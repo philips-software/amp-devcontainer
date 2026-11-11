@@ -1,0 +1,104 @@
+---
+name: Update Apt Packages
+
+on:
+  workflow_call:
+    inputs:
+      app-client-id:
+        description: >-
+          Client ID of the GitHub App that creates the pull request with the updates, so the pull request triggers other workflows.
+          Not needed for a run that doesn't create a pull request.
+        required: false
+        type: string
+      container-image:
+        description: >-
+          Reference of the image that the packages are updated in, with a tag.
+          Using the image is required, since it has all package sources set up correctly.
+        required: true
+        type: string
+      input-file:
+        description: >-
+          JSON file(s) with the version pinned apt packages, as `{"package": "version"}`.
+          Wildcards are supported.
+        required: true
+        type: string
+      name:
+        description: >-
+          Name of the image when the repository has more than one, e.g. the flavor.
+          It is part of the name of the branch and the title of the pull request.
+        required: false
+        type: string
+        default: ""
+      runner-labels:
+        description: >-
+          JSON array used to select the runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+    secrets:
+      APP_PRIVATE_KEY:
+        description: Private key of the GitHub App.
+        required: false
+      DOCKER_REGISTRY_PASSWORD:
+        description: >-
+          Password or token to pull the image with, required for a private image.
+          Without credentials the identity of the workflow is used for ghcr.io, and any other registry is used anonymously, which is enough for a public image.
+        required: false
+      DOCKER_REGISTRY_USERNAME:
+        description: >-
+          User name to pull the image with, required for a private image.
+          Without credentials the identity of the workflow is used for ghcr.io, and any other registry is used anonymously, which is enough for a public image.
+        required: false
+
+permissions: {}
+
+jobs:
+  update-apt-packages:
+    name: 📦 Update Apt Packages
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 10
+    container:
+      image: ${{ inputs.container-image }} # zizmor: ignore[unpinned-images]
+      options: --user 0
+      credentials:
+        # The identity of the workflow is only valid for ghcr.io, without credentials any other registry is used anonymously
+        username: ${{ secrets.DOCKER_REGISTRY_USERNAME || (startsWith(inputs.container-image, 'ghcr.io/') && github.actor || '') }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || (startsWith(inputs.container-image, 'ghcr.io/') && github.token || '') }}
+    permissions:
+      contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: $/.github/actions/update-apt-packages
+        id: update-packages
+        with:
+          input-file: ${{ inputs.input-file }}
+      # A pull request is created by an installation token, so it triggers other workflows. A run for
+      # a pull request only checks that the packages can be updated.
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: token
+        if: github.event_name != 'pull_request'
+        with:
+          client-id: ${{ inputs.app-client-id }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      # create-pull-request commits signed through the API and updates the branch of an earlier run, which `gh pr create` does not
+      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        if: github.event_name != 'pull_request'
+        with:
+          commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
+          branch: feature/${{ github.event.repository.name }}${{ inputs.name && format('-{0}', inputs.name) || '' }}/update-apt-packages
+          title: "chore(deps${{ inputs.name && format(', {0}', inputs.name) || '' }}): update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
+          labels: dependencies,apt
+          token: ${{ steps.token.outputs.token }}
+          sign-commits: true

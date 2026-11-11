@@ -23,8 +23,8 @@ The folder structure of amp-devcontainer is described below, adhere to the exist
 - `/.devcontainer/[flavor]`: Contains the Dockerfile and configuration for each container flavor (e.g., `cpp`, `rust`).
 - `/.devcontainer/[flavor]-test`: Contains a devcontainer.json file for testing the container flavor.
 - `/.github`: Contains the GitHub workflows for CI/CD, linter configuration, issue templates and re-usable actions.
-- `/.github/actions/[action]`: Contains a composite action with its scripts, README and Bats tests, released separately as `actions/vX.Y.Z`.
-- `/.github/workflows`: Contains the workflows. `wc-*.yml` are re-usable workflows (`workflow_call`), the others are triggered by events.
+- `/.github/actions/[action]`: Contains a composite action with its scripts, README and Bats tests, released with the re-usable workflows as `actions/vX.Y.Z`, separate from the containers.
+- `/.github/workflows`: Contains the workflows. `wc-*.yml` are re-usable workflows (`workflow_call`), the others are triggered by events. Everything under `/.github` is released as `actions/vX.Y.Z`, not with the containers.
 - `/docs`: Contains documentation that does not belong in a README, e.g. [the re-usable build system](../docs/reusable-build-system.md) and architecture decision records in `/docs/adr`.
 - `/helpers/[helper]`: Contains re-usable Bats helper packages (e.g. `bats-tool-inventory`) and scripts that are installed in the base image, each with its own tests in `/helpers/[helper]/test`.
 - `/templates`: Contains the dev container templates that are published for each flavor.
@@ -70,7 +70,8 @@ The workflows themselves can only be tested by running them in GitHub, say so in
 
 ## Commits and Pull Requests
 
-- The title of a pull request follows [Conventional Commits](https://www.conventionalcommits.org) (`<type>[(scope)][!]: <description>`, where the description starts with a lowercase letter), and decides the next release: `feat` is a minor, `fix` a patch, `!` a major version. Use `ci:`, `docs:`, `test:` or `chore:` for changes that don't change the behavior of the images or actions.
+- The title of a pull request follows [Conventional Commits](https://www.conventionalcommits.org) (`<type>[(scope)][!]: <description>`, where the description starts with a lowercase letter), and decides the next release: `feat` is a minor, `fix` a patch, `!` a major version.
+- Changes under `.github` are released as `actions/vX.Y.Z` and the rest as the containers, so a `feat:` or `fix:` of a re-usable workflow or action doesn't release the containers. Use `ci:`, `docs:`, `test:` or `chore:` for changes that don't change the behavior of the images, workflows or actions.
 - Branches are kebab-case, e.g. `feat/add-required-tool`.
 - Commit messages are descriptive, and only the pull request title is enforced.
 - Never commit or push unless asked to, and never force-push over history that is not yours.
