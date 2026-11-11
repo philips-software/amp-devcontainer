@@ -17,40 +17,6 @@ permissions: {}
 jobs:
   validate-pr-title:
     name: ✅ Validate PR Title
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+    uses: $/.github/workflows/wc-pr-title.yml
     permissions:
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments on PRs
-    steps:
-      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
-        with:
-          disable-sudo-and-containers: true
-          allowed-endpoints: >
-            api.github.com:443
-      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
-        id: pr-title
-        with:
-          subjectPattern: ^(?![A-Z]).+$
-          subjectPatternError: |
-            The subject "{subject}" found in the pull request title "{title}"
-            didn't match the configured pattern. Please ensure that the subject
-            doesn't start with an uppercase character.
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
-        if: ${{ !cancelled() && steps.pr-title.outputs.error_message != null }}
-        with:
-          header: pr-title-lint-error
-          message: |
-            Hey there and thank you for opening this pull request! 👋🏼
-
-            We require pull request titles to follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) and it looks like your proposed title needs to be adjusted.
-
-            :warning: Details
-
-            ${{ steps.pr-title.outputs.error_message }}
-      - uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
-        if: steps.pr-title.outputs.error_message == null
-        with:
-          header: pr-title-lint-error
-          delete: true
