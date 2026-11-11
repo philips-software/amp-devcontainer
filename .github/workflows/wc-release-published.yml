@@ -1,0 +1,61 @@
+---
+name: Release Published
+
+on:
+  workflow_call:
+    inputs:
+      comment-released-prs:
+        description: Whether to comment on the pull requests that are part of the release.
+        required: false
+        type: boolean
+        default: true
+      release-tag:
+        description: Tag of the release that is published.
+        required: true
+        type: string
+      runner-labels:
+        description: >-
+          JSON array used to select the runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+
+permissions: {}
+
+jobs:
+  verify-immutable-release:
+    name: 🔒 Verify immutable release
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 5
+    permissions:
+      attestations: read # is needed by gh to read the attestation of the release
+      contents: read # is needed by gh to read the release
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - uses: $/.github/actions/verify-immutable-release
+        with:
+          release-tag: ${{ inputs.release-tag }}
+
+  comment-released-prs:
+    name: Comment on released PRs
+    if: ${{ inputs.comment-released-prs }}
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - uses: rdlf0/comment-released-prs-action@249f57bed533baa7f883fe9d9a834424f153c3cb # v3.2.0
+        with:
+          repo-token: ${{ github.token }}

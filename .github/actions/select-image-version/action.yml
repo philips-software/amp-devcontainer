@@ -1,0 +1,40 @@
+---
+name: 🏷️ Select image version
+description: >-
+  Select the version of the image that an acceptance test uses: the image of the pull
+  request, the image of the release for a tag, and the edge image otherwise.
+
+inputs:
+  event-name:
+    description: Name of the event of the workflow. Defaults to the event of the workflow that runs the action.
+    required: false
+    default: ${{ github.event_name }}
+  pr-number:
+    description: Number of the pull request, for a pull request. Defaults to the pull request of the event.
+    required: false
+    default: ${{ github.event.pull_request.number }}
+  ref-name:
+    description: Name of the ref of the workflow. Defaults to the ref of the workflow that runs the action.
+    required: false
+    default: ${{ github.ref_name }}
+  ref-type:
+    description: Type of the ref of the workflow, `branch` or `tag`. Defaults to the type of the ref of the workflow.
+    required: false
+    default: ${{ github.ref_type }}
+
+outputs:
+  version:
+    description: The tag of the image, `pr-<number>`, the name of the tag or `edge`.
+    value: ${{ steps.select.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - id: select
+      shell: bash
+      run: bash "${GITHUB_ACTION_PATH}/select-image-version.sh"
+      env:
+        EVENT_NAME: ${{ inputs.event-name }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+        REF_NAME: ${{ inputs.ref-name }}
+        REF_TYPE: ${{ inputs.ref-type }}

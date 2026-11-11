@@ -23,18 +23,25 @@ The actions have a README with their inputs and outputs:
 - [generate-release-summary](../.github/actions/generate-release-summary/README.md): let Copilot draft the summary of a release
 - [generate-tool-inventory](../.github/actions/generate-tool-inventory/README.md): derive the tools of an image from its SBOM
 - [merge-devcontainer-metadata](../.github/actions/merge-devcontainer-metadata/README.md): carry over the `devcontainer.metadata` label of the base image
+- [publish-release](../.github/actions/publish-release/README.md): check the assets of a draft release and publish it
 - [render-release-notes](../.github/actions/render-release-notes/README.md): render the release notes of a release
+- [require-draft-release](../.github/actions/require-draft-release/README.md): require that the draft release of a tag exists
+- [select-image-version](../.github/actions/select-image-version/README.md): select the image that an acceptance test uses
 - [update-apt-packages](../.github/actions/update-apt-packages/README.md): update pinned apt packages
 - [update-vscode-extensions](../.github/actions/update-vscode-extensions/README.md): update pinned VS Code extensions
-- [upload-release-assets](../.github/actions/upload-release-assets/README.md): attach the attestations and tool inventories of images to a release
+- [upload-release-assets](../.github/actions/upload-release-assets/README.md): attach the attestations, tool inventories and optionally SBOMs of images to a release
+- [verify-immutable-release](../.github/actions/verify-immutable-release/README.md): verify that a published release is immutable
 
 The re-usable workflows that a repository calls, next to `wc-build-push-test.yml`:
 
 - [wc-dependency-review.yml](../.github/workflows/wc-dependency-review.yml): review the dependencies that a pull request changes
 - [wc-lint.yml](../.github/workflows/wc-lint.yml): lint and format with zizmor and MegaLinter (the `dotnet` flavor), and report to the pull request and code scanning. The settings are in `.mega-linter.yml`, see [Shared MegaLinter settings](#shared-megalinter-settings)
 - [wc-pr-title.yml](../.github/workflows/wc-pr-title.yml): check that the title of a pull request is a conventional commit, with a comment that explains what to change
+- [wc-publish-release.yml](../.github/workflows/wc-publish-release.yml): publish the draft release after the approval of an environment, see [Release](#5-release)
 - [wc-release-please.yml](../.github/workflows/wc-release-please.yml): create the release pull request and the releases with [release-please](https://github.com/googleapis/release-please), with an installation token of a GitHub App (input `app-client-id` and secret `APP_PRIVATE_KEY`) so the release triggers other workflows
 - [wc-release-notes.yml](../.github/workflows/wc-release-notes.yml) and [wc-release-summary.yml](../.github/workflows/wc-release-summary.yml): write the notes of a release, see [Release](#5-release)
+- [wc-release-published.yml](../.github/workflows/wc-release-published.yml): after the publication, verify that the release is immutable and comment on the released pull requests
+- [wc-require-draft-release.yml](../.github/workflows/wc-require-draft-release.yml): at the start of a release workflow, require that the draft release exists, see [Release](#5-release)
 - [wc-update-apt-packages.yml](../.github/workflows/wc-update-apt-packages.yml) and [wc-update-vscode-extensions.yml](../.github/workflows/wc-update-vscode-extensions.yml): open a pull request that updates pinned apt packages and VS Code extensions, see [Keep the pins up to date](#4-keep-the-pins-up-to-date)
 
 They all take the runner as `runner-labels`, a JSON array, and a workflow that logs in to a registry takes `registry` and the secrets `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD`.
@@ -47,6 +54,13 @@ The helpers are [bats-tool-inventory](../helpers/bats-tool-inventory/README.md),
 
 The workflow [wc-build-push-test.yml](../.github/workflows/wc-build-push-test.yml) takes the description of one image, and does everything from building to testing:
 
+```mermaid
+flowchart LR
+    build["1. Build<br/>per architecture,<br/>push by digest"] --> merge["2. Merge<br/>multi-architecture image,<br/>tags"]
+    merge --> document["3. Document<br/>SBOM, attestation,<br/>tool inventory, size diff"]
+    document --> test["4. Test<br/>Docker, Podman,<br/>Codespace"]
+```
+
 1. **Build**, on every architecture runner, and push by digest. The `devcontainer.metadata` label is merged with the one of the base image.
 2. **Merge** the architectures into one multi-architecture image, and tag it: `pr-<number>` for a pull request, `edge` for the merge queue (when enabled), and the semantic versions for a release.
 3. **Document the image**: create an SBOM, a build provenance attestation (which is verified right away), the tool inventory, a container diff, and a comment with the size difference with the `edge` image.
@@ -57,7 +71,34 @@ Calling it with several images, in a matrix, gives you a family of containers: b
 
 ## The golden path
 
-This is the path for a repository that builds its own containers on top of amp-devcontainer.
+A repository that uses the build system contains the data that describes its images and a few thin workflows.
+The workflows only call the re-usable workflows of amp-devcontainer with parameters and explicit secrets, and those call the actions at the same commit:
+
+```mermaid
+flowchart LR
+    subgraph yours["Your repository"]
+        data["Data<br/>Dockerfile, apt pins, tool inventory,<br/>tests, release template, linter settings"]
+        callers["Thin workflows<br/>ci, release-please, release-build,<br/>release-published, update-dependencies"]
+    end
+    subgraph amp["amp-devcontainer, pinned by commit SHA"]
+        workflows["Re-usable workflows<br/>wc-*.yml"]
+        actions["Actions<br/>.github/actions"]
+        helpers["Bats helpers<br/>in the base image"]
+    end
+    callers -->|"workflow_call with parameters and secrets"| workflows
+    workflows -->|"same commit with $/"| actions
+    data -.->|"checked by the tests of"| helpers
+
+    classDef own fill:#dbeafe,stroke:#1d4ed8,color:#111827
+    classDef shared fill:#dcfce7,stroke:#15803d,color:#111827
+    class data,callers own
+    class workflows,actions,helpers shared
+```
+
+Everything that is specific to your repository, such as the registry, the runners and the names of your secrets, is a parameter of a call.
+The shared parts, in green, are never copied.
+
+The rest of this section is the path for a repository that builds its own containers on top of amp-devcontainer.
 The files of amp-devcontainer itself follow it, so they can be used as an example.
 
 ### 1. Describe the image
@@ -149,13 +190,57 @@ The integration tests of step 2 fail when a pin and the installed package disagr
 ### 5. Release
 
 Releases are created with [release-please](https://github.com/googleapis/release-please) from [conventional commits](https://www.conventionalcommits.org), see [release-please.yml](../.github/workflows/release-please.yml).
-Publishing the release runs [release-build.yml](../.github/workflows/release-build.yml): it builds, pushes and tests the images again, now with the semantic version tags, and then:
+The release is created as a **draft**, together with its tag, so nothing is visible to users and all assets can be attached before it is published. This is what makes [immutable releases](https://docs.github.com/en/repositories/releasing-projects-on-github/immutable-releases) possible.
+The whole path, from merging the release pull request to the published release, looks like this:
+
+```mermaid
+flowchart TD
+    merge(["Merge the release pull request"]) --> tag["release-please creates<br/>the tag and a draft release"]
+    tag --> require["wc-require-draft-release<br/>the draft has to exist"]
+    require --> build["Build, push and test<br/>the workflow of your repository"]
+    require --> summary["wc-release-summary<br/>optional, Copilot"]
+    require --> documents["Generate documents<br/>repository specific"]
+    build --> notes["wc-release-notes<br/>render the notes, attach attestations,<br/>SBOMs and tool inventories"]
+    summary --> notes
+    documents --> upload["Upload documents"]
+    notes --> publish{{"wc-publish-release<br/>approval of the release environment,<br/>assets checked again"}}
+    upload --> publish
+    publish --> published(["Release is published and immutable"])
+    published --> after["wc-release-published<br/>verify immutability,<br/>comment on pull requests"]
+    published --> templates["Publish dev container templates<br/>repository specific"]
+
+    classDef own fill:#dbeafe,stroke:#1d4ed8,color:#111827
+    classDef shared fill:#dcfce7,stroke:#15803d,color:#111827
+    class build,documents,upload,templates own
+    class require,summary,notes,publish,after shared
+```
+
+Blue steps are specific to this repository and are written in your workflow; green steps are re-usable workflows.
+
+The tag runs [release-build.yml](../.github/workflows/release-build.yml).
+release-please creates the tag before the draft release, so the workflow first requires that the draft exists with [wc-require-draft-release.yml](../.github/workflows/wc-require-draft-release.yml), waiting for about a minute for it, and fails right away when it doesn't.
+Then it builds, pushes and tests the images again, now with the semantic version tags, and:
 
 - drafts a summary of the release with Copilot, with the re-usable workflow [wc-release-summary.yml](../.github/workflows/wc-release-summary.yml), in a job with a read-only token that is billed to the organization with [generate-release-summary](../.github/actions/generate-release-summary/README.md). A summary that can't be generated never fails the release;
 - writes the release notes with the re-usable workflow [wc-release-notes.yml](../.github/workflows/wc-release-notes.yml), which is given the images, the tag and the image to render with (see its [usage](#release-notes-workflow)):
   - renders the release notes with [render-release-notes](../.github/actions/render-release-notes/README.md), with the summary, and the digests and tool inventories of the images, and can be run again without duplicating text;
-  - uploads the attestations and tool inventories as release assets with [upload-release-assets](../.github/actions/upload-release-assets/README.md);
-- generates the documents (see [wc-document-generation.yml](../.github/workflows/wc-document-generation.yml)) and publishes the dev container templates.
+  - uploads and checks the attestations, SBOMs and tool inventories as release assets with [upload-release-assets](../.github/actions/upload-release-assets/README.md);
+- generates the documents (see [wc-document-generation.yml](../.github/workflows/wc-document-generation.yml)) and uploads them to the release;
+- waits for the approval of the `release` environment, with [wc-publish-release.yml](../.github/workflows/wc-publish-release.yml): review the release notes of the draft, and approve to publish the release. The image assets are checked again immediately before publication, with [publish-release](../.github/actions/publish-release/README.md).
+
+Publishing a release (approving the environment, or with **Publish release** on the releases page) runs [release-published.yml](../.github/workflows/release-published.yml), which publishes the dev container templates and calls [wc-release-published.yml](../.github/workflows/wc-release-published.yml) to comment on the released pull requests.
+Publish only after release-build.yml has finished; the assets of an immutable release can't be changed or added later, only the title and release notes can.
+Publishing manually bypasses the pre-publication check, so verify that all image assets are present before doing so.
+The same workflow verifies that the published release is immutable with [verify-immutable-release](../.github/actions/verify-immutable-release/README.md), so a disabled repository setting is noticed.
+Rejecting the approval leaves the draft in place, to be deleted or fixed with a new release.
+
+If the check fails because there is no draft, release-please created the tag but not the release. Create the draft for the existing tag, and run the failed jobs of the workflow again:
+
+```sh
+gh release create <tag> --draft --verify-tag --title <tag> --notes "" --repo <owner>/<repository>
+```
+
+The release notes are rendered by the workflow. The check also fails for a release that is already published, which can't get more assets: create a new release instead.
 
 #### Release notes workflow
 
@@ -194,9 +279,45 @@ To add a summary drafted by Copilot, call [wc-release-summary.yml](../.github/wo
 A caller that doesn't use Copilot leaves it out, and doesn't need to grant that permission.
 Make the release notes job run when the summary job failed as well, as [release-build.yml](../.github/workflows/release-build.yml) does with `!cancelled()`.
 
+#### Draft, publish and verify workflows
+
+A release workflow of a repository that uses draft releases is a handful of calls, with the build in the middle that only the repository knows:
+
+```yaml
+require-draft-release:
+  uses: philips-software/amp-devcontainer/.github/workflows/wc-require-draft-release.yml@<sha> # <version>
+  with:
+    release-tag: ${{ github.ref_name }}
+  permissions:
+    contents: write # to find a draft release
+build-push-test:
+  needs: require-draft-release
+  # ... calls your build, and then wc-release-summary.yml and wc-release-notes.yml
+publish-release:
+  needs: release-notes
+  uses: philips-software/amp-devcontainer/.github/workflows/wc-publish-release.yml@<sha> # <version>
+  with:
+    app-client-id: ${{ vars.MY_APP_CLIENT_ID }}
+    asset-names: ${{ needs.release-notes.outputs.asset-names }}
+    release-tag: ${{ github.ref_name }}
+  secrets:
+    APP_PRIVATE_KEY: ${{ secrets.MY_APP_PRIVATE_KEY }}
+```
+
+The publication waits for the approval of the environment `release`, configure its required reviewers in the settings of the repository, or pass another name as `environment`.
+A workflow for the `release` event calls `wc-release-published.yml` with the tag, once the release is published. It needs `attestations: read`, `contents: read` and `pull-requests: write`.
+
 ### 6. Check pull requests
 
-Call [wc-lint.yml](../.github/workflows/wc-lint.yml), [wc-pr-title.yml](../.github/workflows/wc-pr-title.yml) and [wc-dependency-review.yml](../.github/workflows/wc-dependency-review.yml) from a workflow that runs for pull requests and the merge queue.
+Call [wc-lint.yml](../.github/workflows/wc-lint.yml), [wc-pr-title.yml](../.github/workflows/wc-pr-title.yml) and [wc-dependency-review.yml](../.github/workflows/wc-dependency-review.yml) from a workflow that runs for pull requests and the merge queue, next to the build:
+
+```mermaid
+flowchart LR
+    pr(["Pull request or merge queue"]) --> lint["wc-lint<br/>zizmor, MegaLinter"]
+    pr --> title["wc-pr-title<br/>conventional commit title"]
+    pr --> review["wc-dependency-review<br/>changed dependencies"]
+    pr --> build["wc-build-push-test<br/>build, push and test"]
+```
 
 #### Shared MegaLinter settings
 
@@ -216,17 +337,22 @@ This repository extends the file by its path.
 
 ### 7. Verify
 
-Everyone that uses an image can verify where it comes from:
+Everyone that uses an image can verify where it comes from, and that the release is immutable and its assets are the published ones:
 
 ```sh
 gh attestation verify --repo <owner>/<repository> \
   --signer-workflow philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml \
   oci://<registry>/<image>@<digest>
+gh release verify --repo <owner>/<repository> <tag>
+gh release verify-asset --repo <owner>/<repository> <tag> <asset>
 ```
 
 The attestation is signed by the re-usable workflow [wc-build-push.yml](../.github/workflows/wc-build-push.yml) of amp-devcontainer, not by a workflow in your repository.
 Without `--signer-workflow`, the verification expects the signing workflow in `<owner>/<repository>` and fails.
 The workflows of this repository and the [upload-release-assets](../.github/actions/upload-release-assets/README.md) action do this for you.
+
+The release attestation is created by GitHub when an immutable release is published, nothing in the workflows creates it. Enable immutable releases in the repository settings.
+Releases that were published before the setting was enabled are not immutable and have no release attestation, so `gh release verify` and `gh release verify-asset` fail for them.
 
 ## Versioning and pinning
 

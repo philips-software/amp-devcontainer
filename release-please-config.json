@@ -20,7 +20,9 @@
   "separate-pull-requests": true,
   "packages": {
     ".": {
+      "draft": true,
       "exclude-paths": [".github"],
+      "force-tag-creation": true,
       "include-component-in-tag": false,
       "package-name": "amp-devcontainer",
       "release-type": "simple"

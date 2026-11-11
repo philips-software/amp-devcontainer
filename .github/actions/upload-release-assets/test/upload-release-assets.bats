@@ -8,7 +8,7 @@ setup() {
 
   SCRIPT="${BATS_TEST_DIRNAME}/../upload-release-assets.sh"
   FAKE_DIR="${BATS_TEST_TMPDIR}/fake-dir"
-  mkdir -p "${FAKE_DIR}/digests" "${FAKE_DIR}/attestations" "${FAKE_DIR}/inventory" "${FAKE_DIR}/uploaded"
+  mkdir -p "${FAKE_DIR}/digests" "${FAKE_DIR}/attestations" "${FAKE_DIR}/inventory" "${FAKE_DIR}/sboms" "${FAKE_DIR}/uploaded"
 
   FAKE_DIGEST_ALPHA=sha256:0000000000000000000000000000000000000000000000000000000000000001
   FAKE_DIGEST_BETA=sha256:0000000000000000000000000000000000000000000000000000000000000002
@@ -32,8 +32,35 @@ gh() {
       cat "${FAKE_DIR}/attestations/${reference//\//_}" || return 1
       ;;
     "release upload")
+      clobber=false
+      [[ "$3" == "--clobber" ]] && clobber=true
       shift 4 # release upload --clobber <tag>
+      # like GitHub, an asset that exists is only replaced with --clobber
+      for file in "$@"; do
+        if [[ "${clobber}" == false && -e "${FAKE_DIR}/uploaded/${file##*/}" ]]; then
+          echo "asset under the same name already exists: ${file##*/}" >&2
+          return 1
+        fi
+      done
+      if [[ -f "${FAKE_DIR}/fail-upload-once" ]]; then
+        rm "${FAKE_DIR}/fail-upload-once"
+        cp "$1" "${FAKE_DIR}/uploaded/"
+        echo "simulated upload failure" >&2
+        return 1
+      fi
       cp "$@" "${FAKE_DIR}/uploaded/"
+      ;;
+    "release view")
+      if [[ -f "${FAKE_DIR}/fail-release-view" ]]; then
+        echo "simulated release lookup failure" >&2
+        return 1
+      fi
+      if [[ -f "${FAKE_DIR}/release-assets.json" ]]; then
+        cat "${FAKE_DIR}/release-assets.json"
+      else
+        find "${FAKE_DIR}/uploaded" -maxdepth 1 -type f -printf '%f\n' \
+          | jq -Rsc 'split("\n") | map(select(length > 0) | {name: ., state: "uploaded"}) | {assets: .}'
+      fi
       ;;
     *) return 64 ;;
   esac
@@ -59,11 +86,17 @@ add_image() {
   printf '%s' "${inventory}" > "${FAKE_DIR}/inventory/tool-inventory-${basename}/tool-inventory.json"
 }
 
+add_sbom() {
+  local name=${1:?} content=${2-'{"spdxVersion":"SPDX-2.3"}'}
+  printf '%s' "${content}" > "${FAKE_DIR}/sboms/${name}.spdx.json"
+}
+
 run_script() {
   RELEASE_TAG=9.9.9-fake \
     GH_REPO=fake-owner/fake-repo \
     SIGNER_WORKFLOW=${SIGNER_WORKFLOW-fake-signer-owner/fake-signer-repo/.github/workflows/fake-build.yml} \
     INVENTORY_DIRECTORY="${FAKE_DIR}/inventory" \
+    SBOM_DIRECTORY="${SBOM_DIRECTORY:-}" \
     run bash "${SCRIPT}"
 }
 
@@ -82,6 +115,212 @@ run_script() {
     "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}.tool-inventory.json" \
     "fake-owner-fake-image-beta_${FAKE_DIGEST_BETA//:/_}.intoto.jsonl" \
     "fake-owner-fake-image-beta_${FAKE_DIGEST_BETA//:/_}.tool-inventory.json")"
+}
+
+@test "the SBOM of every image is uploaded and the release assets are verified" {
+  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
+  add_image "${IMAGE_BETA}" "${FAKE_DIGEST_BETA}"
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}" '{"spdxVersion":"SPDX-2.3","name":"alpha"}'
+  add_sbom "fake-owner-fake-image-beta_${FAKE_DIGEST_BETA//:/_}" '{"spdxVersion":"SPDX-2.3","name":"beta"}'
+
+  GITHUB_OUTPUT="${FAKE_DIR}/action-output" \
+    IMAGES="${IMAGE_ALPHA}"$'\n'"${IMAGE_BETA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_success
+  run ls "${FAKE_DIR}/uploaded"
+  assert_line "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}.spdx.json"
+  assert_line "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}.intoto.jsonl"
+  assert_line "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}.tool-inventory.json"
+  assert_line "fake-owner-fake-image-beta_${FAKE_DIGEST_BETA//:/_}.spdx.json"
+  assert_line "fake-owner-fake-image-beta_${FAKE_DIGEST_BETA//:/_}.intoto.jsonl"
+  assert_line "fake-owner-fake-image-beta_${FAKE_DIGEST_BETA//:/_}.tool-inventory.json"
+  assert_equal "${#lines[@]}" 6
+  run cat "${FAKE_DIR}/uploaded/fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}.spdx.json"
+  assert_output '{"spdxVersion":"SPDX-2.3","name":"alpha"}'
+  run cat "${FAKE_DIR}/gh-calls"
+  assert_line "release view 9.9.9-fake --json assets"
+  local alpha="fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}"
+  local beta="fake-owner-fake-image-beta_${FAKE_DIGEST_BETA//:/_}"
+  local expected
+  expected=$(jq -nc --arg alpha "${alpha}" --arg beta "${beta}" \
+    '[$alpha + ".spdx.json", $alpha + ".intoto.jsonl", $alpha + ".tool-inventory.json",
+      $beta + ".spdx.json", $beta + ".intoto.jsonl", $beta + ".tool-inventory.json"]')
+  run cat "${FAKE_DIR}/action-output"
+  assert_output "asset-names=${expected}"
+}
+
+@test "nothing is uploaded when an image's SBOM is missing" {
+  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
+  add_image "${IMAGE_BETA}" "${FAKE_DIGEST_BETA}"
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}"
+
+  IMAGES="${IMAGE_ALPHA}"$'\n'"${IMAGE_BETA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "SBOM not found or empty"
+  assert_output --partial "fake-owner-fake-image-beta_${FAKE_DIGEST_BETA//:/_}.spdx.json"
+  refute grep -q "^release upload" "${FAKE_DIR}/gh-calls"
+}
+
+@test "an SBOM for a different digest does not satisfy an image" {
+  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_BETA//:/_}"
+
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}.spdx.json"
+  refute grep -q "^release upload" "${FAKE_DIR}/gh-calls"
+}
+
+@test "an empty or invalid SBOM cannot be uploaded" {
+  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}" ""
+
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "SBOM not found or empty"
+  refute grep -q "^release upload" "${FAKE_DIR}/gh-calls"
+
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}" '[]'
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "invalid SPDX SBOM JSON object"
+  refute grep -q "^release upload" "${FAKE_DIR}/gh-calls"
+
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}" '{invalid'
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "invalid SPDX SBOM JSON object"
+  refute grep -q "^release upload" "${FAKE_DIR}/gh-calls"
+
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}" '{}'
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "invalid SPDX SBOM JSON object"
+  refute grep -q "^release upload" "${FAKE_DIR}/gh-calls"
+
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}" \
+    '{"spdxVersion":"SPDX-2.3"}{"spdxVersion":"SPDX-2.3"}'
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "invalid SPDX SBOM JSON object"
+  refute grep -q "^release upload" "${FAKE_DIR}/gh-calls"
+}
+
+@test "SBOM artifact names follow the image namespace and Anchore sanitization" {
+  local image=fake-registry.invalid/acme.sub/nested_ns/fake.image-alpha
+  add_image "${image}" "${FAKE_DIGEST_ALPHA}"
+  add_sbom "acme_sub-nested_ns-fake_image-alpha_${FAKE_DIGEST_ALPHA//:/_}"
+
+  IMAGES="${image}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_success
+  run ls "${FAKE_DIR}/uploaded"
+  assert_line "acme_sub-nested_ns-fake_image-alpha_${FAKE_DIGEST_ALPHA//:/_}.spdx.json"
+}
+
+@test "a two-component image reference keeps both components in the SBOM name" {
+  local image=registry.invalid/fake-image-alpha
+  add_image "${image}" "${FAKE_DIGEST_ALPHA}"
+  add_sbom "registry_invalid-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}"
+
+  IMAGES="${image}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_success
+  run ls "${FAKE_DIR}/uploaded"
+  assert_line "registry_invalid-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}.spdx.json"
+}
+
+@test "images with the same sanitized SBOM name cannot be uploaded" {
+  local image_one=fake-registry.invalid/fake-owner/fake.image
+  local image_two=fake-registry.invalid/fake-owner/fake_image
+  add_image "${image_one}" "${FAKE_DIGEST_ALPHA}"
+  add_image "${image_two}" "${FAKE_DIGEST_ALPHA}"
+  add_sbom "fake-owner-fake_image_${FAKE_DIGEST_ALPHA//:/_}"
+
+  IMAGES="${image_one}"$'\n'"${image_two}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "more than one image has the SBOM artifact name"
+  refute grep -q "^release upload" "${FAKE_DIR}/gh-calls"
+}
+
+@test "the script fails when an uploaded SBOM is absent from the release" {
+  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}"
+  printf '{"assets":[]}' > "${FAKE_DIR}/release-assets.json"
+
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "expected uploaded release asset not found"
+  assert_output --partial "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}.spdx.json"
+  grep -q "^release upload" "${FAKE_DIR}/gh-calls"
+}
+
+@test "a release asset that is not uploaded does not satisfy verification" {
+  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}"
+  printf '{"assets":[{"name":"%s","state":"starter"}]}' \
+    "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}.spdx.json" > "${FAKE_DIR}/release-assets.json"
+
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "expected uploaded release asset not found"
+}
+
+@test "verification requires the attestation and inventory as well as the SBOM" {
+  local asset="fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}"
+  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
+  add_sbom "${asset}"
+  jq -nc --arg sbom "${asset}.spdx.json" \
+    '{assets: [{name: $sbom, state: "uploaded"}]}' > "${FAKE_DIR}/release-assets.json"
+
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "${asset}.intoto.jsonl"
+
+  jq -nc --arg sbom "${asset}.spdx.json" --arg attestation "${asset}.intoto.jsonl" \
+    '{assets: [{name: $sbom, state: "uploaded"}, {name: $attestation, state: "uploaded"}]}' \
+    > "${FAKE_DIR}/release-assets.json"
+
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "${asset}.tool-inventory.json"
+}
+
+@test "a failed release lookup fails the upload job" {
+  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}"
+  touch "${FAKE_DIR}/fail-release-view"
+
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "simulated release lookup failure"
+}
+
+@test "a partially failed upload can be retried on a draft" {
+  add_image "${IMAGE_ALPHA}" "${FAKE_DIGEST_ALPHA}"
+  add_sbom "fake-owner-fake-image-alpha_${FAKE_DIGEST_ALPHA//:/_}"
+  touch "${FAKE_DIR}/fail-upload-once"
+
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+  assert_failure
+
+  IMAGES="${IMAGE_ALPHA}" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+  assert_success
+  run grep -c "^release upload --clobber" "${FAKE_DIR}/gh-calls"
+  assert_output "2"
 }
 
 @test "the assets are named after the owner of the repository, the image and the digest" {
@@ -206,10 +445,20 @@ run_script() {
 }
 
 @test "the script does nothing without images" {
-  IMAGES="" run_script
+  GITHUB_OUTPUT="${FAKE_DIR}/action-output" IMAGES="" run_script
 
   assert_success
   assert_output --partial "nothing to upload"
+  refute [ -e "${FAKE_DIR}/gh-calls" ]
+  run cat "${FAKE_DIR}/action-output"
+  assert_output "asset-names=[]"
+}
+
+@test "SBOM verification fails without images" {
+  IMAGES="" SBOM_DIRECTORY="${FAKE_DIR}/sboms" run_script
+
+  assert_failure
+  assert_output --partial "no images given for SBOM verification"
   refute [ -e "${FAKE_DIR}/gh-calls" ]
 }
 

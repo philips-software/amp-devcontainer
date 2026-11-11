@@ -16,15 +16,38 @@ import sys
 
 MARKER = "render-release-notes:"
 
+# A fence is at least three backticks or tildes, the info string of a backtick fence has no backticks.
+FENCE = re.compile(r"^[ \t]*(`{3,}|~{3,})(.*)$")
+
+
+def close_open_fence(text: str) -> str:
+    """Close the code block that the text ends in, with a fence like the one that opened it."""
+    opening = None
+    for line in text.split("\n"):
+        match = FENCE.match(line)
+        if not match:
+            continue
+        run, rest = match.groups()
+        if opening is None:
+            if run[0] != "`" or "`" not in rest:
+                opening = run
+        elif run[0] == opening[0] and len(run) >= len(opening) and not rest.strip():
+            opening = None
+    return text if opening is None else f"{text}\n{opening}"
+
 
 def sanitize(text: str, max_chars: int) -> str:
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     text = "".join(c for c in text if c in "\n\t" or not (ord(c) < 32 or 0x7F <= ord(c) < 0xA0))
 
     text = re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
-    text = re.sub(r"<(?:/?[A-Za-z][^>\n]*|[!?][^>\n]*)>", "", text)
-    text = re.sub(r"!\[[^\]\n]*\]\([^)\n]*\)", "", text)
-    text = re.sub(r"\[([^\]\n]*)\]\((?!https://github\.com/)[^)\n]*\)", r"\1", text)
+    # Tags can span lines, and so can the alt text and the destination of images and links
+    text = re.sub(r"<(?:/?[A-Za-z]|[!?])[^>]*>", "", text)
+    # Reference definitions can point anywhere, which is why the images and links that use them are
+    # left without a destination
+    text = re.sub(r"^[ \t]*\[[^\]\n]+\]:[ \t]*\S.*$", "", text, flags=re.MULTILINE)
+    text = re.sub(r"!\[[^\]]*\](?:\([^)]*\)|\[[^\]]*\])?", "", text)
+    text = re.sub(r"\[([^\]]*)\]\((?!https://github\.com/)[^)]*\)", r"\1", text)
     text = re.sub(r"https?://(?!github\.com/)[^\s)\]>]*[^\s)\]>.,;:!?]", "", text)
     text = re.sub(r"(?<![\w`])@(?=[A-Za-z0-9_-])", "[at]", text)
 
@@ -35,10 +58,8 @@ def sanitize(text: str, max_chars: int) -> str:
         cut = text[:max_chars]
         text = cut[: cut.rfind("\n")] if "\n" in cut else cut
         text = text.rstrip()
-        if sum(1 for line in text.split("\n") if line.lstrip().startswith("```")) % 2:
-            text += "\n```"
 
-    return text
+    return close_open_fence(text)
 
 
 def main() -> int:

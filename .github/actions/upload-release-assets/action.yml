@@ -2,12 +2,13 @@
 name: 📎 Upload release assets
 description: >-
   Verify the attestation of released container images and attach the attestations and
-  tool inventories of the images to a GitHub release.
+  tool inventories of the images, and optionally their SBOMs, to a GitHub release.
 
 inputs:
   github-token:
     description: >-
-      Token used to verify the attestations and to upload to the release, this requires `contents: write`.
+      Token used to verify the attestations and to upload to the release, this requires `attestations: read`
+      and `contents: write`.
     required: false
     default: ${{ github.token }}
   images:
@@ -24,6 +25,11 @@ inputs:
   release-tag:
     description: Tag of the release to upload to. The images are expected to have this tag as well.
     required: true
+  sbom-directory:
+    description: >-
+      Optional directory containing the SBOM artifacts produced by anchore/sbom-action.
+      When set, the SBOM of every image is required and uploaded.
+    required: false
   signer-workflow:
     description: >-
       Re-usable workflow that signed the attestations, as `<owner>/<repository>/<path>`.
@@ -32,10 +38,16 @@ inputs:
     required: false
     default: philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml
 
+outputs:
+  asset-names:
+    description: JSON array of the names of the uploaded image assets.
+    value: ${{ steps.upload.outputs.asset-names }}
+
 runs:
   using: composite
   steps:
-    - shell: bash
+    - id: upload
+      shell: bash
       run: bash "${GITHUB_ACTION_PATH}/upload-release-assets.sh"
       env:
         GH_REPO: ${{ github.repository }}
@@ -43,4 +55,5 @@ runs:
         IMAGES: ${{ inputs.images }}
         INVENTORY_DIRECTORY: ${{ inputs.inventory-directory }}
         RELEASE_TAG: ${{ inputs.release-tag }}
+        SBOM_DIRECTORY: ${{ inputs.sbom-directory }}
         SIGNER_WORKFLOW: ${{ inputs.signer-workflow }}

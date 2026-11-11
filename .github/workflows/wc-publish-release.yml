@@ -1,0 +1,73 @@
+---
+name: Publish Release
+
+on:
+  workflow_call:
+    inputs:
+      app-client-id:
+        description: >-
+          Client ID of the GitHub App that publishes the release, so the publication triggers
+          the workflows for the `release` event. A release that is published with the token of a
+          workflow doesn't.
+        required: true
+        type: string
+      asset-names:
+        description: >-
+          JSON array with the names of the assets that the release has to have, which is
+          checked right before publication. The `asset-names` output of wc-release-notes.yml.
+        required: true
+        type: string
+      environment:
+        description: >-
+          Name of the environment that has to approve the publication. Configure its required
+          reviewers in the settings of the repository: the approval is the moment to review the
+          release notes of the draft.
+        required: false
+        type: string
+        default: release
+      release-tag:
+        description: Tag of the release to publish.
+        required: true
+        type: string
+      runner-labels:
+        description: >-
+          JSON array used to select the runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+    secrets:
+      APP_PRIVATE_KEY:
+        description: Private key of the GitHub App.
+        required: true
+
+permissions: {}
+
+jobs:
+  publish-release:
+    name: 🚀 Publish Release
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 5
+    # The release can also be published by hand, the job then leaves it as is.
+    environment: ${{ inputs.environment }}
+    permissions: {}
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: token
+        with:
+          client-id: ${{ inputs.app-client-id }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+      - uses: $/.github/actions/publish-release
+        with:
+          expected-assets: ${{ inputs.asset-names }}
+          github-token: ${{ steps.token.outputs.token }}
+          release-tag: ${{ inputs.release-tag }}

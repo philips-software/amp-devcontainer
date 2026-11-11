@@ -34,7 +34,7 @@ When writing GitHub Action workflows, ensure that:
 
 ## Structure
 
-- Keep logic out of the YAML. A script of more than a few lines belongs in an [action](./actions.instructions.md) with tests, the workflow only wires things together.
+- Keep logic out of the YAML. A script of more than a few lines belongs in an [action](./actions.instructions.md) with tests, the workflow only wires things together. Don't test a workflow by extracting its steps.
 - A job that calls a re-usable workflow (`uses:`) can't have `env` or `steps`, and its `with:` can't read `env`. The called workflow can't have more permissions than the calling job grants, so a permission it needs must be granted by the caller.
 - Re-usable workflows that touch images take the registry as an input (default `ghcr.io`), the optional secrets `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD`, and the runner as a `runner-labels` JSON array input, like [wc-build-push-test.yml](../workflows/wc-build-push-test.yml).
 - The identity of the workflow (`github.actor`, `github.token`) is only valid for ghcr.io: never send it to another registry. Without credentials such a registry is used anonymously: `secrets.X || (<registry is ghcr.io> && github.token || '')`.

@@ -1,0 +1,31 @@
+---
+name: Release Published
+
+on:
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+
+permissions: {}
+
+jobs:
+  publish-devcontainer-templates:
+    name: 📝 Publish templates
+    if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    uses: $/.github/workflows/wc-publish-templates.yml
+    permissions:
+      packages: write # is needed by devcontainers/action to write templates as OCI artifacts
+
+  release-published:
+    name: 📣 Release Published
+    uses: $/.github/workflows/wc-release-published.yml
+    with:
+      # The actions are released without a draft, and their pull requests are not commented on
+      comment-released-prs: ${{ !startsWith(github.ref_name, 'actions/') }}
+      release-tag: ${{ github.ref_name }}
+    permissions:
+      attestations: read # is needed by gh to read the attestation of the release
+      contents: read # is needed by gh to read the release
+      pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs

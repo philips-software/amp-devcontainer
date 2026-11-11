@@ -2,8 +2,10 @@
 name: Release Build
 
 on:
-  release:
-    types: [published]
+  # release-please creates the tag together with a draft release, and the release is
+  # published when the build is done and approved, see the job publish-release.
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
   workflow_dispatch:
 
 concurrency:
@@ -13,9 +15,19 @@ concurrency:
 permissions: {}
 
 jobs:
+  require-draft-release:
+    name: 🔎 Require Draft Release
+    if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    uses: $/.github/workflows/wc-require-draft-release.yml
+    with:
+      release-tag: ${{ github.ref_name }}
+    permissions:
+      contents: write # is needed by gh to find a draft release, which is only visible with write access
+
   build-push-test:
     name: Build → Push → Test
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    needs: require-draft-release
     uses: $/.github/workflows/build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
@@ -34,6 +46,7 @@ jobs:
   release-summary:
     name: ✨ Release Summary
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    needs: require-draft-release
     uses: $/.github/workflows/wc-release-summary.yml
     with:
       release-tag: ${{ github.ref_name }}
@@ -68,16 +81,10 @@ jobs:
       contents: write # is needed to modify a release
       packages: read # is needed to inspect the images in GitHub Container Registry
 
-  publish-devcontainer-templates:
-    name: 📝 Publish templates
-    if: ${{ !startsWith(github.ref_name, 'actions/') }}
-    uses: $/.github/workflows/wc-publish-templates.yml
-    permissions:
-      packages: write # is needed by devcontainers/action to write templates as OCI artifacts
-
   generate-documents:
     name: 📄 Documentation
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
+    needs: require-draft-release
     uses: $/.github/workflows/wc-document-generation.yml
     with:
       is-release: true
@@ -104,24 +111,20 @@ jobs:
       - name: Upload documents to release
         run: |
           set -Eeuo pipefail
-          gh release upload "${REF_NAME}" ./*.pdf ./*.sbdl
+          gh release upload --clobber "${REF_NAME}" ./*.pdf ./*.sbdl
         env:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           REF_NAME: ${{ github.ref_name }}
 
-  comment-released-prs:
-    name: Comment on released PRs
+  publish-release:
+    name: 🚀 Publish Release
     if: ${{ !startsWith(github.ref_name, 'actions/') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      pull-requests: write # is needed by rdlf0/comment-released-prs-action to post comments on PRs
-    steps:
-      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
-        with:
-          disable-sudo-and-containers: true
-          egress-policy: audit
-      - uses: rdlf0/comment-released-prs-action@249f57bed533baa7f883fe9d9a834424f153c3cb # v3.2.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+    needs: [release-notes, upload-documents]
+    uses: $/.github/workflows/wc-publish-release.yml
+    with:
+      app-client-id: ${{ vars.FOREST_RELEASER_CLIENT_ID }}
+      asset-names: ${{ needs.release-notes.outputs.asset-names }}
+      release-tag: ${{ github.ref_name }}
+    secrets:
+      APP_PRIVATE_KEY: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY }}
