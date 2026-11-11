@@ -1,4 +1,9 @@
-# Changelog
+# CHANGELOG
+
+All notable changes to the re-usable actions and workflows of this project are documented in this file.
+
+The containers have their own [changelog](../CHANGELOG.md).
+This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [2.3.0](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.2.0...actions/v2.3.0) (2026-11-10)
 
@@ -82,9 +87,3 @@
 
 * Image build improvements ([#833](https://github.com/philips-software/amp-devcontainer/issues/833)) ([62a2660](https://github.com/philips-software/amp-devcontainer/commit/62a2660e8995a9fda8793c4937bd1de7c727e584))
 * Refactor ci and versioning scheme ([#815](https://github.com/philips-software/amp-devcontainer/issues/815)) ([93b6593](https://github.com/philips-software/amp-devcontainer/commit/93b65936545deefa54d06515eab5a9e021f8be76))
-
-## CHANGELOG
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
