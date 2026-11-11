@@ -62,9 +62,9 @@ For the first release, without an earlier tag, these are the latest commits of t
 ## How it works
 
 - Copilot is started with `--model auto`, so GitHub picks the model for the task.
-- It is given the subjects of the commits as data, between markers that can't be guessed, with the instruction to ignore any instruction in them. It may run the read-only commands `git log`, `git show`, and `git diff` to look at changes in more detail.
-- It can't write files, fetch URLs, or remember anything, its built-in GitHub tools and the custom instructions of the repository are turned off, and the token is redacted from its output.
-- The text it returns is [sanitized](./sanitize.py) before it is used: HTML and comments (that could contain the markers of the release notes), images, links to other places than GitHub, and at-mentions are removed or defused, and it is shortened at a line boundary.
+- It is given the subjects of the commits as data, between markers that can't be guessed, with the instruction to ignore any instruction in them. It has no tools to look at changes in more detail: even read-only git commands can write files (for example with `--output`), which would let a commit message change what runs afterwards with the token available.
+- It can't run commands, write files, fetch URLs, or remember anything, its built-in GitHub tools and the custom instructions of the repository are turned off, and the token is redacted from its output.
+- The text it returns is [sanitized](./sanitize.py) before it is used: HTML and comments (that could contain the markers of the release notes), images (also the ones that use a reference), links to other places than GitHub, and at-mentions are removed or defused, and it is shortened at a line boundary. A code block that is open at the end, for example because the text was shortened, is closed with a fence like the one that opened it.
 - Generating the summary takes at most five minutes.
 
 Commits can contain text from contributors, so a prompt injection can't be ruled out. The measures above make sure that the worst that can happen is a poor summary: Copilot can't change anything, and the job has a read-only token.

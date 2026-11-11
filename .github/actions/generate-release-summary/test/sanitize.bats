@@ -41,6 +41,34 @@ sanitize() {
   assert_output "Fake  text."
 }
 
+@test "images that use a reference are removed, with the definitions of the references" {
+  sanitize <<< $'Fake ![pixel][p] and ![collapsed][] and ![shortcut] text.\n\n[p]: //example.invalid/pixel.png\n[collapsed]: https://github.com/fake-owner/fake-repo/pixel.png\n  [shortcut]: <https://example.invalid/pixel.png> "title"'
+
+  assert_success
+  assert_output "Fake  and  and  text."
+}
+
+@test "images with the alt text or destination on more than one line are removed" {
+  sanitize <<< $'Fake ![multi\nline](https://example.invalid/pixel.png\n"title") text.'
+
+  assert_success
+  assert_output "Fake  text."
+}
+
+@test "links that use a reference lose their destination" {
+  sanitize <<< $'See [the fake page][p].\n\n[p]: https://example.invalid/page'
+
+  assert_success
+  assert_output "See [the fake page][p]."
+}
+
+@test "HTML tags that span lines are removed" {
+  sanitize <<< $'Fake <img\n  src="https://github.com/fake-owner/fake-repo/pixel.png"\n  alt="pixel"> text <a\nhref="https://example.invalid">link</a>.'
+
+  assert_success
+  assert_output "Fake  text link."
+}
+
 @test "links to other places than GitHub are reduced to their text" {
   sanitize <<< 'See [the fake page](https://example.invalid/page) and [a fake commit](https://github.com/fake-owner/fake-repo/commit/0000000).'
 
@@ -95,6 +123,34 @@ sanitize() {
 
   assert_success
   assert_output $'Fake intro.\n```sh\nfake --one\n```'
+}
+
+@test "a code block with tildes that is cut short is closed with tildes" {
+  sanitize --max-chars 29 <<< $'Fake intro.\n~~~sh\nfake --one\nfake --two\n~~~'
+
+  assert_success
+  assert_output $'Fake intro.\n~~~sh\nfake --one\n~~~'
+}
+
+@test "a code block with a longer fence is closed with a fence that is as long" {
+  sanitize --max-chars 41 <<< $'Fake intro.\n````md\n```\nfake --one\nfake --two\n````'
+
+  assert_success
+  assert_output $'Fake intro.\n````md\n```\nfake --one\n````'
+}
+
+@test "a code block that is not closed in the text is closed" {
+  sanitize <<< $'Fake intro.\n```sh\nfake --one'
+
+  assert_success
+  assert_output $'Fake intro.\n```sh\nfake --one\n```'
+}
+
+@test "code blocks that are complete are not closed again" {
+  sanitize <<< $'```\nfake ``` inside\n```\n\n~~~\nfake\n~~~ \n\nFake `inline` and ```inline``` code.'
+
+  assert_success
+  assert_output $'```\nfake ``` inside\n```\n\n~~~\nfake\n~~~\n\nFake `inline` and ```inline``` code.'
 }
 
 @test "the default maximum is 1500 characters" {
