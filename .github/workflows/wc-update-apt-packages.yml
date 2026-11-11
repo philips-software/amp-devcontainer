@@ -45,10 +45,14 @@ on:
         description: Private key of the GitHub App.
         required: false
       DOCKER_REGISTRY_PASSWORD:
-        description: Password or token to pull the image with, if not provided the GitHub token will be used.
+        description: >-
+          Password or token to pull the image with, required for a private image.
+          Without credentials the identity of the workflow is used for ghcr.io, and any other registry is used anonymously, which is enough for a public image.
         required: false
       DOCKER_REGISTRY_USERNAME:
-        description: User name to pull the image with, if not provided the GitHub actor will be used.
+        description: >-
+          User name to pull the image with, required for a private image.
+          Without credentials the identity of the workflow is used for ghcr.io, and any other registry is used anonymously, which is enough for a public image.
         required: false
 
 permissions: {}
@@ -62,11 +66,11 @@ jobs:
       image: ${{ inputs.container-image }} # zizmor: ignore[unpinned-images]
       options: --user 0
       credentials:
-        username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
+        # The identity of the workflow is only valid for ghcr.io, without credentials any other registry is used anonymously
+        username: ${{ secrets.DOCKER_REGISTRY_USERNAME || (startsWith(inputs.container-image, 'ghcr.io/') && github.actor || '') }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || (startsWith(inputs.container-image, 'ghcr.io/') && github.token || '') }}
     permissions:
       contents: read # peter-evans/create-pull-request inherits app permissions; so we only need contents: read here
-      packages: read # is needed to pull the image from GitHub Container Registry when it is private
     steps:
       - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
         with:
@@ -89,7 +93,7 @@ jobs:
           permission-contents: write
           permission-pull-requests: write
       # create-pull-request commits signed through the API and updates the branch of an earlier run, which `gh pr create` does not
-      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1 # zizmor: ignore[superfluous-actions]
+      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         if: github.event_name != 'pull_request'
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"

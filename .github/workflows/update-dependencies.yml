@@ -23,7 +23,6 @@ jobs:
     uses: $/.github/workflows/wc-update-apt-packages.yml
     permissions:
       contents: read # is needed by actions/checkout to read the repository
-      packages: read # is needed to pull the image from GitHub Container Registry
     with:
       app-client-id: ${{ vars.FOREST_RELEASER_CLIENT_ID }}
       container-image: ghcr.io/${{ github.repository }}-${{ matrix.flavor }}:edge
