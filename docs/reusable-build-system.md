@@ -191,9 +191,14 @@ The workflows of this repository and the [upload-release-assets](../.github/acti
 
 ## Versioning and pinning
 
-The workflows and actions are referenced by commit SHA, with the version as a comment, so they never change without a pull request.
-The workflows are released together with the containers (`vX.Y.Z`), and the actions are released on their own (`actions/vX.Y.Z`).
-Inside this repository the workflows call each other with `$/.github/workflows/...`, which means the same repository and version as the calling workflow.
+A repository that uses the build system pins the re-usable workflows by commit SHA, with the version as a comment, so they never change without a pull request: `philips-software/amp-devcontainer/.github/workflows/wc-<name>.yml@<sha> # <version>`.
+Use the same version for all of them.
+The workflows are released together with the containers (`vX.Y.Z`), and the actions are released on their own (`actions/vX.Y.Z`); a commit SHA of either release contains all workflows and actions of that commit.
+
+The workflows of this repository call the actions and each other with `$/.github/...`, the self-repository syntax. It resolves to the repository and commit of the workflow that contains it, also when your repository calls that workflow.
+Pinning a workflow therefore pins every workflow and action below it to the same commit, and you don't pin the actions that the workflows use.
+Pin an action yourself only when you call it directly, with `philips-software/amp-devcontainer/.github/actions/<name>@<sha> # actions/vX.Y.Z`.
+The syntax is not available in GitHub Enterprise Server.
 
 Versions that are pinned in more than one place are checked by the [version consistency tests](../test/repository/version-consistency.bats), so all uses of an action, container image or tool are updated together.
 
