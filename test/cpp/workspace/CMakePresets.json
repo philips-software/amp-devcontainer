@@ -132,6 +132,11 @@
       "targets": ["test-gcc"]
     },
     {
+      "name": "gcc-debug",
+      "configurePreset": "gcc",
+      "targets": ["test-gcc-debug"]
+    },
+    {
       "name": "gcc-fail",
       "configurePreset": "gcc",
       "targets": ["test-gcc-fail"]
