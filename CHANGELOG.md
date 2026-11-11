@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [9.1.0](https://github.com/philips-software/amp-devcontainer/compare/v9.0.0...v9.1.0) (2026-11-11)
+
+
+### Features
+
+* Implement reusable release notes workflow ([#1549](https://github.com/philips-software/amp-devcontainer/issues/1549)) ([b13c71f](https://github.com/philips-software/amp-devcontainer/commit/b13c71f307daf8bca1e5086605db1e438ca1049f))
+* Make release template rendering reusable ([#1537](https://github.com/philips-software/amp-devcontainer/issues/1537)) ([1b19c11](https://github.com/philips-software/amp-devcontainer/commit/1b19c11108ed39f4731945aa94c3497dbdf4289a))
+
+
+### Bug Fixes
+
+* Verify attestations with the signing workflow ([#1552](https://github.com/philips-software/amp-devcontainer/issues/1552)) ([01645d1](https://github.com/philips-software/amp-devcontainer/commit/01645d126f4ad2b3d3f7caaddf2948b96bb148ed))
+
+
+### Chores
+
+* Add tests for debugging ([#1510](https://github.com/philips-software/amp-devcontainer/issues/1510)) ([822b14b](https://github.com/philips-software/amp-devcontainer/commit/822b14b75b3f7cff4c7feb859e204ce0b155632e))
+* Automate release notes summary ([#1541](https://github.com/philips-software/amp-devcontainer/issues/1541)) ([199b208](https://github.com/philips-software/amp-devcontainer/commit/199b208523f91f921d26b30d119c20ebea0014e6))
+* **main:** Release actions 2.2.0 ([#1544](https://github.com/philips-software/amp-devcontainer/issues/1544)) ([4fee2b3](https://github.com/philips-software/amp-devcontainer/commit/4fee2b3be182c909a63e70965250daa86e2c65ac))
+* **main:** Release actions 2.3.0 ([#1554](https://github.com/philips-software/amp-devcontainer/issues/1554)) ([335f215](https://github.com/philips-software/amp-devcontainer/commit/335f215f8aa0ad63cda96c1096e3d81f23cefcae))
+* **main:** Release actions 2.3.1 ([#1555](https://github.com/philips-software/amp-devcontainer/issues/1555)) ([ce8a326](https://github.com/philips-software/amp-devcontainer/commit/ce8a32615ac5c66c65b12da05c283f9ee7d305ed))
+* Make render release notes idempotent ([#1540](https://github.com/philips-software/amp-devcontainer/issues/1540)) ([c001fa1](https://github.com/philips-software/amp-devcontainer/commit/c001fa15407bed0713106adcf37a1e2cf0d8902a))
+* Make tool inventory re-usable ([#1536](https://github.com/philips-software/amp-devcontainer/issues/1536)) ([0e79c10](https://github.com/philips-software/amp-devcontainer/commit/0e79c107186437fcf47af7f78bca2c7995da5aec))
+* Pin node minimum ([#1553](https://github.com/philips-software/amp-devcontainer/issues/1553)) ([307cb26](https://github.com/philips-software/amp-devcontainer/commit/307cb26ec21b54d0e5ef6159aab45713a08676fc))
+
 ## [9.0.0](https://github.com/philips-software/amp-devcontainer/compare/v8.4.1...v9.0.0) (2026-11-06)
 
 
