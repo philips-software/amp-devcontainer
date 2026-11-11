@@ -20,11 +20,12 @@
   "separate-pull-requests": true,
   "packages": {
     ".": {
+      "exclude-paths": [".github"],
       "include-component-in-tag": false,
       "package-name": "amp-devcontainer",
       "release-type": "simple"
     },
-    ".github/actions": {
+    ".github": {
       "package-name": "actions",
       "release-type": "simple",
       "tag-separator": "/"
