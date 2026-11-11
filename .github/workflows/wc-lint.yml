@@ -1,0 +1,62 @@
+---
+name: Linting & Formatting
+
+on:
+  workflow_call:
+    inputs:
+      runner-labels:
+        description: >-
+          JSON array used to select the runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+
+permissions: {}
+
+jobs:
+  linter:
+    name: 🧹 Lint & Format
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read # is needed by zizmorcore/zizmor-action
+      pull-requests: write # is needed by oxsecurity/megalinter and reviewdog/action-suggester to post PR comments
+      security-events: write # is needed by oxsecurity/megalinter for uploading sarif files
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: zizmorcore/zizmor-action@45d7276c9ca790aabd705e31ca99c6185c3e76dd # v0.8.1
+        with:
+          persona: pedantic
+      # flavors/dotnet is the smallest flavor of MegaLinter that contains the linters
+      # we are interested in.
+      - uses: oxsecurity/megalinter/flavors/dotnet@f2fe8c1cba37091848df3e524066c8c23ef353ed # v10.2.0
+        env:
+          APPLY_FIXES: all
+          VALIDATE_ALL_CODEBASE: true
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: github/codeql-action/upload-sarif@1fc58d04a4d4374f921bdac573c3811c240f9c26 # v4.39.2
+        if: success() || failure()
+        with:
+          sarif_file: megalinter-reports/megalinter-report.sarif
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: success() || failure()
+        with:
+          name: Linter Report
+          path: |
+            megalinter-reports
+      - uses: reviewdog/action-suggester@ac5ce6d94e35c00530447dc63c271e38e4fd36c6 # v1.26.3
+        with:
+          tool_name: MegaLinter

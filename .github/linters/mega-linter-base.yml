@@ -1,0 +1,23 @@
+---
+# MegaLinter settings that repositories of the amp-devcontainer build system share.
+# Extend it from the .mega-linter.yml of your repository, see docs/reusable-build-system.md.
+ENABLE:
+  - ACTION
+  - DOCKERFILE
+  - JSON
+  - MARKDOWN
+  - REPOSITORY
+  - SPELL
+  - YAML
+DISABLE_LINTERS:
+  - ACTION_ZIZMOR # Disable zizmor as we run it outside of MegaLinter
+  - REPOSITORY_DEVSKIM
+  - REPOSITORY_SEMGREP
+  - JSON_JSONLINT
+  - SPELL_CSPELL
+DISABLE_ERRORS_LINTERS:
+  - REPOSITORY_OSV_SCANNER
+SARIF_REPORTER: true
+PRINT_ALPACA: false
+SHOW_SKIPPED_LINTERS: false
+FILTER_REGEX_EXCLUDE: (CHANGELOG.md|package-lock.json)

@@ -31,6 +31,7 @@ The actions have a README with their inputs and outputs:
 The re-usable workflows that a repository calls, next to `wc-build-push-test.yml`:
 
 - [wc-dependency-review.yml](../.github/workflows/wc-dependency-review.yml): review the dependencies that a pull request changes
+- [wc-lint.yml](../.github/workflows/wc-lint.yml): lint and format with zizmor and MegaLinter (the `dotnet` flavor), and report to the pull request and code scanning. The settings are in `.mega-linter.yml`, see [Shared MegaLinter settings](#shared-megalinter-settings)
 - [wc-pr-title.yml](../.github/workflows/wc-pr-title.yml): check that the title of a pull request is a conventional commit, with a comment that explains what to change
 - [wc-release-please.yml](../.github/workflows/wc-release-please.yml): create the release pull request and the releases with [release-please](https://github.com/googleapis/release-please), with an installation token of a GitHub App (input `app-client-id` and secret `APP_PRIVATE_KEY`) so the release triggers other workflows
 - [wc-release-notes.yml](../.github/workflows/wc-release-notes.yml) and [wc-release-summary.yml](../.github/workflows/wc-release-summary.yml): write the notes of a release, see [Release](#5-release)
@@ -185,7 +186,27 @@ To add a summary drafted by Copilot, call [wc-release-summary.yml](../.github/wo
 A caller that doesn't use Copilot leaves it out, and doesn't need to grant that permission.
 Make the release notes job run when the summary job failed as well, as [release-build.yml](../.github/workflows/release-build.yml) does with `!cancelled()`.
 
-### 6. Verify
+### 6. Check pull requests
+
+Call [wc-lint.yml](../.github/workflows/wc-lint.yml), [wc-pr-title.yml](../.github/workflows/wc-pr-title.yml) and [wc-dependency-review.yml](../.github/workflows/wc-dependency-review.yml) from a workflow that runs for pull requests and the merge queue.
+
+#### Shared MegaLinter settings
+
+[mega-linter-base.yml](../.github/linters/mega-linter-base.yml) holds the MegaLinter settings that every repository shares: which linters are enabled, and which are disabled because they are run elsewhere or are too noisy.
+Extend it from the `.mega-linter.yml` of your repository, and keep only what is specific to your repository there.
+Pin the URL to the same commit as the workflows, and let `CONFIG_PROPERTIES_TO_APPEND` add to the lists of the base instead of replacing them:
+
+```yaml
+EXTENDS: https://raw.githubusercontent.com/philips-software/amp-devcontainer/<sha>/.github/linters/mega-linter-base.yml
+CONFIG_PROPERTIES_TO_APPEND:
+  - DISABLE_LINTERS
+DISABLE_LINTERS:
+  - REPOSITORY_KICS
+```
+
+This repository extends the file by its path.
+
+### 7. Verify
 
 Everyone that uses an image can verify where it comes from:
 

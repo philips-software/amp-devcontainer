@@ -1,28 +1,15 @@
-ENABLE:
-  - ACTION
-  - DOCKERFILE
-  - JSON
-  - MARKDOWN
-  - REPOSITORY
-  - SPELL
-  - YAML
+EXTENDS: .github/linters/mega-linter-base.yml
+# Add to the lists of the base instead of replacing them
+CONFIG_PROPERTIES_TO_APPEND:
+  - DISABLE_LINTERS
+  - DISABLE_ERRORS_LINTERS
 DISABLE_LINTERS:
-  - ACTION_ZIZMOR # Disable zizmor as we run it outside of MegaLinter
-  - REPOSITORY_DEVSKIM
   - REPOSITORY_DUSTILOCK
-  - REPOSITORY_SEMGREP
-  - JSON_JSONLINT
-  - SPELL_CSPELL
 DISABLE_ERRORS_LINTERS:
-  - REPOSITORY_OSV_SCANNER
   - SPELL_LYCHEE
-SARIF_REPORTER: true
-PRINT_ALPACA: false
-SHOW_SKIPPED_LINTERS: false
 SPELL_LYCHEE_FILE_EXTENSIONS:
   [".feature", ".json", ".md", ".md.j2", ".txt", ".yaml", ".yml"]
 DOCKERFILE_HADOLINT_FILTER_REGEX_EXCLUDE: (templates)
-FILTER_REGEX_EXCLUDE: (CHANGELOG.md|package-lock.json)
 # tasks.json is wrongfully matched against another schema,
 # and schemas for .vscode/[tasks.json|launch.json] are built
 # dynamically based upon context (e.g. installed extensions)
