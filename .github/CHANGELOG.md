@@ -5,6 +5,18 @@ All notable changes to the re-usable actions and workflows of this project are d
 The containers have their own [changelog](../CHANGELOG.md).
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.3.1](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.3.0...actions/v2.3.1) (2026-11-11)
+
+
+### Bug Fixes
+
+* Don't require sudo to update vscode extensions ([#1561](https://github.com/philips-software/amp-devcontainer/issues/1561)) ([34b1825](https://github.com/philips-software/amp-devcontainer/commit/34b18250a7edd7cce30b6a26e4f4f58f639def7b))
+
+
+### Chores
+
+* Pin node minimum ([#1553](https://github.com/philips-software/amp-devcontainer/issues/1553)) ([307cb26](https://github.com/philips-software/amp-devcontainer/commit/307cb26ec21b54d0e5ef6159aab45713a08676fc))
+
 ## [2.3.0](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.2.0...actions/v2.3.0) (2026-11-10)
 
 
