@@ -92,11 +92,12 @@ jobs:
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
         with:
           cache-binary: false
-      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+      - uses: $/.github/actions/registry-login
         with:
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
           registry: ${{ inputs.registry }}
-          username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
+          require-credentials: true
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
       - uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         env:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
@@ -209,11 +210,13 @@ jobs:
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
         with:
           cache-binary: false
-      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+      - uses: $/.github/actions/registry-login
+        id: registry-login
         with:
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
           registry: ${{ inputs.registry }}
-          username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
+          require-credentials: true
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
       - uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         id: metadata
         env:
@@ -297,8 +300,8 @@ jobs:
       - uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           image: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}@${{ steps.extract-digest.outputs.digest }}
-          registry-username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-          registry-password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
+          registry-username: ${{ steps.registry-login.outputs.authentication == 'github' && github.actor || secrets.DOCKER_REGISTRY_USERNAME }}
+          registry-password: ${{ steps.registry-login.outputs.authentication == 'github' && github.token || secrets.DOCKER_REGISTRY_PASSWORD }}
           dependency-snapshot: true
           output-file: ${{ runner.temp }}/sbom.spdx.json
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

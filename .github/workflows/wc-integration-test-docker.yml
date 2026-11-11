@@ -45,8 +45,9 @@ jobs:
       # ThreadSanitizer requires unconfined seccomp to function correctly.
       options: --user 0 --security-opt seccomp=unconfined
       credentials:
-        username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
+        # The identity of the workflow is only valid for ghcr.io, without credentials any other registry is used anonymously
+        username: ${{ secrets.DOCKER_REGISTRY_USERNAME || (inputs.registry == 'ghcr.io' && github.actor || '') }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || (inputs.registry == 'ghcr.io' && github.token || '') }}
     permissions:
       contents: read
     steps:

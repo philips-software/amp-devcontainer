@@ -1,0 +1,48 @@
+---
+name: 🔑 Registry login
+description: >-
+  Log in to a container registry with the given credentials. Without credentials the identity of
+  the workflow is used for ghcr.io, and any other registry is used anonymously, since the token of
+  the workflow is not valid there.
+
+inputs:
+  password:
+    description: Password or token of the registry, required together with `username`.
+    required: false
+  registry:
+    description: Server address of the registry, e.g. `ghcr.io`.
+    required: true
+  require-credentials:
+    description: >-
+      Fail when there are no credentials for a registry other than ghcr.io,
+      for a login that is made to push images, which is not possible anonymously.
+    required: false
+    default: "false"
+  username:
+    description: Username of the registry, required together with `password`.
+    required: false
+
+outputs:
+  authentication:
+    description: >-
+      How was logged in: `credentials` (the given ones), `github` (the identity of the workflow,
+      only for ghcr.io) or `anonymous` (not logged in).
+    value: ${{ steps.resolve.outputs.authentication }}
+
+runs:
+  using: composite
+  steps:
+    - id: resolve
+      shell: bash
+      run: bash "${GITHUB_ACTION_PATH}/resolve-registry-login.sh"
+      env:
+        REGISTRY: ${{ inputs.registry }}
+        REGISTRY_PASSWORD: ${{ inputs.password }}
+        REGISTRY_USERNAME: ${{ inputs.username }}
+        REQUIRE_CREDENTIALS: ${{ inputs.require-credentials }}
+    - if: ${{ steps.resolve.outputs.authentication != 'anonymous' }}
+      uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ steps.resolve.outputs.authentication == 'github' && github.actor || inputs.username }}
+        password: ${{ steps.resolve.outputs.authentication == 'github' && github.token || inputs.password }}

@@ -1,0 +1,50 @@
+---
+name: 📦 Replicate image tags
+description: >-
+  Verify the attestation of a released container image and copy it to more tags, in the same
+  registry or in other registries, without changing the image.
+
+inputs:
+  github-token:
+    description: >-
+      Token used to verify the attestation, this requires `attestations: read` in private and
+      internal repositories. The registries are logged in to before the action runs.
+    required: false
+    default: ${{ github.token }}
+  release-tag:
+    description: Tag of the source image that identifies the image to copy.
+    required: true
+  signer-workflow:
+    description: >-
+      Re-usable workflow that signed the attestation, as `<owner>/<repository>/<path>`.
+      Images that are built by a re-usable workflow of another repository, such as the
+      one of amp-devcontainer, are only verified with the workflow that signed them.
+    required: false
+    default: philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml
+  source-image:
+    description: The image to copy, without tag, e.g. `ghcr.io/my-org/my-image`.
+    required: true
+  tags:
+    description: >-
+      Newline-separated image references, including the tag, that the image is copied to,
+      e.g. `registry.example.invalid/my-org/my-image:1.2.3`, or the `tags` output of `docker/metadata-action`.
+    required: true
+
+outputs:
+  digest:
+    description: Digest of the image that all the tags have.
+    value: ${{ steps.replicate.outputs.digest }}
+
+runs:
+  using: composite
+  steps:
+    - id: replicate
+      shell: bash
+      run: bash "${GITHUB_ACTION_PATH}/replicate-image-tags.sh"
+      env:
+        GH_REPO: ${{ github.repository }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        SIGNER_WORKFLOW: ${{ inputs.signer-workflow }}
+        SOURCE_IMAGE: ${{ inputs.source-image }}
+        TAGS: ${{ inputs.tags }}
