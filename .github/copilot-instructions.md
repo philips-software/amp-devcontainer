@@ -44,7 +44,7 @@ Read these documents instead of guessing, and link to them instead of copying th
 
 - **No flavors in re-usable parts.** Workflows, actions and helpers are used by derived repositories that build one or many containers, so they take the images, names and paths as parameters. Only the `.devcontainer`, `/test/[flavor]` and `/templates` folders and the top-level workflows know the flavors.
 - **Supply-chain security first.** Everything that is downloaded is pinned: actions by commit SHA, base images by digest, apt packages by version, downloads by checksum. Never use a floating reference like `latest` or a branch, and don't pin to something you have not looked up.
-- **Least privilege.** Workflows start with `permissions: {}`, and every job and every permission is justified with a comment.
+- **Least privilege.** Workflows start with `permissions: {}`, and every job and every permission is justified with a comment. Secrets are passed to re-usable workflows explicitly, never with `secrets: inherit`.
 - **Keep the delta small.** Change what is asked, don't reformat or refactor unrelated files, and don't fix unrelated pre-existing issues.
 - **Tests come with the change.** A change to an action, helper, inventory or pinned version updates or adds its tests, and the documentation that describes it.
 - **Don't duplicate what a tool enforces.** Linters (MegaLinter, zizmor, hadolint, markdownlint) and the consistency tests already check formatting, pinning and permissions; read their findings instead of re-implementing them.

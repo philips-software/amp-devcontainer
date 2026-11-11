@@ -27,6 +27,7 @@ When writing GitHub Action workflows, ensure that:
 - Start with `permissions: {}` for the workflow, and give each job only what it needs, with a comment why: `contents: write # is needed by <action> to <what>`.
 - The first step of a job is `step-security/harden-runner` with `egress-policy: audit`, and `disable-sudo: true` or `disable-sudo-and-containers: true` when the job allows it. It doesn't monitor a job that runs in a container (`container:`), so run only the tests in a container with `docker run` on the host when the job needs monitoring.
 - `actions/checkout` has `persist-credentials: false`.
+- Pass secrets to a re-usable workflow explicitly (`secrets: { NAME: "${{ secrets.NAME }}" }`), never with `secrets: inherit`. A called workflow then only gets what it declares, and the caller can map its own secret names. zizmor flags `secrets: inherit`.
 - Never put `${{ }}` expressions with event data (branch names, titles, inputs) in a `run:` script. Pass them through `env:`, and start scripts with `set -Eeuo pipefail`.
 - Give every job a `timeout-minutes`.
 - zizmor and actionlint run in CI, don't copy their checks into tests.
