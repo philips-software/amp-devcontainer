@@ -36,7 +36,8 @@ When writing GitHub Action workflows, ensure that:
 
 - Keep logic out of the YAML. A script of more than a few lines belongs in an [action](./actions.instructions.md) with tests, the workflow only wires things together.
 - A job that calls a re-usable workflow (`uses:`) can't have `env` or `steps`, and its `with:` can't read `env`. The called workflow can't have more permissions than the calling job grants, so a permission it needs must be granted by the caller.
-- Re-usable workflows that touch images take the registry as an input (default `ghcr.io`), the optional secrets `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` (falling back to `github.actor` and `github.token`), and the runner as a `runner-labels` JSON array input, like [wc-build-push-test.yml](../workflows/wc-build-push-test.yml).
+- Re-usable workflows that touch images take the registry as an input (default `ghcr.io`), the optional secrets `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD`, and the runner as a `runner-labels` JSON array input, like [wc-build-push-test.yml](../workflows/wc-build-push-test.yml).
+- The identity of the workflow (`github.actor`, `github.token`) is only valid for ghcr.io: never send it to another registry. Without credentials such a registry is used anonymously: `secrets.X || (<registry is ghcr.io> && github.token || '')`.
 - Don't hardcode `ubuntu-latest` in a re-usable workflow, and don't require a permission for an optional feature: make the feature a separate workflow.
 - `continue-on-error: true` at the job level is for optional work, e.g. the Copilot release summary. The release must not fail because of it.
 - Release workflows only run for a tag or release, so they can't be verified in a pull request. Keep the change minimal and describe how to verify it with a pre-release.

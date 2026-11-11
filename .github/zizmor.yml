@@ -1,0 +1,7 @@
+rules:
+  superfluous-actions:
+    # create-pull-request commits signed through the API and updates the branch of an earlier run, which `gh pr create` does not.
+    # It is ignored here instead of with a comment, because a comment behind the version of the pin hides the version from zizmor.
+    ignore:
+      - wc-update-apt-packages.yml
+      - wc-update-vscode-extensions.yml
