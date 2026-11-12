@@ -13,6 +13,7 @@
     "gh": {},
     "git": {},
     "gnupg2": { "commands": ["gpg"] },
+    "python3": {},
     "wget": {}
   }
 }

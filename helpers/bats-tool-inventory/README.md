@@ -20,7 +20,7 @@ setup() {
 ### Requirements
 
 The dependencies are declared as `peerDependencies` in [package.json](./package.json): [Bats](https://bats-core.readthedocs.io) 1.5.0 or newer, bats-support, and bats-assert.
-Next to that Bash, `jq`, GNU `timeout` and `realpath`, and `dpkg-query` (only for the apt assertions) are needed.
+Next to that Bash, `jq`, `realpath`, Python 3 on Linux with `/proc`, and `dpkg-query` (only for the apt assertions) are needed.
 
 ### Apt requirement files
 
@@ -66,7 +66,14 @@ An inventory file is a JSON object with an optional `includes` array and a `pack
 | `resolve_inventory FILE`                | Print the resolved inventory as compact JSON.                    |
 | `read_inventory_tools FILE`             | Print one JSON object per command and file in the inventory.     |
 | `assert_inventory_tools_available FILE` | Assert that all commands are on the `PATH` and all files exist.  |
-| `assert_inventory_tools_run FILE`       | Assert that every command starts successfully within 30 seconds. |
+| `assert_inventory_tools_run FILE [TIMEOUT_SECONDS]` | Assert that every command starts successfully within 30 seconds by default. |
+
+Smoke commands receive `/dev/null` as stdin, their own session, and no inherited Bats file descriptors.
+The optional timeout is a positive number of seconds (fractions are accepted); after the deadline the assertion fails explicitly with exit code 124, allowing Bats to finish its JUnit report.
+The supervisor terminates and reaps descendants, including detached children, with a five-second TERM grace followed by KILL and up to one second for reaping.
+This also cleans up descendants left behind by a command that exits normally, without a separate watchdog that could hold Bats output open.
+Failure diagnostics include the package, shell-escaped invocation, timeout and exit status, and the first 16 KiB of combined stdout/stderr with a truncation marker.
+Further output is drained and discarded rather than accumulated in memory or on disk, and XML-forbidden control characters are escaped for JUnit reporting.
 
 ### Version helpers
 

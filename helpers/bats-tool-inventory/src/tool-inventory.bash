@@ -151,9 +151,12 @@ function assert_inventory_tools_available() {
   done < <(jq -r '[.package, .kind, .tool] | @tsv' <<< "${tools}")
 }
 
-# Usage: assert_inventory_tools_run INVENTORY_JSON
+# Usage: assert_inventory_tools_run INVENTORY_JSON [TIMEOUT_SECONDS]
 function assert_inventory_tools_run() {
   local tools entry package tool invocation
+  local timeout_seconds=${2:-30}
+  local runner
+  runner="$(dirname "${BASH_SOURCE[0]}")/run-command.py"
   local args=()
 
   run read_inventory_tools "${1:?}"
@@ -166,11 +169,12 @@ function assert_inventory_tools_run() {
     mapfile -t args < <(jq -r '.args[]' <<< "${entry}")
     printf -v invocation '%q ' "${tool}" "${args[@]}"
 
-    run timeout --kill-after=5s 30s "${tool}" "${args[@]}" < /dev/null
+    run python3 "${runner}" "${timeout_seconds}" "${tool}" "${args[@]}"
     if [[ "${status}" -ne 0 ]]; then
       batslib_print_kv_single_or_multi 10 \
         'package' "${package}" \
         'command' "${invocation% }" \
+        'timeout' "${timeout_seconds}s (+5s termination grace)" \
         'exit code' "${status}" \
         'output' "${output}" \
         | batslib_decorate 'inventory command failed to start successfully' \

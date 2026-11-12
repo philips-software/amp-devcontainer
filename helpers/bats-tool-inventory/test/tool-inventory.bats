@@ -480,16 +480,18 @@ make_fake_dpkg() {
   assert_output --partial "fake failure output"
 }
 
-@test "assert_inventory_tools_run fails when a command is stopped by the timeout" {
-  make_stub fake-tool-alpha
-  timeout() { return 124; }
+@test "assert_inventory_tools_run rejects an invalid timeout before starting a command" {
+  make_stub fake-tool-alpha 'touch "${FAKE_DIR}/fake-started"'
+  export FAKE_DIR
   write_json "${FAKE_DIR}/inventory.json" <<< '{"packages": {"fake-tool-alpha": {}}}'
 
-  run assert_inventory_tools_run "${FAKE_DIR}/inventory.json"
+  run assert_inventory_tools_run "${FAKE_DIR}/inventory.json" 0
 
   assert_failure
+  assert_output --partial "timeout must be a positive"
   assert_output --partial "exit code"
-  assert_output --partial "124"
+  assert_output --partial "125"
+  [ ! -e "${FAKE_DIR}/fake-started" ]
 }
 
 @test "assert_inventory_tools_run fails when the inventory cannot be resolved" {
