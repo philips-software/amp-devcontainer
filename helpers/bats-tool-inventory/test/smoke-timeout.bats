@@ -33,8 +33,10 @@ teardown() {
 
 make_command() {
   {
-    printf '#!/usr/bin/env bash\n'
-    printf 'echo "${BASHPID}" >> "${FAKE_DIR}/pids"\n'
+    cat <<'EOF'
+#!/usr/bin/env bash
+echo "${BASHPID}" >> "${FAKE_DIR}/pids"
+EOF
     cat
   } > "${FAKE_DIR}/bin/fake-command"
   chmod +x "${FAKE_DIR}/bin/fake-command"

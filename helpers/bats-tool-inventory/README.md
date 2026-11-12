@@ -61,11 +61,11 @@ An inventory file is a JSON object with an optional `includes` array and a `pack
 - Commands are started with `--version` unless `smoke-test-args` provides other arguments.
 - Missing includes, include cycles, and invalid documents are errors.
 
-| Function                                | Description                                                      |
-|-----------------------------------------|------------------------------------------------------------------|
-| `resolve_inventory FILE`                | Print the resolved inventory as compact JSON.                    |
-| `read_inventory_tools FILE`             | Print one JSON object per command and file in the inventory.     |
-| `assert_inventory_tools_available FILE` | Assert that all commands are on the `PATH` and all files exist.  |
+| Function                                          | Description                                                               |
+|---------------------------------------------------|---------------------------------------------------------------------------|
+| `resolve_inventory FILE`                          | Print the resolved inventory as compact JSON.                             |
+| `read_inventory_tools FILE`                       | Print one JSON object per command and file in the inventory.              |
+| `assert_inventory_tools_available FILE`           | Assert that all commands are on the `PATH` and all files exist.           |
 | `assert_inventory_tools_run FILE [TIMEOUT_SECONDS]` | Assert that every command starts successfully within 30 seconds by default. |
 
 Smoke commands receive `/dev/null` as stdin, their own session, and no inherited Bats file descriptors.
