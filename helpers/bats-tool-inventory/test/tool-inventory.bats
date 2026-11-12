@@ -484,7 +484,7 @@ make_fake_dpkg() {
   run -127 _run_inventory_command 1 fake-command-missing
 
   assert_output --partial "fake-command-missing"
-  assert_output --partial "cannot start smoke command"
+  assert_output --partial "command not found"
 }
 
 @test "_run_inventory_command reports a non-executable command with exit code 126" {
@@ -494,7 +494,18 @@ make_fake_dpkg() {
   run -126 _run_inventory_command 1 fake-command
 
   assert_output --partial "fake-command"
-  assert_output --partial "cannot start smoke command"
+  assert_output --partial "Permission denied"
+}
+
+@test "_run_inventory_command does not label command exit codes as timeouts" {
+  local code
+  for code in 124 137; do
+    make_stub fake-command "exit ${code}"
+
+    run "-${code}" _run_inventory_command 1 fake-command
+
+    refute_output --partial "timed out"
+  done
 }
 
 @test "assert_inventory_tools_run rejects an invalid timeout before starting a command" {

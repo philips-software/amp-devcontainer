@@ -49,6 +49,7 @@ The identity of the workflow is only valid for ghcr.io, so without these secrets
 A caller passes secrets explicitly, never with `secrets: inherit`.
 
 The helpers are [bats-tool-inventory](../helpers/bats-tool-inventory/README.md), to check installed tools and apt packages with bounded smoke-command execution and diagnostics, and [add-sbom-note](../helpers/add-sbom-note/add-sbom-note.sh), to make tools that are not installed by a package manager show up in the SBOM.
+The Docker and Podman integration runners use `--init` to reap exited orphans; smoke-command termination covers the command's process group, not children that deliberately detach from it.
 
 ## What `wc-build-push-test.yml` does
 

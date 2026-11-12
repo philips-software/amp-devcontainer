@@ -20,9 +20,8 @@ setup() {
 ### Requirements
 
 The dependencies are declared as `peerDependencies` in [package.json](./package.json): [Bats](https://bats-core.readthedocs.io) 1.5.0 or newer, bats-support, and bats-assert.
-Next to that Bash, `jq`, `realpath`, Perl on Linux with `/proc`, and `dpkg-query` (only for the apt assertions) are needed.
-The base image already includes Perl as a dependency of Git; smoke tests do not require Python or additional image packages.
-Linux supervision uses Perl's core modules and generated `syscall.ph` headers to resolve the subreaper syscall for the current architecture.
+Next to that Bash, `jq`, GNU coreutils (including `timeout`, `stdbuf` and `realpath`), Linux `/proc`, and `dpkg-query` (only for the apt assertions) are needed.
+Smoke execution does not require Python, Perl, or additional image packages.
 
 ### Apt requirement files
 
@@ -70,12 +69,16 @@ An inventory file is a JSON object with an optional `includes` array and a `pack
 | `assert_inventory_tools_available FILE`           | Assert that all commands are on the `PATH` and all files exist.           |
 | `assert_inventory_tools_run FILE [TIMEOUT_SECONDS]` | Assert that every command starts successfully within 30 seconds by default. |
 
-Smoke commands receive `/dev/null` as stdin, their own session, and no inherited Bats file descriptors.
-The optional timeout is a positive number of seconds (fractions are accepted); after the deadline the assertion fails explicitly with exit code 124, allowing Bats to finish its JUnit report.
-The supervisor terminates and reaps descendants, including detached children, with a five-second TERM grace followed by KILL and up to one second for reaping.
-This also cleans up descendants left behind by a command that exits normally, without a separate watchdog that could hold Bats output open.
+Smoke commands receive `/dev/null` as stdin, a separate process group, and no inherited Bats file descriptors.
+The optional timeout is a positive number of seconds (fractions are accepted); GNU `timeout` sends TERM at the deadline and KILL after a five-second grace.
+Timeout failures explicitly identify exit code 124 (deadline reached) or 137 (forced termination), allowing Bats to finish its JUnit report.
+The deadline covers both the command and its output drainer, and remaining processes in that group are killed after execution, including when a command exits successfully.
+Run containers with `--init` to reap exited orphan processes; both integration workflows enable this without changing the images.
+Children that deliberately leave the process group, for example with `setsid`, are outside the cleanup guarantee; init reaps them only after they exit and does not terminate them.
+Even such children cannot keep Bats' capture descriptors open because command output is isolated from Bats.
 Failure diagnostics include the package, shell-escaped invocation, timeout and exit status, and the first 16 KiB of combined stdout/stderr with a truncation marker.
-Further output is drained and discarded rather than accumulated in memory or on disk, and XML-forbidden control characters are escaped for JUnit reporting.
+At most 16 KiB plus one truncation-detection byte is saved in the Bats test's temporary directory; further output is drained and discarded rather than accumulated in memory or on disk.
+Output is JSON-escaped for safe JUnit reporting.
 
 ### Version helpers
 

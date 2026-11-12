@@ -43,7 +43,8 @@ jobs:
       image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }} # zizmor: ignore[unpinned-images]
       # Actions need access to runner-owned command files; the tests run as code below.
       # ThreadSanitizer requires unconfined seccomp to function correctly.
-      options: --user 0 --security-opt seccomp=unconfined
+      # Reap orphaned smoke-command processes without adding init to the image.
+      options: --init --user 0 --security-opt seccomp=unconfined
       credentials:
         username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
         password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
