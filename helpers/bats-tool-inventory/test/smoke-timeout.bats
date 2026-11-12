@@ -103,6 +103,17 @@ EOF
   assert_timeout_diagnostic
 }
 
+@test "interrupting the supervisor still reaps the command and completes JUnit" {
+  make_command <<'EOF'
+kill -TERM "${PPID}"
+exec sleep 300
+EOF
+
+  assert_junit_run
+  assert_output --partial "smoke command supervisor interrupted"
+  assert_output --partial "125"
+}
+
 @test "an exited command cannot leave a detached child holding Bats capture open" {
   make_command <<'EOF'
 if [[ -e "/proc/${BASHPID}/fd/3" || -e "/proc/${BASHPID}/fd/9" ]]; then

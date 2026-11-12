@@ -194,14 +194,23 @@ my $ok = eval {
     closedir $fds;
     POSIX::close($_) for @fds;
     pipe($reader, $writer) or die "cannot create output pipe: $!\n";
+    $SIG{TERM} = $SIG{INT} = sub { die "smoke command supervisor interrupted\n" };
     $pid = fork();
     die "cannot fork smoke command: $!\n" unless defined $pid;
     if (!$pid) {
-        close $reader;
-        POSIX::setsid() >= 0 or die "cannot create session: $!\n";
-        open STDIN, '<', '/dev/null' or die "cannot redirect stdin: $!\n";
-        open STDOUT, '>&', $writer or die "cannot redirect stdout: $!\n";
-        open STDERR, '>&', \*STDOUT or die "cannot redirect stderr: $!\n";
+        $SIG{TERM} = $SIG{INT} = 'DEFAULT';
+        my $ready = eval {
+            close $reader;
+            POSIX::setsid() >= 0 or die "cannot create session: $!\n";
+            open STDIN, '<', '/dev/null' or die "cannot redirect stdin: $!\n";
+            open STDOUT, '>&', $writer or die "cannot redirect stdout: $!\n";
+            open STDERR, '>&', \*STDOUT or die "cannot redirect stderr: $!\n";
+            1;
+        };
+        if (!$ready) {
+            syswrite($writer, "cannot prepare smoke command: $@");
+            POSIX::_exit(126);
+        }
         close $writer;
         # List-form exec preserves literal arguments; it never invokes a shell.
         exec { $command[0] } @command or do {
@@ -211,7 +220,6 @@ my $ok = eval {
         };
     }
     close $writer;
-    $SIG{TERM} = $SIG{INT} = sub { die "smoke command supervisor interrupted\n" };
     my $select = IO::Select->new($reader);
     my $deadline = now() + $seconds;
     while (1) {
@@ -219,6 +227,7 @@ my $ok = eval {
         if ($remaining <= 0) { $timed_out = 1; last }
         if ($select->count && $select->can_read($remaining < 0.05 ? $remaining : 0.05)) {
             my $count = sysread($reader, my $chunk, 65536);
+            next if !defined($count) && $!{EINTR};
             die "cannot read smoke output: $!\n" unless defined $count;
             $select->remove($reader) unless $count;
             my $available = 16384 - length $output;

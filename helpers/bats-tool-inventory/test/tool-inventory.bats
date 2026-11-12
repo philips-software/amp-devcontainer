@@ -480,28 +480,21 @@ make_fake_dpkg() {
   assert_output --partial "fake failure output"
 }
 
-@test "assert_inventory_tools_run reports a missing command with exit code 127" {
-  write_json "${FAKE_DIR}/inventory.json" <<< '{"packages": {"fake-command-missing": {}}}'
+@test "_run_inventory_command reports a missing command with exit code 127" {
+  run -127 _run_inventory_command 1 fake-command-missing
 
-  run assert_inventory_tools_run "${FAKE_DIR}/inventory.json"
-
-  assert_failure
   assert_output --partial "fake-command-missing"
   assert_output --partial "cannot start smoke command"
-  assert_output --partial "127"
 }
 
-@test "assert_inventory_tools_run reports a non-executable command with exit code 126" {
+@test "_run_inventory_command reports a non-executable command with exit code 126" {
   make_stub fake-command
   chmod -x "${FAKE_BIN}/fake-command"
-  write_json "${FAKE_DIR}/inventory.json" <<< '{"packages": {"fake-command": {}}}'
 
-  run assert_inventory_tools_run "${FAKE_DIR}/inventory.json"
+  run -126 _run_inventory_command 1 fake-command
 
-  assert_failure
   assert_output --partial "fake-command"
   assert_output --partial "cannot start smoke command"
-  assert_output --partial "126"
 }
 
 @test "assert_inventory_tools_run rejects an invalid timeout before starting a command" {

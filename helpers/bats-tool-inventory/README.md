@@ -22,6 +22,7 @@ setup() {
 The dependencies are declared as `peerDependencies` in [package.json](./package.json): [Bats](https://bats-core.readthedocs.io) 1.5.0 or newer, bats-support, and bats-assert.
 Next to that Bash, `jq`, `realpath`, Perl on Linux with `/proc`, and `dpkg-query` (only for the apt assertions) are needed.
 The base image already includes Perl as a dependency of Git; smoke tests do not require Python or additional image packages.
+Linux supervision uses Perl's core modules and generated `syscall.ph` headers to resolve the subreaper syscall for the current architecture.
 
 ### Apt requirement files
 
