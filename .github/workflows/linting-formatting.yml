@@ -24,4 +24,4 @@ jobs:
       contents: read # is needed by actions/checkout to read the repository
       actions: read # is needed by zizmorcore/zizmor-action
       pull-requests: write # is needed by oxsecurity/megalinter and reviewdog/action-suggester to post PR comments
-      security-events: write # is needed by oxsecurity/megalinter for uploading sarif files
+      security-events: write # is needed by zizmorcore/zizmor-action and oxsecurity/megalinter for uploading sarif files
