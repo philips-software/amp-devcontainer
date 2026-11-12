@@ -5,6 +5,13 @@ All notable changes to the re-usable actions and workflows of this project are d
 The containers have their own [changelog](../CHANGELOG.md).
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.3.2](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.3.1...actions/v2.3.2) (2026-11-12)
+
+
+### Bug Fixes
+
+* Set up python for zizmor on self-hosted runners ([#1566](https://github.com/philips-software/amp-devcontainer/issues/1566)) ([8f72f95](https://github.com/philips-software/amp-devcontainer/commit/8f72f9509fcee306cf051d2983bcf9f1f596c425))
+
 ## [2.3.1](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.3.0...actions/v2.3.1) (2026-11-11)
 
 
