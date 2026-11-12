@@ -13,6 +13,8 @@ EOF
   cat > "${FAKE_DIR}/smoke.bats" <<EOF
 setup() {
   load '${BATS_TEST_DIRNAME}/../load'
+  python3() { echo "smoke execution must not require Python"; return 99; }
+  export -f python3
 }
 @test "inventory commands start successfully" {
   exec 9>'${FAKE_DIR}/fake-descriptor'

@@ -82,7 +82,6 @@ SOURCE
       install -m 0644 -t "/usr/local/${library##*/}" "${library}"/{load.bash,package.json,LICENSE}
       install -m 0644 -t "/usr/local/${library##*/}/src" "${library}"/src/*.bash
    done
-   install -m 0644 -t /usr/local/bats-tool-inventory/src /tmp/bats-tool-inventory/src/run-command.py
 
    # Install the SBOM annotation helper so downstream flavors can annotate tools
    # that Syft cannot detect on its own (see helpers/add-sbom-note/add-sbom-note.sh)
