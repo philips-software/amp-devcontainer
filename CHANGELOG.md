@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [9.1.1](https://github.com/philips-software/amp-devcontainer/compare/v9.1.0...v9.1.1) (2026-11-13)
+
+
+### Chores
+
+* **deps, base:** Update locales, gh ([#1575](https://github.com/philips-software/amp-devcontainer/issues/1575)) ([b918131](https://github.com/philips-software/amp-devcontainer/commit/b918131cee77028a37ac9a18fb05d0c0b46a0c4f))
+* **main:** Release actions 2.3.2 ([#1567](https://github.com/philips-software/amp-devcontainer/issues/1567)) ([af84007](https://github.com/philips-software/amp-devcontainer/commit/af840070c907d71ce06334ea65eded00dc3946a4))
+
 ## [9.1.0](https://github.com/philips-software/amp-devcontainer/compare/v9.0.0...v9.1.0) (2026-11-11)
 
 
