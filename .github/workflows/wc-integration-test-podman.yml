@@ -70,7 +70,8 @@ jobs:
       - name: Run integration tests using Podman
         run: |
           set -Eeuo pipefail
-          podman run --rm \
+          # Reap orphaned smoke-command processes without adding init to the image.
+          podman run --rm --init \
             --security-opt seccomp=unconfined \
             --userns=keep-id:uid=1000,gid=1000 \
             --user 1000:1000 \
