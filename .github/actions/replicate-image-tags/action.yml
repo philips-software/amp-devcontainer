@@ -7,8 +7,9 @@ description: >-
 inputs:
   github-token:
     description: >-
-      Token used to verify the attestation, this requires `attestations: read` in private and
-      internal repositories. The registries are logged in to before the action runs.
+      Token used to read the published release and verify the attestation.
+      This requires `contents: read` and, for private and internal repositories, `attestations: read`.
+      The registries are logged in to before the action runs.
     required: false
     default: ${{ github.token }}
   release-tag:

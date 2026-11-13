@@ -22,11 +22,24 @@ setup() {
   export -f gh docker
 }
 
-# 'attestation verify' succeeds unless the digest is marked as unverified.
+# 'release view' reports a published release unless configured otherwise, and 'attestation verify' succeeds
+# unless the digest is marked as unverified.
 gh() {
   echo "$*" >> "${FAKE_DIR}/gh-calls"
-  [[ "$1 $2" == "attestation verify" ]] || return 64
-  [[ ! -e "${FAKE_DIR}/unverified" ]]
+  case "$1 $2" in
+    "release view")
+      [[ "$4 $5 $6 $7" == "--json isDraft --jq .isDraft" ]] || return 64
+      if [[ -e "${FAKE_DIR}/release-not-found" ]]; then
+        echo "release not found" >&2
+        return 1
+      fi
+      printf '%s\n' "${FAKE_RELEASE_DRAFT:-false}"
+      ;;
+    "attestation verify")
+      [[ ! -e "${FAKE_DIR}/unverified" ]]
+      ;;
+    *) return 64 ;;
+  esac
 }
 
 # 'buildx imagetools inspect' prints the manifest of a reference that is prepared with add_ref, fails with
@@ -48,6 +61,8 @@ docker() {
       ;;
     "buildx imagetools create")
       shift 3
+      [[ "$1" == "--prefer-index=false" ]] || return 65
+      shift
       if [[ -f "${FAKE_DIR}/fail-create-once" ]]; then
         rm "${FAKE_DIR}/fail-create-once"
         echo "simulated push failure" >&2
@@ -75,7 +90,8 @@ add_ref() {
 }
 
 run_script() {
-  RELEASE_TAG=9.9.9-fake SOURCE_IMAGE=${SOURCE} GH_REPO=fake-owner/fake-repo run bash "${SCRIPT}"
+  RELEASE_TAG=9.9.9-fake SOURCE_IMAGE=${SOURCE} GH_REPO=fake-owner/fake-repo \
+    FAKE_RELEASE_DRAFT="${FAKE_RELEASE_DRAFT:-false}" run bash "${SCRIPT}"
 }
 
 creates() {
@@ -89,7 +105,7 @@ creates() {
 
   assert_success
   run creates
-  assert_output "buildx imagetools create --tag ${TARGET_ONE}:1.2.3 --tag ${TARGET_ONE}:latest --tag ${TARGET_TWO}:1.2.3 ${SOURCE}@${FAKE_DIGEST}"
+  assert_output "buildx imagetools create --prefer-index=false --tag ${TARGET_ONE}:1.2.3 --tag ${TARGET_ONE}:latest --tag ${TARGET_TWO}:1.2.3 ${SOURCE}@${FAKE_DIGEST}"
   run cat "${GITHUB_OUTPUT}"
   assert_output "digest=${FAKE_DIGEST}"
 }
@@ -100,13 +116,31 @@ creates() {
   TAGS="${TARGET_ONE}:1.2.3" run_script
   assert_success
   run cat "${FAKE_DIR}/gh-calls"
-  assert_output "attestation verify --repo fake-owner/fake-repo oci://${SOURCE}@${FAKE_DIGEST}"
+  assert_output $'release view 9.9.9-fake --json isDraft --jq .isDraft\nattestation verify --repo fake-owner/fake-repo oci://'"${SOURCE}@${FAKE_DIGEST}"
 
   rm "${FAKE_DIR}/gh-calls" "${FAKE_DIR}/refs/${TARGET_ONE//\//_}:1.2.3"
   TAGS="${TARGET_ONE}:1.2.3" SIGNER_WORKFLOW=fake-owner/fake-repo/.github/workflows/fake.yml run_script
   assert_success
   run cat "${FAKE_DIR}/gh-calls"
-  assert_output "attestation verify --repo fake-owner/fake-repo --signer-workflow fake-owner/fake-repo/.github/workflows/fake.yml oci://${SOURCE}@${FAKE_DIGEST}"
+  assert_output $'release view 9.9.9-fake --json isDraft --jq .isDraft\nattestation verify --repo fake-owner/fake-repo --signer-workflow fake-owner/fake-repo/.github/workflows/fake.yml oci://'"${SOURCE}@${FAKE_DIGEST}"
+}
+
+@test "nothing is written when the release is missing" {
+  touch "${FAKE_DIR}/release-not-found"
+
+  TAGS="${TARGET_ONE}:1.2.3" run_script
+
+  assert_failure
+  assert_output --partial "Could not read release 9.9.9-fake"
+  refute [ -e "${FAKE_DIR}/docker-calls" ]
+}
+
+@test "nothing is written when the release is still a draft" {
+  FAKE_RELEASE_DRAFT=true TAGS="${TARGET_ONE}:1.2.3" run_script
+
+  assert_failure
+  assert_output --partial "Release 9.9.9-fake is a draft"
+  refute [ -e "${FAKE_DIR}/docker-calls" ]
 }
 
 @test "the digest of a manifest list is used" {
@@ -134,7 +168,8 @@ creates() {
 
   assert_failure
   assert_output --partial "${SOURCE}:9.9.9-fake not found"
-  refute [ -e "${FAKE_DIR}/gh-calls" ]
+  run cat "${FAKE_DIR}/gh-calls"
+  assert_output "release view 9.9.9-fake --json isDraft --jq .isDraft"
   refute creates
 }
 
@@ -157,7 +192,7 @@ creates() {
   assert_success
   assert_output --partial "${TARGET_ONE}:1.2.3 is ${FAKE_DIGEST} already"
   run creates
-  assert_output "buildx imagetools create --tag ${TARGET_ONE}:latest ${SOURCE}@${FAKE_DIGEST}"
+  assert_output "buildx imagetools create --prefer-index=false --tag ${TARGET_ONE}:latest ${SOURCE}@${FAKE_DIGEST}"
 
   rm "${FAKE_DIR}/docker-calls"
   TAGS="${TARGET_ONE}:1.2.3"$'\n'"${TARGET_ONE}:latest" run_script
@@ -172,7 +207,7 @@ creates() {
 
   assert_success
   run creates
-  assert_output "buildx imagetools create --tag ${TARGET_ONE}:1.2.3 ${SOURCE}@${FAKE_DIGEST}"
+  assert_output "buildx imagetools create --prefer-index=false --tag ${TARGET_ONE}:1.2.3 ${SOURCE}@${FAKE_DIGEST}"
 }
 
 @test "a failed push fails the script and can be repeated" {

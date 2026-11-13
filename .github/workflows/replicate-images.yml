@@ -39,7 +39,7 @@ jobs:
       target-registry: ${{ inputs.target-registry }}
     permissions:
       attestations: read # is needed by gh to verify the attestation of the image in private and internal repositories
-      contents: read # is needed by docker/metadata-action to read the repository
+      contents: read # is needed by gh to read the release and docker/metadata-action to read the repository
       packages: read # is needed to read the image in GitHub Container Registry when it is private
     secrets:
       TARGET_REGISTRY_PASSWORD: ${{ secrets.TARGET_REGISTRY_PASSWORD }}

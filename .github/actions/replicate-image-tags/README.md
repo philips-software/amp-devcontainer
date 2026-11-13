@@ -1,16 +1,17 @@
 # replicate-image-tags
 
-Verifies the attestation of a released container image, and copies the image to more tags, in the same registry or in other registries.
+Verifies the attestation of an image from a published, non-draft release, and copies it to more tags in the same registry or in other registries.
 This makes the images of a release available in more than one registry, such as Docker Hub or Artifactory, without building them again.
 The copy has the same digest as the image of the release, so the attestation, SBOM and tool inventory of the release are valid for it too.
 
 The action:
 
-1. resolves the digest of `source-image:release-tag`;
-2. verifies the attestation of that digest, against the repository that built it and optionally the re-usable workflow that signed it;
-3. checks every tag: a tag that does not exist is going to be created, a tag that has the digest is left alone, and a tag that has another digest fails the action, because a tag is never moved;
-4. creates all missing tags in one `docker buildx imagetools create`, which copies the manifests and blobs between registries and keeps the digest;
-5. checks that every tag resolves to the verified digest.
+1. requires a published, non-draft release with the given tag;
+2. resolves the digest of `source-image:release-tag`;
+3. verifies the attestation of that digest against the repository that built it and optionally the re-usable workflow that signed it;
+4. checks every tag: a tag that does not exist is going to be created, a tag that has the digest is left alone, and a tag that has another digest fails the action, because a tag is never moved;
+5. creates all missing tags in one `docker buildx imagetools create`, which copies the manifests and blobs between registries and preserves the digest;
+6. checks that every tag resolves to the verified digest.
 
 Everything is checked before the first tag is written, and writing a tag that is in place does nothing, so the action can be run again after a failure.
 A registry that can't be read, for example because of a login that is not valid, fails the action: it is not taken for a tag that does not exist.
@@ -34,12 +35,13 @@ Log in to the registry of the image and to the target registry first, with [regi
     release-tag: ${{ github.ref_name }}
     source-image: ghcr.io/my-org/my-image
     tags: |
+      registry.example.invalid/my-org/my-image:v1.2.3
       registry.example.invalid/my-org/my-image:1.2.3
-      registry.example.invalid/my-org/my-image:latest
 ```
 
-The tags can come from `docker/metadata-action`, which is what [wc-replicate-images.yml](../../workflows/wc-replicate-images.yml) does to give the copies the tags of the release.
-The caller needs `attestations: read` for private and internal repositories, `packages: read` when the image is in a private GitHub Container Registry, and a container engine with `buildx`, the GitHub CLI and `jq` on the runner.
+Use immutable version tags: this action does not move a tag when a newer release has another digest, so rolling aliases such as `latest`, major, and minor versions must be managed separately.
+The tags can come from `docker/metadata-action`, which is what [wc-replicate-images.yml](../../workflows/wc-replicate-images.yml) does to give the copies the full version tags of the release.
+The caller needs `contents: read` to check that the release is published, `attestations: read` for private and internal repositories, `packages: read` when the image is in a private GitHub Container Registry, and a container engine with `buildx`, the GitHub CLI and `jq` on the runner.
 
 ## Inputs and outputs
 
@@ -52,7 +54,7 @@ The caller needs `attestations: read` for private and internal repositories, `pa
 | `tags`            | input  | yes      | Newline-separated image references, including the tag, that the image is copied to. At least one.                                                            |
 | `digest`          | output | -        | Digest of the image that all the tags have.                                                                                                                  |
 
-The action fails when the image of the release does not exist, when its attestation can't be verified, when a tag has another digest, when a registry can't be read or written, when a reference has no tag, or when there are no tags.
+The action fails when the release is missing or still a draft, when the image of the release does not exist, when its attestation can't be verified, when a tag has another digest, when a registry can't be read or written, when a reference has no tag, or when there are no tags.
 
 > [!NOTE]
 > The check of a tag and the write are not atomic, because registries have no conditional write for a tag. A tag that another run creates in between, with another digest, is overwritten. Don't run two replications of the same tags at the same time.

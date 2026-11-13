@@ -11,6 +11,7 @@
 #   TAGS             newline-separated references with a tag to create, e.g. registry.example.invalid/my-org/my-image:1.2.3
 #   SIGNER_WORKFLOW  re-usable workflow that signed the attestation of the image (optional)
 #   GH_REPO          repository (<owner>/<name>) that built the image, the attestation is verified against it
+#   GH_TOKEN         token that can read the release and verify its attestation
 #   GITHUB_OUTPUT    file the output `digest` is appended to (optional)
 
 set -Eeuo pipefail
@@ -57,6 +58,17 @@ if [[ ${#references[@]} -eq 0 ]]; then
   exit 1
 fi
 
+if is_draft=$(gh release view "${release_tag}" --json isDraft --jq '.isDraft'); then
+  case "${is_draft}" in
+    false) ;;
+    true) echo "::error::Release ${release_tag} is a draft, refusing to replicate it"; exit 1 ;;
+    *) echo "::error::Unexpected draft state of release ${release_tag}: ${is_draft}"; exit 1 ;;
+  esac
+else
+  echo "::error::Could not read release ${release_tag} in ${repository}, refusing to replicate it" >&2
+  exit 1
+fi
+
 source_digest=$(digest_of "${source_image}:${release_tag}")
 if [[ -z "${source_digest}" ]]; then
   echo "error: ${source_image}:${release_tag} not found" >&2
@@ -81,7 +93,7 @@ for reference in "${references[@]}"; do
 done
 
 if [[ ${#pending[@]} -gt 0 ]]; then
-  create_arguments=()
+  create_arguments=(--prefer-index=false)
   for reference in "${pending[@]}"; do
     create_arguments+=(--tag "${reference}")
   done

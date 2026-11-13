@@ -26,7 +26,7 @@ on:
       release-tag:
         description: >-
           Tag of the release, which is also the tag of the images.
-          The copies get the tags that the release has: the version with and without `v`, the major and minor versions, and `latest`.
+          The copies get the immutable full version tags with and without `v`; rolling aliases are not copied.
         required: true
         type: string
       runner-labels:
@@ -109,7 +109,7 @@ jobs:
         image: ${{ fromJson(needs.list-images.outputs.images) }}
     permissions:
       attestations: read # is needed by gh to verify the attestation of the image in private and internal repositories
-      contents: read # is needed by docker/metadata-action to read the repository
+      contents: read # is needed by gh to read the release and docker/metadata-action to read the repository
       packages: read # is needed to read the image in GitHub Container Registry when it is private
     steps:
       - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
@@ -146,11 +146,10 @@ jobs:
         id: metadata
         with:
           images: ${{ steps.target.outputs.image }}
+          flavor: latest=false
           tags: |
             type=semver,pattern={{raw}},value=${{ inputs.release-tag }}
             type=semver,pattern={{version}},value=${{ inputs.release-tag }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ inputs.release-tag }}
-            type=semver,pattern={{major}},value=${{ inputs.release-tag }}
       - name: Replicate the image
         uses: $/.github/actions/replicate-image-tags
         with:

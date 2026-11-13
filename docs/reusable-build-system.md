@@ -316,8 +316,9 @@ A workflow for the `release` event calls `wc-release-published.yml` with the tag
 The images of a release are built, tested and attested in one registry, ghcr.io for amp-devcontainer.
 To make them available in more registries, such as Docker Hub or Artifactory, copy them after the release instead of building them for every registry.
 The copy has the same digest, so the attestation, SBOM and tool inventory of the release are valid for it, and an image that was not released never gets there.
-[wc-replicate-images.yml](../.github/workflows/wc-replicate-images.yml) verifies the attestation of every image, and gives the copies the tags of the release (the version with and without `v`, the major and minor versions, and `latest`).
-It never moves a tag: a tag that has another digest fails the workflow.
+[wc-replicate-images.yml](../.github/workflows/wc-replicate-images.yml) verifies the attestation of every image and requires the release to be published before copying.
+It gives the copies the immutable full version tags with and without `v`, and omits rolling aliases such as the major, minor, and `latest` tags.
+It never moves a tag: a tag that has another digest fails the workflow, so manage rolling aliases separately if you need them.
 Call it once for each registry, after the release is published:
 
 ```yaml
