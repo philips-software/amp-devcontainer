@@ -5,7 +5,9 @@ It is meant to be posted as a comment on a pull request, so reviewers see what a
 
 The size of an image is the compressed size of its layers.
 The report has the sizes before and after, the change in size and percentage, and a trend icon per platform.
-The two images must be built for the same platforms.
+When both images exist, they must be built for the same platforms.
+If the registry confirms that the baseline manifest does not exist, for example on the first pull-request build of a new image, the report explains that comparison is unavailable and lists only the current image's platform sizes.
+It does not invent previous sizes, changes or percentages.
 
 ## Usage
 
@@ -31,7 +33,9 @@ The action installs Node.js and its own dependencies.
 | `to-container`       | input  | The image that is compared to the baseline. Required. |
 | `size-diff-markdown` | output | The markdown report.                                  |
 
-The action fails when an image cannot be inspected, has no platforms, or when the platforms of the images differ.
+The action fails when the current image cannot be inspected, either manifest is malformed or has no known platforms, or when two existing images have different platforms.
+Only confirmed missing baseline manifests (`no such manifest` for the baseline reference or a `manifest unknown` / `MANIFEST_UNKNOWN` diagnostic) are nonfatal.
+Baseline authentication, authorization, network and unexpected registry errors remain fatal.
 
 ## Tests
 

@@ -16,6 +16,28 @@ function inspectManifest(container) {
   return stdout;
 }
 
+function isMissingManifest(error, container) {
+  if (
+    error?.exitCode !== 1 ||
+    error.timedOut ||
+    error.isCanceled ||
+    error.killed ||
+    error.signal ||
+    typeof error.stderr !== "string"
+  ) {
+    return false;
+  }
+
+  // Match the entire diagnostic so mixed registry/authentication errors stay fatal.
+  const diagnostic = error.stderr.trim();
+  return (
+    diagnostic === `no such manifest: ${container}` ||
+    /^(?:Error response from daemon: )?(?:manifest unknown|MANIFEST_UNKNOWN)(?:: (?:manifest unknown|The named manifest is not known to the registry\.?))?$/.test(
+      diagnostic,
+    )
+  );
+}
+
 // Returns the compressed size of the layers per platform of a container image, as an
 // object that maps the platform (e.g. "linux/arm64") to the size in bytes.
 function getSizes(container, inspect = inspectManifest) {
@@ -85,8 +107,35 @@ function containerSizeDiff(
   toContainer,
   inspect = inspectManifest,
 ) {
-  const fromSizes = getSizes(fromContainer, inspect);
+  let fromSizes;
+  try {
+    fromSizes = getSizes(fromContainer, inspect);
+  } catch (error) {
+    if (!isMissingManifest(error, fromContainer)) {
+      throw error;
+    }
+    fromSizes = null;
+  }
   const toSizes = getSizes(toContainer, inspect);
+
+  if (fromSizes === null) {
+    const rows = [
+      ["OS/Platform", "Current"],
+      ..._.keys(toSizes)
+        .sort()
+        .map((platform) => [platform, filesize(toSizes[platform])]),
+    ];
+
+    return `## 📦 Container Size Analysis
+
+> [!NOTE]
+> Comparison unavailable: baseline \`${fromContainer}\` does not exist.
+> Current image: \`${toContainer}\`
+
+### 📦 Current Image Sizes
+
+${markdownTable(rows, { align: ["l", "c"] })}`;
+  }
 
   const missingFrom = _.difference(_.keys(toSizes), _.keys(fromSizes));
   const missingTo = _.difference(_.keys(fromSizes), _.keys(toSizes));
