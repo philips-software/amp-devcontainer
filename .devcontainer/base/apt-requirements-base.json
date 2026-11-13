@@ -5,7 +5,7 @@
   "git": "1:2.53.0-1ubuntu1.1",
   "gnupg2": "2.4.8-4ubuntu3.1",
   "libatomic1": "16-20260322-1ubuntu1",
-  "locales": "2.43-2ubuntu2.4",
+  "locales": "2.43-2ubuntu2.7",
   "udev": "259.9-0ubuntu0.1",
   "wget": "1.25.0-2ubuntu4.4",
   "xz-utils": "5.8.3-1ubuntu0.1"
