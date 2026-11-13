@@ -246,6 +246,28 @@ for (const diagnostic of missingDiagnostics) {
   });
 }
 
+for (const baseline of [
+  "fake-image:edge",
+  "docker.io/fake-image:edge",
+  "index.docker.io/fake-image:edge",
+  "fake-org/fake-image:edge",
+]) {
+  test(`missing baseline diagnostics accept Docker reference normalization: ${baseline}`, () => {
+    const normalized = baseline.includes("fake-org/")
+      ? "docker.io/fake-org/fake-image:edge"
+      : "docker.io/library/fake-image:edge";
+    const inspect = fakeInspect({
+      [baseline]: inspectionError(`no such manifest: ${normalized}`),
+      "fake-to": [platformManifest(amd64, 1000)],
+    });
+
+    assert.match(
+      containerSizeDiff(baseline, "fake-to", inspect),
+      /Comparison unavailable/,
+    );
+  });
+}
+
 for (const baselineMissing of [false, true]) {
   test(`a missing current image fails with baseline missing=${baselineMissing}`, () => {
     const currentError = inspectionError("no such manifest: fake-to");
@@ -323,6 +345,13 @@ for (const invalidManifest of [
   "not JSON",
   [],
   [platformManifest({ os: "unknown", architecture: "unknown" }, 10)],
+  [{ Descriptor: { platform: amd64 } }],
+  [platformManifest(amd64, -1)],
+  [platformManifest(amd64, "1000")],
+  [platformManifest(amd64, null)],
+  [platformManifest(amd64, 1.5)],
+  [platformManifest(amd64, Number.MAX_SAFE_INTEGER, 1)],
+  [{ Descriptor: { platform: amd64 }, OCIManifest: { layers: {} } }],
 ]) {
   test(`invalid baseline data remains fatal: ${JSON.stringify(invalidManifest)}`, () => {
     const inspect = fakeInspect({
@@ -332,7 +361,7 @@ for (const invalidManifest of [
 
     assert.throws(
       () => containerSizeDiff("fake-from", "fake-to", inspect),
-      /Unexpected token|No platform sizes found for fake-from/,
+      /Unexpected token|(?:No|Invalid) platform sizes found for fake-from/,
     );
   });
 
@@ -347,7 +376,7 @@ for (const invalidManifest of [
 
       assert.throws(
         () => containerSizeDiff("fake-from", "fake-to", inspect),
-        /Unexpected token|No platform sizes found for fake-to/,
+        /Unexpected token|(?:No|Invalid) platform sizes found for fake-to/,
       );
     });
   }

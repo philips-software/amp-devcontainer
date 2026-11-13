@@ -16,6 +16,23 @@ function inspectManifest(container) {
   return stdout;
 }
 
+function normalizedReference(container) {
+  const parts = container.split("/");
+  if (
+    parts.length === 1 ||
+    (!/[.:]/.test(parts[0]) && parts[0] !== "localhost")
+  ) {
+    parts.unshift("docker.io");
+  }
+  if (parts[0] === "index.docker.io") {
+    parts[0] = "docker.io";
+  }
+  if (parts[0] === "docker.io" && parts.length === 2) {
+    parts.splice(1, 0, "library");
+  }
+  return parts.join("/");
+}
+
 function isMissingManifest(error, container) {
   if (
     error?.exitCode !== 1 ||
@@ -30,8 +47,10 @@ function isMissingManifest(error, container) {
 
   // Match the entire diagnostic so mixed registry/authentication errors stay fatal.
   const diagnostic = error.stderr.trim();
+  const missing = /^no such manifest: (\S+)$/.exec(diagnostic);
   return (
-    diagnostic === `no such manifest: ${container}` ||
+    (missing &&
+      normalizedReference(missing[1]) === normalizedReference(container)) ||
     /^(?:Error response from daemon: )?(?:manifest unknown|MANIFEST_UNKNOWN)(?:: (?:manifest unknown|The named manifest is not known to the registry\.?))?$/.test(
       diagnostic,
     )
@@ -54,8 +73,21 @@ function getSizes(container, inspect = inspectManifest) {
       ]).join("/");
 
       const layers =
-        _.get(manifest, "OCIManifest.layers") || _.get(manifest, "layers", []);
+        _.get(manifest, "OCIManifest.layers") || _.get(manifest, "layers");
+      if (
+        key &&
+        !key.includes("unknown") &&
+        (!Array.isArray(layers) ||
+          layers.some(
+            (layer) => !Number.isSafeInteger(layer?.size) || layer.size < 0,
+          ))
+      ) {
+        throw new Error(`Invalid platform sizes found for ${container}`);
+      }
       const total = _.sumBy(layers, "size");
+      if (key && !key.includes("unknown") && !Number.isSafeInteger(total)) {
+        throw new Error(`Invalid platform sizes found for ${container}`);
+      }
 
       return [key, total];
     })

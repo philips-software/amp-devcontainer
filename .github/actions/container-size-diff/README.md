@@ -33,7 +33,7 @@ The action installs Node.js and its own dependencies.
 | `to-container`       | input  | The image that is compared to the baseline. Required. |
 | `size-diff-markdown` | output | The markdown report.                                  |
 
-The action fails when the current image cannot be inspected, either manifest is malformed or has no known platforms, or when two existing images have different platforms.
+The action fails when the current image cannot be inspected, either manifest is malformed or has no known platforms or valid layer sizes, or when two existing images have different platforms.
 Only confirmed missing baseline manifests (`no such manifest` for the baseline reference or a `manifest unknown` / `MANIFEST_UNKNOWN` diagnostic) are nonfatal.
 Baseline authentication, authorization, network and unexpected registry errors remain fatal.
 
