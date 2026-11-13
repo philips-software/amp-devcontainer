@@ -55,11 +55,17 @@ jobs:
           podman --version
       - name: Login to container registry
         run: |
+          set -Eeuo pipefail
+          if [[ -z "${REGISTRY_USERNAME}" || -z "${REGISTRY_PASSWORD}" ]]; then
+            echo "No credentials for ${REGISTRY}, using it anonymously"
+            exit 0
+          fi
           printf '%s' "${REGISTRY_PASSWORD}" | podman login "${REGISTRY}" --username "${REGISTRY_USERNAME}" --password-stdin
         env:
           REGISTRY: ${{ inputs.registry }}
-          REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-          REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
+          # The identity of the workflow is only valid for ghcr.io, without credentials any other registry is used anonymously
+          REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME || (inputs.registry == 'ghcr.io' && github.actor || '') }}
+          REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD || (inputs.registry == 'ghcr.io' && github.token || '') }}
       - name: Pull container image
         run: |
           podman pull "${IMAGE_WITH_DIGEST}"
@@ -90,8 +96,9 @@ jobs:
           WORKSPACE: ${{ github.workspace }}
       - name: Log out of container registry
         if: ${{ always() }}
+        # Without credentials there was no login, and logging out of a registry that was not logged in to fails
         run: |
-          podman logout "${REGISTRY}"
+          podman logout "${REGISTRY}" || echo "Not logged in to ${REGISTRY}"
         env:
           REGISTRY: ${{ inputs.registry }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

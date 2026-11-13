@@ -14,7 +14,8 @@ on:
       registry:
         description: >-
           Docker registry of the images, to log in to.
-          `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` secrets must be set if not using GitHub Container Registry (ghcr.io).
+          `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` secrets must be set for a private registry other than GitHub Container Registry (ghcr.io),
+          the identity of the workflow is only valid there. Without them, such a registry is used anonymously.
         required: false
         type: string
         default: ghcr.io
@@ -59,10 +60,10 @@ on:
         value: ${{ jobs.release-notes.outputs.asset-names }}
     secrets:
       DOCKER_REGISTRY_PASSWORD:
-        description: Password or token for Docker login, if not provided the GitHub token will be used.
+        description: Password or token for Docker login. Without credentials the identity of the workflow is used for ghcr.io, and any other registry is used anonymously.
         required: false
       DOCKER_REGISTRY_USERNAME:
-        description: User name for Docker login, if not provided the GitHub actor will be used.
+        description: User name for Docker login. Without credentials the identity of the workflow is used for ghcr.io, and any other registry is used anonymously.
         required: false
 
 permissions: {}
@@ -90,11 +91,11 @@ jobs:
         if: ${{ inputs.template-file != '' }}
         with:
           persist-credentials: false
-      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+      - uses: $/.github/actions/registry-login
         with:
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
           registry: ${{ inputs.registry }}
-          username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}
-          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD || github.token }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: tool-inventory-*

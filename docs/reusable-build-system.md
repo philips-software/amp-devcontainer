@@ -24,7 +24,9 @@ The actions have a README with their inputs and outputs:
 - [generate-tool-inventory](../.github/actions/generate-tool-inventory/README.md): derive the tools of an image from its SBOM
 - [merge-devcontainer-metadata](../.github/actions/merge-devcontainer-metadata/README.md): carry over the `devcontainer.metadata` label of the base image
 - [publish-release](../.github/actions/publish-release/README.md): check the assets of a draft release and publish it
+- [registry-login](../.github/actions/registry-login/README.md): log in to a registry, with the identity of the workflow only for ghcr.io
 - [render-release-notes](../.github/actions/render-release-notes/README.md): render the release notes of a release
+- [replicate-image-tags](../.github/actions/replicate-image-tags/README.md): verify a released image and copy it to more tags, in other registries too
 - [require-draft-release](../.github/actions/require-draft-release/README.md): require that the draft release of a tag exists
 - [select-image-version](../.github/actions/select-image-version/README.md): select the image that an acceptance test uses
 - [update-apt-packages](../.github/actions/update-apt-packages/README.md): update pinned apt packages
@@ -41,11 +43,13 @@ The re-usable workflows that a repository calls, next to `wc-build-push-test.yml
 - [wc-release-please.yml](../.github/workflows/wc-release-please.yml): create the release pull request and the releases with [release-please](https://github.com/googleapis/release-please), with an installation token of a GitHub App (input `app-client-id` and secret `APP_PRIVATE_KEY`) so the release triggers other workflows
 - [wc-release-notes.yml](../.github/workflows/wc-release-notes.yml) and [wc-release-summary.yml](../.github/workflows/wc-release-summary.yml): write the notes of a release, see [Release](#5-release)
 - [wc-release-published.yml](../.github/workflows/wc-release-published.yml): after the publication, verify that the release is immutable and comment on the released pull requests
+- [wc-replicate-images.yml](../.github/workflows/wc-replicate-images.yml): copy the images of a release to another registry, see [Replicate images](#replicate-images)
 - [wc-require-draft-release.yml](../.github/workflows/wc-require-draft-release.yml): at the start of a release workflow, require that the draft release exists, see [Release](#5-release)
 - [wc-update-apt-packages.yml](../.github/workflows/wc-update-apt-packages.yml) and [wc-update-vscode-extensions.yml](../.github/workflows/wc-update-vscode-extensions.yml): open a pull request that updates pinned apt packages and VS Code extensions, see [Keep the pins up to date](#4-keep-the-pins-up-to-date)
 
 They all take the runner as `runner-labels`, a JSON array, and a workflow that logs in to a registry takes `registry` and the secrets `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD`.
 The identity of the workflow is only valid for ghcr.io, so without these secrets ghcr.io is logged in to with it, and any other registry, such as Docker Hub, is used anonymously, which is enough to pull public images.
+Pushing to a registry other than ghcr.io fails without credentials, see [registry-login](../.github/actions/registry-login/README.md).
 A caller passes secrets explicitly, never with `secrets: inherit`.
 
 The helpers are [bats-tool-inventory](../helpers/bats-tool-inventory/README.md), to check the installed tools and apt packages, and [add-sbom-note](../helpers/add-sbom-note/add-sbom-note.sh), to make tools that are not installed by a package manager show up in the SBOM.
@@ -261,7 +265,7 @@ release-notes:
     runner-labels: '["self-hosted", "linux", "x86_64"]' # defaults to ["ubuntu-latest"]
     template-file: .github/RELEASE_TEMPLATE.md.j2 # optional
   secrets:
-    DOCKER_REGISTRY_USERNAME: ${{ secrets.MY_REGISTRY_USERNAME }} # not needed for ghcr.io
+    DOCKER_REGISTRY_USERNAME: ${{ secrets.MY_REGISTRY_USERNAME }} # not needed for ghcr.io, or for a public registry
     DOCKER_REGISTRY_PASSWORD: ${{ secrets.MY_REGISTRY_PASSWORD }}
   permissions:
     actions: read # to download the tool inventories
@@ -306,6 +310,42 @@ publish-release:
 
 The publication waits for the approval of the environment `release`, configure its required reviewers in the settings of the repository, or pass another name as `environment`.
 A workflow for the `release` event calls `wc-release-published.yml` with the tag, once the release is published. It needs `attestations: read`, `contents: read` and `pull-requests: write`.
+
+#### Replicate images
+
+The images of a release are built, tested and attested in one registry, ghcr.io for amp-devcontainer.
+To make them available in more registries, such as Docker Hub or Artifactory, copy them after the release instead of building them for every registry.
+The copy has the same digest, so the attestation, SBOM and tool inventory of the release are valid for it, and an image that was not released never gets there.
+[wc-replicate-images.yml](../.github/workflows/wc-replicate-images.yml) verifies the attestation of every image and requires the release to be published before copying.
+It gives the copies the immutable full version tags with and without `v`, and omits rolling aliases such as the major, minor, and `latest` tags.
+It never moves a tag: a tag that has another digest fails the workflow, so manage rolling aliases separately if you need them.
+Call it once for each registry, after the release is published:
+
+```yaml
+replicate-images-my-registry:
+  needs: publish-release
+  uses: philips-software/amp-devcontainer/.github/workflows/wc-replicate-images.yml@<sha> # <version>
+  with:
+    images: |
+      ghcr.io/my-org/my-image-alpha
+      ghcr.io/my-org/my-image-beta
+    release-tag: ${{ github.ref_name }}
+    target-namespace: my-org
+    target-registry: registry.example.invalid
+  permissions:
+    attestations: read # to verify the attestations of the images, in private and internal repositories
+    contents: read # to read the repository
+    packages: read # to read private images in ghcr.io
+  secrets:
+    TARGET_REGISTRY_PASSWORD: ${{ secrets.MY_REGISTRY_PASSWORD }}
+    TARGET_REGISTRY_USERNAME: ${{ secrets.MY_REGISTRY_USERNAME }}
+```
+
+The copy is named `<target-registry>/<target-namespace>/<name of the image>`, so `ghcr.io/my-org/my-image-alpha` is copied to `registry.example.invalid/my-org/my-image-alpha`.
+The credentials of the target registry are secrets of the repository, because a secret of an environment can't be passed to a re-usable workflow without `secrets: inherit`. Give them the rights to push to these repositories only.
+A repository that wants to use environment secrets calls the [replicate-image-tags](../.github/actions/replicate-image-tags/README.md) action from a job with `environment:` instead.
+The workflow [replicate-images.yml](../.github/workflows/replicate-images.yml) copies one image of an existing release by hand, to rehearse a registry with a scratch namespace before a release uses it, or to catch up.
+Registries are logged in to with [registry-login](../.github/actions/registry-login/README.md), and a repository must exist in the target registry before the first push when the registry does not create it (Quay and Artifactory don't).
 
 ### 6. Check pull requests
 

@@ -1,0 +1,159 @@
+---
+name: Replicate Images
+
+# Copies the images of a release to another registry, with the same digest, after verifying their attestations.
+# The images are built, tested and attested in the registry of the release (see wc-build-push-test.yml), this
+# workflow only adds the copies. Call it once for every registry the images have to be available in.
+
+on:
+  workflow_call:
+    inputs:
+      images:
+        description: >-
+          Newline-separated fully qualified container image references without tag, that are copied.
+          The copy of an image has the last path segment of the image as its name.
+        required: true
+        type: string
+      registry:
+        description: >-
+          Registry of the images, to log in to.
+          `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` secrets must be set for a private registry other than
+          GitHub Container Registry (ghcr.io), the identity of the workflow is only valid there.
+          Without them, such a registry is used anonymously.
+        required: false
+        type: string
+        default: ghcr.io
+      release-tag:
+        description: >-
+          Tag of the release, which is also the tag of the images.
+          The copies get the immutable full version tags with and without `v`; rolling aliases are not copied.
+        required: true
+        type: string
+      runner-labels:
+        description: >-
+          JSON array used to select the runner.
+          Must be valid JSON.
+
+          Examples:
+            '["ubuntu-latest"]'
+            '["self-hosted", "linux", "x86_64"]'
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+      signer-workflow:
+        description: >-
+          Re-usable workflow that signed the attestations of the images, as `<owner>/<repository>/<path>`.
+          Images that are built by a re-usable workflow of another repository, such as the one of amp-devcontainer,
+          are only verified with the workflow that signed them.
+        required: false
+        type: string
+        default: philips-software/amp-devcontainer/.github/workflows/wc-build-push.yml
+      target-namespace:
+        description: Namespace (user or organization) in the target registry that the images are copied to, e.g. `my-org`.
+        required: true
+        type: string
+      target-registry:
+        description: Registry the images are copied to, e.g. `docker.io` or `quay.io`.
+        required: true
+        type: string
+    secrets:
+      DOCKER_REGISTRY_PASSWORD:
+        description: Password or token to read the images with. Without credentials the identity of the workflow is used for ghcr.io, and any other registry is used anonymously.
+        required: false
+      DOCKER_REGISTRY_USERNAME:
+        description: User name to read the images with. Without credentials the identity of the workflow is used for ghcr.io, and any other registry is used anonymously.
+        required: false
+      TARGET_REGISTRY_PASSWORD:
+        description: Password or token to push the copies to the target registry with.
+        required: true
+      TARGET_REGISTRY_USERNAME:
+        description: User name to push the copies to the target registry with.
+        required: true
+
+permissions: {}
+
+jobs:
+  list-images:
+    name: 📋 List Images
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 5
+    outputs:
+      images: ${{ steps.list.outputs.images }}
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - name: List images
+        id: list
+        run: |
+          set -Eeuo pipefail
+          images=$(jq -Rsc 'split("\n") | map(gsub("\\s"; "")) | map(select(length > 0))' <<< "${IMAGES}")
+          if [[ "${images}" == "[]" ]]; then
+            echo "::error::No images to replicate"
+            exit 1
+          fi
+          echo "images=${images}" >> "${GITHUB_OUTPUT}"
+        env:
+          IMAGES: ${{ inputs.images }}
+
+  replicate:
+    name: 📦 ${{ matrix.image }}
+    needs: list-images
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    timeout-minutes: 30
+    # A registry that fails does not stop the copy of the other images, they can be repeated with the failed jobs
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJson(needs.list-images.outputs.images) }}
+    permissions:
+      attestations: read # is needed by gh to verify the attestation of the image in private and internal repositories
+      contents: read # is needed by gh to read the release and docker/metadata-action to read the repository
+      packages: read # is needed to read the image in GitHub Container Registry when it is private
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          cache-binary: false
+      - name: Login to the registry of the image
+        uses: $/.github/actions/registry-login
+        with:
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+          registry: ${{ inputs.registry }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      - name: Login to the target registry
+        uses: $/.github/actions/registry-login
+        with:
+          password: ${{ secrets.TARGET_REGISTRY_PASSWORD }}
+          registry: ${{ inputs.target-registry }}
+          require-credentials: true
+          username: ${{ secrets.TARGET_REGISTRY_USERNAME }}
+      - name: Name the copy
+        id: target
+        run: |
+          set -Eeuo pipefail
+          echo "image=${TARGET_REGISTRY}/${TARGET_NAMESPACE}/${SOURCE_IMAGE##*/}" >> "${GITHUB_OUTPUT}"
+        env:
+          SOURCE_IMAGE: ${{ matrix.image }}
+          TARGET_NAMESPACE: ${{ inputs.target-namespace }}
+          TARGET_REGISTRY: ${{ inputs.target-registry }}
+      # The tags of the release, with the rules that wc-build-push.yml tags the image with
+      - uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        id: metadata
+        with:
+          images: ${{ steps.target.outputs.image }}
+          flavor: latest=false
+          tags: |
+            type=semver,pattern={{raw}},value=${{ inputs.release-tag }}
+            type=semver,pattern={{version}},value=${{ inputs.release-tag }}
+      - name: Replicate the image
+        uses: $/.github/actions/replicate-image-tags
+        with:
+          release-tag: ${{ inputs.release-tag }}
+          signer-workflow: ${{ inputs.signer-workflow }}
+          source-image: ${{ matrix.image }}
+          tags: ${{ steps.metadata.outputs.tags }}

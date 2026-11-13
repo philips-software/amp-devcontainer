@@ -79,7 +79,8 @@ on:
       registry:
         description: >-
           Docker registry to push built containers to.
-          `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` secrets must be set if not using GitHub Container Registry (ghcr.io).
+          `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` secrets must be set to push to a registry other than GitHub Container Registry (ghcr.io),
+          the identity of the workflow is only valid there. Without them, such a registry is used anonymously to pull.
         required: false
         type: string
         default: "ghcr.io"
@@ -113,10 +114,10 @@ on:
         value: ${{ jobs.build-push.outputs.version }}
     secrets:
       DOCKER_REGISTRY_PASSWORD:
-        description: Password or token for Docker login, if not provided the GitHub token will be used.
+        description: Password or token for Docker login. Without credentials the identity of the workflow is used for ghcr.io, and any other registry is used anonymously, which can't push.
         required: false
       DOCKER_REGISTRY_USERNAME:
-        description: User name for Docker login, if not provided the GitHub actor will be used.
+        description: User name for Docker login. Without credentials the identity of the workflow is used for ghcr.io, and any other registry is used anonymously, which can't push.
         required: false
       TEST_GITHUB_PASSWORD:
         required: false

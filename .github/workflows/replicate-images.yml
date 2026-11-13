@@ -1,0 +1,46 @@
+---
+name: Replicate Images (manual)
+
+# Copies the images of an existing release to another registry. It is the way to rehearse wc-replicate-images.yml
+# before a release uses it, with a scratch namespace in the target registry, and to catch up on a release.
+#
+# The credentials of the target registry are the repository secrets TARGET_REGISTRY_USERNAME and TARGET_REGISTRY_PASSWORD.
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: Fully qualified image without tag, e.g. ghcr.io/philips-software/amp-devcontainer-base
+        required: true
+        type: string
+      release-tag:
+        description: Tag of the release, e.g. v1.2.3
+        required: true
+        type: string
+      target-namespace:
+        description: Namespace in the target registry, e.g. a scratch namespace to rehearse with
+        required: true
+        type: string
+      target-registry:
+        description: Registry to copy the image to, e.g. docker.io
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  replicate-images:
+    name: 📦 Replicate Images
+    uses: $/.github/workflows/wc-replicate-images.yml
+    with:
+      images: ${{ inputs.image }}
+      release-tag: ${{ inputs.release-tag }}
+      target-namespace: ${{ inputs.target-namespace }}
+      target-registry: ${{ inputs.target-registry }}
+    permissions:
+      attestations: read # is needed by gh to verify the attestation of the image in private and internal repositories
+      contents: read # is needed by gh to read the release and docker/metadata-action to read the repository
+      packages: read # is needed to read the image in GitHub Container Registry when it is private
+    secrets:
+      TARGET_REGISTRY_PASSWORD: ${{ secrets.TARGET_REGISTRY_PASSWORD }}
+      TARGET_REGISTRY_USERNAME: ${{ secrets.TARGET_REGISTRY_USERNAME }}
