@@ -18,7 +18,7 @@ This document describes the building blocks, and the path we recommend to follow
 
 The actions have a README with their inputs and outputs:
 
-- [container-size-diff](../.github/actions/container-size-diff/README.md): report the size difference between two images
+- [container-size-diff](../.github/actions/container-size-diff/README.md): report the size difference between two images, or current sizes when the baseline does not exist
 - [extract-manifest-digest](../.github/actions/extract-manifest-digest/README.md): get the digest of an image
 - [generate-release-summary](../.github/actions/generate-release-summary/README.md): let Copilot draft the summary of a release
 - [generate-tool-inventory](../.github/actions/generate-tool-inventory/README.md): derive the tools of an image from its SBOM
@@ -65,6 +65,11 @@ flowchart LR
 2. **Merge** the architectures into one multi-architecture image, and tag it: `pr-<number>` for a pull request, `edge` for the merge queue (when enabled), and the semantic versions for a release.
 3. **Document the image**: create an SBOM, a build provenance attestation (which is verified right away), the tool inventory, a container diff, and a comment with the size difference with the `edge` image.
 4. **Test the image**, by running Bats integration tests in it with Docker, and optionally Podman, and optionally an acceptance test in a Codespace.
+
+On the first build of a new image, there may be no `edge` baseline yet.
+The size comment then explains that comparison is unavailable and reports the current platform sizes; the best-effort semantic diff may not produce an artifact.
+The current image is still validated, and the normal SBOM, inventory, attestation and integration-test gates remain in place.
+Pull-request builds do not need to publish `edge` to enable this bootstrap.
 
 The result is an image that is signed, can be traced back to its source, and has been tested with the container runtimes it supports.
 Calling it with several images, in a matrix, gives you a family of containers: build the base image first, and pass it as `base-image` and as a build argument to the images that derive from it, like [build-push-test.yml](../.github/workflows/build-push-test.yml) does.
@@ -173,7 +178,8 @@ The permissions are what the jobs in the workflow need, the workflow has a comme
 The inputs of the workflow are documented in the workflow file.
 The `base-image` is the image of the `FROM` line.
 Without it the `devcontainer.metadata` label of your image only has your own metadata, and the VS Code extensions and settings of the base image are lost.
-Run the workflow for pull requests, and for the merge queue with `enable-edge-tag` so there is always an `edge` image to compare with.
+Run the workflow for pull requests, and for the merge queue with `enable-edge-tag` so subsequent builds have an `edge` image to compare with.
+Consumers pinned to an older commit must adopt the verified commit of an `actions/vX.Y.Z` release containing the bootstrap fix; changes on `main` do not update pinned callers.
 
 ### 4. Keep the pins up to date
 

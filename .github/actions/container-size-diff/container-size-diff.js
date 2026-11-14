@@ -16,6 +16,51 @@ function inspectManifest(container) {
   return stdout;
 }
 
+function normalizedReference(container) {
+  const parts = container.split("/");
+  const last = parts.length - 1;
+  if (!parts[last].includes(":") && !parts[last].includes("@")) {
+    parts[last] += ":latest";
+  }
+  if (
+    parts.length === 1 ||
+    (!/[.:]/.test(parts[0]) && parts[0] !== "localhost")
+  ) {
+    parts.unshift("docker.io");
+  }
+  if (parts[0] === "index.docker.io") {
+    parts[0] = "docker.io";
+  }
+  if (parts[0] === "docker.io" && parts.length === 2) {
+    parts.splice(1, 0, "library");
+  }
+  return parts.join("/");
+}
+
+function isMissingManifest(error, container) {
+  if (
+    error?.exitCode !== 1 ||
+    error.timedOut ||
+    error.isCanceled ||
+    error.killed ||
+    error.signal ||
+    typeof error.stderr !== "string"
+  ) {
+    return false;
+  }
+
+  // Match the entire diagnostic so mixed registry/authentication errors stay fatal.
+  const diagnostic = error.stderr.trim();
+  const missing = /^no such manifest: (\S+)$/.exec(diagnostic);
+  return (
+    (missing &&
+      normalizedReference(missing[1]) === normalizedReference(container)) ||
+    /^(?:Error response from daemon: )?(?:manifest unknown|MANIFEST_UNKNOWN)(?:: (?:manifest unknown|The named manifest is not known to the registry\.?))?$/.test(
+      diagnostic,
+    )
+  );
+}
+
 // Returns the compressed size of the layers per platform of a container image, as an
 // object that maps the platform (e.g. "linux/arm64") to the size in bytes.
 function getSizes(container, inspect = inspectManifest) {
@@ -32,8 +77,23 @@ function getSizes(container, inspect = inspectManifest) {
       ]).join("/");
 
       const layers =
-        _.get(manifest, "OCIManifest.layers") || _.get(manifest, "layers", []);
+        _.get(manifest, "OCIManifest.layers") ||
+        _.get(manifest, "SchemaV2Manifest.layers") ||
+        _.get(manifest, "layers");
+      if (
+        key &&
+        !key.includes("unknown") &&
+        (!Array.isArray(layers) ||
+          layers.some(
+            (layer) => !Number.isSafeInteger(layer?.size) || layer.size < 0,
+          ))
+      ) {
+        throw new Error(`Invalid platform sizes found for ${container}`);
+      }
       const total = _.sumBy(layers, "size");
+      if (key && !key.includes("unknown") && !Number.isSafeInteger(total)) {
+        throw new Error(`Invalid platform sizes found for ${container}`);
+      }
 
       return [key, total];
     })
@@ -85,8 +145,35 @@ function containerSizeDiff(
   toContainer,
   inspect = inspectManifest,
 ) {
-  const fromSizes = getSizes(fromContainer, inspect);
+  let fromSizes;
+  try {
+    fromSizes = getSizes(fromContainer, inspect);
+  } catch (error) {
+    if (!isMissingManifest(error, fromContainer)) {
+      throw error;
+    }
+    fromSizes = null;
+  }
   const toSizes = getSizes(toContainer, inspect);
+
+  if (fromSizes === null) {
+    const rows = [
+      ["OS/Platform", "Current"],
+      ..._.keys(toSizes)
+        .sort()
+        .map((platform) => [platform, filesize(toSizes[platform])]),
+    ];
+
+    return `## 📦 Container Size Analysis
+
+> [!NOTE]
+> Comparison unavailable: baseline \`${fromContainer}\` does not exist.
+> Current image: \`${toContainer}\`
+
+### 📦 Current Image Sizes
+
+${markdownTable(rows, { align: ["l", "c"] })}`;
+  }
 
   const missingFrom = _.difference(_.keys(toSizes), _.keys(fromSizes));
   const missingTo = _.difference(_.keys(fromSizes), _.keys(toSizes));
