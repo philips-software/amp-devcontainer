@@ -5,6 +5,13 @@ All notable changes to the re-usable actions and workflows of this project are d
 The containers have their own [changelog](../CHANGELOG.md).
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.3.3](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.3.2...actions/v2.3.3) (2026-11-14)
+
+
+### Bug Fixes
+
+* Allow container-size-diff bootstrap without a baseline manifest ([#1577](https://github.com/philips-software/amp-devcontainer/issues/1577)) ([244b1f3](https://github.com/philips-software/amp-devcontainer/commit/244b1f3957db77b9b26006c84d8fd3ab72ff3d99))
+
 ## [2.3.2](https://github.com/philips-software/amp-devcontainer/compare/actions/v2.3.1...actions/v2.3.2) (2026-11-12)
 
 
