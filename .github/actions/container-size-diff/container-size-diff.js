@@ -18,6 +18,10 @@ function inspectManifest(container) {
 
 function normalizedReference(container) {
   const parts = container.split("/");
+  const last = parts.length - 1;
+  if (!parts[last].includes(":") && !parts[last].includes("@")) {
+    parts[last] += ":latest";
+  }
   if (
     parts.length === 1 ||
     (!/[.:]/.test(parts[0]) && parts[0] !== "localhost")
@@ -73,7 +77,9 @@ function getSizes(container, inspect = inspectManifest) {
       ]).join("/");
 
       const layers =
-        _.get(manifest, "OCIManifest.layers") || _.get(manifest, "layers");
+        _.get(manifest, "OCIManifest.layers") ||
+        _.get(manifest, "SchemaV2Manifest.layers") ||
+        _.get(manifest, "layers");
       if (
         key &&
         !key.includes("unknown") &&

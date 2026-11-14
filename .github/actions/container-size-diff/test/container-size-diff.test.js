@@ -81,6 +81,17 @@ test("getSizes accepts a single manifest, and layers that are not in an OCI mani
   assert.deepEqual(getSizes("fake-image", inspect), { "linux/amd64": 1500 });
 });
 
+test("getSizes accepts layers from a schema-v2 manifest", () => {
+  const inspect = fakeInspect({
+    "fake-image": {
+      Descriptor: { platform: amd64 },
+      SchemaV2Manifest: { layers: [{ size: 1000 }, { size: 500 }] },
+    },
+  });
+
+  assert.deepEqual(getSizes("fake-image", inspect), { "linux/amd64": 1500 });
+});
+
 test("getSizes skips manifests without a known platform", () => {
   const inspect = fakeInspect({
     "fake-image": [
@@ -267,6 +278,23 @@ for (const baseline of [
     );
   });
 }
+
+test("missing baseline diagnostics normalize the implicit latest tag", () => {
+  for (const baseline of ["fake-image", "fake-org/fake-image"]) {
+    const normalized = baseline.includes("/")
+      ? `docker.io/${baseline}:latest`
+      : `docker.io/library/${baseline}:latest`;
+    const inspect = fakeInspect({
+      [baseline]: inspectionError(`no such manifest: ${normalized}`),
+      "fake-to": [platformManifest(amd64, 1000)],
+    });
+
+    assert.match(
+      containerSizeDiff(baseline, "fake-to", inspect),
+      /Comparison unavailable/,
+    );
+  }
+});
 
 for (const baselineMissing of [false, true]) {
   test(`a missing current image fails with baseline missing=${baselineMissing}`, () => {
