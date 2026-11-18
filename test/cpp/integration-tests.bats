@@ -188,6 +188,7 @@ teardown() {
 }
 
 @test "a mutation score should be calculated when mutation testing a testsuite" {
+  skip "Mull does not yet support Clang 23 on Ubuntu"
   # @sbdl test-sda-0005 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0004 }
   cmake --preset mutation
   cmake --build --preset mutation
@@ -219,11 +220,12 @@ teardown() {
 }
 
 @test "using lld as an alternative linker should result in working host executable" {
+  EXPECTED_VERSION=$(get_expected_semver_for lld "${APT_REQUIREMENTS[@]}")
   cmake --preset gcc
   cmake --build --preset gcc-lld
 
   run readelf --string-dump .comment build/gcc/gcc/test-gcc-lld
-  assert_output --partial "Linker: Ubuntu LLD"
+  assert_output --partial "LLD ${EXPECTED_VERSION}"
 
   run build/gcc/gcc/test-gcc-lld
   assert_success
