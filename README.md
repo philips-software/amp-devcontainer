@@ -77,7 +77,9 @@ The test tooling includes [Bats](https://bats-core.readthedocs.io) with bats-sup
 
 The amp-devcontainer-cpp image built from this repository contains compilers and tools to facilitate modern C++ development.
 The amp-devcontainer-cpp includes support for host- and cross-compilation using gcc and clang compilers.
-Next to the compilers there is support for package management (using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) and [Conan](https://conan.io/)) code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
+Next to the compilers there is support for package management (using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) and [Conan](https://conan.io/)), code-coverage measurement, fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
+The Clang 23 toolchain is installed from [apt.llvm.org](https://apt.llvm.org/).
+Mutation testing with [Mull](https://github.com/mull-project/mull) is temporarily disabled because Mull does not yet provide Clang 23 packages for Ubuntu.
 
 The default build system is set up to use CMake, Ninja and CCache.
 

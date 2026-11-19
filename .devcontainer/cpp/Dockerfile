@@ -7,10 +7,9 @@ ARG BASE_IMAGE=ghcr.io/philips-software/amp-devcontainer-base:edge
 ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF
 ARG CCACHE_VERSION=4.13.1
 ARG CPM_VERSION=0.43.1
-ARG INCLUDE_WHAT_YOU_USE_VERSION=0.26
-ARG LLVM_VERSION=22.1.2
-ARG LLVM_MAJOR_VERSION=22
-ARG MULL_VERSION=0.37.0
+ARG INCLUDE_WHAT_YOU_USE_VERSION=0.27
+ARG LLVM_VERSION=23.1.6
+ARG LLVM_MAJOR_VERSION=23
 ARG XWIN_VERSION=0.10.0
 # Whether or not to build the embedded flavor of this container
 ARG BUILD_EMBEDDED_FLAVOR=false
@@ -55,9 +54,9 @@ ADD --checksum=sha256:8b2a587ffd672c4687e7581dad4b2f6c1bb2ad6b480cd9771ba2ff48e0
  https://apt.llvm.org/llvm-snapshot.gpg.key /llvm.gpg.key
 ADD --checksum=sha256:1c40fc102ce9625d7de7eb14f541cab30cc3138dca627f0b0ec40293ce6c2934 \
  https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_VERSION}/CPM.cmake /CPM.cmake
-ADD --checksum=sha256:ca3f157a5e6bf293cfb2fea585b103ec87245d02eaee0b6ab832665e740016eb \
+ADD --checksum=sha256:982680d5ee25826fe7dd60d4ec4f2ac7d8f99b545d6a680b77de9e083278357f \
   https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz /iwyu.tar.gz
-ADD --checksum=sha256:6550bcc308bf972f7f956001b73f6478da3d22f1ebd4b01653c978a6c7ff3698 \
+ADD --checksum=sha256:16af05919cf36958dfb4ddaa4fc4d9d4ff577f5daeb76bc112ea49cd8ced82b2 \
   https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/clang+llvm-${LLVM_VERSION}-x86_64-pc-windows-msvc.tar.xz /llvm-windows.tar.xz
 
 # Extractor stage using target architecture specific downloader
@@ -69,9 +68,6 @@ ARG ARM_GNU_TOOLCHAIN_VERSION
 ARG BUILD_EMBEDDED_FLAVOR
 ARG CCACHE_MINISIGN_PUBKEY
 ARG CCACHE_VERSION
-ARG LLVM_VERSION
-ARG LLVM_MAJOR_VERSION
-ARG MULL_VERSION
 ARG XWIN_VERSION
 
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
@@ -83,24 +79,6 @@ RUN --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
     apt-get update && apt-get install --no-install-recommends -y minisign
-
-    UBUNTU_VERSION_ID=$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
-    MULL_RUNNER_DEB="Mull-${MULL_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
-    MULL_DEB="Mull-${LLVM_MAJOR_VERSION}-${MULL_VERSION}-LLVM-${LLVM_VERSION}-ubuntu-$(dpkg --print-architecture | sed 's/^arm64$/aarch64/')-${UBUNTU_VERSION_ID}.deb"
-
-    MULL_BASE_URL="https://github.com/mull-project/mull/releases/download/${MULL_VERSION}"
-    wget --no-hsts -q "${MULL_BASE_URL}/${MULL_RUNNER_DEB}" "${MULL_BASE_URL}/${MULL_DEB}"
-
-    if [[ "$(uname -m)" == "x86_64" ]]; then
-        MULL_RUNNER_SHA256="8f64aea71da7bafcd86bea0e316b16253aaf0835c54878d0bb4b0853f6bc1dfe"
-        MULL_SHA256="44267017f4da2b556ee7715c2c32bcb16270abfdbf8fe0740317708d355171cc"
-    elif [[ "$(uname -m)" == "aarch64" ]]; then
-        MULL_RUNNER_SHA256="4ff84028c08c56d4a3e7654ef8176e8f3c949bb5da39fe36aa13d5fc362f02da"
-        MULL_SHA256="3c9e047bb188ded92fab389af65799cb45d606bfe1193cfd57b7e0396dab9f4f"
-    fi
-
-    echo "${MULL_RUNNER_SHA256}  ${MULL_RUNNER_DEB}" | sha256sum -c -
-    echo "${MULL_SHA256}  ${MULL_DEB}" | sha256sum -c -
 
     if [[ "${BUILD_EMBEDDED_FLAVOR}" == "true" ]]; then
         ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_GNU_TOOLCHAIN_VERSION}/binrel/arm-gnu-toolchain-${ARM_GNU_TOOLCHAIN_VERSION}-$(uname -m)-arm-none-eabi.tar.xz"
@@ -185,16 +163,26 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     install -m 0755 /src/ccache /usr/local/bin/ccache
     install -m 0755 /src/xwin /usr/local/bin/xwin
 
-    # Install clang toolchain and mull mutation testing framework
+    # Install the clang toolchain; Mull has no Clang 23 packages for Ubuntu yet.
     cat /src/llvm.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg
+    gpg --no-options --homedir /dev/null --batch \
+        --trust-model always --no-default-keyring \
+        --keyring /usr/share/keyrings/llvm-snapshot-keyring.gpg \
+        --list-keys 0x6084F3CF814B57C1CF12EFD515CF4D18AF4F7421
 
-    #UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2)
-    #echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${LLVM_MAJOR_VERSION} main" | tee /etc/apt/sources.list.d/llvm-snapshot.list > /dev/null
+    UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2)
+    cat > /etc/apt/sources.list.d/llvm-snapshot.sources <<SOURCE
+Types: deb
+URIs: https://apt.llvm.org/${UBUNTU_CODENAME}/
+Suites: llvm-toolchain-${UBUNTU_CODENAME}-${LLVM_MAJOR_VERSION}
+Components: main
+Architectures: $(dpkg --print-architecture)
+Signed-By: /usr/share/keyrings/llvm-snapshot-keyring.gpg
+SOURCE
     echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
         xargs apt-get install -y --no-install-recommends
 
-    apt-get install -y --no-install-recommends /src/Mull-*.deb
 
     # Install Windows (x86_64) LLVM/Clang runtime libraries to support fuzzing and sanitizers
     CLANG_INSTALLED_VERSION=$(clang --version | grep -oP 'clang version \K[0-9]+\.[0-9]+\.[0-9]+')
@@ -214,7 +202,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     fi
 
     # Install include-what-you-use (iwyu) from source
-    apt-get update && apt-get install -y --no-install-recommends "libclang-${LLVM_MAJOR_VERSION}-dev" "llvm-${LLVM_MAJOR_VERSION}-dev"
+    LLVM_PACKAGE_VERSION=$(jq -er --arg package "clang-${LLVM_MAJOR_VERSION}" '.[$package]' /tmp/apt-requirements-clang.json)
+    apt-get update && apt-get install -y --no-install-recommends "libclang-${LLVM_MAJOR_VERSION}-dev=${LLVM_PACKAGE_VERSION}" "llvm-${LLVM_MAJOR_VERSION}-dev=${LLVM_PACKAGE_VERSION}"
     CC=clang CXX=clang++ cmake -S "/src/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}" -B "/tmp/include-what-you-use/build"
     cmake --build "/tmp/include-what-you-use/build" --target install
     rm -rf "/tmp/include-what-you-use"
@@ -229,8 +218,6 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
     update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
                         --slave /usr/bin/c++ c++ /usr/bin/g++-15
     update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10
-    update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend "/usr/lib/mull-ir-frontend-${LLVM_MAJOR_VERSION}" 10 \
-                        --slave /usr/bin/mull-instrument mull-instrument "/usr/bin/mull-instrument-${LLVM_MAJOR_VERSION}"
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
     # Add a dummy compile_commands.json file to the default location so that tools like SonarLint and Clangd can find it.
