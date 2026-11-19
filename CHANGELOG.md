@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [9.2.0](https://github.com/philips-software/amp-devcontainer/compare/v9.1.0...v9.2.0) (2026-11-19)
+
+
+### Features
+
+* Update to LLVM/Clang 23 ([#1579](https://github.com/philips-software/amp-devcontainer/issues/1579)) ([b1b7e96](https://github.com/philips-software/amp-devcontainer/commit/b1b7e96431e42c1dc9791e0a8330f70fe3d450ee))
+
+
+### Bug Fixes
+
+* Allow container-size-diff bootstrap without a baseline manifest ([#1577](https://github.com/philips-software/amp-devcontainer/issues/1577)) ([244b1f3](https://github.com/philips-software/amp-devcontainer/commit/244b1f3957db77b9b26006c84d8fd3ab72ff3d99))
+
+
+### Chores
+
+* **deps, base:** Update gh ([#1580](https://github.com/philips-software/amp-devcontainer/issues/1580)) ([b471c31](https://github.com/philips-software/amp-devcontainer/commit/b471c31ce62c3ea99db188400969a4e5e9dd02e5))
+* **deps, base:** Update locales, gh ([#1575](https://github.com/philips-software/amp-devcontainer/issues/1575)) ([b918131](https://github.com/philips-software/amp-devcontainer/commit/b918131cee77028a37ac9a18fb05d0c0b46a0c4f))
+* **main:** Release actions 2.3.2 ([#1567](https://github.com/philips-software/amp-devcontainer/issues/1567)) ([af84007](https://github.com/philips-software/amp-devcontainer/commit/af840070c907d71ce06334ea65eded00dc3946a4))
+* **main:** Release actions 2.3.3 ([#1578](https://github.com/philips-software/amp-devcontainer/issues/1578)) ([c826cc9](https://github.com/philips-software/amp-devcontainer/commit/c826cc9d2b4bd15faf61552f60f48758cbd489d7))
+
 ## [9.1.0](https://github.com/philips-software/amp-devcontainer/compare/v9.0.0...v9.1.0) (2026-11-11)
 
 
