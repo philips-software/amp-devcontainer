@@ -480,16 +480,46 @@ make_fake_dpkg() {
   assert_output --partial "fake failure output"
 }
 
-@test "assert_inventory_tools_run fails when a command is stopped by the timeout" {
-  make_stub fake-tool-alpha
-  timeout() { return 124; }
+@test "_run_inventory_command reports a missing command with exit code 127" {
+  run -127 _run_inventory_command 1 fake-command-missing
+
+  assert_output --partial "fake-command-missing"
+  assert_output --partial "command not found"
+}
+
+@test "_run_inventory_command reports a non-executable command with exit code 126" {
+  make_stub fake-command
+  chmod -x "${FAKE_BIN}/fake-command"
+
+  run -126 _run_inventory_command 1 fake-command
+
+  assert_output --partial "fake-command"
+  assert_output --partial "Permission denied"
+}
+
+@test "_run_inventory_command does not label command exit codes as timeouts" {
+  local code
+  for code in 124 137; do
+    make_stub fake-command "exit ${code}"
+
+    run "-${code}" _run_inventory_command 1 fake-command
+
+    refute_output --partial "timed out"
+  done
+}
+
+@test "assert_inventory_tools_run rejects an invalid timeout before starting a command" {
+  make_stub fake-tool-alpha 'touch "${FAKE_DIR}/fake-started"'
+  export FAKE_DIR
   write_json "${FAKE_DIR}/inventory.json" <<< '{"packages": {"fake-tool-alpha": {}}}'
 
-  run assert_inventory_tools_run "${FAKE_DIR}/inventory.json"
+  run assert_inventory_tools_run "${FAKE_DIR}/inventory.json" 0
 
   assert_failure
+  assert_output --partial "timeout must be a positive"
   assert_output --partial "exit code"
-  assert_output --partial "124"
+  assert_output --partial "125"
+  [ ! -e "${FAKE_DIR}/fake-started" ]
 }
 
 @test "assert_inventory_tools_run fails when the inventory cannot be resolved" {

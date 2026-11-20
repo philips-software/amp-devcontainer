@@ -151,9 +151,59 @@ function assert_inventory_tools_available() {
   done < <(jq -r '[.package, .kind, .tool] | @tsv' <<< "${tools}")
 }
 
-# Usage: assert_inventory_tools_run INVENTORY_JSON
+function _run_inventory_command() {
+  local seconds=${1:?} directory pid result=0 fd
+  shift
+  if ! [[ "${seconds}" =~ ^([0-9]+([.][0-9]*)?|[.][0-9]+)$ ]] ||
+    ! jq -en --arg seconds "${seconds}" '$seconds | tonumber | . > 0 and . < 1e308' >/dev/null; then
+    echo "timeout must be a positive, finite number of seconds"
+    return 125
+  fi
+  directory=$(mktemp -d "${BATS_TEST_TMPDIR:?}/inventory-command.XXXXXX") || return
+  (
+    export INVENTORY_OUTPUT="${directory}/output"
+    # Close Bats' descriptors before starting any command or output drainer.
+    for fd in /proc/"${BASHPID}"/fd/*; do
+      fd=${fd##*/}
+      if ((fd > 2)); then exec {fd}>&-; fi
+    done
+    # shellcheck disable=SC2016
+    exec timeout --kill-after=5s "${seconds}s" bash -c '
+      set -o pipefail
+      trap "exit 124" TERM
+      result=0
+      "$@" 2>&1 | {
+        stdbuf -o0 head -c 16385 > "$INVENTORY_OUTPUT"
+        cat > /dev/null
+      } || result=$?
+      : > "$INVENTORY_OUTPUT.complete"
+      exit "$result"
+    ' _ "$@"
+  ) </dev/null >/dev/null 2>/dev/null &
+  pid=$!
+  # The drainer is inside the deadline, so inherited streams cannot extend it.
+  # GNU timeout creates a process group whose id is its own PID.
+  wait "${pid}" || result=$?
+  kill -KILL -- "-${pid}" 2>/dev/null || true
+  if [[ -f "${directory}/output" ]]; then
+    # JSON escaping keeps control bytes and invalid UTF-8 out of JUnit XML.
+    head -c 16384 "${directory}/output" | jq -Rrs 'gsub("[\uFFFE\uFFFF]"; "\uFFFD") | @json'
+    if [[ $(wc -c < "${directory}/output") -gt 16384 ]]; then
+      echo "[output truncated after 16384 bytes]"
+    fi
+  fi
+  if [[ ! -f "${directory}/output.complete" ]] &&
+    [[ "${result}" -eq 124 || "${result}" -eq 137 ]]; then
+    echo "[timed out after ${seconds}s; termination grace 5s; exit code ${result}]"
+  fi
+  rm -rf "${directory}"
+  return "${result}"
+}
+
+# Usage: assert_inventory_tools_run INVENTORY_JSON [TIMEOUT_SECONDS]
 function assert_inventory_tools_run() {
   local tools entry package tool invocation
+  local timeout_seconds=${2:-30}
   local args=()
 
   run read_inventory_tools "${1:?}"
@@ -166,11 +216,12 @@ function assert_inventory_tools_run() {
     mapfile -t args < <(jq -r '.args[]' <<< "${entry}")
     printf -v invocation '%q ' "${tool}" "${args[@]}"
 
-    run timeout --kill-after=5s 30s "${tool}" "${args[@]}" < /dev/null
+    run _run_inventory_command "${timeout_seconds}" "${tool}" "${args[@]}"
     if [[ "${status}" -ne 0 ]]; then
       batslib_print_kv_single_or_multi 10 \
         'package' "${package}" \
         'command' "${invocation% }" \
+        'timeout' "${timeout_seconds}s (+5s termination grace)" \
         'exit code' "${status}" \
         'output' "${output}" \
         | batslib_decorate 'inventory command failed to start successfully' \
