@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [9.2.1](https://github.com/philips-software/amp-devcontainer/compare/v9.2.0...v9.2.1) (2026-11-20)
+
+
+### Chores
+
+* **deps:** Bump sbdl from 2.0.1 to 2.1.8 in /.devcontainer ([#1582](https://github.com/philips-software/amp-devcontainer/issues/1582)) ([275c16f](https://github.com/philips-software/amp-devcontainer/commit/275c16f55505bb0b209ba9ce4c7c49ceb5f9cb29))
+
 ## [9.2.0](https://github.com/philips-software/amp-devcontainer/compare/v9.1.0...v9.2.0) (2026-11-19)
 
 
