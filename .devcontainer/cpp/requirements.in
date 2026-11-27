@@ -1,4 +1,4 @@
-cmake==4.4.4
+cmake==4.4.5
 conan==2.34.0
 gcovr==8.8
 
